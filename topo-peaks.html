@@ -1,0 +1,1135 @@
+<title>Three Summits</title>
+<style>
+  :root{
+    --ground:#ece9e3;
+    --ink:#0d0e0b;
+    --accent:#e2620f;
+    --fg:#22231e;
+    --panel:rgba(248,246,242,.94);
+    --line:rgba(0,0,0,.12);
+  }
+  html,body{height:100%;margin:0;background:var(--ground);overflow:hidden;
+            overscroll-behavior:none;touch-action:none;}
+  #stage{position:fixed;inset:0;background:var(--ground);}
+  canvas{display:block;width:100%;height:100%;}
+
+  /* ---- summit panel ---- */
+  #panel{
+    position:fixed; left:0; bottom:0; width:min(340px,86vw); margin:0; padding:0;
+    background:var(--panel); border-top:1px solid var(--line); border-right:1px solid var(--line);
+    color:var(--fg); z-index:6; overflow:hidden;
+    font:12px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    transition:opacity .28s ease, transform .34s cubic-bezier(.22,.8,.28,1);
+  }
+  #panel img{display:block; width:100%; height:128px; object-fit:cover;}
+  #panel .body{padding:14px 16px 17px;}
+  #panel .eyebrow{
+    margin:0 0 6px; font-size:9.5px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--accent); display:flex; justify-content:space-between; gap:10px;
+  }
+  #panel h1{margin:0 0 2px; font-size:19px; font-weight:500; letter-spacing:-.01em;}
+  #panel .sub{margin:0 0 9px; font-size:10.5px; letter-spacing:.05em; opacity:.5;}
+  #panel p.fact{margin:0; opacity:.8;}
+
+  /* ---- progress rail ---- */
+  #rail{
+    position:fixed; right:26px; top:50%; transform:translateY(-50%);
+    display:grid; gap:12px; z-index:6;
+    font:10px/1 ui-monospace,monospace; color:var(--fg);
+  }
+  #rail button{
+    -webkit-appearance:none; appearance:none; display:flex; align-items:center; gap:9px;
+    background:none; border:0; padding:2px 0; cursor:pointer; color:inherit;
+    letter-spacing:.12em; opacity:.36; transition:opacity .25s;
+  }
+  #rail button .tick{display:block; width:22px; height:1px; background:currentColor;
+                     transition:width .3s cubic-bezier(.22,.8,.28,1), background .25s;}
+  #rail button[aria-current="true"]{opacity:1;}
+  #rail button[aria-current="true"] .tick{width:40px; background:var(--accent);}
+  #rail button:hover{opacity:.8;}
+  #rail button:focus-visible{outline:1.5px solid currentColor; outline-offset:3px;}
+
+  #hint{
+    position:fixed; right:26px; bottom:24px; z-index:6; opacity:.42;
+    font:10px/1 ui-monospace,monospace; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--fg); transition:opacity .5s;
+  }
+  #hint.gone{opacity:0;}
+
+  @media (prefers-reduced-motion: reduce){
+    #panel, #rail button .tick{transition:none;}
+  }
+</style>
+
+<div id="stage"><canvas id="c"></canvas></div>
+
+<article id="panel" aria-live="polite">
+  <img id="p-img" alt="">
+  <div class="body">
+    <p class="eyebrow"><span id="p-index">01 / 03</span><span id="p-elev"></span></p>
+    <h1 id="p-name"></h1>
+    <p class="sub" id="p-region"></p>
+    <p class="fact" id="p-fact"></p>
+  </div>
+</article>
+
+<nav id="rail" aria-label="Summits"></nav>
+<p id="hint">Scroll</p>
+<script>
+function __threeSummits(){
+"use strict";
+
+/* ------------------------------------------------------------------ *
+ *  Three Summits — scroll-driven companion to the Contour Ridge hero
+ *  One scene, three peaks. Scrolling moves focus between them; the
+ *  unfocused peaks sink and fade back. Nothing scrolls past the section.
+ * ------------------------------------------------------------------ */
+
+var CFG = {
+  N: 360, MN: 360,
+  EXTENT: 6.0,
+  LEVELS: 17,
+  SCALE: 10.0,
+  HSCALE: 5.6,
+  LINE_MIN: 0.40,
+  LINE_MAX: 1.30,
+  LINE_LIFT: 0.11,
+  DOTTED_LEVELS: 3,
+  FLOW: 0.22,
+  FADE_A: 1.15, FADE_B: 2.05,
+  CURSOR_R: 9.0, CURSOR_AMP: 1.30, CURSOR_LIFT: 0.75,
+  TILT_YAW: 0.10, TILT_PITCH: 0.055,
+  OUTLINE: 1.15,
+  MASK_TH: 0.075, MASK_K: 80,
+  ACCENT: [0.886, 0.384, 0.059],
+  FOCUS_R: 15.0,        // world radius over which a peak counts as "its own"
+  DEFOCUS_DIM: 0.74,    // how far unfocused contours drop back
+  DEFOCUS_SINK: 2.60    // world units an unfocused peak settles by
+};
+
+/* Three real summits. Terrain profile follows the character of each:
+   Kilimanjaro broad, Fuji an even cone, the Matterhorn a sharp horn. */
+var PEAKS = [
+  { x: -2.75, z:  0.95, h: 2.35, w: 1.34, s: 1.95, yaw: -0.34,
+    name: "Kilimanjaro", region: "Tanzania", elev: "5,895 m",
+    fact: "The highest free-standing mountain on Earth \u2014 a volcano that rises straight " +
+          "off the plain rather than out of a range. Its summit carries three cones: " +
+          "Kibo, Mawenzi and Shira." },
+  { x:  0.45, z: -1.15, h: 2.05, w: 1.05, s: 1.55, yaw:  0.02,
+    name: "Fuji", region: "Japan", elev: "3,776 m",
+    fact: "Japan\u2019s highest peak, and an active stratovolcano. Its last eruption began " +
+          "in December 1707 and dropped ash on Edo, a hundred kilometres away." },
+  { x:  3.15, z:  1.30, h: 2.20, w: 0.74, s: 1.16, yaw:  0.36,
+    name: "Matterhorn", region: "Switzerland / Italy", elev: "4,478 m",
+    fact: "First climbed on 14 July 1865 by Edward Whymper\u2019s party. Four of the seven " +
+          "died on the descent, when the rope between them broke below the summit." }
+];
+
+var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+/* ---------------------------------- noise --------------------------- */
+function hash(x, y){
+  var n = Math.imul(x|0, 374761393) + Math.imul(y|0, 668265263);
+  n = Math.imul(n ^ (n >>> 13), 1274126177);
+  return ((n ^ (n >>> 16)) >>> 0) / 4294967295;
+}
+function sstep(t){ return t*t*(3-2*t); }
+function vnoise(x, y){
+  var xi = Math.floor(x), yi = Math.floor(y);
+  var u = sstep(x - xi), v = sstep(y - yi);
+  var a = hash(xi, yi), b = hash(xi+1, yi), c = hash(xi, yi+1), d = hash(xi+1, yi+1);
+  return (a*(1-u)+b*u)*(1-v) + (c*(1-u)+d*u)*v;
+}
+function fbm(x, y, oct){
+  var s = 0, a = 0.5, f = 1;
+  for (var i=0;i<oct;i++){ s += a*vnoise(x*f, y*f); f *= 2.03; a *= 0.5; }
+  return s;
+}
+
+/* ------------------------------- terrain ---------------------------- */
+var _W = [0, 0];
+function warpTo(x, z){
+  _W[0] = x + 0.40*(fbm(x*0.46 + 5.2, z*0.46 - 2.1, 3) - 0.5);
+  _W[1] = z + 0.40*(fbm(x*0.46 - 7.7, z*0.46 + 4.3, 3) - 0.5);
+}
+/* each peak's radial profile, evaluated on already-warped coordinates */
+function coneOf(wx, wz, P){
+  var dx = (wx - P.x)/P.w, dz = (wz - P.z)/(P.w*0.94);
+  return Math.exp(-Math.pow(Math.sqrt(dx*dx + dz*dz), P.s));
+}
+var _C = [0, 0, 0];
+function conesAt(x, z){
+  warpTo(x, z);
+  for (var i=0;i<3;i++) _C[i] = coneOf(_W[0], _W[1], PEAKS[i]);
+  return _C;
+}
+
+function terrain(x, z){
+  warpTo(x, z);
+  var wx = _W[0], wz = _W[1];
+
+  var h = 0;
+  for (var i=0;i<3;i++){
+    var P = PEAKS[i];
+    var cone = coneOf(wx, wz, P);
+    var flank = Math.pow(1.0 - cone, 0.85);
+
+    // radiating spurs, sampled on a circle so they wrap in theta
+    var th = Math.atan2(wz - P.z, wx - P.x);
+    var sp = fbm(Math.cos(th)*2.6 + 31.0 + i*13.7, Math.sin(th)*2.6 - 12.0 + i*13.7, 3);
+    var spur = 1.0 - Math.abs(sp*2.0 - 1.0);
+    var env = 4.0*cone*(1.0 - cone);
+    h += cone*P.h + (0.46*spur*env + 0.06*env*(fbm(wx*3.0 + 2.2, wz*3.0 - 8.8, 3) - 0.5)*2.0) * flank;
+  }
+
+  // surrounding country, kept low so the three summits stay legible
+  var base = 0.62*fbm(x*0.34 + 3.1, z*0.34 + 8.4, 5)
+           + 0.30*fbm(x*0.90 - 4.4, z*0.90 + 2.6, 4)
+           + 0.12*fbm(x*2.30 + 9.5, z*2.30 - 6.1, 3);
+
+  var rr = Math.sqrt(x*x + z*z) / CFG.EXTENT;
+  var rim = 0.44 * sstep(Math.min(1, Math.max(0, (rr - 0.40) / 0.60)))
+                 * fbm(x*0.26 + 1.7, z*0.26 - 3.3, 4);
+
+  return base + rim + h;
+}
+
+/* --------------------------- heightfield state ---------------------- */
+var N = CFG.N, E = CFG.EXTENT, S = CFG.SCALE, HS = CFG.HSCALE;
+var step = (2*E)/(N-1);
+var F = new Float32Array(N*N);
+var hmin = 0, hmax = 1, HCOUNT = (N-1)*N;
+var vtx = null, idx = null, vcount = 0;
+var mvtx = null, midx = null;
+var peakTopY = [0, 0, 0];
+
+function buildField(){
+  hmax = -1e9; hmin = 1e9;
+  for (var j=0;j<N;j++){
+    for (var i=0;i<N;i++){
+      var h = terrain(-E + i*step, -E + j*step);
+      F[j*N+i] = h;
+      if (h > hmax) hmax = h;
+      if (h < hmin) hmin = h;
+    }
+  }
+}
+function fieldAt(i,j){ return F[Math.min(N-1,Math.max(0,j))*N + Math.min(N-1,Math.max(0,i))]; }
+function gradAngle(i,j){
+  return Math.atan2(fieldAt(i,j+1) - fieldAt(i,j-1), fieldAt(i+1,j) - fieldAt(i-1,j));
+}
+function slopeAt(i,j){
+  var gx = (fieldAt(i+1,j) - fieldAt(i-1,j)) / (2*step);
+  var gz = (fieldAt(i,j+1) - fieldAt(i,j-1)) / (2*step);
+  return Math.sqrt(gx*gx + gz*gz);
+}
+function toGrid(v){ return (v + E) / step; }
+function sampleField(x, z){
+  var gx = toGrid(x), gz = toGrid(z);
+  var i = Math.min(N-2, Math.max(0, Math.floor(gx)));
+  var j = Math.min(N-2, Math.max(0, Math.floor(gz)));
+  var u = Math.min(1, Math.max(0, gx - i)), v = Math.min(1, Math.max(0, gz - j));
+  var a = F[j*N+i], b = F[j*N+i+1], c = F[(j+1)*N+i], d = F[(j+1)*N+i+1];
+  return (a*(1-u) + b*u)*(1-v) + (c*(1-u) + d*u)*v;
+}
+/* --------------------------- marching squares ----------------------- */
+function hEdge(i,j){ return j*(N-1) + i; }
+function vEdge(i,j){ return HCOUNT + j*N + i; }
+
+function contoursAt(level){
+  var pos = new Map();          // edgeId -> [x, z] in field coords
+  var segs = [];
+  var adj  = new Map();
+
+  function px(i,j,i2,j2,eid){
+    if (pos.has(eid)) return eid;
+    var f0 = F[j*N+i], f1 = F[j2*N+i2];
+    var t = (level - f0) / (f1 - f0);
+    if (!isFinite(t)) t = 0.5;
+    t = t < 0 ? 0 : (t > 1 ? 1 : t);
+    pos.set(eid, [(-E + (i + (i2-i)*t)*step), (-E + (j + (j2-j)*t)*step)]);
+    return eid;
+  }
+  function add(e1, e2){
+    var k = segs.length; segs.push([e1,e2]);
+    var a = adj.get(e1); if (a) a.push(k); else adj.set(e1,[k]);
+    var b = adj.get(e2); if (b) b.push(k); else adj.set(e2,[k]);
+  }
+
+  for (var j=0;j<N-1;j++){
+    for (var i=0;i<N-1;i++){
+      var a = F[j*N+i], b = F[j*N+i+1], c = F[(j+1)*N+i+1], d = F[(j+1)*N+i];
+      var code = (a>=level?1:0) | (b>=level?2:0) | (c>=level?4:0) | (d>=level?8:0);
+      if (code === 0 || code === 15) continue;
+
+      var B = 0, R = 0, T = 0, L = 0;
+      if ((code&1) !== ((code>>1)&1)) B = px(i,j,i+1,j, hEdge(i,j));
+      if (((code>>1)&1) !== ((code>>2)&1)) R = px(i+1,j,i+1,j+1, vEdge(i+1,j));
+      if (((code>>3)&1) !== ((code>>2)&1)) T = px(i,j+1,i+1,j+1, hEdge(i,j+1));
+      if ((code&1) !== ((code>>3)&1)) L = px(i,j,i,j+1, vEdge(i,j));
+
+      switch (code){
+        case 1: case 14: add(L,B); break;
+        case 2: case 13: add(B,R); break;
+        case 3: case 12: add(L,R); break;
+        case 4: case 11: add(R,T); break;
+        case 6: case 9:  add(B,T); break;
+        case 7: case 8:  add(T,L); break;
+        case 5:  if ((a+b+c+d)*0.25 >= level){ add(B,R); add(T,L); } else { add(L,B); add(R,T); } break;
+        case 10: if ((a+b+c+d)*0.25 >= level){ add(L,B); add(R,T); } else { add(B,R); add(T,L); } break;
+      }
+    }
+  }
+
+  var used = new Uint8Array(segs.length);
+  var lines = [];
+  function other(seg, e){ return seg[0] === e ? seg[1] : seg[0]; }
+  function walk(startSeg, startEdge){
+    var pts = [], e = startEdge, s = startSeg;
+    pts.push(pos.get(e));
+    while (true){
+      used[s] = 1;
+      e = other(segs[s], e);
+      pts.push(pos.get(e));
+      var list = adj.get(e), nxt = -1;
+      if (list) for (var q=0;q<list.length;q++){ if (!used[list[q]]){ nxt = list[q]; break; } }
+      if (nxt < 0) break;
+      s = nxt;
+    }
+    return pts;
+  }
+  for (var p=0; p<2; p++){                       // open chains, then closed loops
+    for (var k=0;k<segs.length;k++){
+      if (used[k]) continue;
+      var s0 = segs[k], start = -1;
+      if (p === 0){
+        if ((adj.get(s0[0])||[]).length === 1) start = s0[0];
+        else if ((adj.get(s0[1])||[]).length === 1) start = s0[1];
+        else continue;
+      } else start = s0[0];
+      var pts = walk(k, start);
+      if (pts.length > 12) lines.push(pts);
+    }
+  }
+  return lines;
+}
+
+/* ------------------------- geometry assembly ------------------------ */
+function smoothLine(pts){
+  var n = pts.length, out = new Array(n);
+  out[0] = pts[0]; out[n-1] = pts[n-1];
+  for (var i=1;i<n-1;i++){
+    out[i] = [ (pts[i-1][0] + 2*pts[i][0] + pts[i+1][0]) * 0.25,
+               (pts[i-1][1] + 2*pts[i][1] + pts[i+1][1]) * 0.25 ];
+  }
+  return out;
+}
+
+/* Smoothing moves a polyline off its own level set, which buries parts of it in
+   the terrain once the depth mesh is accurate. One Newton step along the gradient
+   puts every point back on the contour while keeping the smoothed shape. */
+function snapToLevel(pts, lev){
+  var e = step;
+  for (var i=0;i<pts.length;i++){
+    var x = pts[i][0], z = pts[i][1];
+    for (var it=0; it<2; it++){
+      var gx = (sampleField(x+e, z) - sampleField(x-e, z)) / (2*e);
+      var gz = (sampleField(x, z+e) - sampleField(x, z-e)) / (2*e);
+      var g2 = gx*gx + gz*gz;
+      if (g2 < 1e-8) break;
+      var k = (lev - sampleField(x, z)) / g2;
+      x += gx*k; z += gz*k;
+    }
+    pts[i] = [x, z];
+  }
+  return pts;
+}
+
+// where the surface breathes — shared by the lines and the depth mesh
+function flowAmpAt(x, z, h){
+  var r = Math.sqrt(x*x + (z+0.22)*(z+0.22));
+  var band = Math.exp(-Math.pow((h/hmax - 0.40)/0.32, 2));
+  var open = 1.0 - Math.exp(-Math.pow(r*0.46, 2));
+  return CFG.FLOW * (0.30 + 0.70*band) * (0.40 + 0.60*open);
+}
+
+
+/* the surface breathes everywhere, a touch more out on the open ground */
+function flowAmpAt(x, z, h){
+  var near = 0;
+  for (var i=0;i<3;i++){
+    var dx = x - PEAKS[i].x, dz = z - PEAKS[i].z;
+    near = Math.max(near, Math.exp(-(dx*dx + dz*dz)/1.6));
+  }
+  var band = Math.exp(-Math.pow((h/hmax - 0.40)/0.32, 2));
+  return CFG.FLOW * (0.30 + 0.70*band) * (1.0 - 0.45*near);
+}
+
+function nearestPeak(x, z){
+  var bi = 0, bd = 1e9;
+  for (var i=0;i<3;i++){
+    var dx = x - PEAKS[i].x, dz = z - PEAKS[i].z, d = dx*dx + dz*dz;
+    if (d < bd){ bd = d; bi = i; }
+  }
+  return [bi, Math.sqrt(bd)];
+}
+
+function buildLines(){
+  var V = [], I = [];
+  vcount = 0;
+
+  var levels = [];
+  for (var L=0; L<CFG.LEVELS; L++) levels.push(hmin + (hmax - hmin) * (0.035 + 0.955*L/(CFG.LEVELS-1)));
+
+  var byLevel = [];
+  for (var li=0; li<levels.length; li++){
+    var polys = contoursAt(levels[li]);
+    var keep = [];
+    for (var k=0;k<polys.length;k++){
+      var pl = polys[k];
+      for (var sm=0; sm<4; sm++) pl = smoothLine(pl);
+      if (pl.length < 12) continue;
+      keep.push(snapToLevel(pl, levels[li]));
+    }
+    byLevel.push(keep);
+  }
+
+  /* walking down from the top, the first ring that lands on each peak is its
+     summit marker and gets the accent colour */
+  var accentTaken = [false, false, false];
+  var accentFlag = [];
+  for (var li2=levels.length-1; li2>=0; li2--){
+    accentFlag[li2] = [];
+    var grp = byLevel[li2];
+    for (var pj=0; pj<grp.length; pj++){
+      var pts0 = grp[pj], cx = 0, cz = 0;
+      for (var q0=0;q0<pts0.length;q0++){ cx += pts0[q0][0]; cz += pts0[q0][1]; }
+      cx /= pts0.length; cz /= pts0.length;
+      var np = nearestPeak(cx, cz);
+      var mark = (!accentTaken[np[0]] && np[1] < PEAKS[np[0]].w * 1.3);
+      if (mark) accentTaken[np[0]] = true;
+      accentFlag[li2][pj] = mark;
+    }
+  }
+
+  for (var li3=0; li3<levels.length; li3++){
+    var lev = levels[li3];
+    var elev01 = (lev - hmin) / (hmax - hmin);
+    var group = byLevel[li3];
+
+    for (var pi=0; pi<group.length; pi++){
+      var pts = group[pi];
+
+      var mx = 0, mz = 0;
+      for (var q=0;q<pts.length;q++){ mx += pts[q][0]; mz += pts[q][1]; }
+      mx /= pts.length; mz /= pts.length;
+
+      var slope   = slopeAt(Math.round(toGrid(pts[0][0])), Math.round(toGrid(pts[0][1])));
+      var np2     = nearestPeak(mx, mz);
+      var central = Math.exp(-Math.pow(np2[1] / (PEAKS[np2[0]].w * 1.9), 2.4));
+      var steep   = Math.min(1, slope / 1.60);
+      var crest   = elev01 < 0.55 ? 0 : (elev01 - 0.55) / 0.45;
+
+      var weight = 0.10 + 0.22*central + 0.55*steep + 0.35*steep*central + 0.30*crest*crest*central;
+      weight = Math.min(1, Math.max(0, weight));
+
+      var style = 0;
+      if (li3 < CFG.DOTTED_LEVELS) style = 3;
+      else if (weight < 0.30 && (li3 % 2) === 1) style = 1;
+      if (accentFlag[li3][pi]){ style = 2; weight = 1; }
+
+      var flow = reduceMotion ? 0 : flowAmpAt(mx, mz, lev);
+      var arc = 0, base = vcount;
+
+      for (var q2=0; q2<pts.length; q2++){
+        var cur = pts[q2];
+        var x = cur[0]*S, y = lev*HS + CFG.LINE_LIFT, z = cur[1]*S;
+        var nx, nz;
+        if (q2 < pts.length-1){ nx = pts[q2+1][0]*S; nz = pts[q2+1][1]*S; }
+        else { nx = 2*x - pts[q2-1][0]*S; nz = 2*z - pts[q2-1][1]*S; }
+        if (q2 > 0) arc += Math.hypot(x - pts[q2-1][0]*S, z - pts[q2-1][1]*S);
+        var ga = gradAngle(Math.round(toGrid(cur[0])), Math.round(toGrid(cur[1])));
+
+        for (var sgn=-1; sgn<=1; sgn+=2){
+          V.push(x, y, z, sgn,  nx, y, nz, ga,  arc, weight, flow, style);
+        }
+        vcount += 2;
+      }
+      for (var q3=0; q3<pts.length-1; q3++){
+        var i0 = base + q3*2;
+        I.push(i0, i0+1, i0+2,  i0+2, i0+1, i0+3);
+      }
+    }
+  }
+  vtx = new Float32Array(V);
+  idx = new Uint32Array(I);
+}
+
+/* depth mesh carries each peak's profile, so the outline can follow whichever
+   one currently has focus */
+function buildMesh(){
+  var MN = CFG.MN, mstep = (2*E)/(MN-1);
+  mvtx = new Float32Array(MN*MN*8);
+  for (var mj=0; mj<MN; mj++){
+    for (var mi=0; mi<MN; mi++){
+      var x0 = -E + mi*mstep, z0 = -E + mj*mstep;
+      var h0 = sampleField(x0, z0);
+      var cn = conesAt(x0, z0);
+      var o = (mj*MN+mi)*8;
+      mvtx[o]   = x0*S; mvtx[o+1] = h0*HS; mvtx[o+2] = z0*S;
+      mvtx[o+3] = gradAngle(Math.round(toGrid(x0)), Math.round(toGrid(z0)));
+      mvtx[o+4] = reduceMotion ? 0 : flowAmpAt(x0, z0, h0);
+      mvtx[o+5] = cn[0]; mvtx[o+6] = cn[1]; mvtx[o+7] = cn[2];
+    }
+  }
+  if (!midx){
+    midx = new Uint32Array((MN-1)*(MN-1)*6);
+    var mp = 0;
+    for (var mj2=0; mj2<MN-1; mj2++){
+      for (var mi2=0; mi2<MN-1; mi2++){
+        var a2 = mj2*MN+mi2, b2 = a2+1, c2 = a2+MN, d2 = c2+1;
+        midx[mp++]=a2; midx[mp++]=c2; midx[mp++]=b2;
+        midx[mp++]=b2; midx[mp++]=c2; midx[mp++]=d2;
+      }
+    }
+  }
+}
+
+function buildAll(){
+  buildField(); buildLines(); buildMesh();
+  for (var i=0;i<3;i++) peakTopY[i] = sampleField(PEAKS[i].x, PEAKS[i].z) * HS;
+}
+buildAll();
+/* ------------------------------- matrices --------------------------- */
+function mul(a,b){                       // column-major, out = a * b
+  var o = new Float32Array(16);
+  for (var i=0;i<4;i++) for (var j=0;j<4;j++){
+    o[i*4+j] = a[j]*b[i*4] + a[4+j]*b[i*4+1] + a[8+j]*b[i*4+2] + a[12+j]*b[i*4+3];
+  }
+  return o;
+}
+function perspective(fovy, aspect, near, far){
+  var f = 1/Math.tan(fovy/2), nf = 1/(near-far);
+  return new Float32Array([f/aspect,0,0,0, 0,f,0,0, 0,0,(far+near)*nf,-1, 0,0,2*far*near*nf,0]);
+}
+function lookAt(e, c, up){
+  var zx=e[0]-c[0], zy=e[1]-c[1], zz=e[2]-c[2];
+  var zl=Math.hypot(zx,zy,zz)||1; zx/=zl; zy/=zl; zz/=zl;
+  var xx=up[1]*zz-up[2]*zy, xy=up[2]*zx-up[0]*zz, xz=up[0]*zy-up[1]*zx;
+  var xl=Math.hypot(xx,xy,xz)||1; xx/=xl; xy/=xl; xz/=xl;
+  var yx=zy*xz-zz*xy, yy=zz*xx-zx*xz, yz=zx*xy-zy*xx;
+  return new Float32Array([
+    xx,yx,zx,0, xy,yy,zy,0, xz,yz,zz,0,
+    -(xx*e[0]+xy*e[1]+xz*e[2]), -(yx*e[0]+yy*e[1]+yz*e[2]), -(zx*e[0]+zy*e[1]+zz*e[2]), 1
+  ]);
+}
+
+/* -------------------------------- WebGL ----------------------------- */
+var canvas = document.getElementById("c");
+var opts = {antialias:true, alpha:false, powerPreference:"high-performance"};
+var gl = canvas.getContext("webgl2", opts);
+if (!gl){
+  gl = canvas.getContext("webgl", opts);
+  if (!gl) return;
+  gl.getExtension("OES_element_index_uint");
+}
+var isGL2 = (typeof WebGL2RenderingContext !== "undefined") && (gl instanceof WebGL2RenderingContext);
+
+/* Focus maths, shared by every pass so the passes never disagree:
+   uFocus runs 0..2 and each peak's weight falls off linearly around it. */
+var FOCUS = [
+  "uniform float uFocus; uniform vec2 uPk0; uniform vec2 uPk1; uniform vec2 uPk2;",
+  "float nearOf(float i){ return 1.0 - clamp(abs(uFocus - i), 0.0, 1.0); }",
+  "float belongOf(vec2 xz, vec2 c){",
+  "  vec2 d = xz - c;",
+  "  return exp(-dot(d, d) / (2.0*" + CFG.FOCUS_R.toFixed(1) + "*" + CFG.FOCUS_R.toFixed(1) + "));",
+  "}",
+  "void focusAt(vec2 xz, out float belong, out float focused){",
+  "  float b0 = belongOf(xz, uPk0), b1 = belongOf(xz, uPk1), b2 = belongOf(xz, uPk2);",
+  "  belong  = clamp(b0 + b1 + b2, 0.0, 1.0);",
+  "  focused = clamp(b0*nearOf(0.0) + b1*nearOf(1.0) + b2*nearOf(2.0), 0.0, 1.0);",
+  "}"
+].join("\n");
+
+var DISPLACE = [
+  "uniform float uTime; uniform vec3 uCursor; uniform float uCursorAmt; uniform float uHScale;",
+  FOCUS,
+  "vec3 displace(vec3 p0, float ga, float flow){",
+  "  vec3 p = vec3(p0.x, p0.y * uHScale, p0.z);",
+  "  vec2 g = vec2(cos(ga), sin(ga));",
+  "  float n = sin(p.x*0.31 + uTime*0.36) * cos(p.z*0.27 - uTime*0.25)",
+  "          + 0.5*sin((p.x + p.z)*0.19 + uTime*0.52);",
+  "  vec3 q = p;",
+  "  q.xz += g * n * 0.62 * flow;",
+  // unfocused ground settles: a purely positional field, so lines and the depth
+  // surface move together and the occlusion stays exact
+  "  float belong, focused; focusAt(p.xz, belong, focused);",
+  "  q.y -= (belong - focused) * " + CFG.DEFOCUS_SINK.toFixed(2) + ";",
+  "  float R = " + CFG.CURSOR_R.toFixed(2) + ";",
+  "  vec2 v = p.xz - uCursor.xz;",
+  "  float d = length(v);",
+  "  float f = exp(-(d*d)/(2.0*R*R)) * uCursorAmt;",
+  "  q.xz += (v / (d + 2.0)) * f * " + CFG.CURSOR_AMP.toFixed(2) + ";",
+  "  q.y  += f * " + CFG.CURSOR_LIFT.toFixed(2) + ";",
+  "  return q;",
+  "}"
+].join("\n");
+
+var lineVS = [
+  "precision highp float;",
+  "attribute vec4 aPosSide; attribute vec4 aNextG; attribute vec4 aMeta;",
+  "uniform mat4 uVP; uniform vec2 uHalfRes; uniform float uDPR;",
+  "uniform vec3 uEye; uniform vec2 uFadeRange;",
+  DISPLACE,
+  "varying float vArc; varying float vEdge; varying float vCore;",
+  "varying float vWeight; varying float vStyle; varying float vFar; varying float vDim;",
+  "void main(){",
+  "  vec3 p = displace(aPosSide.xyz, aNextG.w, aMeta.z);",
+  "  vec3 q = displace(aNextG.xyz,   aNextG.w, aMeta.z);",
+  "  vec4 cp = uVP * vec4(p, 1.0);",
+  "  vec4 cq = uVP * vec4(q, 1.0);",
+  "  vec2 sp = (cp.xy / max(abs(cp.w), 1e-4)) * uHalfRes;",
+  "  vec2 sq = (cq.xy / max(abs(cq.w), 1e-4)) * uHalfRes;",
+  "  vec2 dir = sq - sp;",
+  "  dir = (length(dir) < 1e-5) ? vec2(1.0, 0.0) : normalize(dir);",
+  "  vec2 nrm = vec2(-dir.y, dir.x);",
+  "  float core  = mix(" + CFG.LINE_MIN.toFixed(2) + ", " + CFG.LINE_MAX.toFixed(2) + ", aMeta.y) * 0.5 * uDPR;",
+  "  if (aMeta.w > 1.5 && aMeta.w < 2.5) core *= 1.30;",
+  "  float half_ = core + 1.0;",
+  "  cp.xy += (nrm * aPosSide.w * half_ / uHalfRes) * cp.w;",
+  "  gl_Position = cp;",
+  "  vArc = aMeta.x; vWeight = aMeta.y; vStyle = aMeta.w;",
+  "  vEdge = aPosSide.w * half_; vCore = core;",
+  "  vFar = 1.0 - smoothstep(uFadeRange.x, uFadeRange.y, distance(p, uEye));",
+  "  float belong, focused; focusAt(vec2(aPosSide.x, aPosSide.z), belong, focused);",
+  "  vDim = 1.0 - " + CFG.DEFOCUS_DIM.toFixed(2) + " * clamp(belong - focused, 0.0, 1.0);",
+  "}"
+].join("\n");
+
+var lineFS = [
+  "precision highp float;",
+  "uniform float uFade; uniform float uTime; uniform vec3 uInk; uniform vec3 uAccent;",
+  "varying float vArc; varying float vEdge; varying float vCore;",
+  "varying float vWeight; varying float vStyle; varying float vFar; varying float vDim;",
+  "void main(){",
+  "  float a = clamp(vCore - abs(vEdge) + 0.6, 0.0, 1.0);",
+  "  vec3 ink = uInk;",
+  "  if (vStyle > 2.5){",
+  "    float t = fract((vArc + uTime * 0.16) / 0.42);",
+  "    a *= 1.0 - smoothstep(0.16, 0.30, t);",
+  "  } else if (vStyle > 1.5){",
+  "    ink = mix(uInk, uAccent, clamp(vDim*1.6 - 0.5, 0.0, 1.0));",
+  "  } else if (vStyle > 0.5){",
+  "    float t = fract((vArc + uTime * 0.20) / 0.70);",
+  "    a *= smoothstep(0.0, 0.10, t) * (1.0 - smoothstep(0.54, 0.66, t));",
+  "  }",
+  "  a *= mix(0.42, 1.00, vWeight) * uFade * vFar * vDim;",
+  "  if (a < 0.004) discard;",
+  "  gl_FragColor = vec4(ink, a);",
+  "}"
+].join("\n");
+
+var meshVS = [
+  "precision highp float;",
+  "attribute vec3 aPos; attribute float aGrad; attribute float aFlow;",
+  "uniform mat4 uVP;",
+  DISPLACE,
+  "void main(){ gl_Position = uVP * vec4(displace(aPos, aGrad, aFlow), 1.0); }"
+].join("\n");
+
+var meshFS = "precision mediump float; void main(){ gl_FragColor = vec4(0.0); }";
+
+/* linear depth + the focused peak's mask, for the single outline */
+var depthVS = [
+  "precision highp float;",
+  "attribute vec3 aPos; attribute float aGrad; attribute float aFlow;",
+  "attribute vec3 aCones;",
+  "uniform mat4 uVP; uniform vec3 uEye; uniform float uFarDist;",
+  DISPLACE,
+  "varying float vD; varying float vMask;",
+  "void main(){",
+  "  vec3 p = displace(aPos, aGrad, aFlow);",
+  "  vD = distance(p, uEye) / uFarDist;",
+  // hard-select the peak nearest the current focus; the outline fades out while
+  // focus is between two peaks, so the switch is never seen
+  "  float fi = floor(uFocus + 0.5);",
+  "  float m = aCones.x * step(abs(fi - 0.0), 0.25)",
+  "          + aCones.y * step(abs(fi - 1.0), 0.25)",
+  "          + aCones.z * step(abs(fi - 2.0), 0.25);",
+  "  vMask = clamp(0.5 + (m - " + CFG.MASK_TH.toFixed(3) + ") * " + CFG.MASK_K.toFixed(1) + ", 0.0, 1.0);",
+  "  gl_Position = uVP * vec4(p, 1.0);",
+  "}"
+].join("\n");
+
+var depthFS = [
+  "precision highp float;",
+  "varying float vD; varying float vMask;",
+  "void main(){",
+  "  float v = clamp(vD, 0.0, 0.999999);",
+  "  vec3 enc = fract(v * vec3(1.0, 255.0, 65025.0));",
+  "  enc.xy -= enc.yz * (1.0/255.0);",
+  "  gl_FragColor = vec4(enc, vMask);",
+  "}"
+].join("\n");
+
+var edgeVS = [
+  "precision highp float;",
+  "attribute vec2 aXY; varying vec2 vUV;",
+  "void main(){ vUV = aXY*0.5 + 0.5; gl_Position = vec4(aXY, 0.0, 1.0); }"
+].join("\n");
+
+var edgeFS = [
+  "precision highp float;",
+  "uniform sampler2D uTex; uniform vec2 uTexel; uniform float uRadius;",
+  "uniform float uOutlineW; uniform float uOpacity;",
+  "uniform vec3 uInk; uniform float uFarDist; uniform vec2 uFadeRange; uniform float uFade;",
+  "varying vec2 vUV;",
+  "float unpackD(vec3 c){ return dot(c, vec3(1.0, 1.0/255.0, 1.0/65025.0)); }",
+  "void main(){",
+  "  vec2 o = uTexel * uRadius;",
+  "  vec4 c0 = texture2D(uTex, vUV);",
+  "  float mL = texture2D(uTex, vUV - vec2(o.x, 0.0)).a;",
+  "  float mR = texture2D(uTex, vUV + vec2(o.x, 0.0)).a;",
+  "  float mD = texture2D(uTex, vUV - vec2(0.0, o.y)).a;",
+  "  float mU = texture2D(uTex, vUV + vec2(0.0, o.y)).a;",
+  "  vec2 g = vec2(mR - mL, mU - mD) * 0.5 / uRadius;",
+  "  float gm = length(g);",
+  "  if (gm < 1e-5) discard;",
+  "  float dist = (c0.a - 0.5) / gm;",
+  "  float a = clamp(uOutlineW*0.5 - abs(dist) + 0.5, 0.0, 1.0) * uOpacity;",
+  "  if (a < 0.01) discard;",
+  "  a *= (1.0 - smoothstep(uFadeRange.x, uFadeRange.y, unpackD(c0.rgb) * uFarDist)) * uFade;",
+  "  if (a < 0.01) discard;",
+  "  gl_FragColor = vec4(uInk, a);",
+  "}"
+].join("\n");
+
+function compile(src, type){
+  var s = gl.createShader(type);
+  gl.shaderSource(s, src); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.error(gl.getShaderInfoLog(s));
+  return s;
+}
+function program(vs, fs){
+  var p = gl.createProgram();
+  gl.attachShader(p, compile(vs, gl.VERTEX_SHADER));
+  gl.attachShader(p, compile(fs, gl.FRAGMENT_SHADER));
+  gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) console.error(gl.getProgramInfoLog(p));
+  return p;
+}
+function loc(p, names){ var o = {}; for (var i=0;i<names.length;i++) o[names[i]] = gl.getUniformLocation(p, names[i]); return o; }
+
+var progLine = program(lineVS, lineFS);
+var progMesh = program(meshVS, meshFS);
+var progDepth = isGL2 ? program(depthVS, depthFS) : null;
+var progEdge  = isGL2 ? program(edgeVS,  edgeFS)  : null;
+
+var FOCUS_U = ["uFocus","uPk0","uPk1","uPk2"];
+var uL = loc(progLine, ["uVP","uHalfRes","uDPR","uEye","uFadeRange","uTime","uCursor",
+                        "uCursorAmt","uHScale","uFade","uInk","uAccent"].concat(FOCUS_U));
+var uM = loc(progMesh, ["uVP","uTime","uCursor","uCursorAmt","uHScale"].concat(FOCUS_U));
+var uD = progDepth ? loc(progDepth, ["uVP","uEye","uFarDist","uTime","uCursor","uCursorAmt",
+                                     "uHScale"].concat(FOCUS_U)) : null;
+var uE = progEdge  ? loc(progEdge,  ["uTex","uTexel","uRadius","uOutlineW","uOpacity",
+                                     "uInk","uFarDist","uFadeRange","uFade"]) : null;
+
+var aL = {
+  posSide: gl.getAttribLocation(progLine, "aPosSide"),
+  nextG:   gl.getAttribLocation(progLine, "aNextG"),
+  meta:    gl.getAttribLocation(progLine, "aMeta")
+};
+var aM = {
+  pos:  gl.getAttribLocation(progMesh, "aPos"),
+  grad: gl.getAttribLocation(progMesh, "aGrad"),
+  flow: gl.getAttribLocation(progMesh, "aFlow")
+};
+var aD = progDepth ? {
+  pos:   gl.getAttribLocation(progDepth, "aPos"),
+  grad:  gl.getAttribLocation(progDepth, "aGrad"),
+  flow:  gl.getAttribLocation(progDepth, "aFlow"),
+  cones: gl.getAttribLocation(progDepth, "aCones")
+} : null;
+var aE = progEdge ? gl.getAttribLocation(progEdge, "aXY") : -1;
+
+var silFBO = null, silTex = null, silRBO = null, silW = 0, silH = 0, quadVBO = null;
+if (isGL2){
+  silFBO = gl.createFramebuffer(); silTex = gl.createTexture(); silRBO = gl.createRenderbuffer();
+  quadVBO = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, quadVBO);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+}
+function sizeSilhouette(w, h){
+  if (!isGL2 || (w === silW && h === silH)) return;
+  silW = w; silH = h;
+  gl.bindTexture(gl.TEXTURE_2D, silTex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.bindRenderbuffer(gl.RENDERBUFFER, silRBO);
+  gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, w, h);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, silFBO);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, silTex, 0);
+  gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, silRBO);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+}
+
+var lineVBO = gl.createBuffer(), lineIBO = gl.createBuffer();
+var meshVBO = gl.createBuffer(), meshIBO = gl.createBuffer();
+var lineCount = 0, meshCount = 0;
+gl.bindBuffer(gl.ARRAY_BUFFER, lineVBO); gl.bufferData(gl.ARRAY_BUFFER, vtx, gl.STATIC_DRAW);
+gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, lineIBO); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idx, gl.STATIC_DRAW);
+lineCount = idx.length;
+gl.bindBuffer(gl.ARRAY_BUFFER, meshVBO); gl.bufferData(gl.ARRAY_BUFFER, mvtx, gl.STATIC_DRAW);
+gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, meshIBO); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, midx, gl.STATIC_DRAW);
+meshCount = midx.length;
+
+/* ------------------------------ scrolling --------------------------- */
+/* The section owns the wheel: focus runs 0..2 and the page never scrolls. */
+var focus = 0, focusTarget = 0, lastInput = -9999;
+
+function setTarget(v, immediate){
+  focusTarget = Math.max(0, Math.min(2, v));
+  lastInput = performance.now();
+  hintSeen();
+  if (immediate) focus = focusTarget;
+}
+window.addEventListener("wheel", function(e){
+  e.preventDefault();
+  setTarget(focusTarget + e.deltaY * 0.0021);
+}, {passive:false});
+
+var touchY = null;
+window.addEventListener("touchstart", function(e){ touchY = e.touches[0].clientY; }, {passive:true});
+window.addEventListener("touchmove", function(e){
+  if (touchY === null) return;
+  var y = e.touches[0].clientY;
+  setTarget(focusTarget + (touchY - y) * 0.006);
+  touchY = y;
+  e.preventDefault();
+}, {passive:false});
+window.addEventListener("touchend", function(){ touchY = null; }, {passive:true});
+
+window.addEventListener("keydown", function(e){
+  var k = e.key;
+  if (k === "ArrowDown" || k === "PageDown" || k === " ")      setTarget(Math.round(focusTarget) + 1);
+  else if (k === "ArrowUp" || k === "PageUp")                  setTarget(Math.round(focusTarget) - 1);
+  else if (k === "Home")                                       setTarget(0);
+  else if (k === "End")                                        setTarget(2);
+  else return;
+  e.preventDefault();
+});
+
+/* ------------------------------- overlay ---------------------------- */
+function peakArt(P, i){
+  /* a small contour portrait, drawn to the same profile as the peak itself */
+  var w = 340, h = 128, cx = w*0.5, base = h - 6, rings = "";
+  for (var r=1; r<=6; r++){
+    var t = r/6;
+    var rx = 150*Math.pow(t, 1.0/P.s) * (P.w/1.05);
+    var ry = rx * 0.30;
+    var cy = base - (1 - t) * 92;
+    var col = (r === 1) ? '#e2620f' : '#0d0e0b';
+    var op  = (r === 1) ? '1' : '.5';
+    rings += '<ellipse cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" rx="' + rx.toFixed(1) +
+             '" ry="' + ry.toFixed(1) + '" fill="none" stroke="' + col +
+             '" stroke-opacity="' + op + '" stroke-width="' + (r === 1 ? 1.6 : 1) + '"/>';
+  }
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h + '">' +
+         '<rect width="' + w + '" height="' + h + '" fill="#e4e0d8"/>' + rings + '</svg>';
+}
+
+var panel = document.getElementById("panel");
+var rail  = document.getElementById("rail");
+var hint  = document.getElementById("hint");
+var shown = -1;
+
+for (var ri=0; ri<3; ri++){
+  (function(i){
+    var b = document.createElement("button");
+    b.type = "button";
+    b.innerHTML = '<span class="tick"></span><span>' + ("0" + (i+1)) + '</span>';
+    b.setAttribute("aria-label", "Show " + PEAKS[i].name);
+    b.addEventListener("click", function(){ setTarget(i); });
+    rail.appendChild(b);
+  })(ri);
+}
+var railBtns = rail.querySelectorAll("button");
+
+function showPeak(i){
+  if (i === shown) return;
+  shown = i;
+  var P = PEAKS[i];
+  document.getElementById("p-img").src = "data:image/svg+xml;utf8," + encodeURIComponent(peakArt(P, i));
+  document.getElementById("p-index").textContent = ("0" + (i+1)) + " / 03";
+  document.getElementById("p-elev").textContent = P.elev;
+  document.getElementById("p-name").textContent = P.name;
+  document.getElementById("p-region").textContent = P.region;
+  document.getElementById("p-fact").textContent = P.fact;
+  for (var k=0;k<railBtns.length;k++) railBtns[k].setAttribute("aria-current", k === i ? "true" : "false");
+}
+function hintSeen(){ hint.classList.add("gone"); }
+showPeak(0);
+
+/* ------------------------------ interaction ------------------------- */
+var pointer = {x:0, y:0, tx:0, ty:0, amt:0, tamt:0};
+var cursorWorld = [0,0,0], cursorTarget = [0,0,0];
+window.addEventListener("pointermove", function(e){
+  var r = canvas.getBoundingClientRect();
+  if (!r.width) return;
+  pointer.tx = ((e.clientX - r.left) / r.width) * 2 - 1;
+  pointer.ty = ((e.clientY - r.top) / r.height) * 2 - 1;
+  pointer.tamt = 1;
+}, {passive:true});
+window.addEventListener("pointerleave", function(){ pointer.tamt = 0; }, {passive:true});
+document.addEventListener("visibilitychange", function(){ if (!document.hidden) last = performance.now(); });
+
+var W = 1, H = 1, DPR = 1;
+function resize(){
+  var dpr = DPR = Math.min(window.devicePixelRatio || 1, 2);
+  var r = canvas.getBoundingClientRect();
+  var w = Math.max(1, Math.round(r.width * dpr));
+  var h = Math.max(1, Math.round(r.height * dpr));
+  if (w !== W || h !== H){ W = w; H = h; canvas.width = W; canvas.height = H; }
+}
+window.addEventListener("resize", resize);
+resize();
+
+var CAM = { dist: 40.0, elev: 0.415, fov: 32 };
+
+function raycastTerrain(eye, ray){
+  var far = CAM.dist * 2.6, prev = 0;
+  var prevGap = eye[1] - sampleField(eye[0]/S, eye[2]/S)*HS;
+  for (var i=1;i<=72;i++){
+    var t = (i/72)*far;
+    var x = eye[0] + ray[0]*t, y = eye[1] + ray[1]*t, z = eye[2] + ray[2]*t;
+    if (Math.abs(x) > E*S || Math.abs(z) > E*S){ prev = t; continue; }
+    var gap = y - sampleField(x/S, z/S)*HS;
+    if (gap <= 0){
+      var f = prevGap / (prevGap - gap), tt = prev + (t - prev)*f;
+      RC[0] = eye[0] + ray[0]*tt; RC[1] = eye[2] + ray[2]*tt;
+      return RC;
+    }
+    prev = t; prevGap = gap;
+  }
+  return null;
+}
+var RC = [0, 0];
+
+/* -------------------------------- render ---------------------------- */
+gl.enable(gl.DEPTH_TEST);
+gl.depthFunc(gl.LEQUAL);
+gl.enable(gl.BLEND);
+gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+var BG = [0.925, 0.914, 0.890], INK = [0.051, 0.055, 0.043];
+var t0 = performance.now(), last = t0;
+var PK = [new Float32Array(2), new Float32Array(2), new Float32Array(2)];
+for (var pk=0; pk<3; pk++){ PK[pk][0] = PEAKS[pk].x * S; PK[pk][1] = PEAKS[pk].z * S; }
+
+function lerp(a, b, t){ return a + (b - a) * t; }
+
+function frame(now){
+  var dt = Math.min(0.05, (now - last) / 1000); last = now;
+  var t = (now - t0) / 1000;
+  var fade = Math.min(1, t / 1.5); fade = fade*fade*(3-2*fade);
+
+  /* settle onto the nearest summit once the wheel goes quiet */
+  if (now - lastInput > 260){
+    var snap = Math.round(focusTarget);
+    focusTarget += (snap - focusTarget) * Math.min(1, dt*3.4);
+  }
+  focus += (focusTarget - focus) * Math.min(1, dt*(reduceMotion ? 12 : 4.2));
+
+  var fi = Math.max(0, Math.min(1.9999, focus));
+  var i0 = Math.floor(fi), i1 = Math.min(2, i0 + 1), ft = fi - i0;
+  var fs = ft*ft*(3 - 2*ft);
+
+  showPeak(Math.round(focus));
+  var transit = Math.abs(focus - Math.round(focus));
+  panel.style.opacity = String(1 - Math.min(1, transit / 0.34));
+  panel.style.transform = "translateY(" + (Math.min(1, transit / 0.34) * 14).toFixed(1) + "px)";
+
+  pointer.x   += (pointer.tx   - pointer.x)   * Math.min(1, dt*5.0);
+  pointer.y   += (pointer.ty   - pointer.y)   * Math.min(1, dt*5.0);
+  pointer.amt += (pointer.tamt - pointer.amt) * Math.min(1, dt*3.0);
+
+  resize();
+  gl.viewport(0, 0, W, H);
+
+  /* camera rides from summit to summit */
+  var A = PEAKS[i0], B = PEAKS[i1];
+  var tgX = lerp(A.x, B.x, fs) * S, tgZ = lerp(A.z, B.z, fs) * S;
+  var topY = lerp(peakTopY[i0], peakTopY[i1], fs);
+  var yaw  = lerp(A.yaw, B.yaw, fs) + pointer.x * CFG.TILT_YAW * pointer.amt
+           + (reduceMotion ? 0 : Math.sin(t*0.11) * 0.022);
+  var elev = CAM.elev - pointer.y * CFG.TILT_PITCH * pointer.amt;
+
+  var eyeY = Math.max(Math.sin(elev) * CAM.dist, topY + 5.0);
+  var eye = new Float32Array([
+    tgX + Math.sin(yaw) * Math.cos(elev) * CAM.dist,
+    eyeY,
+    tgZ + Math.cos(yaw) * Math.cos(elev) * CAM.dist
+  ]);
+  var halfFov  = CAM.fov * Math.PI/360;
+  var horiz    = Math.max(1, Math.hypot(eye[0]-tgX, eye[2]-tgZ));
+  var camPitch = Math.atan((topY - eyeY)/horiz) - halfFov*0.70;
+  var target   = [tgX, eyeY + Math.tan(camPitch)*horiz, tgZ];
+
+  var view = lookAt(eye, target, [0,1,0]);
+  var proj = perspective(CAM.fov * Math.PI/180, W/H, 0.5, 240);
+  var VP = mul(proj, view);
+
+  if (pointer.amt > 0.01){
+    var tanY = Math.tan(CAM.fov * Math.PI/360), tanX = tanY * (W/H);
+    var fwd = [target[0]-eye[0], target[1]-eye[1], target[2]-eye[2]];
+    var fl = Math.hypot(fwd[0],fwd[1],fwd[2])||1; fwd = [fwd[0]/fl, fwd[1]/fl, fwd[2]/fl];
+    var rgt = [fwd[2], 0, -fwd[0]];
+    var rl = Math.hypot(rgt[0],rgt[2])||1; rgt = [rgt[0]/rl, 0, rgt[2]/rl];
+    var up = [rgt[1]*fwd[2]-rgt[2]*fwd[1], rgt[2]*fwd[0]-rgt[0]*fwd[2], rgt[0]*fwd[1]-rgt[1]*fwd[0]];
+    var ray = [
+      fwd[0] + rgt[0]*pointer.x*tanX - up[0]*pointer.y*tanY,
+      fwd[1] + rgt[1]*pointer.x*tanX - up[1]*pointer.y*tanY,
+      fwd[2] + rgt[2]*pointer.x*tanX - up[2]*pointer.y*tanY
+    ];
+    var hit = raycastTerrain(eye, ray);
+    if (hit){ cursorTarget[0] = hit[0]; cursorTarget[2] = hit[1]; }
+  }
+  var lp = Math.min(1, dt*8.0);
+  cursorWorld[0] += (cursorTarget[0] - cursorWorld[0]) * lp;
+  cursorWorld[2] += (cursorTarget[2] - cursorWorld[2]) * lp;
+
+  var farDist = CAM.dist * 3.4;
+  var fadeA = CAM.dist*CFG.FADE_A, fadeB = CAM.dist*CFG.FADE_B;
+
+  function focusUniforms(u){
+    gl.uniform1f(u.uFocus, focus);
+    gl.uniform2fv(u.uPk0, PK[0]); gl.uniform2fv(u.uPk1, PK[1]); gl.uniform2fv(u.uPk2, PK[2]);
+  }
+
+  /* pass 0 — packed depth + the focused peak's mask */
+  if (isGL2){
+    sizeSilhouette(W, H);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, silFBO);
+    gl.viewport(0, 0, W, H);
+    gl.clearColor(1, 1, 1, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.useProgram(progDepth);
+    gl.uniformMatrix4fv(uD.uVP, false, VP);
+    gl.uniform3fv(uD.uEye, eye);
+    gl.uniform1f(uD.uFarDist, farDist);
+    gl.uniform1f(uD.uTime, t);
+    gl.uniform3fv(uD.uCursor, cursorWorld);
+    gl.uniform1f(uD.uCursorAmt, pointer.amt);
+    gl.uniform1f(uD.uHScale, 1.0);
+    focusUniforms(uD);
+    gl.depthMask(true);
+    gl.bindBuffer(gl.ARRAY_BUFFER, meshVBO);
+    gl.enableVertexAttribArray(aD.pos);   gl.vertexAttribPointer(aD.pos,   3, gl.FLOAT, false, 32, 0);
+    gl.enableVertexAttribArray(aD.grad);  gl.vertexAttribPointer(aD.grad,  1, gl.FLOAT, false, 32, 12);
+    gl.enableVertexAttribArray(aD.flow);  gl.vertexAttribPointer(aD.flow,  1, gl.FLOAT, false, 32, 16);
+    gl.enableVertexAttribArray(aD.cones); gl.vertexAttribPointer(aD.cones, 3, gl.FLOAT, false, 32, 20);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, meshIBO);
+    gl.drawElements(gl.TRIANGLES, meshCount, gl.UNSIGNED_INT, 0);
+    gl.disableVertexAttribArray(aD.pos);
+    gl.disableVertexAttribArray(aD.grad);
+    gl.disableVertexAttribArray(aD.flow);
+    gl.disableVertexAttribArray(aD.cones);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, W, H);
+  }
+
+  /* pass 1 — depth only, for hidden-line removal */
+  gl.useProgram(progMesh);
+  gl.uniformMatrix4fv(uM.uVP, false, VP);
+  gl.uniform1f(uM.uTime, t);
+  gl.uniform3fv(uM.uCursor, cursorWorld);
+  gl.uniform1f(uM.uCursorAmt, pointer.amt);
+  gl.uniform1f(uM.uHScale, 1.0);
+  focusUniforms(uM);
+  gl.clearColor(BG[0], BG[1], BG[2], 1.0);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.colorMask(false, false, false, false);
+  gl.depthMask(true);
+  gl.enable(gl.POLYGON_OFFSET_FILL);
+  gl.polygonOffset(2.0, 6.0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, meshVBO);
+  gl.enableVertexAttribArray(aM.pos);  gl.vertexAttribPointer(aM.pos,  3, gl.FLOAT, false, 32, 0);
+  gl.enableVertexAttribArray(aM.grad); gl.vertexAttribPointer(aM.grad, 1, gl.FLOAT, false, 32, 12);
+  gl.enableVertexAttribArray(aM.flow); gl.vertexAttribPointer(aM.flow, 1, gl.FLOAT, false, 32, 16);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, meshIBO);
+  gl.drawElements(gl.TRIANGLES, meshCount, gl.UNSIGNED_INT, 0);
+  gl.disableVertexAttribArray(aM.pos);
+  gl.disableVertexAttribArray(aM.grad);
+  gl.disableVertexAttribArray(aM.flow);
+  gl.disable(gl.POLYGON_OFFSET_FILL);
+
+  /* pass 2 — one outline, on the peak in focus, faded out while in transit */
+  gl.colorMask(true, true, true, true);
+  gl.depthMask(false);
+  if (isGL2){
+    var opacity = 1 - smooth01(transit, 0.10, 0.40);
+    if (opacity > 0.01){
+      gl.useProgram(progEdge);
+      gl.disable(gl.DEPTH_TEST);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, silTex);
+      gl.uniform1i(uE.uTex, 0);
+      gl.uniform2f(uE.uTexel, 1/W, 1/H);
+      gl.uniform1f(uE.uRadius, 1.0);
+      gl.uniform1f(uE.uOutlineW, CFG.LINE_MAX * CFG.OUTLINE * DPR);
+      gl.uniform1f(uE.uOpacity, opacity);
+      gl.uniform3fv(uE.uInk, INK);
+      gl.uniform1f(uE.uFarDist, farDist);
+      gl.uniform2f(uE.uFadeRange, fadeA, fadeB);
+      gl.uniform1f(uE.uFade, fade);
+      gl.bindBuffer(gl.ARRAY_BUFFER, quadVBO);
+      gl.enableVertexAttribArray(aE);
+      gl.vertexAttribPointer(aE, 2, gl.FLOAT, false, 0, 0);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      gl.disableVertexAttribArray(aE);
+      gl.enable(gl.DEPTH_TEST);
+    }
+  }
+
+  /* pass 3 — contour ribbons */
+  gl.useProgram(progLine);
+  gl.uniformMatrix4fv(uL.uVP, false, VP);
+  gl.uniform2f(uL.uHalfRes, W*0.5, H*0.5);
+  gl.uniform1f(uL.uDPR, DPR);
+  gl.uniform3fv(uL.uEye, eye);
+  gl.uniform2f(uL.uFadeRange, fadeA, fadeB);
+  gl.uniform1f(uL.uTime, t);
+  gl.uniform3fv(uL.uCursor, cursorWorld);
+  gl.uniform1f(uL.uCursorAmt, pointer.amt);
+  gl.uniform1f(uL.uHScale, 1.0);
+  gl.uniform1f(uL.uFade, fade);
+  gl.uniform3fv(uL.uInk, INK);
+  gl.uniform3fv(uL.uAccent, CFG.ACCENT);
+  focusUniforms(uL);
+  gl.bindBuffer(gl.ARRAY_BUFFER, lineVBO);
+  gl.enableVertexAttribArray(aL.posSide); gl.vertexAttribPointer(aL.posSide, 4, gl.FLOAT, false, 48, 0);
+  gl.enableVertexAttribArray(aL.nextG);   gl.vertexAttribPointer(aL.nextG,   4, gl.FLOAT, false, 48, 16);
+  gl.enableVertexAttribArray(aL.meta);    gl.vertexAttribPointer(aL.meta,    4, gl.FLOAT, false, 48, 32);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, lineIBO);
+  gl.drawElements(gl.TRIANGLES, lineCount, gl.UNSIGNED_INT, 0);
+  gl.depthMask(true);
+
+  requestAnimationFrame(frame);
+}
+function smooth01(x, a, b){
+  var t = Math.min(1, Math.max(0, (x - a) / (b - a)));
+  return t*t*(3 - 2*t);
+}
+requestAnimationFrame(frame);
+}
+function __start(){
+  var done = false;
+  function go(){ if (done) return; done = true; __threeSummits(); }
+  requestAnimationFrame(function(){ setTimeout(go, 0); });
+  setTimeout(go, 80);
+}
+if (document.readyState === "complete") __start();
+else window.addEventListener("load", __start);
+</script>

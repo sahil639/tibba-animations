@@ -1,0 +1,569 @@
+<title>Dither Lab</title>
+<style>
+  :root{
+    --ground:#05080b;
+    --ink:#cfe8ef;
+    --accent:#7fd4e8;
+    --ui-fg:#a8c6d0;
+    --ui-bg:rgba(10,18,24,.72);
+    --ui-solid:rgba(8,14,19,.96);
+    --ui-line:rgba(127,212,232,.18);
+  }
+  html,body{margin:0;height:100%;background:var(--ground);overflow:hidden;}
+  #stage{position:fixed;inset:0;}
+  canvas{display:block;width:100%;height:100%;cursor:crosshair;}
+
+  #ui{
+    position:fixed; top:18px; right:18px; width:236px; padding:13px 14px 14px;
+    border-radius:10px; background:var(--ui-bg); border:1px solid var(--ui-line);
+    -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+    font:11px/1.35 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    color:var(--ui-fg); display:grid; gap:10px; user-select:none; z-index:10;
+    max-height:calc(100vh - 36px); overflow:auto;
+  }
+  #ui[hidden]{display:none;}
+  #ui h2{
+    margin:0; font-size:10px; font-weight:500; letter-spacing:.13em; text-transform:uppercase;
+    opacity:.6; display:flex; justify-content:space-between; align-items:center;
+  }
+  .sep{height:1px;background:var(--ui-line);margin:1px 0;}
+  .row{display:grid; gap:5px;}
+  .row label{display:flex; justify-content:space-between; gap:8px; letter-spacing:.04em;}
+  .row label b{font-weight:500; opacity:.65; font-variant-numeric:tabular-nums;}
+  input[type=range]{
+    -webkit-appearance:none; appearance:none; width:100%; height:2px; margin:3px 0;
+    background:var(--ui-line); border-radius:2px; outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:10px; height:10px; border-radius:50%;
+    background:var(--accent); cursor:pointer;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:10px;height:10px;border:0;border-radius:50%;background:var(--accent);cursor:pointer;
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:4px;}
+  .chip{
+    font:inherit; padding:4px 7px; border-radius:5px; cursor:pointer;
+    background:transparent; color:var(--ui-fg); border:1px solid var(--ui-line);
+    letter-spacing:.04em;
+  }
+  .chip:hover{border-color:var(--accent);color:var(--accent);}
+  .chip[aria-pressed=true]{background:var(--accent);color:#04191f;border-color:var(--accent);}
+  .btns{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+  .swatches{display:flex;gap:4px;}
+  .swatches input[type=color]{
+    -webkit-appearance:none;appearance:none;border:1px solid var(--ui-line);border-radius:4px;
+    width:100%;height:20px;padding:0;background:none;cursor:pointer;
+  }
+  .swatches input[type=color]::-webkit-color-swatch-wrapper{padding:2px;}
+  .swatches input[type=color]::-webkit-color-swatch{border:none;border-radius:2px;}
+
+  #drop{
+    position:fixed;inset:0;z-index:20;display:none;place-items:center;
+    background:rgba(4,10,14,.82);border:2px dashed var(--accent);
+    font:12px/1.5 ui-monospace,monospace;color:var(--accent);letter-spacing:.16em;text-transform:uppercase;
+  }
+  #drop.on{display:grid;}
+  #hint{
+    position:fixed;left:18px;bottom:16px;z-index:10;
+    font:10px/1.6 ui-monospace,monospace;color:var(--ui-fg);opacity:.45;letter-spacing:.1em;
+    text-transform:uppercase;pointer-events:none;
+  }
+  #err{position:fixed;inset:0;display:none;place-items:center;color:#e88;font:13px ui-monospace,monospace;}
+</style>
+
+<div id="stage"><canvas id="c"></canvas></div>
+<div id="drop">Drop image or video</div>
+<div id="hint">drag &amp; drop media · hover to focus · click to pulse · [H] panel · [S] save frame</div>
+<div id="err"></div>
+
+<div id="ui">
+  <h2>Dither Lab <span id="src" style="opacity:.5">demo</span></h2>
+
+  <div class="row">
+    <label>Preset</label>
+    <div class="chips" id="presets"></div>
+  </div>
+
+  <div class="sep"></div>
+
+  <div class="row">
+    <label>Cell size <b id="vPix">6</b></label>
+    <input type="range" id="pix" min="1" max="24" step="1" value="6">
+  </div>
+  <div class="row">
+    <label>Tone steps <b id="vLev">3</b></label>
+    <input type="range" id="lev" min="2" max="8" step="1" value="3">
+  </div>
+  <div class="row">
+    <label>Dither amt <b id="vDit">1.00</b></label>
+    <input type="range" id="dit" min="0" max="1.6" step="0.02" value="1">
+  </div>
+  <div class="row">
+    <label>Matrix</label>
+    <div class="chips" id="mats"></div>
+  </div>
+
+  <div class="sep"></div>
+
+  <div class="row">
+    <label>Contrast <b id="vCon">1.35</b></label>
+    <input type="range" id="con" min="0.3" max="3" step="0.01" value="1.35">
+  </div>
+  <div class="row">
+    <label>Exposure <b id="vBri">0.00</b></label>
+    <input type="range" id="bri" min="-0.4" max="0.4" step="0.01" value="0">
+  </div>
+  <div class="row">
+    <label>Gamma <b id="vGam">1.00</b></label>
+    <input type="range" id="gam" min="0.4" max="2.4" step="0.01" value="1">
+  </div>
+
+  <div class="sep"></div>
+
+  <div class="row">
+    <label>Palette</label>
+    <div class="swatches">
+      <input type="color" id="c0" value="#0b1d26">
+      <input type="color" id="c1" value="#3f8ea3">
+      <input type="color" id="c2" value="#b8e6f2">
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <div class="row">
+    <label>Focus lens <b id="vRad">0.22</b></label>
+    <input type="range" id="rad" min="0" max="0.7" step="0.01" value="0.22">
+  </div>
+  <div class="row">
+    <label>RGB split <b id="vAbr">0.35</b></label>
+    <input type="range" id="abr" min="0" max="2" step="0.01" value="0.35">
+  </div>
+  <div class="row">
+    <label>Scanlines <b id="vScn">0.25</b></label>
+    <input type="range" id="scn" min="0" max="1" step="0.01" value="0.25">
+  </div>
+  <div class="row">
+    <label>Grain / flicker <b id="vNoi">0.15</b></label>
+    <input type="range" id="noi" min="0" max="1" step="0.01" value="0.15">
+  </div>
+  <div class="row">
+    <label>Bloom <b id="vBlm">0.30</b></label>
+    <input type="range" id="blm" min="0" max="1" step="0.01" value="0.30">
+  </div>
+
+  <div class="sep"></div>
+  <div class="btns">
+    <button class="chip" id="load">Load file</button>
+    <button class="chip" id="save">Save PNG</button>
+  </div>
+  <input type="file" id="file" accept="image/*,video/*" hidden>
+</div>
+
+<script>
+const canvas = document.getElementById('c');
+const gl = canvas.getContext('webgl2', {antialias:false, preserveDrawingBuffer:true, alpha:false});
+if(!gl){
+  document.getElementById('err').style.display='grid';
+  document.getElementById('err').textContent='WebGL2 not available in this browser.';
+}
+
+/* ---------------------------------------------------------------- shaders */
+const VERT = `#version 300 es
+in vec2 p; out vec2 vUv;
+void main(){ vUv = p*0.5+0.5; gl_Position = vec4(p,0.,1.); }`;
+
+const FRAG = `#version 300 es
+precision highp float;
+in vec2 vUv; out vec4 frag;
+
+uniform sampler2D uTex;
+uniform vec2  uRes, uTexRes;
+uniform float uTime;
+
+uniform float uPix, uLev, uDit, uMat;
+uniform float uCon, uBri, uGam;
+uniform vec3  uC0, uC1, uC2;
+
+uniform vec2  uMouse;
+uniform float uRad, uHover, uSpeed;
+uniform float uAbr, uScn, uNoi, uBlm;
+
+uniform vec2  uClick;
+uniform float uClickT;
+
+/* 8x8 ordered Bayer matrix, normalised 0..1.
+   This is the source of the visible dot lattice. */
+const float BAYER8[64] = float[64](
+   0.,32., 8.,40., 2.,34.,10.,42.,
+  48.,16.,56.,24.,50.,18.,58.,26.,
+  12.,44., 4.,36.,14.,46., 6.,38.,
+  60.,28.,52.,20.,62.,30.,54.,22.,
+   3.,35.,11.,43., 1.,33., 9.,41.,
+  51.,19.,59.,27.,49.,17.,57.,25.,
+  15.,47., 7.,39.,13.,45., 5.,37.,
+  63.,31.,55.,23.,61.,29.,53.,21.
+);
+const float BAYER4[16] = float[16](
+   0., 8., 2.,10.,
+  12., 4.,14., 6.,
+   3.,11., 1., 9.,
+  15., 7.,13., 5.
+);
+
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
+
+float threshold(vec2 cell){
+  if(uMat < 0.5){                                   // Bayer 4x4 — coarse, blocky
+    ivec2 i = ivec2(mod(cell, 4.0));
+    return (BAYER4[i.y*4+i.x] + 0.5) / 16.0;
+  } else if(uMat < 1.5){                            // Bayer 8x8 — the Blade Runner look
+    ivec2 i = ivec2(mod(cell, 8.0));
+    return (BAYER8[i.y*8+i.x] + 0.5) / 64.0;
+  } else if(uMat < 2.5){                            // white noise — film-grain dissolve
+    return hash(cell + floor(uTime*12.0)*0.017);
+  } else {                                          // halftone — rotated dot screen
+    float a = 0.7854;
+    vec2 r = mat2(cos(a),-sin(a),sin(a),cos(a)) * cell;
+    return 0.5 + 0.5*sin(r.x*2.2)*sin(r.y*2.2);
+  }
+}
+
+/* cover-fit the source into the canvas */
+vec2 cover(vec2 uv){
+  float ca = uRes.x/uRes.y, ta = uTexRes.x/uTexRes.y;
+  vec2 s = vec2(1.0);
+  if(ta > ca) s.x = ca/ta; else s.y = ta/ca;
+  return (uv-0.5)*s + 0.5;
+}
+
+float luma(vec2 uv){
+  vec2 t = cover(uv);
+  if(t.x<0.||t.x>1.||t.y<0.||t.y>1.) return 0.0;
+  vec3 c = texture(uTex, t).rgb;
+  return dot(c, vec3(0.2126,0.7152,0.0722));
+}
+
+/* cheap 5-tap blur used for the bloom / soft-focus lift */
+float lumaSoft(vec2 uv, float r){
+  vec2 e = r / uRes;
+  return (luma(uv)*2.0
+        + luma(uv+vec2( e.x,0.)) + luma(uv+vec2(-e.x,0.))
+        + luma(uv+vec2(0., e.y)) + luma(uv+vec2(0.,-e.y))) / 6.0;
+}
+
+vec3 ramp(float t){
+  t = clamp(t,0.,1.);
+  return t < 0.5 ? mix(uC0,uC1,t*2.0) : mix(uC1,uC2,t*2.0-1.0);
+}
+
+void main(){
+  vec2 uv = vUv;
+  float aspect = uRes.x/uRes.y;
+  vec2 am = vec2(uMouse.x*aspect, uMouse.y);
+  vec2 au = vec2(uv.x*aspect, uv.y);
+
+  /* ---- click pulse: expanding ring of energy ---- */
+  float ct   = uTime - uClickT;
+  float rr   = distance(au, vec2(uClick.x*aspect, uClick.y));
+  float ring = exp(-pow((rr - ct*0.85)*7.0, 2.0)) * exp(-ct*1.4);
+  float slam = exp(-ct*6.0);                       // instant hit that decays fast
+
+  /* ---- hover lens: cells shrink + tones increase near the cursor ---- */
+  float d     = distance(au, am);
+  float focus = smoothstep(uRad, uRad*0.15, d) * uHover * step(0.001, uRad);
+
+  /* snap cell size to integers so the lens reads as clean concentric rings */
+  float pix  = max(1.0, floor(mix(uPix, max(1.0, uPix*0.28), focus) + 0.5));
+  float lev  = mix(uLev, min(8.0, uLev+3.0), focus);
+
+  vec2 grid = uRes / pix;
+  vec2 cell = floor(uv*grid);
+  vec2 cuv  = (cell + 0.5) / grid;
+
+  /* ---- glitch: horizontal slice displacement, fired by click + speed ---- */
+  float g = (slam*0.9 + uSpeed*0.35) * uAbr;
+  float band = floor(uv.y*28.0);
+  cuv.x += (hash(vec2(band, floor(uTime*18.0)))-0.5) * 0.06 * g * step(0.6, hash(vec2(band*1.7, floor(uTime*18.0))));
+
+  /* ---- chromatic split: three sample points, one per channel ---- */
+  float split = (uAbr*0.004) * (1.0 + uSpeed*4.0 + slam*3.0);
+  vec2 dir = normalize(au - am + 1e-5) * split;
+
+  float l0 = lumaSoft(cuv - dir, 1.0 + uBlm*3.0);
+  float l1 = lumaSoft(cuv,       1.0 + uBlm*3.0);
+  float l2 = lumaSoft(cuv + dir, 1.0 + uBlm*3.0);
+
+  /* ---- tone shaping (do this BEFORE quantising, always) ---- */
+  vec3 L = vec3(l0,l1,l2);
+  L = pow(clamp(L,0.0,1.0), vec3(uGam));
+  L = clamp((L-0.5)*uCon + 0.5 + uBri, 0.0, 1.0);
+  L += ring*0.45;                     // pulse rides the existing cell grid, so it stays pixelated
+  L += (hash(cell + floor(uTime*24.0)) - 0.5) * uNoi * 0.18;   // grain
+
+  /* ---- the dither itself ---- */
+  float th = threshold(cell);
+  th = 0.5 + (th - 0.5) * uDit;
+  float n  = max(1.0, lev - 1.0);
+  vec3 Q = floor(clamp(L,0.,1.)*n + th) / n;
+
+  vec3 col = vec3(ramp(Q.r).r, ramp(Q.g).g, ramp(Q.b).b);
+
+  /* ---- CRT dressing ---- */
+  float sl = 0.5 + 0.5*sin(gl_FragCoord.y*3.14159 + uTime*0.6);
+  col *= 1.0 - uScn*0.35*sl;
+  float vig = smoothstep(1.25, 0.35, length((uv-0.5)*vec2(aspect,1.0)));
+  col *= mix(1.0, vig, 0.55);
+
+  frag = vec4(col, 1.0);
+}`;
+
+/* ---------------------------------------------------------------- plumbing */
+function sh(type, src){
+  const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+  if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+  return s;
+}
+let prog, U = {};
+if(gl){
+  prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, VERT));
+  gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FRAG));
+  gl.linkProgram(prog);
+  if(!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+  gl.useProgram(prog);
+
+  const vao = gl.createVertexArray(); gl.bindVertexArray(vao);
+  const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog,'p');
+  gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+  ['uTex','uRes','uTexRes','uTime','uPix','uLev','uDit','uMat','uCon','uBri','uGam',
+   'uC0','uC1','uC2','uMouse','uRad','uHover','uSpeed','uAbr','uScn','uNoi','uBlm',
+   'uClick','uClickT'].forEach(n => U[n] = gl.getUniformLocation(prog, n));
+}
+
+/* ---------------------------------------------------------------- source */
+const tex = gl && gl.createTexture();
+if(gl){
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+}
+
+let media = null, mediaKind = 'none', texW = 1, texH = 1;
+
+function uploadStatic(el, w, h){
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, el);
+  texW = w; texH = h;
+}
+
+/* placeholder so the page is never blank */
+function placeholder(){
+  const s = 512, cv = document.createElement('canvas');
+  cv.width = cv.height = s;
+  const x = cv.getContext('2d');
+  x.fillStyle = '#000'; x.fillRect(0,0,s,s);
+  const g = x.createRadialGradient(s*0.42, s*0.38, 10, s*0.5, s*0.5, s*0.62);
+  g.addColorStop(0,'#fff'); g.addColorStop(0.45,'#8a8a8a'); g.addColorStop(1,'#050505');
+  x.fillStyle = g;
+  x.beginPath(); x.ellipse(s*0.5, s*0.44, s*0.24, s*0.31, 0, 0, 7); x.fill();
+  x.beginPath(); x.ellipse(s*0.5, s*1.02, s*0.42, s*0.42, 0, 0, 7); x.fill();
+  x.fillStyle = 'rgba(255,255,255,.9)';
+  x.font = '500 20px ui-monospace, monospace'; x.textAlign = 'center';
+  x.fillText('DROP MEDIA', s*0.5, s*0.93);
+  uploadStatic(cv, s, s);
+  mediaKind = 'static';
+}
+
+function loadFile(file){
+  const url = URL.createObjectURL(file);
+  if(file.type.startsWith('video')){
+    const v = document.createElement('video');
+    v.src = url; v.loop = true; v.muted = true; v.playsInline = true; v.crossOrigin = 'anonymous';
+    v.addEventListener('loadeddata', () => {
+      v.play();
+      media = v; mediaKind = 'video'; texW = v.videoWidth; texH = v.videoHeight;
+      document.getElementById('src').textContent = 'video';
+    });
+  } else {
+    const im = new Image();
+    im.onload = () => {
+      uploadStatic(im, im.naturalWidth, im.naturalHeight);
+      media = im;
+      document.getElementById('src').textContent = 'image';
+    };
+    im.src = url;
+  }
+}
+
+/* ---------------------------------------------------------------- state */
+const S = {
+  pix:6, lev:3, dit:1, mat:1,
+  con:1.35, bri:0, gam:1,
+  c0:'#0b1d26', c1:'#3f8ea3', c2:'#b8e6f2',
+  rad:0.22, abr:0.35, scn:0.25, noi:0.15, blm:0.30
+};
+let mouse = {x:0.5, y:0.5}, mTarget = {x:0.5, y:0.5}, hover = 0, speed = 0;
+let click = {x:0.5, y:0.5}, clickT = -99;
+
+const hex2rgb = h => [1,3,5].map(i => parseInt(h.slice(i,i+2),16)/255);
+
+const PRESETS = {
+  'Wallace':   {c0:'#0b1d26',c1:'#3f8ea3',c2:'#b8e6f2', lev:3, pix:6,  mat:1, con:1.35, scn:.25, abr:.35, gam:1},
+  'Amber CRT': {c0:'#140800',c1:'#a85a05',c2:'#ffd79a', lev:4, pix:5,  mat:1, con:1.5,  scn:.5,  abr:.25, gam:1.1},
+  'Bone':      {c0:'#1a1714',c1:'#8f8578',c2:'#f2ece1', lev:2, pix:8,  mat:0, con:1.7,  scn:.08, abr:.15, gam:.9},
+  'Phosphor':  {c0:'#00120a',c1:'#12a35c',c2:'#c8ffdf', lev:3, pix:4,  mat:1, con:1.6,  scn:.6,  abr:.4,  gam:1},
+  'Newsprint': {c0:'#101010',c1:'#7a7a7a',c2:'#efefe8', lev:2, pix:5,  mat:3, con:1.9,  scn:0,   abr:0,   gam:.85},
+  'Riot':      {c0:'#12001e',c1:'#c4149b',c2:'#ffe6fb', lev:4, pix:7,  mat:2, con:1.4,  scn:.3,  abr:1.2, gam:1}
+};
+const MATS = ['Bayer 4','Bayer 8','Noise','Halftone'];
+
+/* ---------------------------------------------------------------- ui */
+const $ = id => document.getElementById(id);
+function bindRange(id, key, dec){
+  const el = $(id), out = $('v'+id[0].toUpperCase()+id.slice(1));
+  const show = () => out.textContent = (dec===0) ? S[key] : S[key].toFixed(dec);
+  el.value = S[key]; show();
+  el.addEventListener('input', () => { S[key] = parseFloat(el.value); show(); });
+  return {el, show};
+}
+const R = {
+  pix: bindRange('pix','pix',0), lev: bindRange('lev','lev',0), dit: bindRange('dit','dit',2),
+  con: bindRange('con','con',2), bri: bindRange('bri','bri',2), gam: bindRange('gam','gam',2),
+  rad: bindRange('rad','rad',2), abr: bindRange('abr','abr',2), scn: bindRange('scn','scn',2),
+  noi: bindRange('noi','noi',2), blm: bindRange('blm','blm',2)
+};
+['c0','c1','c2'].forEach(k => {
+  $(k).value = S[k];
+  $(k).addEventListener('input', () => S[k] = $(k).value);
+});
+
+const matsBox = $('mats');
+MATS.forEach((name, i) => {
+  const b = document.createElement('button');
+  b.className = 'chip'; b.textContent = name;
+  b.setAttribute('aria-pressed', i === S.mat);
+  b.onclick = () => { S.mat = i; [...matsBox.children].forEach((c,j)=>c.setAttribute('aria-pressed', j===i)); };
+  matsBox.appendChild(b);
+});
+
+const presetBox = $('presets');
+Object.entries(PRESETS).forEach(([name, p], i) => {
+  const b = document.createElement('button');
+  b.className = 'chip'; b.textContent = name;
+  b.setAttribute('aria-pressed', i === 0);
+  b.onclick = () => {
+    Object.assign(S, p);
+    [...presetBox.children].forEach(c => c.setAttribute('aria-pressed', c === b));
+    [...matsBox.children].forEach((c,j) => c.setAttribute('aria-pressed', j === S.mat));
+    ['c0','c1','c2'].forEach(k => $(k).value = S[k]);
+    Object.entries(R).forEach(([k,r]) => { r.el.value = S[k]; r.show(); });
+  };
+  presetBox.appendChild(b);
+});
+
+$('load').onclick = () => $('file').click();
+$('file').onchange = e => e.target.files[0] && loadFile(e.target.files[0]);
+$('save').onclick = () => {
+  const a = document.createElement('a');
+  a.download = 'dither-' + Date.now() + '.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+};
+
+addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if(k === 'h'){ $('ui').hidden = !$('ui').hidden; }
+  if(k === 's'){ $('save').click(); }
+});
+
+/* drag & drop */
+const dz = $('drop');
+let dragDepth = 0;
+addEventListener('dragenter', e => { e.preventDefault(); if(++dragDepth === 1) dz.classList.add('on'); });
+addEventListener('dragleave', e => { e.preventDefault(); if(--dragDepth <= 0){ dragDepth = 0; dz.classList.remove('on'); } });
+addEventListener('dragover',  e => e.preventDefault());
+addEventListener('drop', e => {
+  e.preventDefault(); dragDepth = 0; dz.classList.remove('on');
+  const f = e.dataTransfer.files[0]; if(f) loadFile(f);
+});
+
+/* pointer */
+let lastM = {x:0.5, y:0.5};
+canvas.addEventListener('pointermove', e => {
+  const r = canvas.getBoundingClientRect();
+  mTarget.x = (e.clientX - r.left) / r.width;
+  mTarget.y = 1 - (e.clientY - r.top) / r.height;
+});
+canvas.addEventListener('pointerenter', () => hover = 1);
+canvas.addEventListener('pointerleave', () => hover = 0);
+canvas.addEventListener('pointerdown', e => {
+  const r = canvas.getBoundingClientRect();
+  click.x = (e.clientX - r.left) / r.width;
+  click.y = 1 - (e.clientY - r.top) / r.height;
+  clickT = performance.now() / 1000;
+});
+
+/* ---------------------------------------------------------------- loop */
+let hoverEased = 0;
+function resize(){
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  const w = Math.round(innerWidth * dpr), h = Math.round(innerHeight * dpr);
+  if(canvas.width !== w || canvas.height !== h){
+    canvas.width = w; canvas.height = h;
+    gl.viewport(0, 0, w, h);
+  }
+}
+addEventListener('resize', resize);
+
+function frame(t){
+  requestAnimationFrame(frame);
+  if(!gl) return;
+  resize();
+  const time = t / 1000;
+
+  /* eased pointer + velocity drive the reactive bits */
+  const dx = mTarget.x - mouse.x, dy = mTarget.y - mouse.y;
+  mouse.x += dx * 0.12; mouse.y += dy * 0.12;
+  const v = Math.hypot(mouse.x - lastM.x, mouse.y - lastM.y);
+  speed += (Math.min(v * 22, 1) - speed) * 0.15;
+  lastM = {x:mouse.x, y:mouse.y};
+  hoverEased += (hover - hoverEased) * 0.1;
+
+  if(mediaKind === 'video' && media && media.readyState >= 2){
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, media);
+    texW = media.videoWidth; texH = media.videoHeight;
+  }
+
+  gl.useProgram(prog);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.uniform1i(U.uTex, 0);
+  gl.uniform2f(U.uRes, canvas.width, canvas.height);
+  gl.uniform2f(U.uTexRes, texW, texH);
+  gl.uniform1f(U.uTime, time);
+  gl.uniform1f(U.uPix, S.pix); gl.uniform1f(U.uLev, S.lev);
+  gl.uniform1f(U.uDit, S.dit); gl.uniform1f(U.uMat, S.mat);
+  gl.uniform1f(U.uCon, S.con); gl.uniform1f(U.uBri, S.bri); gl.uniform1f(U.uGam, S.gam);
+  gl.uniform3fv(U.uC0, hex2rgb(S.c0));
+  gl.uniform3fv(U.uC1, hex2rgb(S.c1));
+  gl.uniform3fv(U.uC2, hex2rgb(S.c2));
+  gl.uniform2f(U.uMouse, mouse.x, mouse.y);
+  gl.uniform1f(U.uRad, S.rad); gl.uniform1f(U.uHover, hoverEased); gl.uniform1f(U.uSpeed, speed);
+  gl.uniform1f(U.uAbr, S.abr); gl.uniform1f(U.uScn, S.scn);
+  gl.uniform1f(U.uNoi, S.noi); gl.uniform1f(U.uBlm, S.blm);
+  gl.uniform2f(U.uClick, click.x, click.y);
+  gl.uniform1f(U.uClickT, clickT);
+
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+
+if(gl){ resize(); placeholder(); requestAnimationFrame(frame); }
+</script>

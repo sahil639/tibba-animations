@@ -1,0 +1,1460 @@
+<title>Contour Ridge Hero</title>
+<style>
+  :root{
+    --ground:#ece9e3;
+    --ink:#0d0e0b;
+    --accent:#e2620f;
+    --ui-fg:#22231e;
+    --ui-bg:rgba(255,255,255,.60);
+    --ui-solid:rgba(248,246,242,.94);
+    --ui-line:rgba(0,0,0,.12);
+    --card:#f6efe9;
+    --fig:#1b1c19;
+    --fig-dim:#6d6d67;
+  }
+  html{background:var(--ground);overflow-x:hidden;}
+  body{margin:0;background:var(--ground);}
+  #stage{position:fixed;inset:0;background:var(--ground);z-index:0;pointer-events:none;}
+  #stage canvas{pointer-events:auto;}
+  canvas{display:block;width:100%;height:100%;}
+
+  #ui{
+    position:fixed; top:18px; right:18px; width:214px; padding:13px 14px 14px;
+    border-radius:10px; background:var(--ui-bg); border:1px solid var(--ui-line);
+    -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+    font:11px/1.35 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    color:var(--ui-fg); display:grid; gap:11px; user-select:none; z-index:10;
+  }
+  #ui[hidden]{display:none;}
+  #ui h2{
+    margin:0; font-size:10px; font-weight:500; letter-spacing:.13em; text-transform:uppercase;
+    opacity:.55; display:flex; justify-content:space-between; align-items:center;
+  }
+  .row{display:grid; gap:5px;}
+  .row label{display:flex; justify-content:space-between; align-items:center; gap:8px;}
+  .row label b{font-weight:400; opacity:.55; font-variant-numeric:tabular-nums;}
+  input[type=range]{
+    -webkit-appearance:none; appearance:none; width:100%; height:14px; background:none; margin:0;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:1px; background:currentColor; opacity:.35;}
+  input[type=range]::-moz-range-track{height:1px; background:currentColor; opacity:.35;}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:9px; height:9px; border-radius:50%;
+    background:currentColor; margin-top:-4px;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:9px; height:9px; border:0; border-radius:50%; background:currentColor;
+  }
+  input[type=color]{
+    -webkit-appearance:none; appearance:none; width:100%; height:18px; padding:0;
+    border:1px solid var(--ui-line); border-radius:4px; background:none; cursor:pointer;
+  }
+  input[type=color]::-webkit-color-swatch-wrapper{padding:2px;}
+  input[type=color]::-webkit-color-swatch{border:0; border-radius:2px;}
+  .btn{
+    font:inherit; color:inherit; cursor:pointer; padding:5px 0; border-radius:5px;
+    background:none; border:1px solid var(--ui-line); letter-spacing:.06em;
+  }
+  .btn:hover{background:rgba(0,0,0,.05);}
+  .btn.x{width:18px; height:18px; padding:0; line-height:1; border-radius:4px; opacity:.7;}
+  .btn:focus-visible, input:focus-visible{outline:1.5px solid currentColor; outline-offset:2px;}
+  .toggle-row{display:flex; justify-content:space-between; align-items:center; gap:8px; cursor:pointer;}
+  .toggle-row input{margin:0; accent-color:var(--ui-fg);}
+  #toggle{
+    position:fixed; top:18px; right:18px; width:26px; height:26px; border-radius:50%;
+    border:1px solid var(--ui-line); background:var(--ui-bg); color:var(--ui-fg);
+    -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+    font:12px/1 ui-monospace,monospace; cursor:pointer; z-index:11;
+  }
+
+  /* summit overlay &mdash; flush into the bottom-left corner, container has no padding */
+  #ov{
+    position:fixed; left:0; bottom:0; margin:0; padding:0; width:min(324px, 84vw);
+    background:var(--ui-solid); border-top:1px solid var(--ui-line); border-right:1px solid var(--ui-line);
+    color:var(--ui-fg); z-index:12; overflow:hidden;
+    font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    transform:translateY(0); transition:transform .32s cubic-bezier(.22,.8,.28,1), opacity .28s;
+  }
+  #ov[hidden]{display:none;}
+  #ov.closing{transform:translateY(101%); opacity:0;}
+  #ov img{display:block; width:100%; height:132px; object-fit:cover; margin:0;}
+  #ov .ov-body{padding:13px 15px 16px;}
+  #ov .ov-eyebrow{
+    margin:0 0 7px; font-size:9.5px; letter-spacing:.15em; text-transform:uppercase;
+    color:var(--accent);
+  }
+  #ov p.ov-text{margin:0; opacity:.78;}
+  #ov-x{
+    position:absolute; top:9px; right:9px; width:22px; height:22px; padding:0;
+    border-radius:50%; border:1px solid var(--ui-line); background:var(--ui-solid);
+    color:var(--ui-fg); font:13px/1 ui-monospace,monospace; cursor:pointer;
+  }
+  #ov-x:hover{background:rgba(0,0,0,.06);}
+  /* ---- page ---- */
+  #mark{
+    position:fixed; top:20px; left:22px; z-index:8;
+    font:10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+    letter-spacing:.2em; text-transform:uppercase; color:var(--ui-fg); opacity:.5;
+  }
+  main{position:relative; z-index:5;}
+  .hero{min-height:100vh; display:flex; align-items:flex-end; pointer-events:none;}
+  .hero-copy{padding:0 0 8vh 22px; max-width:min(30ch, 60vw);}
+  .eyebrow{
+    margin:0 0 10px; font:10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+    letter-spacing:.18em; text-transform:uppercase; color:var(--accent);
+  }
+  .hero h1{
+    margin:0 0 14px; font:400 clamp(30px,4.4vw,54px)/1.06 ui-serif,Georgia,"Times New Roman",serif;
+    letter-spacing:-.015em; color:var(--ui-fg); text-wrap:balance;
+  }
+  .lede{
+    margin:0; max-width:34ch; color:var(--ui-fg); opacity:.62;
+    font:13px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  .chapter{
+    margin:0 0 0 auto; width:min(52ch, 46vw); padding:14vh 26px 0 0;
+    color:var(--ui-fg);
+  }
+
+  /* ---- section two: the figures sit clear of the locked ridge ---- */
+  .stats{
+    position:relative; min-height:100vh; display:flex; align-items:center;
+    padding:0 26px 0 30vw; box-sizing:border-box;
+  }
+  .stats::before{                       /* full-bleed rule across the top */
+    content:""; position:absolute; left:0; right:0; top:6vh; height:1px;
+    background:var(--accent); opacity:.55;
+  }
+  .stats-grid{
+    display:grid; grid-template-columns:repeat(2, 1fr); gap:20px; width:100%;
+  }
+  .stat{
+    display:flex; flex-direction:column; justify-content:space-between;
+    min-height:clamp(190px, 26vh, 260px); padding:26px 28px 24px;
+    background:var(--card); box-sizing:border-box;
+  }
+  .stat .num{
+    margin:0; color:var(--fig);
+    font:300 clamp(38px, 4.6vw, 68px)/1 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    letter-spacing:-.025em; font-variant-numeric:lining-nums tabular-nums;
+  }
+  .stat .lab{
+    margin:0; display:flex; align-items:center; gap:10px; color:var(--fig-dim);
+    font:400 12.5px/1.3 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  .stat .lab i{
+    flex:none; width:9px; height:9px; background:var(--accent); display:block;
+  }
+  @media (max-width:900px){
+    .stats{padding:12vh 22px; align-items:flex-start;}
+    .stats-grid{grid-template-columns:1fr;}
+  }
+  .chapter.last{padding-bottom:26vh;}
+  .chapter h2{
+    margin:0 0 14px; font:400 clamp(20px,2.2vw,28px)/1.2 ui-serif,Georgia,"Times New Roman",serif;
+    letter-spacing:-.01em; text-wrap:balance;
+  }
+  .chapter p{
+    margin:0 0 14px; font:13px/1.75 ui-monospace,SFMono-Regular,Menlo,monospace;
+    opacity:.72;
+  }
+  @media (max-width:760px){
+    .chapter{width:auto; padding:12vh 22px 0;}
+    .hero-copy{max-width:none;}
+  }
+  @media (prefers-reduced-motion: reduce){ #ov{transition:none;} }
+</style>
+
+<div id="stage"><canvas id="c"></canvas></div>
+
+<header id="mark">Contour&nbsp;Ridge</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Topographic study</p>
+      <h1>Lines that describe<br>a surface.</h1>
+      <p class="lede">Scroll &mdash; the ridge turns, settles back and locks to the left,
+      then keeps breathing while you read.</p>
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="stats-grid">
+      <article class="stat">
+        <p class="num">12+</p>
+        <p class="lab"><i></i>Years of experience</p>
+      </article>
+      <article class="stat">
+        <p class="num">30+</p>
+        <p class="lab"><i></i>Products shipped</p>
+      </article>
+      <article class="stat">
+        <p class="num">08</p>
+        <p class="lab"><i></i>Unicorns serviced</p>
+      </article>
+      <article class="stat">
+        <p class="num">$400M</p>
+        <p class="lab"><i></i>Revenue unlocked</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="chapter">
+    <p class="eyebrow">02 &mdash; Motion</p>
+    <h2>Still moving, once it lands</h2>
+    <p>Locked to the left at reduced opacity, the ridge keeps its micro-animation: the
+    dotted outer rings drift along their own arc length, the mid-flank contours undulate,
+    and the surface still lifts under the cursor.</p>
+    <p>Nothing here is a video. It is redrawn every frame from the same field.</p>
+  </section>
+
+  <section class="chapter last">
+    <p class="eyebrow">03 &mdash; Notes</p>
+    <h2>Placeholder copy</h2>
+    <p>This page exists to demonstrate the scroll behaviour. Replace it with the real
+    thing; the animation is independent of everything around it.</p>
+  </section>
+</main>
+
+<button id="toggle" title="Show controls (H)" aria-label="Show controls">&#9776;</button>
+<section id="ui" aria-label="Appearance controls">
+  <h2>Contour Ridge <button id="k-close" class="btn x" type="button" aria-label="Hide controls">&minus;</button></h2>
+
+  <div class="row">
+    <label for="k-weight">Line weight <b id="v-weight">1.00</b></label>
+    <input id="k-weight" type="range" min="0.25" max="2.60" step="0.05" value="1">
+  </div>
+
+  <div class="row">
+    <label for="k-angle">Viewing angle <b id="v-angle">25&deg;</b></label>
+    <input id="k-angle" type="range" min="10" max="52" step="0.5" value="25">
+  </div>
+
+  <div class="row">
+    <label for="k-depth">Depth <b id="v-depth">1.00</b></label>
+    <input id="k-depth" type="range" min="0.35" max="1.90" step="0.01" value="1">
+  </div>
+
+  <div class="row">
+    <label for="k-topo">Topography <b id="v-topo">1.00</b></label>
+    <input id="k-topo" type="range" min="0.15" max="1.85" step="0.01" value="1">
+  </div>
+
+  <div class="row">
+    <label for="k-cursor">Cursor <b id="v-cursor">1.00</b></label>
+    <input id="k-cursor" type="range" min="0" max="2.50" step="0.05" value="1">
+  </div>
+
+  <label class="toggle-row" for="k-outline">Outline
+    <input id="k-outline" type="checkbox" checked>
+  </label>
+
+  <div class="row">
+    <label for="k-offset">Outline offset <b id="v-offset">3.0</b></label>
+    <input id="k-offset" type="range" min="0" max="20" step="0.5" value="3">
+  </div>
+
+  <div class="row">
+    <label for="k-bg">Background</label>
+    <input id="k-bg" type="color" value="#ece9e3">
+  </div>
+
+  <div class="row">
+    <label for="k-ink">Line colour</label>
+    <input id="k-ink" type="color" value="#0d0e0b">
+  </div>
+
+  <button id="k-shuffle" class="btn" type="button">New landform</button>
+</section>
+
+<aside id="ov" hidden aria-label="Summit marker">
+  <button id="ov-x" type="button" aria-label="Close">&times;</button>
+  <img id="ov-img" alt="Contour study of the summit block">
+  <div class="ov-body">
+    <p class="ov-eyebrow">Summit &middot; station 04</p>
+    <p class="ov-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
+    ultrices vestibulum ligula, quis egestas dui rhoncus vitae. Nunc convallis
+    lectus in arcu tempor, sed dictum orci varius.</p>
+  </div>
+</aside>
+
+<script>
+function __contourRidge(){
+"use strict";
+
+/* ------------------------------------------------------------------ *
+ *  Contour Ridge — raw WebGL topographic hero
+ *  heightfield -> marching-squares contours -> screen-space ribbons
+ *  A depth-only terrain pass gives true hidden-line occlusion.
+ * ------------------------------------------------------------------ */
+
+var CFG = {
+  N: 360,               // heightfield resolution
+  MN: 360,              // depth-mesh resolution (matches N so it seals exactly)
+  EXTENT: 5.0,          // domain half-size, field units
+  LEVELS: 15,
+  SCALE: 10.0,          // field units -> world units
+  HSCALE: 5.6,          // vertical exaggeration
+  LINE_MIN: 0.40,       // CSS px
+  LINE_MAX: 1.30,       // CSS px
+  FLOW: 0.24,           // world units of undulation
+  FADE_A: 1.15,         // aerial fade start, x camera distance
+  FADE_B: 1.95,         // aerial fade end,   x camera distance
+  CURSOR_R: 9.0,        // world radius of the local reaction
+  CURSOR_AMP: 2.60,     // lateral push
+  CURSOR_LIFT: 1.60,    // vertical lift
+  TILT_YAW: 0.38,       // radians at full deflection
+  TILT_PITCH: 0.165,
+  LINE_LIFT: 0.11,      // world units the contours float above the surface
+  DOTTED_LEVELS: 3,     // outermost contour rings drawn as dots
+  MASK_TH: 0.075,       // cone value at the foot of the massif
+  MASK_K: 26,           // steepens the stored mask so 8-bit alpha can resolve its
+                        // slope; lower keeps the distance field valid further out
+  ACCENT: [0.886, 0.384, 0.059],
+  LOCK_YAW: 0.58,       // radians the ridge turns through on the way down
+  LOCK_SCALE: 0.62,     // final size, as a fraction of the hero
+  LOCK_X: -0.60,        // final centre in NDC, negative is left
+  LOCK_Y: 0.05,
+  LOCK_OPACITY: 0.45,
+  OUTLINE: 1.15,        // silhouette width, x the heaviest contour
+  OUTLINE_THRESH: 0.0016
+};
+
+/* live controls */
+var UI = { weight: 1, depth: 1, topo: 1, cursor: 1, angle: 0.436, outline: true, offset: 3,
+           ink: [0.051,0.055,0.043], bg: [0.925,0.914,0.890] };
+var TOPO = { seed: 0, detail: 1 };
+
+/* satellite summits around the massif: x, z, height, width, sharpness */
+var SATS = [
+  [-2.10,  1.60, 0.62, 0.40, 1.45],   // left front
+  [ 2.20,  1.30, 0.55, 0.36, 1.45],   // right front, small and sharp
+  [ 3.10, -0.80, 0.78, 0.46, 1.50],   // right flank, mid distance
+  [-3.20, -1.20, 0.72, 0.46, 1.55],   // left flank, mid distance
+  [ 1.90, -3.10, 0.60, 0.42, 1.55],   // right, behind
+  [-1.60, -3.40, 0.55, 0.40, 1.55]    // left, behind
+];
+
+var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+if (reduceMotion) UI.cursor = 0.35;
+
+/* ---------------------------------- noise --------------------------- */
+function hash(x, y){
+  var n = Math.imul(x|0, 374761393) + Math.imul(y|0, 668265263);
+  n = Math.imul(n ^ (n >>> 13), 1274126177);
+  return ((n ^ (n >>> 16)) >>> 0) / 4294967295;
+}
+function sstep(t){ return t*t*(3-2*t); }
+function vnoise(x, y){
+  var xi = Math.floor(x), yi = Math.floor(y);
+  var u = sstep(x - xi), v = sstep(y - yi);
+  var a = hash(xi, yi), b = hash(xi+1, yi), c = hash(xi, yi+1), d = hash(xi+1, yi+1);
+  return (a*(1-u)+b*u)*(1-v) + (c*(1-u)+d*u)*v;
+}
+function fbm(x, y, oct){
+  var s = 0, a = 0.5, f = 1;
+  for (var i=0;i<oct;i++){ s += a*vnoise(x*f, y*f); f *= 2.03; a *= 0.5; }
+  return s;
+}
+
+/* ------------------------------- terrain ---------------------------- */
+var _W = [0, 0];
+function warpTo(x, z){                // domain warp, shared by terrain and the mask
+  var SD = TOPO.seed * 17.3, D = TOPO.detail;
+  _W[0] = x + 0.42*D*(fbm(x*0.55 + 5.2 + SD, z*0.55 - 2.1 + SD, 3) - 0.5);
+  _W[1] = z + 0.42*D*(fbm(x*0.55 - 7.7 + SD, z*0.55 + 4.3 + SD, 3) - 0.5);
+}
+function coneOf(wx, wz){              // the massif's radial profile
+  var px = wx*1.06, pz = (wz + 0.22)*0.92;
+  return Math.exp(-Math.pow(Math.sqrt(px*px + pz*pz)*1.10, 1.42));
+}
+function massifAt(x, z){ warpTo(x, z); return coneOf(_W[0], _W[1]); }
+
+function terrain(x, z){
+  var SD = TOPO.seed * 17.3;          // reshuffles every noise field at once
+  var D  = TOPO.detail;
+
+  warpTo(x, z);
+  var wx = _W[0], wz = _W[1];
+
+  // the massif — exponent below 2 gives a cusped summit rather than a dome
+  var px = wx*1.06, pz = (wz + 0.22)*0.92;
+  var r  = Math.sqrt(px*px + pz*pz);
+  var cone = coneOf(wx, wz);
+  var flank = Math.pow(1.0 - cone, 0.85);
+
+  // radiating spurs and gullies: noise sampled on a circle, so it wraps in theta
+  var th   = Math.atan2(pz, px);
+  var sp   = fbm(Math.cos(th)*2.6 + 31.0 + SD, Math.sin(th)*2.6 - 12.0 + SD, 3);
+  var spur = 1.0 - Math.abs(sp*2.0 - 1.0);
+  var env  = 4.0*cone*(1.0 - cone);
+  var relief = (0.62*D*spur*env
+              + 0.06*D*env*(fbm(wx*3.2 + 2.2 + SD, wz*3.2 - 8.8 + SD, 3) - 0.5)*2.0) * flank;
+
+  // surrounding country
+  var base = 0.86*fbm(x*0.40 + 3.1 + SD, z*0.40 + 8.4 + SD, 5)
+           + 0.40*fbm(x*1.05 - 4.4 + SD, z*1.05 + 2.6 + SD, 4)
+           + 0.14*D*fbm(x*2.60 + 9.5 + SD, z*2.60 - 6.1 + SD, 3)
+           + 0.04*D*fbm(x*5.00 - 1.3 + SD, z*5.00 + 7.7 + SD, 2);
+
+  // distant country rises, so the frame fills with landform rather than sky
+  var rr = Math.sqrt(x*x + z*z) / CFG.EXTENT;
+  var rim = 0.50 * sstep(Math.min(1, Math.max(0, (rr - 0.35) / 0.65)))
+                 * fbm(x*0.30 + 1.7 + SD, z*0.30 - 3.3 + SD, 4);
+
+  var sats = 0;
+  for (var k=0;k<SATS.length;k++){
+    var S0 = SATS[k];
+    var dx = (wx - S0[0]) / S0[3], dz = (wz - S0[1]) / S0[3];
+    sats += S0[2] * Math.exp(-Math.pow(Math.sqrt(dx*dx + dz*dz), S0[4]));
+  }
+
+  return base + rim + cone*1.95 + relief + sats;
+}
+
+/* --------------------------- heightfield state ---------------------- */
+var N = CFG.N, E = CFG.EXTENT, S = CFG.SCALE, HS = CFG.HSCALE;
+var step = (2*E)/(N-1);
+var F = new Float32Array(N*N);
+var hmin = 0, hmax = 1, HCOUNT = (N-1)*N;
+var vtx = null, idx = null, vcount = 0;
+var accentPts = null;      // world xyz of the summit ring, for hit-testing
+var mvtx = null, midx = null;
+
+function buildField(){
+  hmax = -1e9; hmin = 1e9;
+  for (var j=0;j<N;j++){
+    for (var i=0;i<N;i++){
+      var h = terrain(-E + i*step, -E + j*step);
+      F[j*N+i] = h;
+      if (h > hmax) hmax = h;
+      if (h < hmin) hmin = h;
+    }
+  }
+}
+function fieldAt(i,j){ return F[Math.min(N-1,Math.max(0,j))*N + Math.min(N-1,Math.max(0,i))]; }
+function gradAngle(i,j){
+  return Math.atan2(fieldAt(i,j+1) - fieldAt(i,j-1), fieldAt(i+1,j) - fieldAt(i-1,j));
+}
+function slopeAt(i,j){
+  var gx = (fieldAt(i+1,j) - fieldAt(i-1,j)) / (2*step);
+  var gz = (fieldAt(i,j+1) - fieldAt(i,j-1)) / (2*step);
+  return Math.sqrt(gx*gx + gz*gz);
+}
+function toGrid(v){ return (v + E) / step; }
+function sampleField(x, z){                       // bilinear read of the heightfield
+  var gx = toGrid(x), gz = toGrid(z);
+  var i = Math.min(N-2, Math.max(0, Math.floor(gx)));
+  var j = Math.min(N-2, Math.max(0, Math.floor(gz)));
+  var u = Math.min(1, Math.max(0, gx - i)), v = Math.min(1, Math.max(0, gz - j));
+  var a = F[j*N+i], b = F[j*N+i+1], c = F[(j+1)*N+i], d = F[(j+1)*N+i+1];
+  return (a*(1-u) + b*u)*(1-v) + (c*(1-u) + d*u)*v;
+}
+
+/* --------------------------- marching squares ----------------------- */
+function hEdge(i,j){ return j*(N-1) + i; }
+function vEdge(i,j){ return HCOUNT + j*N + i; }
+
+function contoursAt(level){
+  var pos = new Map();          // edgeId -> [x, z] in field coords
+  var segs = [];
+  var adj  = new Map();
+
+  function px(i,j,i2,j2,eid){
+    if (pos.has(eid)) return eid;
+    var f0 = F[j*N+i], f1 = F[j2*N+i2];
+    var t = (level - f0) / (f1 - f0);
+    if (!isFinite(t)) t = 0.5;
+    t = t < 0 ? 0 : (t > 1 ? 1 : t);
+    pos.set(eid, [(-E + (i + (i2-i)*t)*step), (-E + (j + (j2-j)*t)*step)]);
+    return eid;
+  }
+  function add(e1, e2){
+    var k = segs.length; segs.push([e1,e2]);
+    var a = adj.get(e1); if (a) a.push(k); else adj.set(e1,[k]);
+    var b = adj.get(e2); if (b) b.push(k); else adj.set(e2,[k]);
+  }
+
+  for (var j=0;j<N-1;j++){
+    for (var i=0;i<N-1;i++){
+      var a = F[j*N+i], b = F[j*N+i+1], c = F[(j+1)*N+i+1], d = F[(j+1)*N+i];
+      var code = (a>=level?1:0) | (b>=level?2:0) | (c>=level?4:0) | (d>=level?8:0);
+      if (code === 0 || code === 15) continue;
+
+      var B = 0, R = 0, T = 0, L = 0;
+      if ((code&1) !== ((code>>1)&1)) B = px(i,j,i+1,j, hEdge(i,j));
+      if (((code>>1)&1) !== ((code>>2)&1)) R = px(i+1,j,i+1,j+1, vEdge(i+1,j));
+      if (((code>>3)&1) !== ((code>>2)&1)) T = px(i,j+1,i+1,j+1, hEdge(i,j+1));
+      if ((code&1) !== ((code>>3)&1)) L = px(i,j,i,j+1, vEdge(i,j));
+
+      switch (code){
+        case 1: case 14: add(L,B); break;
+        case 2: case 13: add(B,R); break;
+        case 3: case 12: add(L,R); break;
+        case 4: case 11: add(R,T); break;
+        case 6: case 9:  add(B,T); break;
+        case 7: case 8:  add(T,L); break;
+        case 5:  if ((a+b+c+d)*0.25 >= level){ add(B,R); add(T,L); } else { add(L,B); add(R,T); } break;
+        case 10: if ((a+b+c+d)*0.25 >= level){ add(L,B); add(R,T); } else { add(B,R); add(T,L); } break;
+      }
+    }
+  }
+
+  var used = new Uint8Array(segs.length);
+  var lines = [];
+  function other(seg, e){ return seg[0] === e ? seg[1] : seg[0]; }
+  function walk(startSeg, startEdge){
+    var pts = [], e = startEdge, s = startSeg;
+    pts.push(pos.get(e));
+    while (true){
+      used[s] = 1;
+      e = other(segs[s], e);
+      pts.push(pos.get(e));
+      var list = adj.get(e), nxt = -1;
+      if (list) for (var q=0;q<list.length;q++){ if (!used[list[q]]){ nxt = list[q]; break; } }
+      if (nxt < 0) break;
+      s = nxt;
+    }
+    return pts;
+  }
+  for (var p=0; p<2; p++){                       // open chains, then closed loops
+    for (var k=0;k<segs.length;k++){
+      if (used[k]) continue;
+      var s0 = segs[k], start = -1;
+      if (p === 0){
+        if ((adj.get(s0[0])||[]).length === 1) start = s0[0];
+        else if ((adj.get(s0[1])||[]).length === 1) start = s0[1];
+        else continue;
+      } else start = s0[0];
+      var pts = walk(k, start);
+      if (pts.length > 12) lines.push(pts);
+    }
+  }
+  return lines;
+}
+
+/* ------------------------- geometry assembly ------------------------ */
+function smoothLine(pts){
+  var n = pts.length, out = new Array(n);
+  out[0] = pts[0]; out[n-1] = pts[n-1];
+  for (var i=1;i<n-1;i++){
+    out[i] = [ (pts[i-1][0] + 2*pts[i][0] + pts[i+1][0]) * 0.25,
+               (pts[i-1][1] + 2*pts[i][1] + pts[i+1][1]) * 0.25 ];
+  }
+  return out;
+}
+
+/* Marching squares emits points at wildly uneven spacing — short slivers where a
+   contour clips a cell corner. Re-walking the line at a fixed step removes them,
+   which is most of what makes a stroke look jagged. */
+function resample(pts, spacing){
+  var out = [pts[0]], acc = 0, cur = pts[0];
+  for (var i=1;i<pts.length;i++){
+    var nx = pts[i][0], nz = pts[i][1];
+    var dx = nx - cur[0], dz = nz - cur[1];
+    var seg = Math.hypot(dx, dz);
+    while (acc + seg >= spacing){
+      var need = (spacing - acc) / seg;
+      cur = [cur[0] + dx*need, cur[1] + dz*need];
+      out.push(cur);
+      dx = nx - cur[0]; dz = nz - cur[1];
+      seg = Math.hypot(dx, dz);
+      acc = 0;
+    }
+    acc += seg;
+    cur = [nx, nz];
+  }
+  if (out.length < 2) out.push(pts[pts.length-1]);
+  return out;
+}
+
+/* Smoothing moves a polyline off its own level set, which buries parts of it in
+   the terrain once the depth mesh is accurate. One Newton step along the gradient
+   puts every point back on the contour while keeping the smoothed shape. */
+function snapToLevel(pts, lev){
+  var e = step;
+  for (var i=0;i<pts.length;i++){
+    var x = pts[i][0], z = pts[i][1];
+    for (var it=0; it<2; it++){
+      var gx = (sampleField(x+e, z) - sampleField(x-e, z)) / (2*e);
+      var gz = (sampleField(x, z+e) - sampleField(x, z-e)) / (2*e);
+      var g2 = gx*gx + gz*gz;
+      if (g2 < 1e-8) break;
+      var k = (lev - sampleField(x, z)) / g2;
+      x += gx*k; z += gz*k;
+    }
+    pts[i] = [x, z];
+  }
+  return pts;
+}
+
+// where the surface breathes — shared by the lines and the depth mesh
+function flowAmpAt(x, z, h){
+  var r = Math.sqrt(x*x + (z+0.22)*(z+0.22));
+  var band = Math.exp(-Math.pow((h/hmax - 0.40)/0.32, 2));
+  var open = 1.0 - Math.exp(-Math.pow(r*0.46, 2));
+  return CFG.FLOW * (0.30 + 0.70*band) * (0.40 + 0.60*open);
+}
+
+function buildLines(){
+  var V = [], I = [];
+  vcount = 0;
+  accentPts = null;
+
+  var levels = [];
+  for (var L=0; L<CFG.LEVELS; L++) levels.push(hmin + (hmax - hmin) * (0.035 + 0.955*L/(CFG.LEVELS-1)));
+
+  /* extract every level first, so we can tell which one is the summit ring */
+  var byLevel = [], topLevel = -1;
+  for (var li=0; li<levels.length; li++){
+    var polys = contoursAt(levels[li]);
+    var keep = [];
+    for (var k=0;k<polys.length;k++){
+      var pl = polys[k];
+      for (var sm=0; sm<4; sm++) pl = smoothLine(pl);
+      if (pl.length < 12) continue;
+      pl = resample(pl, step*1.15);
+      if (pl.length < 8) continue;
+      for (var sm2=0; sm2<2; sm2++) pl = smoothLine(pl);
+      keep.push(snapToLevel(pl, levels[li]));
+    }
+    byLevel.push(keep);
+    if (keep.length) topLevel = li;
+  }
+
+  for (var li2=0; li2<levels.length; li2++){
+    var lev = levels[li2];
+    var elev01 = (lev - hmin) / (hmax - hmin);
+    var group = byLevel[li2];
+
+    for (var pi=0; pi<group.length; pi++){
+      var pts = group[pi];
+
+      /* closed rings lose their duplicated end point so the seam disappears */
+      var closed = Math.hypot(pts[0][0] - pts[pts.length-1][0],
+                              pts[0][1] - pts[pts.length-1][1]) < step*0.75;
+      if (closed) pts = pts.slice(0, pts.length-1);
+      if (pts.length < 8) continue;
+
+      var mx = 0, mz = 0;
+      for (var q=0;q<pts.length;q++){ mx += pts[q][0]; mz += pts[q][1]; }
+      mx /= pts.length; mz /= pts.length;
+
+      var slope   = slopeAt(Math.round(toGrid(pts[0][0])), Math.round(toGrid(pts[0][1])));
+      var rc      = Math.sqrt(mx*mx + (mz+0.22)*(mz+0.22));
+      var central = Math.exp(-Math.pow(rc*0.60, 2.4));
+      var steep   = Math.min(1, slope / 1.60);
+      var crest   = elev01 < 0.55 ? 0 : (elev01 - 0.55) / 0.45;
+
+      var weight = 0.10 + 0.22*central + 0.55*steep + 0.35*steep*central + 0.30*crest*crest*central;
+      weight = Math.min(1, Math.max(0, weight));
+
+      /* 0 solid · 1 dashed · 2 accent (summit) · 3 dotted (outer rings) */
+      var style = 0;
+      if (li2 < CFG.DOTTED_LEVELS) style = 3;
+      else if (weight < 0.30 && (li2 % 2) === 1) style = 1;
+      if (li2 === topLevel){ style = 2; weight = 1; }
+
+      var flow = reduceMotion ? 0 : flowAmpAt(mx, mz, lev);
+      var n = pts.length, base = vcount;
+      var ring = (style === 2) ? [] : null;
+      var y = lev*HS + CFG.LINE_LIFT;
+
+      var arcs = [0];
+      for (var q1=1; q1<n; q1++){
+        arcs[q1] = arcs[q1-1] + Math.hypot(pts[q1][0]-pts[q1-1][0], pts[q1][1]-pts[q1-1][1]) * S;
+      }
+
+      for (var q2=0; q2<n; q2++){
+        var cur = pts[q2];
+        var pv  = closed ? pts[(q2 - 1 + n) % n] : pts[Math.max(0, q2-1)];
+        var nx2 = closed ? pts[(q2 + 1) % n]     : pts[Math.min(n-1, q2+1)];
+        var x = cur[0]*S, z = cur[1]*S;
+
+        if (ring) ring.push(x, y, z);
+        for (var sgn=-1; sgn<=1; sgn+=2){
+          V.push(x, y, z, sgn,
+                 pv[0]*S, y, pv[1]*S, gradAngle(Math.round(toGrid(cur[0])), Math.round(toGrid(cur[1]))),
+                 nx2[0]*S, y, nx2[1]*S, flow,
+                 arcs[q2], weight, style, 0);
+        }
+        vcount += 2;
+      }
+      if (ring && (!accentPts || ring.length > accentPts.length)) accentPts = new Float32Array(ring);
+
+      var segs = closed ? n : n - 1;
+      for (var q3=0; q3<segs; q3++){
+        var i0 = base + q3*2, i1 = base + ((q3+1) % n)*2;
+        I.push(i0, i0+1, i1,  i1, i0+1, i1+1);
+      }
+    }
+  }
+  vtx = new Float32Array(V);
+  idx = new Uint32Array(I);
+}
+
+function buildMesh(){
+  var MN = CFG.MN, mstep = (2*E)/(MN-1);
+  mvtx = new Float32Array(MN*MN*6);
+  for (var mj=0; mj<MN; mj++){
+    for (var mi=0; mi<MN; mi++){
+      var x0 = -E + mi*mstep, z0 = -E + mj*mstep;
+      var h0 = sampleField(x0, z0);
+      var o = (mj*MN+mi)*6;
+      mvtx[o]   = x0*S; mvtx[o+1] = h0*HS; mvtx[o+2] = z0*S;
+      mvtx[o+3] = gradAngle(Math.round(toGrid(x0)), Math.round(toGrid(z0)));
+      mvtx[o+4] = reduceMotion ? 0 : flowAmpAt(x0, z0, h0);
+      /* Stored steep and centred on 0.5: the outline shader reads this as a
+         screen-space distance field, and a gentle ramp would quantise to nothing
+         in an 8-bit channel. */
+      var cn = massifAt(x0, z0);
+      mvtx[o+5] = Math.min(1, Math.max(0, 0.5 + (cn - CFG.MASK_TH) * CFG.MASK_K));
+    }
+  }
+  if (!midx){
+    midx = new Uint32Array((MN-1)*(MN-1)*6);
+    var mp = 0;
+    for (var mj2=0; mj2<MN-1; mj2++){
+      for (var mi2=0; mi2<MN-1; mi2++){
+        var a2 = mj2*MN+mi2, b2 = a2+1, c2 = a2+MN, d2 = c2+1;
+        midx[mp++]=a2; midx[mp++]=c2; midx[mp++]=b2;
+        midx[mp++]=b2; midx[mp++]=c2; midx[mp++]=d2;
+      }
+    }
+  }
+}
+
+function buildAll(){ buildField(); buildLines(); buildMesh(); }
+buildAll();
+
+/* ------------------------------- matrices --------------------------- */
+function mul(a,b){                       // column-major, out = a * b
+  var o = new Float32Array(16);
+  for (var i=0;i<4;i++) for (var j=0;j<4;j++){
+    o[i*4+j] = a[j]*b[i*4] + a[4+j]*b[i*4+1] + a[8+j]*b[i*4+2] + a[12+j]*b[i*4+3];
+  }
+  return o;
+}
+function perspective(fovy, aspect, near, far){
+  var f = 1/Math.tan(fovy/2), nf = 1/(near-far);
+  return new Float32Array([f/aspect,0,0,0, 0,f,0,0, 0,0,(far+near)*nf,-1, 0,0,2*far*near*nf,0]);
+}
+function lookAt(e, c, up){
+  var zx=e[0]-c[0], zy=e[1]-c[1], zz=e[2]-c[2];
+  var zl=Math.hypot(zx,zy,zz)||1; zx/=zl; zy/=zl; zz/=zl;
+  var xx=up[1]*zz-up[2]*zy, xy=up[2]*zx-up[0]*zz, xz=up[0]*zy-up[1]*zx;
+  var xl=Math.hypot(xx,xy,xz)||1; xx/=xl; xy/=xl; xz/=xl;
+  var yx=zy*xz-zz*xy, yy=zz*xx-zx*xz, yz=zx*xy-zy*xx;
+  return new Float32Array([
+    xx,yx,zx,0, xy,yy,zy,0, xz,yz,zz,0,
+    -(xx*e[0]+xy*e[1]+xz*e[2]), -(yx*e[0]+yy*e[1]+yz*e[2]), -(zx*e[0]+zy*e[1]+zz*e[2]), 1
+  ]);
+}
+
+/* -------------------------------- WebGL ----------------------------- */
+var canvas = document.getElementById("c");
+var opts = {antialias:true, alpha:false, powerPreference:"high-performance"};
+var gl = canvas.getContext("webgl2", opts);
+if (!gl){
+  gl = canvas.getContext("webgl", opts);
+  if (!gl) return;
+  gl.getExtension("OES_element_index_uint");
+}
+
+var DISPLACE = [
+  "uniform float uTime; uniform vec3 uCursor; uniform float uCursorAmt;",
+  "uniform float uCursorK; uniform float uHScale;",
+  "vec3 displace(vec3 p0, float ga, float flow){",
+  "  vec3 p = vec3(p0.x, p0.y * uHScale, p0.z);",
+  "  vec2 g = vec2(cos(ga), sin(ga));",
+  "  float n = sin(p.x*0.31 + uTime*0.36) * cos(p.z*0.27 - uTime*0.25)",
+  "          + 0.5*sin((p.x + p.z)*0.19 + uTime*0.52);",
+  "  vec3 q = p;",
+  "  q.xz += g * n * 0.62 * flow;",
+  "  float R = " + CFG.CURSOR_R.toFixed(2) + ";",
+  // the cursor bulge is a purely positional field: lines and depth mesh move as one,
+  // which a slope-aligned push would not do once the amplitude gets large
+  "  vec2 v = p.xz - uCursor.xz;",
+  "  float d = length(v);",
+  "  float f = exp(-(d*d)/(2.0*R*R)) * uCursorAmt * uCursorK;",
+  "  float swell = 1.0 + 0.30*sin(d*0.42 - uTime*1.30);",
+  "  q.xz += (v / (d + 2.0)) * f * swell * " + CFG.CURSOR_AMP.toFixed(2) + ";",
+  "  q.y  += f * swell * " + CFG.CURSOR_LIFT.toFixed(2) + ";",
+  "  return q;",
+  "}"
+].join("\n");
+
+var lineVS = [
+  "precision highp float;",
+  "attribute vec4 aPosSide;",   // xyz position, w side (-1 / +1)
+  "attribute vec4 aPrevG;",     // xyz previous point, w gradient angle
+  "attribute vec4 aNextF;",     // xyz next point,     w flow amplitude
+  "attribute vec4 aMeta;",      // arc length, weight, style, spare
+  "uniform mat4 uVP; uniform vec2 uHalfRes; uniform float uDPR; uniform float uWeight;",
+  "uniform vec3 uEye; uniform vec2 uFadeRange;",
+  DISPLACE,
+  "varying float vArc; varying float vEdge; varying float vCore;",
+  "varying float vWeight; varying float vDash; varying float vFar;",
+  "vec2 toScreen(vec4 c){ return (c.xy / max(abs(c.w), 1e-4)) * uHalfRes; }",
+  "void main(){",
+  "  float ga = aPrevG.w, flow = aNextF.w;",
+  "  vec3 p = displace(aPosSide.xyz, ga, flow);",
+  "  vec3 a = displace(aPrevG.xyz,   ga, flow);",
+  "  vec3 b = displace(aNextF.xyz,   ga, flow);",
+  "  vec4 cp = uVP * vec4(p, 1.0);",
+  "  vec2 s1 = toScreen(cp);",
+  "  vec2 s0 = toScreen(uVP * vec4(a, 1.0));",
+  "  vec2 s2 = toScreen(uVP * vec4(b, 1.0));",
+  // an end point has no neighbour on one side; reuse the other direction there
+  "  vec2 e0 = s1 - s0, e1 = s2 - s1;",
+  "  bool h0 = length(e0) > 1e-4, h1 = length(e1) > 1e-4;",
+  "  vec2 d0 = h0 ? normalize(e0) : vec2(0.0), d1 = h1 ? normalize(e1) : vec2(0.0);",
+  "  if (!h0) d0 = d1;",
+  "  if (!h1) d1 = d0;",
+  "  if (!h0 && !h1) d0 = d1 = vec2(1.0, 0.0);",
+  "  vec2 n0 = vec2(-d0.y, d0.x), n1 = vec2(-d1.y, d1.x);",
+  // the mitre bisector keeps the stroke a constant width through a corner;
+  // clamping it stops a hairpin from firing a spike across the screen
+  "  vec2 m = n0 + n1;",
+  "  m = (length(m) < 1e-4) ? n1 : normalize(m);",
+  "  float scale = 1.0 / max(0.45, dot(m, n1));",
+  "  float core  = mix(" + CFG.LINE_MIN.toFixed(2) + ", " + CFG.LINE_MAX.toFixed(2) + ", aMeta.y)",
+  "              * 0.5 * uDPR * uWeight;",
+  "  if (aMeta.z > 1.5 && aMeta.z < 2.5) core *= 1.30;",
+  "  float half_ = core + 1.0;",
+  "  cp.xy += (m * aPosSide.w * half_ * scale / uHalfRes) * cp.w;",
+  "  gl_Position = cp;",
+  "  vArc = aMeta.x; vWeight = aMeta.y; vDash = aMeta.z;",
+  "  vEdge = aPosSide.w * half_; vCore = core;",
+  "  vFar = 1.0 - smoothstep(uFadeRange.x, uFadeRange.y, distance(p, uEye));",
+  "}"
+].join("\n");
+
+var lineFS = [
+  "precision highp float;",
+  "uniform float uFade; uniform float uTime; uniform vec3 uInk; uniform vec3 uAccent;",
+  "varying float vArc; varying float vEdge; varying float vCore;",
+  "varying float vWeight; varying float vDash; varying float vFar;",
+  "void main(){",
+  "  float a = clamp(vCore - abs(vEdge) + 0.6, 0.0, 1.0);",
+  "  vec3 ink = uInk;",
+  "  if (vDash > 2.5){",                       // dotted outer rings
+  "    float t = fract((vArc + uTime * 0.16) / 0.42);",
+  "    a *= 1.0 - smoothstep(0.16, 0.30, t);",
+  "  } else if (vDash > 1.5){",                // summit ring
+  "    ink = uAccent;",
+  "  } else if (vDash > 0.5){",                // dashed background lines
+  "    float t = fract((vArc + uTime * 0.20) / 0.70);",
+  "    a *= smoothstep(0.0, 0.10, t) * (1.0 - smoothstep(0.54, 0.66, t));",
+  "  }",
+  "  a *= mix(0.42, 1.00, vWeight) * uFade * vFar;",
+  "  if (a < 0.004) discard;",
+  "  gl_FragColor = vec4(ink, a);",
+  "}"
+].join("\n");
+
+var meshVS = [
+  "precision highp float;",
+  "attribute vec3 aPos; attribute float aGrad; attribute float aFlow;",
+  "uniform mat4 uVP;",
+  DISPLACE,
+  "void main(){ gl_Position = uVP * vec4(displace(aPos, aGrad, aFlow), 1.0); }"
+].join("\n");
+
+var meshFS = "precision mediump float; void main(){ gl_FragColor = vec4(0.0); }";
+
+/* linear view distance, packed to RGB8, for the silhouette pass */
+var depthVS = [
+  "precision highp float;",
+  "attribute vec3 aPos; attribute float aGrad; attribute float aFlow; attribute float aMask;",
+  "uniform mat4 uVP; uniform vec3 uEye; uniform float uFarDist;",
+  DISPLACE,
+  "varying float vD; varying float vMask;",
+  "void main(){",
+  "  vec3 p = displace(aPos, aGrad, aFlow);",
+  "  vD = distance(p, uEye) / uFarDist;",
+  "  vMask = aMask;",
+  "  gl_Position = uVP * vec4(p, 1.0);",
+  "}"
+].join("\n");
+
+var depthFS = [
+  "precision highp float;",
+  "varying float vD; varying float vMask;",
+  "void main(){",
+  "  float v = clamp(vD, 0.0, 0.999999);",
+  "  vec3 enc = fract(v * vec3(1.0, 255.0, 65025.0));",
+  "  enc.xy -= enc.yz * (1.0/255.0);",
+  "  gl_FragColor = vec4(enc, clamp(vMask, 0.0, 1.0));",
+  "}"
+].join("\n");
+
+var edgeVS = [
+  "precision highp float;",
+  "attribute vec2 aXY;",
+  "varying vec2 vUV;",
+  "void main(){ vUV = aXY*0.5 + 0.5; gl_Position = vec4(aXY, 0.0, 1.0); }"
+].join("\n");
+
+/* One outline, not many: instead of hunting every depth discontinuity (which also
+   finds satellite peaks and every ridge that overlaps itself), the depth pass tags
+   each fragment with how much it belongs to the main massif. The boundary of that
+   region is a single closed curve. Reading it as a screen-space signed distance
+   gives an exact stroke width. */
+var edgeFS = [
+  "precision highp float;",
+  "uniform sampler2D uTex; uniform vec2 uTexel; uniform float uRadius;",
+  "uniform float uOutlineW; uniform float uOffset;",
+  "uniform vec3 uInk; uniform float uFarDist; uniform vec2 uFadeRange; uniform float uFade;",
+  "varying vec2 vUV;",
+  "float unpackD(vec3 c){ return dot(c, vec3(1.0, 1.0/255.0, 1.0/65025.0)); }",
+  "void main(){",
+  "  vec2 o = uTexel * uRadius;",
+  "  vec4 c0 = texture2D(uTex, vUV);",
+  "  float m0 = c0.a;",
+  "  float mL = texture2D(uTex, vUV - vec2(o.x, 0.0)).a;",
+  "  float mR = texture2D(uTex, vUV + vec2(o.x, 0.0)).a;",
+  "  float mD = texture2D(uTex, vUV - vec2(0.0, o.y)).a;",
+  "  float mU = texture2D(uTex, vUV + vec2(0.0, o.y)).a;",
+  "  vec2 g = vec2(mR - mL, mU - mD) * 0.5 / uRadius;",   // mask change per pixel
+  "  float gm = length(g);",
+  "  if (gm < 1e-5) discard;",
+  "  float dist = (m0 - 0.5) / gm;",                     // signed distance, + inside
+  // a true outer stroke: it begins at the boundary plus the offset and runs
+  // outward, so it never sits on the mountain itself
+  "  float e = -dist - uOffset;",
+  "  float a = clamp(min(e + 0.5, uOutlineW - e + 0.5), 0.0, 1.0);",
+  "  if (a < 0.01) discard;",
+  "  a *= (1.0 - smoothstep(uFadeRange.x, uFadeRange.y, unpackD(c0.rgb) * uFarDist)) * uFade;",
+  "  if (a < 0.01) discard;",
+  "  gl_FragColor = vec4(uInk, a);",
+  "}"
+].join("\n");
+
+function compile(src, type){
+  var s = gl.createShader(type);
+  gl.shaderSource(s, src); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.error(gl.getShaderInfoLog(s));
+  return s;
+}
+function program(vs, fs){
+  var p = gl.createProgram();
+  gl.attachShader(p, compile(vs, gl.VERTEX_SHADER));
+  gl.attachShader(p, compile(fs, gl.FRAGMENT_SHADER));
+  gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) console.error(gl.getProgramInfoLog(p));
+  return p;
+}
+
+var progLine = program(lineVS, lineFS);
+var progMesh = program(meshVS, meshFS);
+var isGL2 = (typeof WebGL2RenderingContext !== "undefined") && (gl instanceof WebGL2RenderingContext);
+var progDepth = isGL2 ? program(depthVS, depthFS) : null;
+var progEdge  = isGL2 ? program(edgeVS,  edgeFS)  : null;
+function loc(p, names){ var o = {}; for (var i=0;i<names.length;i++) o[names[i]] = gl.getUniformLocation(p, names[i]); return o; }
+var uL = loc(progLine, ["uVP","uHalfRes","uDPR","uWeight","uEye","uFadeRange","uTime",
+                        "uCursor","uCursorAmt","uCursorK","uHScale","uFade","uInk","uAccent"]);
+var uM = loc(progMesh, ["uVP","uTime","uCursor","uCursorAmt","uCursorK","uHScale"]);
+var uD = progDepth ? loc(progDepth, ["uVP","uEye","uFarDist","uTime","uCursor","uCursorAmt","uCursorK","uHScale"]) : null;
+var uE = progEdge  ? loc(progEdge,  ["uTex","uTexel","uRadius","uOffset","uOutlineW","uInk","uFarDist","uFadeRange","uFade"]) : null;
+var aD = progDepth ? {
+  pos:  gl.getAttribLocation(progDepth, "aPos"),
+  grad: gl.getAttribLocation(progDepth, "aGrad"),
+  flow: gl.getAttribLocation(progDepth, "aFlow"),
+  mask: gl.getAttribLocation(progDepth, "aMask")
+} : null;
+var aE = progEdge ? gl.getAttribLocation(progEdge, "aXY") : -1;
+var aL = {
+  posSide: gl.getAttribLocation(progLine, "aPosSide"),
+  prevG:   gl.getAttribLocation(progLine, "aPrevG"),
+  nextF:   gl.getAttribLocation(progLine, "aNextF"),
+  meta:    gl.getAttribLocation(progLine, "aMeta")
+};
+var aM = {
+  pos:  gl.getAttribLocation(progMesh, "aPos"),
+  grad: gl.getAttribLocation(progMesh, "aGrad"),
+  flow: gl.getAttribLocation(progMesh, "aFlow")
+};
+
+/* offscreen target holding packed linear depth, for the silhouette pass */
+var silFBO = null, silTex = null, silRBO = null, silW = 0, silH = 0;
+var quadVBO = null;
+if (isGL2){
+  silFBO = gl.createFramebuffer();
+  silTex = gl.createTexture();
+  silRBO = gl.createRenderbuffer();
+  quadVBO = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, quadVBO);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+}
+function sizeSilhouette(w, h){
+  if (!isGL2 || (w === silW && h === silH)) return;
+  silW = w; silH = h;
+  gl.bindTexture(gl.TEXTURE_2D, silTex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.bindRenderbuffer(gl.RENDERBUFFER, silRBO);
+  gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, w, h);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, silFBO);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, silTex, 0);
+  gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, silRBO);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+}
+
+var lineVBO = gl.createBuffer(), lineIBO = gl.createBuffer();
+var meshVBO = gl.createBuffer(), meshIBO = gl.createBuffer();
+var lineCount = 0, meshCount = 0;
+
+function upload(){
+  gl.bindBuffer(gl.ARRAY_BUFFER, lineVBO);
+  gl.bufferData(gl.ARRAY_BUFFER, vtx, gl.STATIC_DRAW);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, lineIBO);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idx, gl.STATIC_DRAW);
+  lineCount = idx.length;
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, meshVBO);
+  gl.bufferData(gl.ARRAY_BUFFER, mvtx, gl.STATIC_DRAW);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, meshIBO);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, midx, gl.STATIC_DRAW);
+  meshCount = midx.length;
+}
+upload();
+
+/* ------------------------------ interaction ------------------------- */
+var pointer = {x:0, y:0, tx:0, ty:0, amt:0, tamt:0};
+var lastVP = null, lastEye = null, lastTarget = [0,0,0], nowSec = 0;
+var lockEase = 0, lockScaleNow = 1;
+var cursorWorld = [0,0,0], cursorTarget = [0,0,0];
+
+window.addEventListener("pointermove", function(e){
+  var r = canvas.getBoundingClientRect();
+  if (!r.width) return;
+  pointer.tx = ((e.clientX - r.left) / r.width) * 2 - 1;
+  pointer.ty = ((e.clientY - r.top) / r.height) * 2 - 1;
+  pointer.tamt = 1;
+}, {passive:true});
+window.addEventListener("pointerleave", function(){ pointer.tamt = 0; }, {passive:true});
+
+/* project a world point with the frame's own matrix, so picking matches what is drawn */
+function projectXY(x, y, z, out){
+  var VP = lastVP; if (!VP) return false;
+  var w = VP[3]*x + VP[7]*y + VP[11]*z + VP[15];
+  if (w <= 0.001) return false;
+  out[0] = ((VP[0]*x + VP[4]*y + VP[8]*z  + VP[12]) / w * 0.5 + 0.5) * W;
+  out[1] = (0.5 - (VP[1]*x + VP[5]*y + VP[9]*z + VP[13]) / w * 0.5) * H;
+  return true;
+}
+var _p2 = [0,0];
+function distToSummitRing(px, py){           // device px
+  if (!accentPts) return 1e9;
+  var best = 1e9;
+  for (var i=0; i<accentPts.length; i+=3){
+    if (!projectXY(accentPts[i], accentPts[i+1]*UI.depth, accentPts[i+2], _p2)) continue;
+    var dx = _p2[0]-px, dy = _p2[1]-py, d = dx*dx + dy*dy;
+    if (d < best) best = d;
+  }
+  return Math.sqrt(best);
+}
+function eventDevicePx(e){
+  var r = canvas.getBoundingClientRect();
+  return [ (e.clientX - r.left) / r.width * W, (e.clientY - r.top) / r.height * H ];
+}
+function pointerRay(ndx, ndy){
+  if (!lastEye) return null;
+  ndx = (ndx - CFG.LOCK_X * lockEase) / lockScaleNow;
+  ndy = (ndy - CFG.LOCK_Y * lockEase) / lockScaleNow;
+  var eye = lastEye;
+  var tanY = Math.tan(CAM.fov * Math.PI/360), tanX = tanY * (W/H);
+  var fwd = [lastTarget[0]-eye[0], lastTarget[1]-eye[1], lastTarget[2]-eye[2]];
+  var fl = Math.hypot(fwd[0],fwd[1],fwd[2])||1; fwd = [fwd[0]/fl, fwd[1]/fl, fwd[2]/fl];
+  var rgt = [fwd[2], 0, -fwd[0]];
+  var rl = Math.hypot(rgt[0],rgt[2])||1; rgt = [rgt[0]/rl, 0, rgt[2]/rl];
+  var up = [rgt[1]*fwd[2]-rgt[2]*fwd[1], rgt[2]*fwd[0]-rgt[0]*fwd[2], rgt[0]*fwd[1]-rgt[1]*fwd[0]];
+  return [
+    fwd[0] + rgt[0]*ndx*tanX + up[0]*ndy*tanY,
+    fwd[1] + rgt[1]*ndx*tanX + up[1]*ndy*tanY,
+    fwd[2] + rgt[2]*ndx*tanX + up[2]*ndy*tanY
+  ];
+}
+
+canvas.addEventListener("pointermove", function(e){
+  canvas.style.cursor = distToSummitRing.apply(null, eventDevicePx(e)) < 16*DPR ? "pointer" : "default";
+}, {passive:true});
+
+canvas.addEventListener("click", function(e){
+  var px = eventDevicePx(e);
+  if (distToSummitRing(px[0], px[1]) < 16*DPR) openOverlay();
+});
+document.addEventListener("visibilitychange", function(){ if (!document.hidden) last = performance.now(); });
+
+var W = 1, H = 1, DPR = 1;
+function resize(){
+  var dpr = DPR = Math.min(window.devicePixelRatio || 1, 2);
+  var r = canvas.getBoundingClientRect();
+  var w = Math.max(1, Math.round(r.width * dpr));
+  var h = Math.max(1, Math.round(r.height * dpr));
+  if (w !== W || h !== H){ W = w; H = h; canvas.width = W; canvas.height = H; }
+}
+window.addEventListener("resize", resize);
+resize();
+
+var CAM = { dist: 46.0, elev: 0.440, lift: 0.0, fov: 32, target: [0, 5.3, -2.0] };
+
+/* 0 while the ridge owns the hero, 1 once it has locked to the left. The whole
+   handover happens across the first viewport height of page scroll. */
+var lock = 0, lockTarget = 0;
+function scrollOffset(){
+  var d = document.documentElement, b = document.body;
+  return window.scrollY || window.pageYOffset || (d && d.scrollTop) || (b && b.scrollTop) || 0;
+}
+function readScroll(){
+  var span = Math.max(1, window.innerHeight);
+  lockTarget = Math.min(1, Math.max(0, scrollOffset() / span));
+}
+readScroll();
+lock = lockTarget;
+
+/* clip-space placement: scale about the origin, then slide left. Applied after the
+   projection so the depth pass, the outline and the contours all move as one. */
+function clipXform(scale, tx, ty){
+  return new Float32Array([
+    scale, 0, 0, 0,
+    0, scale, 0, 0,
+    0, 0, 1, 0,
+    tx, ty, 0, 1
+  ]);
+}
+
+/* march the pointer ray against the heightfield so the reaction lands on the
+   surface the cursor is actually over, not on an arbitrary plane */
+var RC_OUT = [0, 0];
+function raycastTerrain(eye, ray){
+  var far = CAM.dist * 2.4, prev = 0, prevGap = eye[1] - sampleField(eye[0]/S, eye[2]/S)*HS*UI.depth;
+  for (var i=1;i<=72;i++){
+    var t = (i/72)*far;
+    var x = eye[0] + ray[0]*t, y = eye[1] + ray[1]*t, z = eye[2] + ray[2]*t;
+    if (Math.abs(x) > E*S || Math.abs(z) > E*S){ prev = t; continue; }
+    var gap = y - sampleField(x/S, z/S)*HS*UI.depth;
+    if (gap <= 0){
+      var f = prevGap / (prevGap - gap);          // linear refine across the crossing
+      var tt = prev + (t - prev)*f;
+      RC_OUT[0] = eye[0] + ray[0]*tt;
+      RC_OUT[1] = eye[2] + ray[2]*tt;
+      return RC_OUT;
+    }
+    prev = t; prevGap = gap;
+  }
+  return null;
+}
+
+/* -------------------------------- render ---------------------------- */
+gl.enable(gl.DEPTH_TEST);
+gl.depthFunc(gl.LEQUAL);
+gl.enable(gl.BLEND);
+gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+var t0 = performance.now(), last = t0;
+
+function frame(now){
+  var dt = Math.min(0.05, (now - last) / 1000); last = now;
+  readScroll();
+  var t = (now - t0) / 1000;
+  var fade = Math.min(1, t / 1.5); fade = fade*fade*(3-2*fade);
+
+  // faster tracking than before, so the scene feels attached to the cursor
+  lock += (lockTarget - lock) * Math.min(1, dt*(reduceMotion ? 14 : 6.5));
+  var ease = lock*lock*(3 - 2*lock);
+  var lockScale = 1 + (CFG.LOCK_SCALE - 1) * ease;
+  var lockFade  = 1 + (CFG.LOCK_OPACITY - 1) * ease;
+  var settled   = 1 - ease;                    // 1 in the hero, 0 once locked
+
+  pointer.x   += (pointer.tx   - pointer.x)   * Math.min(1, dt*7.0);
+  pointer.y   += (pointer.ty   - pointer.y)   * Math.min(1, dt*7.0);
+  pointer.amt += (pointer.tamt - pointer.amt) * Math.min(1, dt*4.5);
+
+  resize();
+  gl.viewport(0, 0, W, H);
+
+  /* the camera tilt fades out as it locks, so the ridge stays put — the local
+     cursor wave and the contour flow are untouched and keep running */
+  var k = UI.cursor * settled;
+  var drift = reduceMotion ? 0 : Math.sin(t*0.11) * 0.040 * settled;
+  var yaw   = CFG.LOCK_YAW * ease + pointer.x * CFG.TILT_YAW * pointer.amt * k + drift;
+  var elev  = UI.angle - pointer.y * CFG.TILT_PITCH * pointer.amt * k;
+  elev = Math.min(1.05, Math.max(0.10, elev));
+
+  /* auto-compose: stay above the summit and hold it at a fixed height in frame,
+     whatever the relief or the landform's own peak turns out to be */
+  var peakY = hmax * HS * UI.depth;
+  var eyeY  = Math.sin(elev) * CAM.dist + CAM.lift;
+  var eye = new Float32Array([
+    Math.sin(yaw) * Math.cos(elev) * CAM.dist,
+    eyeY,
+    Math.cos(yaw) * Math.cos(elev) * CAM.dist
+  ]);
+  lastEye = eye;
+  var halfFov   = CAM.fov * Math.PI/360;
+  var horizPeak = Math.max(1, Math.hypot(eye[0], eye[2]));
+  var camPitch  = Math.atan((peakY - eyeY)/horizPeak) - halfFov*0.72;   // ~14% headroom
+  var horizT    = Math.max(1, Math.hypot(eye[0]-CAM.target[0], eye[2]-CAM.target[2]));
+  var target = [CAM.target[0], eyeY + Math.tan(camPitch)*horizT, CAM.target[2]];
+  lastTarget = target;
+  var view = lookAt(eye, target, [0,1,0]);
+  var proj = perspective(CAM.fov * Math.PI/180, W/H, 0.5, 200);
+  var VP = mul(clipXform(lockScale, CFG.LOCK_X * ease, CFG.LOCK_Y * ease), mul(proj, view));
+  lastVP = VP; nowSec = t; lockEase = ease; lockScaleNow = lockScale;
+
+  /* cursor -> a point on the terrain-height plane */
+  if (pointer.amt > 0.01){
+    var tanY = Math.tan(CAM.fov * Math.PI/360), tanX = tanY * (W/H);
+    var fwd = [target[0]-eye[0], target[1]-eye[1], target[2]-eye[2]];
+    var fl = Math.hypot(fwd[0],fwd[1],fwd[2])||1; fwd = [fwd[0]/fl, fwd[1]/fl, fwd[2]/fl];
+    var rgt = [fwd[2], 0, -fwd[0]];
+    var rl = Math.hypot(rgt[0],rgt[2])||1; rgt = [rgt[0]/rl, 0, rgt[2]/rl];
+    var up = [rgt[1]*fwd[2]-rgt[2]*fwd[1], rgt[2]*fwd[0]-rgt[0]*fwd[2], rgt[0]*fwd[1]-rgt[1]*fwd[0]];
+    var ndx = ( pointer.x - CFG.LOCK_X * ease) / lockScale;
+    var ndy = (-pointer.y - CFG.LOCK_Y * ease) / lockScale;
+    var ray = [
+      fwd[0] + rgt[0]*ndx*tanX + up[0]*ndy*tanY,
+      fwd[1] + rgt[1]*ndx*tanX + up[1]*ndy*tanY,
+      fwd[2] + rgt[2]*ndx*tanX + up[2]*ndy*tanY
+    ];
+    var hit = raycastTerrain(eye, ray);
+    if (hit){ cursorTarget[0] = hit[0]; cursorTarget[2] = hit[1]; }
+  }
+  var lp = Math.min(1, dt*9.0);
+  cursorWorld[0] += (cursorTarget[0] - cursorWorld[0]) * lp;
+  cursorWorld[2] += (cursorTarget[2] - cursorWorld[2]) * lp;
+
+  var farDist = CAM.dist * 3.2;
+  var crop  = 1 - 0.22*ease;
+  var fadeA = CAM.dist*CFG.FADE_A*crop, fadeB = CAM.dist*CFG.FADE_B*crop;
+
+  /* pass 0 — packed linear depth into an offscreen target */
+  if (isGL2){
+    sizeSilhouette(W, H);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, silFBO);
+    gl.viewport(0, 0, W, H);
+    gl.clearColor(1, 1, 1, 0);   // alpha 0 = not the massif
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.useProgram(progDepth);
+    gl.uniformMatrix4fv(uD.uVP, false, VP);
+    gl.uniform3fv(uD.uEye, eye);
+    gl.uniform1f(uD.uFarDist, farDist);
+    gl.uniform1f(uD.uTime, t);
+    gl.uniform3fv(uD.uCursor, cursorWorld);
+    gl.uniform1f(uD.uCursorAmt, pointer.amt);
+    gl.uniform1f(uD.uCursorK, UI.cursor);
+    gl.uniform1f(uD.uHScale, UI.depth);
+    gl.depthMask(true);
+    gl.bindBuffer(gl.ARRAY_BUFFER, meshVBO);
+    gl.enableVertexAttribArray(aD.pos);  gl.vertexAttribPointer(aD.pos, 3, gl.FLOAT, false, 24, 0);
+    gl.enableVertexAttribArray(aD.grad); gl.vertexAttribPointer(aD.grad, 1, gl.FLOAT, false, 24, 12);
+    gl.enableVertexAttribArray(aD.flow); gl.vertexAttribPointer(aD.flow, 1, gl.FLOAT, false, 24, 16);
+    gl.enableVertexAttribArray(aD.mask); gl.vertexAttribPointer(aD.mask, 1, gl.FLOAT, false, 24, 20);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, meshIBO);
+    gl.drawElements(gl.TRIANGLES, meshCount, gl.UNSIGNED_INT, 0);
+    gl.disableVertexAttribArray(aD.pos);
+    gl.disableVertexAttribArray(aD.grad);
+    gl.disableVertexAttribArray(aD.flow);
+    gl.disableVertexAttribArray(aD.mask);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, W, H);
+  }
+
+  /* pass 1 — depth only, for hidden-line removal */
+  gl.useProgram(progMesh);
+  gl.uniformMatrix4fv(uM.uVP, false, VP);
+  gl.uniform1f(uM.uTime, t);
+  gl.uniform3fv(uM.uCursor, cursorWorld);
+  gl.uniform1f(uM.uCursorAmt, pointer.amt);
+  gl.uniform1f(uM.uCursorK, UI.cursor);
+  gl.uniform1f(uM.uHScale, UI.depth);
+  gl.clearColor(UI.bg[0], UI.bg[1], UI.bg[2], 1.0);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.colorMask(false, false, false, false);
+  gl.depthMask(true);
+  gl.enable(gl.POLYGON_OFFSET_FILL);
+  gl.polygonOffset(2.0, 6.0);        // push the surface back, slope-aware,
+                                     // so contours sit on it instead of fighting it
+  gl.bindBuffer(gl.ARRAY_BUFFER, meshVBO);
+  gl.enableVertexAttribArray(aM.pos);  gl.vertexAttribPointer(aM.pos, 3, gl.FLOAT, false, 24, 0);
+  gl.enableVertexAttribArray(aM.grad); gl.vertexAttribPointer(aM.grad, 1, gl.FLOAT, false, 24, 12);
+  gl.enableVertexAttribArray(aM.flow); gl.vertexAttribPointer(aM.flow, 1, gl.FLOAT, false, 24, 16);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, meshIBO);
+  gl.drawElements(gl.TRIANGLES, meshCount, gl.UNSIGNED_INT, 0);
+  gl.disableVertexAttribArray(aM.pos);
+  gl.disableVertexAttribArray(aM.grad);
+  gl.disableVertexAttribArray(aM.flow);
+  gl.disable(gl.POLYGON_OFFSET_FILL);
+
+  /* pass 2 — the mountain's own outline, from depth discontinuities */
+  gl.colorMask(true, true, true, true);
+  if (isGL2 && UI.outline){
+    gl.useProgram(progEdge);
+    gl.disable(gl.DEPTH_TEST);
+    gl.depthMask(false);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, silTex);
+    gl.uniform1i(uE.uTex, 0);
+    gl.uniform2f(uE.uTexel, 1/W, 1/H);
+    gl.uniform1f(uE.uRadius, 1.0);
+    gl.uniform1f(uE.uOffset, UI.offset * DPR);
+    gl.uniform1f(uE.uOutlineW, CFG.LINE_MAX * CFG.OUTLINE * UI.weight * lockScale * DPR);
+    gl.uniform3fv(uE.uInk, UI.ink);
+    gl.uniform1f(uE.uFarDist, farDist);
+    gl.uniform2f(uE.uFadeRange, fadeA, fadeB);
+    gl.uniform1f(uE.uFade, fade * lockFade);
+    gl.bindBuffer(gl.ARRAY_BUFFER, quadVBO);
+    gl.enableVertexAttribArray(aE);
+    gl.vertexAttribPointer(aE, 2, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.disableVertexAttribArray(aE);
+    gl.enable(gl.DEPTH_TEST);
+  }
+
+  /* pass 3 — contour ribbons */
+  gl.depthMask(false);
+  gl.useProgram(progLine);
+  gl.uniformMatrix4fv(uL.uVP, false, VP);
+  gl.uniform2f(uL.uHalfRes, W*0.5, H*0.5);
+  gl.uniform1f(uL.uDPR, DPR);
+  gl.uniform1f(uL.uWeight, UI.weight * lockScale);
+  gl.uniform3fv(uL.uEye, eye);
+  gl.uniform2f(uL.uFadeRange, fadeA, fadeB);
+  gl.uniform1f(uL.uTime, t);
+  gl.uniform3fv(uL.uCursor, cursorWorld);
+  gl.uniform1f(uL.uCursorAmt, pointer.amt);
+  gl.uniform1f(uL.uCursorK, UI.cursor);
+  gl.uniform1f(uL.uHScale, UI.depth);
+  gl.uniform1f(uL.uFade, fade * lockFade);
+  gl.uniform3fv(uL.uInk, UI.ink);
+  gl.uniform3fv(uL.uAccent, CFG.ACCENT);
+  gl.bindBuffer(gl.ARRAY_BUFFER, lineVBO);
+  gl.enableVertexAttribArray(aL.posSide); gl.vertexAttribPointer(aL.posSide, 4, gl.FLOAT, false, 64, 0);
+  gl.enableVertexAttribArray(aL.prevG);   gl.vertexAttribPointer(aL.prevG,   4, gl.FLOAT, false, 64, 16);
+  gl.enableVertexAttribArray(aL.nextF);   gl.vertexAttribPointer(aL.nextF,   4, gl.FLOAT, false, 64, 32);
+  gl.enableVertexAttribArray(aL.meta);    gl.vertexAttribPointer(aL.meta,    4, gl.FLOAT, false, 64, 48);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, lineIBO);
+  gl.drawElements(gl.TRIANGLES, lineCount, gl.UNSIGNED_INT, 0);
+  gl.depthMask(true);
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ------------------------------- controls --------------------------- */
+function hexToRGB(h){
+  return [parseInt(h.slice(1,3),16)/255, parseInt(h.slice(3,5),16)/255, parseInt(h.slice(5,7),16)/255];
+}
+function srgbToLinear(c){ return c <= 0.04045 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4); }
+function luminance(rgb){
+  return 0.2126*srgbToLinear(rgb[0]) + 0.7152*srgbToLinear(rgb[1]) + 0.0722*srgbToLinear(rgb[2]);
+}
+
+var $ = function(id){ return document.getElementById(id); };
+var rebuildTimer = null;
+
+function bindRange(id, out, key, after){
+  var el = $(id), lab = $(out);
+  el.addEventListener("input", function(){
+    UI[key] = parseFloat(el.value);
+    lab.textContent = UI[key].toFixed(2);
+    if (after) after();
+  });
+}
+bindRange("k-weight", "v-weight", "weight");
+bindRange("k-depth",  "v-depth",  "depth");
+bindRange("k-cursor", "v-cursor", "cursor");
+bindRange("k-offset", "v-offset", "offset");
+
+$("k-topo").addEventListener("input", function(){
+  var v = parseFloat(this.value);
+  $("v-topo").textContent = v.toFixed(2);
+  TOPO.detail = v;
+  clearTimeout(rebuildTimer);
+  rebuildTimer = setTimeout(function(){ buildAll(); upload(); }, 160);
+});
+
+$("k-angle").addEventListener("input", function(){
+  var deg = parseFloat(this.value);
+  $("v-angle").textContent = deg.toFixed(0) + "\u00B0";
+  UI.angle = deg * Math.PI/180;
+});
+
+$("k-outline").addEventListener("change", function(){ UI.outline = this.checked; });
+
+$("k-shuffle").addEventListener("click", function(){
+  TOPO.seed = Math.random() * 900;
+  buildAll(); upload(); closeOverlay();
+});
+
+function applyTheme(){
+  var dark = luminance(UI.bg) < 0.42;
+  var root = document.documentElement.style;
+  root.setProperty("--ground", $("k-bg").value);
+  root.setProperty("--ui-fg", dark ? "#ece9e3" : "#22231e");
+  root.setProperty("--ui-bg", dark ? "rgba(20,20,18,.58)" : "rgba(255,255,255,.60)");
+  root.setProperty("--ui-line", dark ? "rgba(255,255,255,.18)" : "rgba(0,0,0,.12)");
+}
+$("k-bg").addEventListener("input", function(){ UI.bg = hexToRGB(this.value); applyTheme(); });
+$("k-ink").addEventListener("input", function(){ UI.ink = hexToRGB(this.value); });
+
+/* a contour study, drawn inline so the page stays self-contained */
+var OV_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 324 132">' +
+  '<rect width="324" height="132" fill="#e4e0d8"/>' +
+  '<g fill="none" stroke="#0d0e0b" stroke-opacity=".55" stroke-width="1">' +
+  '<ellipse cx="162" cy="118" rx="150" ry="86"/><ellipse cx="162" cy="118" rx="126" ry="72"/>' +
+  '<ellipse cx="162" cy="118" rx="102" ry="58"/><ellipse cx="162" cy="118" rx="78" ry="44"/>' +
+  '<ellipse cx="162" cy="118" rx="54" ry="30"/></g>' +
+  '<g fill="none" stroke="#e2620f" stroke-width="1.6">' +
+  '<ellipse cx="162" cy="118" rx="30" ry="17"/></g></svg>';
+$("ov-img").src = "data:image/svg+xml;utf8," + encodeURIComponent(OV_SVG);
+
+var ov = $("ov"), ovTimer = null;
+function openOverlay(){
+  clearTimeout(ovTimer);
+  ov.classList.remove("closing");
+  ov.hidden = false;
+  $("ov-x").focus({preventScroll:true});
+}
+function closeOverlay(){
+  if (ov.hidden) return;
+  ov.classList.add("closing");
+  clearTimeout(ovTimer);
+  ovTimer = setTimeout(function(){ ov.hidden = true; ov.classList.remove("closing"); }, 320);
+}
+$("ov-x").addEventListener("click", closeOverlay);
+
+var ui = $("ui"), toggle = $("toggle");
+function setPanel(open){
+  ui.hidden = !open;
+  toggle.style.display = open ? "none" : "block";
+}
+toggle.addEventListener("click", function(){ setPanel(ui.hidden); });
+$("k-close").addEventListener("click", function(){ setPanel(false); });
+window.addEventListener("keydown", function(e){
+  if (e.key === "h" || e.key === "H"){ setPanel(ui.hidden); }
+  if (e.key === "Escape"){ closeOverlay(); }
+});
+applyTheme();
+setPanel(false);   // page demo: open it with the pill, or press H
+$("k-cursor").value = UI.cursor;
+$("v-cursor").textContent = UI.cursor.toFixed(2);
+
+/* handy from the console when dialling the look in */
+window.__ui = UI;
+}
+function __start(){                       // build after the first paint
+  var done = false;
+  function go(){ if (done) return; done = true; __contourRidge(); }
+  requestAnimationFrame(function(){ setTimeout(go, 0); });
+  setTimeout(go, 80);                     // fallback when rAF is throttled
+}
+if (document.readyState === "complete") __start();
+else window.addEventListener("load", __start);
+</script>
