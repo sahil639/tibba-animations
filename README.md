@@ -21,6 +21,26 @@ sharing rather than production.
 In `contour-ridge-studies.html` the mode is written to the URL hash, so `#ridge`,
 `#scroll` and `#peaks` each deep-link to one animation.
 
+## Deploying
+
+The repo has no `index.html`, so a static host will 404 on the bare URL unless it
+is told what to serve there. `vercel.json` handles that: `/` is rewritten to
+`contour-ridge-studies.html`, and `cleanUrls` lets the standalone files be reached
+without the extension.
+
+| URL | Serves |
+| --- | --- |
+| `/` | the combined viewer, all three animations |
+| `/topo-hero` | Contour Ridge on its own |
+| `/topo-hero-scroll` | the scroll hero |
+| `/topo-peaks` | Three Summits |
+| `/#ridge`, `/#scroll`, `/#peaks` | the combined viewer, opened on one animation |
+
+On Vercel the project needs **Framework Preset: Other** with no build command and
+no output directory — these are plain static files with nothing to build. On a host
+that does not read `vercel.json`, rename `contour-ridge-studies.html` to
+`index.html` instead.
+
 ## How they are drawn
 
 A heightfield is generated procedurally at load, contour lines are extracted from
