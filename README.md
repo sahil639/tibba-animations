@@ -8,7 +8,7 @@ browser and it runs.
 
 | File | What it is |
 | --- | --- |
-| `contour-ridge-studies.html` | **All three behind one page**, switched from a nav in the top-left. Start here. |
+| `index.html` | **All three behind one page**, switched from a nav in the top-left. Start here. |
 | `topo-hero.html` | *Contour Ridge* — the hero. One mountain, cursor-reactive, with a tuning panel. |
 | `topo-hero-scroll.html` | *Scroll hero* — the same ridge wired into a page: it locks to the left on scroll, with a figure grid as section two. |
 | `topo-peaks.html` | *Three Summits* — three real mountains in one scene; scrolling moves focus between them. |
@@ -18,15 +18,15 @@ The three standalone files are what you drop into a page or port to Framer. The
 combined file carries three copies of the engine (163 KB), so it is for review and
 sharing rather than production.
 
-In `contour-ridge-studies.html` the mode is written to the URL hash, so `#ridge`,
+In `index.html` the mode is written to the URL hash, so `#ridge`,
 `#scroll` and `#peaks` each deep-link to one animation.
 
 ## Deploying
 
-The repo has no `index.html`, so a static host will 404 on the bare URL unless it
-is told what to serve there. `vercel.json` handles that: `/` is rewritten to
-`contour-ridge-studies.html`, and `cleanUrls` lets the standalone files be reached
-without the extension.
+The combined viewer *is* `index.html`, so `/` resolves natively on any static host
+with no configuration. `vercel.json` only turns on `cleanUrls`, so the standalone
+files are reachable without the extension, and redirects the old
+`/contour-ridge-studies` path to the root.
 
 | URL | Serves |
 | --- | --- |
@@ -37,9 +37,7 @@ without the extension.
 | `/#ridge`, `/#scroll`, `/#peaks` | the combined viewer, opened on one animation |
 
 On Vercel the project needs **Framework Preset: Other** with no build command and
-no output directory — these are plain static files with nothing to build. On a host
-that does not read `vercel.json`, rename `contour-ridge-studies.html` to
-`index.html` instead.
+no output directory — these are plain static files with nothing to build.
 
 ## How they are drawn
 
