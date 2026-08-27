@@ -67,6 +67,36 @@
     body.work-phase #hero-studio-line { opacity: 0; }
 
     /* ── Hero top announcement (Figma) ───────────────────────── */
+    /* Persistent switcher. Deliberately outside #hero-top-bar, which fades out
+       on scroll — navigation has to survive that. */
+    #site-switch{
+      position:fixed; top:12px; left:16px; z-index:60; display:flex; gap:4px;
+      padding:4px; border-radius:8px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(13,15,30,.72);
+      -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+    }
+    #site-switch a, #site-switch span.cur{
+      display:flex; align-items:center; gap:7px; padding:6px 10px; border-radius:5px;
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      font-size:10px; line-height:1; letter-spacing:.14em; text-transform:uppercase;
+      white-space:nowrap; text-decoration:none;
+      color:rgba(255,255,255,.72); opacity:.6; transition:opacity .2s, background .2s;
+    }
+    #site-switch a:hover{opacity:1; background:rgba(255,255,255,.07);}
+    #site-switch span.cur{opacity:1; background:rgba(255,255,255,.10); color:#fff;}
+    #site-switch .n{color:#E9663A; font-variant-numeric:tabular-nums;}
+    #site-switch .sep{width:1px; margin:4px 2px; padding:0; background:rgba(255,255,255,.16); flex:none;}
+    #site-switch a:focus-visible{outline:1.5px solid currentColor; outline-offset:2px;}
+    /* keep the hero bar's copy clear of the switcher; their own rule uses the
+       padding shorthand and comes later, so this needs the extra specificity */
+    body #hero-top-bar{padding-left:560px;}
+    @media (max-width: 1180px){
+      #site-switch .t{display:none;}
+      #site-switch a, #site-switch span.cur{padding:7px 9px;}
+      body #hero-top-bar{padding-left:250px;}
+    }
+
     #hero-top-bar {
       position: fixed; top: 0; left: 0; right: 0; z-index: 50;
       display: flex; align-items: center; justify-content: space-between;
@@ -626,6 +656,14 @@
 <canvas id="canvas"></canvas>
 
 <!-- ── Hero top bar (Figma) ─────────────────────────────────── -->
+<nav id="site-switch" aria-label="Choose a design">
+  <a href="/#ridge"><span class="n">01</span><span class="t">Contour Ridge</span></a>
+  <a href="/#scroll"><span class="n">02</span><span class="t">Scroll hero</span></a>
+  <a href="/#peaks"><span class="n">03</span><span class="t">Three summits</span></a>
+  <span class="sep" aria-hidden="true"></span>
+  <span class="cur" aria-current="page"><span class="n">04</span><span class="t">Range</span></span>
+</nav>
+
 <div id="hero-top-bar">
   <span>We recently presented our work at VizChitra 2025!</span>
   <a class="top-bar-link" href="#">Watch the talk →</a>
