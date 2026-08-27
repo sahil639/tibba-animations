@@ -22,7 +22,18 @@
   }
   #switch button:hover{opacity:.85; background:rgba(0,0,0,.04);}
   #switch button[aria-current="true"]{opacity:1; background:rgba(0,0,0,.055);}
-  #switch button .n{color:var(--accent); font-variant-numeric:tabular-nums;}
+  #switch button .n, #switch a .n{color:var(--accent); font-variant-numeric:tabular-nums;}
+  /* Range is a page of its own, so it reads as a link rather than a mode */
+  #switch .sep{width:1px; margin:4px 2px; background:var(--ui-line); flex:none;}
+  #switch a.out{
+    display:flex; align-items:center; gap:7px; padding:6px 10px; border-radius:5px;
+    color:var(--ui-fg); opacity:.5; text-decoration:none; transition:opacity .2s, background .2s;
+    font:10px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    letter-spacing:.14em; text-transform:uppercase; white-space:nowrap;
+  }
+  #switch a.out:hover{opacity:.85; background:rgba(0,0,0,.04);}
+  #switch a.out .arr{opacity:.6;}
+  #switch a.out:focus-visible{outline:1.5px solid currentColor; outline-offset:2px;}
   #switch button:focus-visible{outline:1.5px solid currentColor; outline-offset:2px;}
   @media (max-width:640px){
     #switch button .t{display:none;}
@@ -347,6 +358,8 @@ body[data-app="peaks"] #hint.gone{opacity:0;}
   <button type="button" data-app="ridge"><span class="n">01</span><span class="t">Contour Ridge</span></button>
   <button type="button" data-app="scroll"><span class="n">02</span><span class="t">Scroll hero</span></button>
   <button type="button" data-app="peaks"><span class="n">03</span><span class="t">Three summits</span></button>
+  <span class="sep" aria-hidden="true"></span>
+  <a class="out" href="/tibba-range"><span class="n">04</span><span class="t">Range</span><span class="arr">&#8599;</span></a>
 </nav>
 <div id="app"></div>
 

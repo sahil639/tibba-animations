@@ -12,6 +12,7 @@ browser and it runs.
 | `topo-hero.html` | *Contour Ridge* — the hero. One mountain, cursor-reactive, with a tuning panel. |
 | `topo-hero-scroll.html` | *Scroll hero* — the same ridge wired into a page: it locks to the left on scroll, with a figure grid as section two. |
 | `topo-peaks.html` | *Three Summits* — three real mountains in one scene; scrolling moves focus between them. |
+| `tibba-range.html` | *Range* — the studio page: a scroll-driven Three.js range with case cards. Its own page at `/tibba-range`, linked from the switcher. |
 | `dither-lab.html` | A separate experiment that lives in the same folder. |
 
 The three standalone files are what you drop into a page or port to Framer. The
@@ -34,6 +35,7 @@ files are reachable without the extension, and redirects the old
 | `/topo-hero` | Contour Ridge on its own |
 | `/topo-hero-scroll` | the scroll hero |
 | `/topo-peaks` | Three Summits |
+| `/tibba-range` | Range |
 | `/#ridge`, `/#scroll`, `/#peaks` | the combined viewer, opened on one animation |
 
 On Vercel the project needs **Framework Preset: Other** with no build command and
@@ -58,6 +60,10 @@ reads the boundary of that region as a screen-space distance field — a single
 outline sitting entirely outside the mountain, offset by an adjustable margin.
 
 WebGL2 is needed for the outline; WebGL1 renders everything else.
+
+`tibba-range.html` is the exception to all of the above: it is a separate piece that
+uses Three.js and GSAP from a CDN and Google Fonts, so unlike the contour files it
+needs a network connection at runtime.
 
 ## Interaction
 
