@@ -12,7 +12,7 @@ browser and it runs.
 | `topo-hero.html` | *Contour Ridge* — the hero. One mountain, cursor-reactive, with a tuning panel. |
 | `topo-hero-scroll.html` | *Scroll hero* — the same ridge wired into a page: it locks to the left on scroll, with a figure grid as section two. |
 | `topo-peaks.html` | *Three Summits* — three real mountains in one scene; scrolling moves focus between them. |
-| `tibba-range.html` | *Range* — the studio page: a scroll-driven Three.js range with case cards. Its own page at `/tibba-range`, and it carries the same switcher so you can get back. |
+| `tibba-range.html` | *Range* — the studio page: a scroll-driven Three.js range with case cards. Its own page at `/tibba-range`. It keeps its own bottom pill nav, so it carries no site switcher. |
 | `dither-lab.html` | A separate experiment that lives in the same folder. |
 
 The three standalone files are what you drop into a page or port to Framer. The
