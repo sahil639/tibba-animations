@@ -1,0 +1,3406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tibba Design Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; overflow-x: hidden; }
+
+    body {
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-weight: 400;
+      background: #0D0F1E;
+      color: #fff;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Tall scroll sentinel — hero 100vh + 4 cases × 120vh */
+    #scroll-space { height: 580vh; pointer-events: none; }
+
+    /*
+      Hero “sandwich” (matches layered mockup):
+      z-index 0 — large studio name (HTML). Visible only where the framebuffer is empty.
+      z-index 1 — <canvas> WebGL: opaque mountain/ground, transparent “sky” (alpha canvas + scene.background = null).
+      z-index 10 — #hero-copy (flanking side copy over the mountain).
+      Top bar + bottom pill nav sit above canvas; hidden in work-phase with hero copy.
+    */
+    #hero-studio-line {
+      position: fixed; inset: 0;
+      z-index: 0;
+      margin: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 52px 24px 0;
+      /* Lower on canvas so the peak crosses the lower words; room below for pill nav */
+      padding-bottom: min(72vh, calc(80vh + 80px));
+      transform: translateY(2vh);
+      pointer-events: none;
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-weight: 700;
+      /* The box this sits in is 28vh tall, so a size driven by width alone
+         overflows it on any wide-but-short window and the words lose their
+         tops. The height term only ever binds when the window is short. */
+      font-size: clamp(36px, min(7vw, 15vh), 130px);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      text-align: center;
+      background: linear-gradient(to bottom, #fff 0%, rgba(255, 255, 255, 0) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+      /* clip-path reveal (bottom → top) driven by GSAP */
+      will-change: clip-path;
+    }
+    /* The same pink as the contact-us pill. The heading paints its glyphs with
+       a gradient clipped to the text and -webkit-text-fill-color: transparent,
+       which overrides `color` — so the fill has to be set, not just the colour,
+       or the full stop keeps coming out white. */
+    #hero-studio-line .stop {
+      color: #C9124B;
+      -webkit-text-fill-color: #C9124B;
+    }
+    body.work-phase #hero-studio-line { opacity: 0; }
+
+    /* ── Hero top announcement (Figma) ───────────────────────── */
+
+    /* ══════════════════════════════════════════════════════════════════════
+       Page five. The scene, its shaders and its morph driver are Range's,
+       untouched. What changes is the choreography around them: the peak slides
+       aside for the figures, fades out behind the partner list, and the range
+       is only summoned in section four. Everything below is additive — Range's
+       own hero furniture is hidden rather than removed, so its script keeps
+       every element it expects to find.
+       ═══════════════════════════════════════════════════════════════════ */
+    :root{
+      --ink: #fff;            --ink-rgb: 255,255,255;
+      --bg:  #0D0F1E;         --bg-rgb:  13,15,30;
+      --accent-2: #E9663A;
+    }
+    #scroll-space { display: none; }
+    #hero-studio-line, #hero-copy, #progress-rail, #case-ui { display: none !important; }
+
+    .wrap { width: min(1180px, 92vw); margin: 0 auto; }
+
+    /* sections 1–4 sit over the canvas; 5–6 carry their own ground */
+    .sec { position: relative; z-index: 10; }
+    .sec-hero      { min-height: 100vh; display: flex; align-items: center; }
+    .sec-numbers   { min-height: 100vh; display: flex; align-items: center; }
+    .sec-partners  { min-height: 100vh; display: flex; align-items: center; }
+    .sec-summits   { min-height: 170vh; }
+    .sec-thumbs    { padding: 14vh 0 6vh; background: var(--bg); }
+    .sec-services  { padding: 2vh 0 16vh;  background: var(--bg); }
+
+    /* ── 1 · hero ─────────────────────────────────────────────────────── */
+    .hero-card {
+      background: rgba(var(--bg-rgb), .78);
+      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+      border: 1px solid rgba(var(--ink-rgb), .10);
+      padding: 30px 34px 26px; max-width: 560px;
+    }
+    .hero-card h1 {
+      margin: 0; font-size: clamp(38px, 5.4vw, 74px); line-height: .97;
+      letter-spacing: -0.02em; text-transform: uppercase; font-weight: 600;
+    }
+    .hero-card p {
+      margin: 16px 0 0; max-width: 42ch; font-size: 13px; line-height: 1.6;
+      color: rgba(var(--ink-rgb), .62);
+    }
+
+    /* ── 2 · figures ──────────────────────────────────────────────────── */
+    .fig-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px;
+                width: min(620px, 46vw); margin-left: auto; }
+    .fig {
+      background: rgba(var(--bg-rgb), .72);
+      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+      border: 1px solid rgba(var(--ink-rgb), .10);
+      padding: 24px 26px 20px; min-height: 168px;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .fig b { font-size: clamp(30px, 3.6vw, 52px); font-weight: 300; letter-spacing: -.03em; }
+    .fig span { display: flex; align-items: center; gap: 9px; font-size: 12px;
+                color: rgba(var(--ink-rgb), .58); }
+    .fig i { width: 8px; height: 8px; background: var(--accent-2); display: block; }
+
+    /* ── 3 · partners ─────────────────────────────────────────────────── */
+    .partners { display: grid; grid-template-columns: minmax(240px, 340px) 1fr; gap: clamp(30px, 6vw, 90px); }
+    .partners h2 { margin: 0 0 14px; font-size: clamp(24px, 2.6vw, 34px); line-height: 1.15; font-weight: 500; }
+    .partners .lede { margin: 0; font-size: 12.5px; line-height: 1.7; color: rgba(var(--ink-rgb), .55); }
+    .plist { font-size: clamp(18px, 2.1vw, 30px); line-height: 1.55; letter-spacing: -.01em; }
+    .plist a {
+      position: relative; color: inherit; text-decoration: none; white-space: nowrap;
+      border-bottom: 1px solid transparent; transition: border-color .18s;
+    }
+    .plist a:hover, .plist a:focus-visible { border-bottom-color: currentColor; }
+    .plist .sep { opacity: .32; padding: 0 .28em; }
+    .plogo {
+      position: fixed; z-index: 30; pointer-events: none; opacity: 0;
+      transform: translate(-50%, -50%) scale(.94);
+      transition: opacity .18s, transform .18s;
+      padding: 10px 14px; background: rgba(var(--bg-rgb), .92);
+      border: 1px solid rgba(var(--ink-rgb), .14);
+      font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+    }
+    .plogo.on { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+    /* ── 5 · thumbnails ───────────────────────────────────────────────── */
+    .thumbs { display: grid; gap: 0; }
+    .thumb {
+      display: grid; grid-template-columns: 1fr minmax(180px, 260px);
+      gap: clamp(20px, 4vw, 60px); align-items: center;
+      padding: 26px 0; border-bottom: 1px solid rgba(var(--ink-rgb), .12);
+    }
+    .thumb h3 { margin: 0 0 8px; font-size: clamp(18px, 2vw, 26px); font-weight: 600; letter-spacing: -.01em; }
+    .thumb p  { margin: 0 0 12px; max-width: 46ch; font-size: 12.5px; line-height: 1.6;
+                color: rgba(var(--ink-rgb), .6); }
+    .tags { display: flex; gap: 14px; font-size: 11px; letter-spacing: .1em;
+            text-transform: uppercase; color: var(--accent-2); }
+    .tags span { color: rgba(var(--ink-rgb), .3); }
+    .thumb-art { aspect-ratio: 16 / 10; background: rgba(var(--ink-rgb), .05);
+                 border: 1px solid rgba(var(--ink-rgb), .10); }
+
+    /* ── 6 · services ─────────────────────────────────────────────────── */
+    .svc-head h2 { margin: 0 0 6px; font-size: clamp(24px, 3vw, 38px); font-weight: 500; letter-spacing: .01em; }
+    .svc-head p  { margin: 0 0 24px; font-size: 12.5px; color: rgba(var(--ink-rgb), .55); }
+    .svc-tabs { display: inline-flex; border: 1px solid rgba(var(--ink-rgb), .16); margin-bottom: 18px; }
+    .svc-tabs button {
+      appearance: none; border: 0; background: none; cursor: pointer; font: inherit;
+      font-size: 11px; letter-spacing: .09em; text-transform: uppercase;
+      padding: 11px 16px; color: rgba(var(--ink-rgb), .6);
+    }
+    .svc-tabs button[aria-selected="true"] { background: var(--accent-2); color: #fff; }
+    .svc-body { display: grid; grid-template-columns: 1.25fr 1fr; gap: clamp(20px, 3vw, 40px); align-items: start; }
+    .svc-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .svc-item {
+      display: flex; gap: 10px; align-items: flex-start; cursor: pointer;
+      border: 1px solid rgba(var(--ink-rgb), .12); padding: 14px 14px 16px;
+      font-size: 12px; line-height: 1.35; text-transform: uppercase; letter-spacing: .04em;
+      background: rgba(var(--ink-rgb), .02); transition: border-color .18s, background .18s;
+    }
+    .svc-item i { width: 7px; height: 7px; flex: none; margin-top: 3px; background: var(--accent-2); }
+    .svc-item[aria-current="true"] { border-color: var(--accent-2); background: rgba(var(--bg-rgb), .9); }
+    .svc-detail { border: 1px solid rgba(var(--ink-rgb), .12); padding: 20px 22px; min-height: 300px;
+                  background: rgba(var(--ink-rgb), .02); }
+    .svc-detail h3 { margin: 0 0 14px; font-size: 15px; letter-spacing: .02em; }
+    .svc-detail li { margin: 0 0 10px; font-size: 12.5px; line-height: 1.55; color: rgba(var(--ink-rgb), .68); }
+
+    /* ── odometer button (ported from the contentarchitecture build) ───── */
+    .odo {
+      --odometer-progress: 0;
+      display: inline-flex; align-items: stretch; cursor: pointer; border: 0; background: none;
+      font: inherit; font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+      color: inherit; padding: 0;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .odo:hover, .odo:focus-visible { --odometer-progress: 1; }
+    }
+    .odo .seg { display: inline-flex; align-items: center; padding: 0 16px; height: 38px;
+                background: var(--ink); color: var(--bg); }
+    .odo .conn { width: 1px; background: rgba(var(--bg-rgb), .45); }
+    .odo .oc { position: relative; display: inline-block; overflow: hidden; height: 1em; line-height: 1em; }
+    .odo .oc .ghost { visibility: hidden; }
+    .odo .oc .col {
+      position: absolute; inset-inline: 0; top: 0; display: flex; flex-direction: column;
+      transform: translateY(calc(var(--odometer-progress) * -5em));
+      transition: transform 520ms cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    .odo .oc .col span { display: block; height: 1em; line-height: 1em; }
+    @media (max-width: 900px){
+      .partners, .svc-body { grid-template-columns: 1fr; }
+      .fig-grid { width: auto; margin-left: 0; }
+      .svc-list { grid-template-columns: repeat(2, 1fr); }
+      .thumb { grid-template-columns: 1fr; }
+    }
+
+    #hero-top-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 20px;
+      padding: 14px clamp(20px, 4vw, 56px);
+      font-size: 12px; font-weight: 400;
+      letter-spacing: 0.02em;
+      color: rgba(255, 255, 255, 0.82);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(13, 15, 30, 0.65);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    #hero-top-bar .top-bar-link {
+      color: rgba(255, 255, 255, 0.88);
+      text-decoration: none;
+      white-space: nowrap;
+      transition: color 0.2s;
+    }
+    #hero-top-bar .top-bar-link:hover { color: #fff; }
+    body.work-phase #hero-top-bar { opacity: 0; pointer-events: none; }
+
+    /* ── Bottom pill nav (Figma) ──────────────────────────────── */
+    /* Top, not bottom — and only in the work section. The hero is the studio
+       name, the copy and the mountain; a nav bar in it was the one thing
+       competing with that. It arrives with the case studies instead. */
+    #bottom-pill-nav {
+      position: fixed;
+      left: 50%; top: clamp(14px, 2.2vh, 26px);
+      transform: translateX(-50%) translateY(-12px);
+      opacity: 0; pointer-events: none;
+      transition: opacity .45s ease, transform .45s cubic-bezier(.22,.9,.3,1);
+      z-index: 45;
+      display: flex; align-items: center; flex-wrap: wrap;
+      justify-content: center;
+      gap: 2px;
+      padding: 6px 6px 6px 6px;
+      max-width: calc(100vw - 32px);
+      background: rgba(18, 20, 38, 0.72);
+      backdrop-filter: blur(2px) saturate(1.2);
+      -webkit-backdrop-filter: blur(16px) saturate(1.2);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 999px;
+    }
+    body.work-phase #bottom-pill-nav {
+      opacity: 1; pointer-events: auto;
+      transform: translateX(-50%) translateY(0);
+    }
+    .nav-pill-link {
+      padding: 10px 18px;
+      font-size: 13px; font-weight: 500;
+      letter-spacing: 0.02em;
+      text-transform: lowercase;
+      color: rgba(255, 255, 255, 0.55);
+      text-decoration: none;
+      border-radius: 999px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .nav-pill-link:hover { color: rgba(255, 255, 255, 0.92); }
+    .nav-pill-link.is-active {
+      color: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.12);
+    }
+    .nav-pill-cta {
+      margin-left: 6px;
+      padding: 10px 22px;
+      font-size: 13px; font-weight: 500;
+      font-family: inherit;
+      letter-spacing: 0.03em;
+      text-transform: lowercase;
+      color: #fff;
+      background: #C9124B;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .nav-pill-cta:hover { background: #d45858; }
+    .nav-pill-cta:active { transform: scale(0.98); }
+    /* the nav belongs to the work section; the active tab swaps via JS */
+
+    @media (max-width: 720px) {
+      #hero-top-bar { flex-direction: column; align-items: flex-start; gap: 8px; font-size: 11px; }
+      #bottom-pill-nav { padding: 8px 10px; gap: 0; }
+      .nav-pill-link { padding: 8px 12px; font-size: 12px; }
+      .nav-pill-cta { margin-left: 4px; padding: 8px 16px; font-size: 12px; }
+    }
+
+    #canvas {
+      position: fixed; inset: 0;
+      width: 100%; height: 100%;
+      display: block; z-index: 1;
+      background: transparent;
+    }
+
+    /* ── Hero flanking copy (Figma — left sans / right serif) ─── */
+    #hero-copy {
+      position: fixed; inset: 0;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .hero-side-left {
+      position: absolute;
+      left: clamp(20px, 4.5vw, 72px);
+      top: 50%;
+      transform: translateY(-50%);
+      max-width: min(300px, 28vw);
+      font-size: clamp(12px, 1.05vw, 14px);
+      font-weight: 400;
+      line-height: 1.55;
+      letter-spacing: 0.01em;
+      text-transform: lowercase;
+      color: rgba(255, 255, 255, 0.78);
+      font-family: 'Lora', Georgia, 'Times New Roman', serif;
+    }
+    .hero-side-right {
+      position: absolute;
+      right: clamp(20px, 4.5vw, 72px);
+      top: 50%;
+      transform: translateY(-50%);
+      max-width: min(280px, 26vw);
+      font-family: 'Lora', Georgia, 'Times New Roman', serif;
+      font-size: clamp(12px, 1vw, 13px);
+      font-weight: 400;
+      font-style: italic;
+      line-height: 1.65;
+      letter-spacing: 0.03em;
+      text-transform: lowercase;
+      color: rgba(255, 255, 255, 0.72);
+    }
+    @media (max-width: 900px) {
+      .hero-side-left {
+        max-width: 240px;
+        font-size: 11px;
+        left: 16px;
+      }
+      .hero-side-right {
+        max-width: 220px;
+        font-size: 11px;
+        right: 16px;
+      }
+    }
+    @media (max-width: 640px) {
+      .hero-side-left {
+        top: auto;
+        bottom: 120px;
+        left: 20px;
+        right: 20px;
+        max-width: none;
+        transform: none;
+        text-align: center;
+      }
+      .hero-side-right {
+        display: none;
+      }
+    }
+
+    /* ── Case-study overlay shell ─────────────────────────────── */
+    #case-ui {
+      position: fixed; inset: 0; z-index: 10;
+      pointer-events: none;
+      opacity: 0; transition: opacity .5s;
+    }
+    #case-ui.visible { opacity: 1; }
+
+    /* Left progress rail */
+    #progress-rail {
+      position: absolute; right: 48px; top: 50%;
+      transform: translateY(-50%);
+      display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
+    }
+    /* Rules rather than dots, right-aligned so the active one extends left,
+       toward the frame it belongs to. The padding is the hit area — a 1px line
+       is not something you can reasonably ask anyone to click — and
+       background-clip keeps the drawn mark down to the line itself. */
+    .p-dot {
+      width: 22px; height: 17px;
+      padding: 8px 0; background-clip: content-box;
+      background-color: rgba(255,255,255,0.28);
+      cursor: pointer; pointer-events: auto;
+      position: relative;
+      transition: background-color .35s, width .35s cubic-bezier(.22,.9,.3,1), height .35s;
+    }
+    .p-dot::after {
+      content: attr(data-label);
+      position: absolute; right: calc(100% + 14px); top: 50%;
+      transform: translateY(-50%);
+      font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(255,255,255,0.3); white-space: nowrap;
+      opacity: 0; transition: opacity .25s;
+      pointer-events: none;
+    }
+    .p-dot:hover { background-color: rgba(255,255,255,0.42); }
+    .p-dot:hover::after, .p-dot.active::after { opacity: 1; }
+    .p-dot.active {
+      width: 40px; height: 18px;
+      background-color: var(--ca, rgba(255,255,255,0.85));
+    }
+    .p-dot.active::after { color: rgba(255,255,255,0.6); }
+
+    /* Bottom-right counter */
+    #case-counter {
+      position: absolute; right: 48px; bottom: 38px;
+      font-size: 11px; letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.2);
+      font-feature-settings: 'tnum';
+    }
+    #case-counter b { color: rgba(255,255,255,0.55); font-weight: 500; }
+
+    /* Prev / next */
+
+    /* ── Markers ──────────────────────────────────────────────── */
+    .mkr {
+      position: fixed; z-index: 20;
+      transform: translate(-50%, -50%);
+      cursor: pointer; pointer-events: none;
+      display: none;
+      opacity: 0;
+      transition: opacity .5s ease;
+      --mkr-c: #fff;
+    }
+    body.work-phase .mkr { --mkr-c: var(--mc, #fff); }
+    /* only once its route has reached the summit */
+    .mkr.landed { opacity: 1; pointer-events: auto; }
+    .mkr.landed.dimmed { opacity: 0.55; }
+
+    /* One solid mark. The second, static circle around it read as a target
+       reticle sitting on the summit; the ping below carries the attention
+       instead, and leaves nothing behind between beats. */
+    .mkr-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--mkr-c);
+      box-shadow: 0 0 10px color-mix(in srgb, var(--mkr-c) 55%, transparent);
+      transition: width .3s, height .3s, box-shadow .3s, background .3s;
+    }
+
+    /* Radar: rings leave the dot and fade on the way out, two of them half a
+       cycle apart so there is always one in flight. The margin is half the
+       ring's own size, so it stays centred whatever size the dot goes to. */
+    .mkr::before, .mkr::after {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px;
+      border-radius: 50%; border: 1px solid var(--mkr-c);
+      opacity: 0; pointer-events: none;
+      animation: mkrPing 2.8s cubic-bezier(.16,.62,.36,1) infinite;
+    }
+    .mkr::after { animation-delay: 1.4s; }
+    @keyframes mkrPing {
+      0%   { transform: scale(1);   opacity: .5; }
+      65%  { opacity: .12; }
+      100% { transform: scale(7.5); opacity: 0; }
+    }
+
+    .mkr.active .mkr-dot {
+      width: 7px; height: 7px;
+      box-shadow:
+        0 0 18px color-mix(in srgb, var(--mkr-c) 75%, transparent),
+        0 0 6px  color-mix(in srgb, var(--mkr-c) 55%, transparent);
+    }
+    .mkr.active::before, .mkr.active::after { animation-duration: 2.1s; }
+    .mkr.active::after { animation-delay: 1.05s; }
+    .mkr.dimmed::before, .mkr.dimmed::after { animation-duration: 3.6s; }
+    .mkr.dimmed::after { animation-delay: 1.8s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .mkr::before, .mkr::after { animation: none; opacity: 0; }
+    }
+
+    /* ── Scroll affordance ────────────────────────────────────
+       The hero has no page edge, no chrome at the bottom since the nav moved
+       up, and nothing peeking above the fold — and the cursor parallax quietly
+       argues that pointing IS the interaction. A survey staff with a tick
+       running down it says otherwise, in the same type as the tags and rail. */
+    #scroll-hint {
+      position: fixed; left: 50%; bottom: clamp(22px, 3.2vh, 40px);
+      transform: translateX(-50%); z-index: 40;
+      display: flex; flex-direction: column; align-items: center; gap: 11px;
+      font-size: 9.5px; font-weight: 600; letter-spacing: .18em;
+      text-transform: uppercase; color: rgba(255,255,255,.34);
+      pointer-events: none;
+      opacity: 0; transition: opacity .6s ease;
+    }
+    #scroll-hint.on { opacity: 1; }
+    #scroll-hint i {
+      position: relative; display: block; overflow: hidden;
+      width: 1px; height: 44px; background: rgba(255,255,255,.12);
+    }
+    #scroll-hint i::after {
+      content: ''; position: absolute; left: 0; top: 0;
+      width: 1px; height: 15px; background: rgba(255,255,255,.7);
+      animation: scrollTick 2.2s cubic-bezier(.5,0,.5,1) infinite;
+    }
+    @keyframes scrollTick {
+      0%   { transform: translateY(-17px); opacity: 0; }
+      22%  { opacity: 1; }
+      72%  { opacity: 1; }
+      100% { transform: translateY(44px); opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #scroll-hint i::after { animation: none; transform: translateY(14px); }
+    }
+
+    /* ── Case band ────────────────────────────────────────────
+       The card used to float beside the marker, which meant it sat over the
+       mountain wherever the marker happened to project. Splitting it into two
+       columns pinned to the bottom of the frame leaves the massif entirely
+       clear, and gives the title room to be the size it deserves. */
+    #case-card {
+      position: fixed; left: 0; right: 0;
+      bottom: clamp(104px, 13vh, 148px);
+      z-index: 30;
+      display: grid;
+      grid-template-columns: minmax(0, 60vw) minmax(0, 1fr);
+      grid-template-rows: auto auto auto;
+      column-gap: clamp(24px, 4vw, 72px);
+      align-items: start;
+      padding: 0 clamp(20px, 4.5vw, 72px);
+      color: inherit; text-decoration: none;
+      pointer-events: none;
+      opacity: 0; transform: translateY(14px);
+      transition: opacity .42s ease, transform .42s cubic-bezier(.22,.9,.3,1);
+    }
+    #case-card.open { display: grid; }
+    #case-card.shown { opacity: 1; transform: none; pointer-events: auto; cursor: pointer; }
+
+    /* a soft ground under the band so copy stays legible over contour lines */
+    #case-card::before {
+      content: ''; position: fixed; left: 0; right: 0; bottom: 0;
+      height: 46vh; z-index: -1; pointer-events: none;
+      background: linear-gradient(to top,
+        rgba(13,15,30,.92) 0%, rgba(13,15,30,.72) 38%, rgba(13,15,30,0) 100%);
+      opacity: 0; transition: opacity .42s ease;
+    }
+    #case-card.shown::before { opacity: 1; }
+
+    /* display:contents so the four pieces are grid items in their own right —
+       the two column wrappers are gone, because the description has to sit on
+       the title's row and the button has to sit under it, which a pair of
+       columns cannot express. */
+    #cc-inner { display: contents; }
+    .cc-cat   { grid-column: 1; grid-row: 1; }
+    .cc-title { grid-column: 1; grid-row: 2; }
+    .cc-body  { grid-column: 2; grid-row: 2; align-self: start; }
+
+    .cc-cat {
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--ca); margin-bottom: 14px;
+    }
+    .cc-title {
+      font-size: clamp(26px, 3.4vw, 52px);
+      font-weight: 500; line-height: 1.06; letter-spacing: -0.025em;
+      max-width: 60vw;
+    }
+    .cc-title .hi { color: var(--ca); }
+    .cc-body {
+      font-size: clamp(13px, 1.05vw, 15px); font-weight: 400; line-height: 1.65;
+      color: rgba(255,255,255,0.52);
+      max-width: 40ch;
+    }
+    /* The call to action is a circle at the end of the title rather than a
+       separate block — the title is the link, and this is its full stop. Sized
+       in em so it tracks the title through its clamp. */
+    .cc-go {
+      display: inline-block; position: relative;
+      /* middle sits the circle on the x-height centre; the nudge lifts it the
+         rest of the way onto the cap-height centre, which is where the eye
+         reads the middle of a line of mixed-case type */
+      vertical-align: middle; top: -0.06em;
+      width: .82em; height: .82em; margin-left: .3em;
+      border: 2px solid rgba(255,255,255,.9);
+      border-radius: 50%; overflow: hidden;
+      color: #fff;
+      transition: background-color .42s ease, border-color .42s ease, color .42s ease;
+    }
+    /* Two arrows on a strip twice the button's width, each cell exactly one
+       button wide, so whichever cell is in frame has its arrow dead centre.
+       The strip is absolutely positioned rather than a flex child: as a flex
+       child it was both centred and shrunk to fit, which pulled it off by half
+       a button and squeezed the two arrows together. */
+    .cc-go-roll {
+      position: absolute; top: 0; left: 0;
+      display: flex; width: 200%; height: 100%;
+      transform: translateX(-50%);
+      transition: transform .48s cubic-bezier(.22,.9,.3,1);
+    }
+    .cc-go-roll i {
+      flex: 0 0 50%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-style: normal; font-size: .34em; line-height: 1;
+    }
+    #case-card:hover .cc-go-roll,
+    #case-card:focus-visible .cc-go-roll { transform: translateX(0); }
+    #case-card:hover .cc-go,
+    #case-card:focus-visible .cc-go {
+      background-color: var(--ca, #fff);
+      border-color: var(--ca, #fff);
+      color: #0D0F1E;
+    }
+
+    /* On hover the title inverts: the plain words take the project's colour and
+       the highlighted ones go white. */
+    .cc-title { color: #fff; transition: color .42s ease; }
+    .cc-title .hi { transition: color .42s ease; }
+    #case-card:hover .cc-title,
+    #case-card:focus-visible .cc-title { color: var(--ca, #fff); }
+    #case-card:hover .cc-title .hi,
+    #case-card:focus-visible .cc-title .hi { color: #fff; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .cc-go-roll { transition: none; }
+    }
+
+    #case-card:focus-visible { outline: 1px solid var(--ca); outline-offset: 14px; border-radius: 4px; }
+
+    @media (max-width: 900px) {
+      #case-card {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto auto;
+        bottom: clamp(88px, 12vh, 120px);
+      }
+      /* stacked, so 60vw would only make the title needlessly narrow, and the
+         reading order goes back to tags, title, description, button */
+      .cc-cat, .cc-title, .cc-body { grid-column: 1; }
+      .cc-cat { grid-row: 1; }
+      .cc-title { grid-row: 2; max-width: 100%; margin-bottom: 16px; }
+      .cc-body { grid-row: 3; }
+    }
+
+    /* ─── Transition tuning panel (preview only — strip for production) ──── */
+    #tune {
+      position: fixed; top: 16px; right: 16px; z-index: 200;
+      width: 246px; padding: 12px 14px 14px;
+      background: rgba(10,12,26,.86);
+      border: 1px solid rgba(255,255,255,.11);
+      border-radius: 12px;
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      font: 400 11px/1.4 'Hanken Grotesk', system-ui, sans-serif;
+      color: rgba(255,255,255,.78);
+      box-shadow: 0 18px 48px rgba(0,0,0,.5);
+      user-select: none;
+      max-height: calc(100vh - 32px);
+      overflow-y: auto; overscroll-behavior: contain;
+    }
+    #tune::-webkit-scrollbar { width: 6px; }
+    #tune::-webkit-scrollbar-thumb { background: rgba(255,255,255,.14); border-radius: 3px; }
+    .tune-sep {
+      margin: 14px 0 9px; padding-top: 11px;
+      border-top: 1px solid rgba(255,255,255,.09);
+      font-size: 10px; font-weight: 600; letter-spacing: .11em;
+      text-transform: uppercase; color: rgba(255,255,255,.5);
+    }
+    .tune-read {
+      margin-top: 10px; padding: 8px 9px; border-radius: 7px;
+      background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.08);
+      font: 400 10px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+      color: rgba(255,255,255,.72); user-select: text; cursor: text;
+      word-break: break-word;
+    }
+    #tune.hidden { display: none; }
+    #tune-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin: 0 0 11px; padding-bottom: 9px;
+      border-bottom: 1px solid rgba(255,255,255,.09);
+    }
+    #tune-head b {
+      font-size: 10px; font-weight: 600; letter-spacing: .11em;
+      text-transform: uppercase; color: rgba(255,255,255,.5);
+    }
+    #tune-head button {
+      background: none; border: 0; cursor: pointer; padding: 0 2px;
+      color: rgba(255,255,255,.45); font-size: 15px; line-height: 1;
+    }
+    #tune-head button:hover { color: #fff; }
+
+    #tune-pill { top: auto !important; bottom: 18px !important;
+      position: fixed; top: 16px; right: 16px; z-index: 200;
+      padding: 7px 13px; border-radius: 999px; cursor: pointer;
+      background: rgba(10,12,26,.86);
+      border: 1px solid rgba(255,255,255,.11);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      font: 600 10px/1 'Hanken Grotesk', system-ui, sans-serif;
+      letter-spacing: .11em; text-transform: uppercase;
+      color: rgba(255,255,255,.55);
+    }
+    #tune-pill:hover { color: #fff; }
+    #tune-pill.hidden { display: none; }
+
+    .seg { display: flex; gap: 4px; margin-bottom: 13px; }
+    .seg button {
+      flex: 1; padding: 6px 0; cursor: pointer;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 7px;
+      font: 500 10.5px/1 'Hanken Grotesk', system-ui, sans-serif;
+      letter-spacing: .04em;
+      color: rgba(255,255,255,.6);
+      transition: background .16s, color .16s, border-color .16s;
+    }
+    .seg button:hover { color: #fff; }
+    .seg button.on {
+      background: rgba(123,143,245,.22);
+      border-color: rgba(123,143,245,.55);
+      color: #fff;
+    }
+
+    .row { margin-bottom: 9px; }
+    .row label {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-bottom: 3px;
+      font-size: 10px; letter-spacing: .03em; color: rgba(255,255,255,.5);
+    }
+    .row label i {
+      font-style: normal; font-variant-numeric: tabular-nums;
+      color: rgba(255,255,255,.86);
+    }
+    .row input[type=range] {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 3px; border-radius: 2px; cursor: pointer;
+      background: rgba(255,255,255,.14); outline: none;
+    }
+    .row input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 12px; height: 12px; border-radius: 50%;
+      background: #7B8FF5; border: 2px solid #0D0F1E; cursor: pointer;
+    }
+    .row input[type=range]::-moz-range-thumb {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: #7B8FF5; border: 2px solid #0D0F1E; cursor: pointer;
+    }
+
+    #tune-scrub-row label i { color: #7B8FF5; }
+    #tune-scrub-row.live label i { color: rgba(255,255,255,.4); }
+
+    .tune-acts { display: flex; gap: 6px; margin-top: 12px; }
+    .tune-acts button {
+      flex: 1; padding: 7px 0; cursor: pointer;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.11);
+      border-radius: 7px;
+      font: 500 10.5px/1 'Hanken Grotesk', system-ui, sans-serif;
+      color: rgba(255,255,255,.72);
+      transition: background .16s, color .16s;
+    }
+    .tune-acts button:hover { background: rgba(255,255,255,.11); color: #fff; }
+    .tune-note {
+      margin-top: 10px; font-size: 9.5px; line-height: 1.5;
+      color: rgba(255,255,255,.32);
+    }
+    @media (max-width: 900px) { #tune, #tune-pill { display: none; } }
+  </style>
+</head>
+<body>
+
+<div id="scroll-space"></div>
+
+<main id="studio">
+  <!-- 1 · hero ────────────────────────────────────────────────────────── -->
+  <section class="sec sec-hero" id="s-hero">
+    <div class="wrap">
+      <div class="hero-card">
+        <h1>Tibba Design<br>Studio</h1>
+        <p>Tibba is a UI/UX design studio that helps tech companies solve
+        problems and take ideas from zero to one.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 · figures ─────────────────────────────────────────────────────── -->
+  <section class="sec sec-numbers" id="s-numbers">
+    <div class="wrap">
+      <div class="fig-grid">
+        <div class="fig"><b>12+</b><span><i></i>Years of experience</span></div>
+        <div class="fig"><b>30+</b><span><i></i>Products shipped</span></div>
+        <div class="fig"><b>08</b><span><i></i>Unicorns serviced</span></div>
+        <div class="fig"><b>$400M</b><span><i></i>Revenue unlocked</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · partners ────────────────────────────────────────────────────── -->
+  <section class="sec sec-partners" id="s-partners">
+    <div class="wrap partners">
+      <div>
+        <h2>We&rsquo;ve worked with start ups and market leaders</h2>
+        <p class="lede">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+      </div>
+      <div class="plist" id="plist"></div>
+    </div>
+  </section>
+
+  <!-- 4 · the range ───────────────────────────────────────────────────── -->
+  <section class="sec sec-summits" id="s-summits"></section>
+
+  <!-- 5 · thumbnails ──────────────────────────────────────────────────── -->
+  <section class="sec sec-thumbs" id="s-thumbs">
+    <div class="wrap thumbs" id="thumbs"></div>
+  </section>
+
+  <!-- 6 · services ────────────────────────────────────────────────────── -->
+  <section class="sec sec-services" id="s-services">
+    <div class="wrap svc-head">
+      <h2>[ Our services ]</h2>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+      <div class="svc-tabs" id="svc-tabs" role="tablist"></div>
+      <p style="margin:0 0 14px;font-size:12.5px;">Here&rsquo;s a list of the different services you can choose from</p>
+      <div class="svc-body">
+        <div class="svc-list" id="svc-list"></div>
+        <div class="svc-detail" id="svc-detail"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="plogo" id="plogo" aria-hidden="true"></div>
+
+<h1 id="hero-studio-line">Tibba Design Studio<span class="stop">.</span></h1>
+<canvas id="canvas"></canvas>
+
+<!-- ── Hero top bar (Figma) ─────────────────────────────────── -->
+<div id="hero-top-bar">
+  <span>We recently presented our work at VizChitra 2025!</span>
+  <button class="odo" type="button" data-odometer="Contact|us"></button>
+</div>
+
+<!-- ── Hero flanking copy ───────────────────────────────────── -->
+<div id="hero-copy">
+  <p class="hero-side-left">tibba is a ui/ux design studio that helps tech companies solve problems and take ideas from zero to one.</p>
+  <p class="hero-side-right">tibba / tib-ba / n 1. a higher place • 2. a peak</p>
+</div>
+
+<!-- ── Bottom pill nav (Figma) ──────────────────────────────── -->
+<nav id="bottom-pill-nav" aria-label="Primary">
+  <a class="nav-pill-link is-active" href="#">home</a>
+  <a class="nav-pill-link" href="#">work</a>
+  <a class="nav-pill-link" href="#">services</a>
+  <a class="nav-pill-link" href="#">about</a>
+  <button type="button" class="nav-pill-cta">contact us</button>
+</nav>
+
+<!-- ── Case study UI ─────────────────────────────────────────── -->
+<div id="scroll-hint" aria-hidden="true"><span>scroll</span><i></i></div>
+
+<div id="case-ui">
+  <div id="progress-rail"></div>
+  <div id="case-counter"><b id="c-num">01</b>&thinsp;/&thinsp;04</div>
+</div>
+
+<!-- ── Markers (white dots; names via aria-label only) ──────── -->
+<div class="mkr dormant" id="mkr-0" style="--mc:#4DD9C0" role="button" tabindex="0" aria-label="Groww case study"><div class="mkr-dot"></div></div>
+<div class="mkr dormant" id="mkr-1" style="--mc:#E05555" role="button" tabindex="0" aria-label="Firstpost case study"><div class="mkr-dot"></div></div>
+<div class="mkr dormant" id="mkr-2" style="--mc:#4CAF70" role="button" tabindex="0" aria-label="Breathe ESG case study"><div class="mkr-dot"></div></div>
+<div class="mkr dormant" id="mkr-3" style="--mc:#7B8FF5" role="button" tabindex="0" aria-label="Shyft case study"><div class="mkr-dot"></div></div>
+
+<!-- ── Case card ─────────────────────────────────────────────── -->
+<a id="case-card" href="#" aria-label="Open case study">
+  <div id="cc-inner">
+    <div class="cc-cat" id="cc-cat"></div>
+    <div class="cc-title" id="cc-title"></div>
+    <div class="cc-body" id="cc-body"></div>
+  </div>
+</a>
+
+
+<!-- ─── Transition tuning panel (preview only — strip for production) ────── -->
+<div id="tune-pill" class="hidden">Transition</div>
+<div id="tune">
+  <div id="tune-head"><b>Range &amp; redraw</b><button id="tune-hide" title="Hide (H)">–</button></div>
+
+  <div class="seg" id="tune-mode">
+    <button data-mode="0" class="on">Sweep</button>
+    <button data-mode="1">Ink</button>
+    <button data-mode="2">Fade</button>
+  </div>
+
+  <div class="row live" id="tune-scrub-row">
+    <label>Scrub<i id="v-scrub">scroll</i></label>
+    <input type="range" id="s-scrub" min="0" max="1000" value="0">
+  </div>
+  <div class="row">
+    <label>Chase (smoothing)<i id="v-spring">7.5</i></label>
+    <input type="range" id="s-spring" min="150" max="2000" value="750">
+  </div>
+  <div class="row">
+    <label>Sweep softness<i id="v-band">0.11</i></label>
+    <input type="range" id="s-band" min="15" max="320" value="110">
+  </div>
+  <div class="row">
+    <label>Highlight speed<i id="v-arrive">3.1</i></label>
+    <input type="range" id="s-arrive" min="80" max="900" value="310">
+  </div>
+  <div class="row">
+    <label>Highlight delay<i id="v-adelay">0.52</i></label>
+    <input type="range" id="s-adelay" min="0" max="95" value="52">
+  </div>
+  <div class="row">
+    <label>Line weight<i id="v-weight">1.00</i></label>
+    <input type="range" id="s-weight" min="30" max="260" value="100">
+  </div>
+  <div class="row">
+    <label>Line opacity<i id="v-op">0.92</i></label>
+    <input type="range" id="s-op" min="15" max="100" value="92">
+  </div>
+  <div class="row">
+    <label>Country fade<i id="v-fade">0.74</i></label>
+    <input type="range" id="s-fade" min="30" max="100" value="74">
+  </div>
+  <div class="row">
+    <label>Contours<i id="v-levels">30</i></label>
+    <input type="range" id="s-levels" min="12" max="46" value="30">
+  </div>
+  <div class="row">
+    <label>Scroll range (vh)<i id="v-range">0.26 – 0.86</i></label>
+    <input type="range" id="s-range" min="20" max="95" value="86">
+  </div>
+
+  <div class="tune-sep">Route</div>
+  <div class="row">
+    <label>Trail width<i id="v-tw">2.3</i></label>
+    <input type="range" id="s-tw" min="80" max="700" value="230">
+  </div>
+  <div class="row">
+    <label>Trail glow<i id="v-tg">0.00</i></label>
+    <input type="range" id="s-tg" min="0" max="200" value="0">
+  </div>
+  <div class="row">
+    <label>Climb time<i id="v-climb">2.4s</i></label>
+    <input type="range" id="s-climb" min="60" max="600" value="240">
+  </div>
+  <div class="row">
+    <label>Peak weight<i id="v-hiw">0.30</i></label>
+    <input type="range" id="s-hiw" min="0" max="180" value="30">
+  </div>
+  <div class="row">
+    <label>Recede the rest<i id="v-dim">0.38</i></label>
+    <input type="range" id="s-dim" min="0" max="90" value="38">
+  </div>
+  <div class="tune-acts" style="margin-top:9px">
+    <button id="tune-climb">Replay climb</button>
+  </div>
+
+  <div class="tune-sep">Pointer</div>
+  <div class="row">
+    <label>Parallax swing<i id="v-pyaw">0.15</i></label>
+    <input type="range" id="s-pyaw" min="0" max="60" value="15">
+  </div>
+  <div class="row">
+    <label>Parallax ease<i id="v-pease">5.5</i></label>
+    <input type="range" id="s-pease" min="100" max="1600" value="550">
+  </div>
+  <div class="row">
+    <label>Hover strength<i id="v-hs">1.00</i></label>
+    <input type="range" id="s-hs" min="0" max="100" value="100">
+  </div>
+  <div class="row">
+    <label>Hover band<i id="v-hb">2.8</i></label>
+    <input type="range" id="s-hb" min="30" max="900" value="280">
+  </div>
+  <div class="row">
+    <label>Hover reach<i id="v-hrr">60</i></label>
+    <input type="range" id="s-hrr" min="10" max="200" value="60">
+  </div>
+  <div class="row">
+    <label>Pulse rate<i id="v-hp">2.2</i></label>
+    <input type="range" id="s-hp" min="0" max="700" value="220">
+  </div>
+
+  <div class="tune-sep">Camera</div>
+  <div class="row">
+    <label>Hero angle<i id="v-helev">22&deg;</i></label>
+    <input type="range" id="s-helev" min="3" max="70" value="22">
+  </div>
+  <div class="row">
+    <label>Hero distance<i id="v-hdist">126</i></label>
+    <input type="range" id="s-hdist" min="50" max="240" value="126">
+  </div>
+  <div class="row">
+    <label>Hero swing<i id="v-hazim">6&deg;</i></label>
+    <input type="range" id="s-hazim" min="-60" max="60" value="6">
+  </div>
+  <div class="row">
+    <label>Hero look height<i id="v-htgt">17</i></label>
+    <input type="range" id="s-htgt" min="0" max="44" value="17">
+  </div>
+  <div class="row">
+    <label>Survey angle<i id="v-selev">24&deg;</i></label>
+    <input type="range" id="s-selev" min="3" max="65" value="24">
+  </div>
+  <div class="row">
+    <label>Survey distance<i id="v-sdist">80</i></label>
+    <input type="range" id="s-sdist" min="35" max="190" value="80">
+  </div>
+  <div class="tune-read" id="tune-read">&hellip;</div>
+
+  <div class="tune-acts">
+    <button id="tune-play">Replay</button>
+    <button id="tune-scroll">Scroll</button>
+    <button id="tune-copy">Copy</button>
+  </div>
+  <div class="tune-note">Move the pointer over a mountain: the contour at that elevation pulses in
+    the peak's colour, and the camera swings a little. Sweep/Ink/Fade is the hero fill. Client peaks keep the default ink &mdash;
+    the project colour is the route climbing them. Camera sliders apply live to whichever phase you are in &mdash; hero at
+    the top, survey once you scroll into the work section. Copy hands you the numbers to send
+    back. Scrub and Replay drive the studio peak only; the client summits light on arrival.
+    H hides this panel.</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+
+/* ─── Case data ──────────────────────────────────────────────── */
+const CASES = [
+  {
+    cat: 'Fintech · App · Website',
+    titleHTML: 'How we helped Groww <span class="hi">boost engagement</span> on their app',
+    body: 'Deep engagement with Groww to design features that drive user activity across their consumer app and product initiatives.',
+    accent: '#4DD9C0', link: '#',
+  },
+  {
+    cat: 'News & Media · App · Website',
+    titleHTML: 'How we helped Firstpost <span class="hi">2× their traffic</span> through a strategic redesign',
+    body: "A design overhaul of Firstpost's website and first mobile app, with a significant pivot in business and content strategy.",
+    accent: '#E05555', link: '#',
+  },
+  {
+    cat: 'SaaS · ESG · Dashboard',
+    titleHTML: 'How we helped Breathe ESG <span class="hi">accelerate sales</span> and streamline releases',
+    body: 'MVP to v1 redesign of a SaaS platform that helps companies track ESG metrics and meet regulatory compliance.',
+    accent: '#4CAF70', link: '#',
+  },
+  {
+    cat: 'Fitness · Mental Health · App',
+    titleHTML: 'How we helped Shyft & Mindhouse <span class="hi">grow their business</span> and supercharge PLG',
+    body: 'Conceptualising a therapy experience alongside redesigning websites and apps to drive engagement and revenue.',
+    accent: '#7B8FF5', link: '#',
+  },
+];
+
+/* ─── Progress dots ──────────────────────────────────────────── */
+const rail = document.getElementById('progress-rail');
+const LABELS = ['Groww','Firstpost','Breathe','Shyft'];
+LABELS.forEach((lbl, i) => {
+  const d = document.createElement('div');
+  d.className = 'p-dot'; d.dataset.label = lbl; d.dataset.idx = i;
+  d.addEventListener('click', () => jumpTo(i));
+  rail.appendChild(d);
+});
+const pDots = () => document.querySelectorAll('.p-dot');
+
+/* ─── Noise ──────────────────────────────────────────────────── */
+/* An integer bit-mix rather than the usual sin-based hash. The terrain below
+   asks for roughly five times as many noise samples per point as a plain cone
+   did, and a hash built on Math.sin would have put a second on the load; this
+   is several times faster and has none of sin-hash's lattice banding. */
+function h2(x, y){
+  let n = Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263);
+  n = Math.imul(n ^ (n >>> 13), 1274126177);
+  return ((n ^ (n >>> 16)) >>> 0) / 4294967296;
+}
+function vn(x,y){
+  const ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy;
+  const ux=fx*fx*(3-2*fx),uy=fy*fy*(3-2*fy);
+  const a=h2(ix,iy),b=h2(ix+1,iy),c=h2(ix,iy+1),d=h2(ix+1,iy+1);
+  return a+(b-a)*ux+(c-a)*uy+(d-c-b+a)*ux*uy;
+}
+function fbmN(x,y,oct){ let v=0,a=0.5,f=1; for(let i=0;i<oct;i++){v+=a*vn(x*f,y*f);a*=0.5;f*=2.09;} return v; }
+function fbm(x,y){ return fbmN(x,y,5); }
+function sstep(t){ return t<=0?0:(t>=1?1:t*t*(3-2*t)); }
+
+/* ─── The range ──────────────────────────────────────────────────────────
+   Five summits, each with its own landform rather than its own radius. A cone
+   — however you bend the exponent — reads as a dome, because the thing that
+   makes a mountain look like a mountain is not its profile but its erosion:
+   spurs running down off the summit, gullies between them, and a plan outline
+   that is nowhere near a circle.
+
+   Each peak is built from `parts` — separate masses summed together, so a
+   summit can sit on a bench which sits on a sprawling apron, which is what the
+   hero reference is: a compact cusped top on a broad lobed shelf, not a
+   pyramid. A part is either an exponential cone (`sharp`) or a flat-topped
+   mesa (`mesa`, the fraction of its radius spent falling away).
+
+   On top of that each peak carries:
+     warp    domain warp, in world units — this is what breaks the circle, and
+             it is applied once so every part of a peak distorts together.
+     spur    the coarse ridge armature: ridged noise sampled around a circle in
+             theta so it wraps with no seam, then smoothstepped so the gullies
+             come out as rounded lobes instead of V-notches.
+     flute   the same again, finer and denser, on a wobbled angle so the
+             gullies are not perfectly radial.
+   ------------------------------------------------------------------------ */
+const PEAKS = [
+  /* The studio's massif, built to the reference: a small steep summit, the
+     bench it stands on, a wide lobed apron sprawling forward, a second lobe
+     off to one side and a low bump on the front shelf. Kept deliberately
+     smooth — the reference has no fluting on it at all. */
+  { x: 5, z: -1, h:41, spread:44, seed: 11.7, rot: 0.30, aniso:1.00, warp:16,
+    spur:0.16, spurF:2.6, flute:0.05, fluteF: 9,
+    parts: [
+      { dx:  0, dz:  0, h:19.0, spread:19, sharp:2.10, aniso:1.10 }, // summit
+      { dx:  2, dz:  6, h:11.0, spread:26, sharp:2.50, aniso:1.18 }, // bench
+      { dx: -5, dz: 17, h:15.0, spread:45, mesa:0.55,  aniso:1.30 }, // apron
+      { dx: 22, dz: 10, h: 6.0, spread:28, mesa:0.50,  aniso:1.15 }, // side lobe
+      { dx: -4, dz: 15, h: 4.0, spread: 7, sharp:2.00, aniso:1.00 }, // front bump
+    ] },
+  // Groww — a broad shouldered massif, stretched across the view
+  { x:-112, z:  -98, h:23, spread:28, seed: 43.1, rot:-0.60, aniso:1.42, warp:13,
+    spur:0.34, spurF:2.0, flute:0.08, fluteF: 9,
+    parts: [ { dx:0, dz:0, h:23, spread:28, sharp:2.60, aniso:1.42 },
+             { dx:9, dz:11, h:5, spread:26, mesa:0.62, aniso:1.20 } ] },
+  // Firstpost — a horn: cusped, steep, almost no skirt
+  { x: -40, z: -124, h:23, spread:23, seed: 77.9, rot: 0.90, aniso:1.10, warp: 7,
+    spur:0.44, spurF:2.9, flute:0.12, fluteF:13,
+    parts: [ { dx:0, dz:0, h:23, spread:23, sharp:1.35, aniso:1.10 },
+             { dx:-6, dz:8, h:3, spread:20, mesa:0.70, aniso:1.10 } ] },
+  // Breathe — a plateau, flat-topped with steep sides
+  { x:  44, z: -121, h:18, spread:32, seed:129.3, rot: 0.15, aniso:1.30, warp:14,
+    spur:0.26, spurF:2.2, flute:0.13, fluteF:12,
+    parts: [ { dx:0, dz:0, h:15, spread:24, mesa:0.42, aniso:1.30 },
+             { dx:3, dz:9, h:6, spread:34, mesa:0.58, aniso:1.22 } ] },
+  // Shyft — an even cone, near symmetric
+  { x: 114, z:  -95, h:22, spread:26, seed:191.5, rot: 0.00, aniso:1.05, warp: 5,
+    spur:0.17, spurF:3.2, flute:0.13, fluteF:14,
+    parts: [ { dx:0, dz:0, h:22, spread:26, sharp:2.00, aniso:1.05 },
+             { dx:0, dz:6, h:4, spread:30, mesa:0.66, aniso:1.05 } ] },
+];
+PEAKS.forEach(p => {
+  p._cos = Math.cos(p.rot); p._sin = Math.sin(p.rot);
+  p._ax = p.spread * p.aniso; p._az = p.spread / p.aniso;
+  let reach = 0;
+  p.parts.forEach(t => {
+    t._c = p._cos; t._s = p._sin;
+    t._ax = t.spread * t.aniso; t._az = t.spread / t.aniso;
+    /* a mesa is finished at r = 1; a cone needs a couple of radii before it is
+       numerically nothing */
+    t._lim = t.mesa ? 1.02 : 2.0;
+    reach = Math.max(reach, Math.hypot(t.dx, t.dz) + Math.max(t._ax, t._az) * t._lim);
+  });
+  /* cheap reject radius, measured before the warp so a far point never pays
+     for one — this early-out is most of what keeps the build under a second */
+  p._cut = reach + p.warp;
+  p._cut2 = p._cut * p._cut;
+});
+const PROJECT_PEAKS = [1, 2, 3, 4];        // PEAKS index per case, in CASES order
+
+const NPK = PEAKS.length;
+
+/* The fill belongs to the hero peak alone. A client summit shading in solid was
+   too much weight for a secondary element — it stopped reading as one peak in a
+   range and started reading as a second hero. The clients stay as line for the
+   whole scroll, keep the same ink as every other peak, and what carries the
+   project's colour is the route climbing them. */
+/* Colours headed for a raw ShaderMaterial have to be plain sRGB components.
+   new THREE.Color(hex) converts to linear working space, and a raw shader has
+   no <colorspace_fragment> to convert it back, so the linear value gets written
+   to an sRGB framebuffer verbatim: #E05555 was arriving on screen as (255,35,35)
+   instead of (224,85,85) — a different red from the one in the title. */
+function srgbVec(hex) {
+  const n = typeof hex === 'string' ? parseInt(hex.slice(1), 16) : hex;
+  return new THREE.Vector3(((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255);
+}
+
+/* Each peak's colour, for the hover pulse. The studio's own summit has no
+   client accent, so it takes the brand primary. */
+const PEAK_ACCENT = PEAKS.map(() => srgbVec(0x7B8FF5));
+
+const peakLit    = PEAKS.map(() => 0);   // 0..1 highlight, clients only
+const peakLitT   = PEAKS.map(() => 0);
+
+function coneAt(p, x, z){
+  const qx = x - p.x, qz = z - p.z;
+  if (qx*qx + qz*qz > p._cut2) return 0;
+
+  const S = p.seed;
+  // domain warp first, once — every part of this peak distorts together
+  const wx = x + p.warp * (fbmN(x*0.055 + 5.2 + S, z*0.055 - 2.1 + S, 2) - 0.5);
+  const wz = z + p.warp * (fbmN(x*0.055 - 7.7 + S, z*0.055 + 4.3 + S, 2) - 0.5);
+  const bx = wx - p.x, bz = wz - p.z;
+
+  let hSum = 0;
+  for (let k = 0; k < p.parts.length; k++){
+    const t = p.parts[k];
+    const dx = bx - t.dx, dz = bz - t.dz;
+    const px = (dx*t._c - dz*t._s) / t._ax;
+    const pz = (dx*t._s + dz*t._c) / t._az;
+    const r = Math.sqrt(px*px + pz*pz);
+    if (r > t._lim) continue;
+    hSum += t.h * (t.mesa
+      ? sstep((1 - r) / t.mesa)
+      : Math.exp(-Math.pow(r, t.sharp) * 3));
+  }
+  if (hSum < 0.02) return 0;
+
+  /* Erosion rides on the combined form, not on any one part, so a spur running
+     off the summit carries on down across the bench below it. */
+  const u = Math.min(1, hSum / p.h);
+  const flank = Math.pow(1 - u, 0.9);        // relief dies at the summit
+  const env   = 4 * u * (1 - u);             // and peaks mid-height
+
+  const ax = (bx*p._cos - bz*p._sin) / p._ax;
+  const az = (bx*p._sin + bz*p._cos) / p._az;
+  const th = Math.atan2(az, ax);
+  const sp = fbmN(Math.cos(th)*p.spurF + 31 + S, Math.sin(th)*p.spurF - 12 + S, 2);
+  const spur = sstep(1 - Math.abs(sp*2 - 1));
+
+  const thw = th + 0.38 * (fbmN(ax*0.9 + 3.3 + S, az*0.9 - 1.1 + S, 2) - 0.5);
+  const fn  = fbmN(Math.cos(thw)*p.fluteF + 57 + S, Math.sin(thw)*p.fluteF - 23 + S, 2);
+  const flute = sstep(1 - Math.abs(fn*2 - 1));
+
+  const grain = (fbmN(ax*3.4 + 2.2 + S, az*3.4 - 8.8 + S, 2) - 0.5) * 2;
+
+  return hSum + p.h * (p.spur*spur*env + p.flute*flute*env*env + 0.03*env*grain) * flank;
+}
+
+function mh(x,z){
+  /* The country was carrying ±8 units of its own relief, which is more than the
+     hero's apron stands proud of it — the shelf read as one more fold in the
+     landscape instead of as the base of a mountain. Halved, the massifs are
+     the landform and the ground is the ground. */
+  let v = (fbm(x*.058+1.7,z*.058+2.3)-.45)*6.0;
+  for(let i=0;i<PEAKS.length;i++) v += coneAt(PEAKS[i], x, z);
+  return Math.max(0, v);
+}
+
+let MAX_H=0;
+for(let x=-60;x<=60;x++) for(let z=-60;z<=60;z++) MAX_H=Math.max(MAX_H,mh(x,z));
+/** Per-peak summit height — each peak's contour interval is scaled to its own. */
+/* Where each summit actually is, not where its cone was nominally centred. The
+   domain warp and the offset parts move a real top several units off the entry
+   in the table — enough that a route aimed at the nominal centre finishes just
+   past the peak and hooks back, and a camera aimed there frames it off-centre. */
+const PEAK_TOP = [];
+const PEAK_H = PEAKS.map(p => {
+  let m = 0, bx = p.x, bz = p.z;
+  for(let a=-p.spread*1.3; a<=p.spread*1.3; a+=1.0)
+    for(let b=-p.spread*1.3; b<=p.spread*1.3; b+=1.0){
+      const h = mh(p.x+a, p.z+b);
+      if (h > m) { m = h; bx = p.x+a; bz = p.z+b; }
+    }
+  PEAK_TOP.push({ x: bx, z: bz });
+  return m;
+});
+PEAK_H[0] = MAX_H;      // keep the hero's palette mapping exactly where it was
+
+/* Height the palette is measured against, which is not the same as the height
+   the contour interval is measured against. Normalise a 26-unit summit fully to
+   itself and its whole cap lands in the white of the ramp — it reads as chalk,
+   not as a smaller mountain. Blending toward the range maximum keeps a shorter
+   peak in the greys where it belongs, while peak 0 is unchanged by definition. */
+const PEAK_TONE = PEAK_H.map(h => MAX_H + (h - MAX_H) * 0.78);
+
+/* ─── Renderer ───────────────────────────────────────────────── */
+const canvas = document.getElementById('canvas');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.setClearColor(0x0d0f1e, 0);
+
+const scene = new THREE.Scene();
+scene.background = null;
+scene.fog = new THREE.Fog(0x0D0F1E, 180, 360);
+
+/* ─── Camera ─────────────────────────────────────────────────── */
+const camera = new THREE.PerspectiveCamera(50, innerWidth/innerHeight, 0.1, 600);
+const camTarget = new THREE.Vector3(5, 14, 0);
+
+/* The camera position the scroll owns, before any pointer input. Tweens move
+   this rather than the camera itself, so the parallax below can orbit around
+   it without the two writing to camera.position and cancelling each other —
+   which is why the old parallax had to switch itself off during every flight. */
+const camBase = new THREE.Vector3();
+/* The hero gets a fraction of the swing, and almost none of the pitch. The
+   studio name sits behind the canvas and shows only where the framebuffer is
+   empty, so anything that lifts the far horizon crops the words — and at a 22
+   degree camera the horizon is very sensitive to pitch. The work section has no
+   type behind the mountain, so it takes the full amount. */
+const PARALLAX = { yaw: 0.15, pitch: 0.075, ease: 5.5, heroYaw: 0.6, heroPitch: 0.22 };
+const _up = new THREE.Vector3(0, 1, 0);
+const _pv = new THREE.Vector3(), _pr = new THREE.Vector3();
+
+function applyParallax() {
+  _pv.copy(camBase).sub(camTarget);
+  const hero = phase !== 'case';
+  const yaw = -mSmooth.x * PARALLAX.yaw * (hero ? PARALLAX.heroYaw : 1);
+  let pitch = mSmooth.y * PARALLAX.pitch * (hero ? PARALLAX.heroPitch : 1);
+  /* In the hero the pitch may only lower the camera, never raise it. Raising it
+     means looking down more steeply, which lifts the far horizon — and the
+     horizon is the edge that was slicing through the studio name. Letting it
+     drop is free: that direction only opens up more sky. */
+  if (hero) pitch = Math.min(pitch, 0);
+  _pv.applyAxisAngle(_up, yaw);
+  _pr.crossVectors(_pv, _up);
+  if (_pr.lengthSq() > 1e-6) {
+    /* never let the pointer push the camera over the pole or under the ground */
+    const elev = Math.asin(Math.max(-1, Math.min(1, _pv.y / Math.max(1e-4, _pv.length()))));
+    pitch = Math.max(-elev + 0.07, Math.min(1.45 - elev, pitch));
+    _pv.applyAxisAngle(_pr.normalize(), pitch);
+  }
+  camera.position.copy(camTarget).add(_pv);
+}
+
+/* Hero camera, held as angle and distance rather than a point, so elevation can
+   be dialled without also having to solve for the position that produces it.
+   `elev` is degrees above the horizon: low is a front-on view where the massif
+   reads as a silhouette, high looks down on it and shows the apron as a shelf. */
+const HERO_CAM = { elev: 22, dist: 126, azim: 6, tgtX: 2, tgtY: 17, tgtZ: -4 };
+const H_POS = new THREE.Vector3();
+const H_TGT = new THREE.Vector3();
+function applyHeroCam(live) {
+  const e = HERO_CAM.elev * Math.PI / 180, a = HERO_CAM.azim * Math.PI / 180;
+  const up = HERO_CAM.dist * Math.sin(e), out = HERO_CAM.dist * Math.cos(e);
+  H_TGT.set(HERO_CAM.tgtX, HERO_CAM.tgtY, HERO_CAM.tgtZ);
+  H_POS.set(H_TGT.x + out * Math.sin(a), H_TGT.y + up, H_TGT.z + out * Math.cos(a));
+  if (live && phase === 'hero') {
+    if (camAnim) { camAnim.kill(); camTweening = false; }
+    camTarget.copy(H_TGT);
+    camBase.copy(H_POS);
+  }
+}
+/** First-load intro: camera & target start lower, then ease to hero. */
+const HERO_INTRO_CAM_Y = 14;
+const HERO_INTRO_TGT_Y = 5;
+const HERO_INTRO_GROUP_Y = -7;
+
+/* Case study: one survey station per client summit, all at the same elevation and
+   distance, so travelling between them is a level pan across the range rather
+   than a swoop — the contour map stays legible the whole way and the case card
+   never has to fight a moving horizon. */
+const SURVEY = { elev: 24, dist: 80, look: 0.34 };
+/* Each station swings outboard of its own summit, looking back along the range.
+   The subject stays front and centre and the other four recede behind it — which
+   is the only thing in a still frame that says "range" rather than "a mountain". */
+const CASE_AZIM = [-32, -18, 18, 32];   // degrees off dead-ahead
+let CASE_CAM = null;            // filled once PEAK_H and TREK exist, below
+
+/* ─── Mountain geometry ──────────────────────────────────────── */
+/* The plane grew from 130 to 500 to hold the range, and RES with it so the
+   spacing per vertex stays what the hero was authored against (~1.09 units).
+   Every vertex also carries the peak that owns it and how strongly, which is
+   what lets one summit light up while the rest of the range stays as line. */
+const TERRAIN = 500, RES = 460;
+const geo = new THREE.PlaneGeometry(TERRAIN, TERRAIN, RES, RES);
+geo.rotateX(-Math.PI/2);
+const pos = geo.attributes.position;
+/* A copy of the rendered surface on its own grid. The contours are extracted
+   from a field twice as fine as this mesh, so wherever the mesh chords across a
+   gully it sits ABOVE the true surface — and a contour drawn at the true height
+   there ends up inside the depth mesh and gets culled. That is what breaks a
+   line into pieces. Keeping the mesh heights lets each contour ride up onto the
+   mesh wherever that happens, and stay at its own level everywhere else. */
+const MRES = RES + 1, MCELL = TERRAIN / RES, MHALF = TERRAIN / 2;
+const MESHY = new Float32Array(MRES * MRES);
+for(let i=0;i<pos.count;i++){
+  const x = pos.getX(i), z = pos.getZ(i), y = mh(x, z);
+  pos.setY(i, y);
+  const ii = Math.round((x + MHALF) / MCELL), jj = Math.round((z + MHALF) / MCELL);
+  if (ii >= 0 && ii < MRES && jj >= 0 && jj < MRES) MESHY[jj * MRES + ii] = y;
+}
+pos.needsUpdate = true;
+geo.computeVertexNormals();
+
+function meshYAt(x, z) {
+  const gx = (x + MHALF) / MCELL, gz = (z + MHALF) / MCELL;
+  let i = Math.floor(gx), j = Math.floor(gz);
+  i = i < 0 ? 0 : (i > MRES - 2 ? MRES - 2 : i);
+  j = j < 0 ? 0 : (j > MRES - 2 ? MRES - 2 : j);
+  const fx = gx - i, fz = gz - j;
+  const a = MESHY[j*MRES+i],     b = MESHY[j*MRES+i+1],
+        c = MESHY[(j+1)*MRES+i], d = MESHY[(j+1)*MRES+i+1];
+  return a + (b-a)*fx + (c-a)*fz + (d-c-b+a)*fx*fz;
+}
+
+/* Peak positions and reach, handed to both shaders. Nothing is assigned to a
+   peak: every fragment reads all five and blends them by proximity, so the
+   ground between two summits carries a gradient rather than a Voronoi seam. */
+const PEAK_XZS = PEAKS.map(p => new THREE.Vector3(p.x, p.z, p.spread));
+
+const mountainGroup = new THREE.Group();
+scene.add(mountainGroup);
+
+const mountainMat = new THREE.ShaderMaterial({
+  uniforms: {
+    uAlpha:  { value: 1 },
+    /* one entry per peak — the range holds five independent redraws */
+    uPeak:   { value: PEAK_XZS },
+    uCut:    { value: PEAKS.map(() => 1e4) },   // world height each sweep plane sits at
+    uMorphA: { value: PEAKS.map(() => 0) },
+    uPeakH:  { value: PEAK_TONE.slice() },
+    uBand:   { value: 4.5 },                    // softness of the plane
+    uMode:   { value: 0 },
+    uEdgeAmt:{ value: 0 },                      // how live the survey line is
+    uFogNear:{ value: 200 },
+    uFogFar: { value: 520 },
+  },
+  transparent: true,
+  depthWrite: true,
+  side: THREE.DoubleSide,
+  defines: { NP: PEAKS.length },
+  vertexShader:`
+    uniform vec3 uPeak[NP];
+    uniform float uCut[NP];
+    uniform float uMorphA[NP];
+    uniform float uPeakH[NP];
+    uniform float uFogNear, uFogFar;
+    varying float vH, vCut, vMorph, vFog, vMax, vOn;
+    varying vec3 vN;
+    void main(){
+      vH=position.y; vN=normalize(normalMatrix*normal);
+
+      /* Blend all five peaks by proximity instead of picking one. An inverse
+         fourth-power weight lets the nearest summit dominate hard while still
+         handing over smoothly, so a peak lighting up bleeds into the saddle
+         beside it rather than stopping at a hard edge halfway across. */
+      float wsum=0.0, c=0.0, m=0.0, hx=0.0, wmax=0.0;
+      for (int i=0;i<NP;i++){
+        vec2 dd = position.xz - uPeak[i].xy;
+        float q = dot(dd,dd) / (uPeak[i].z * uPeak[i].z);
+        float w = 1.0 / (q*q + 0.02);
+        wsum += w; wmax = max(wmax, w);
+        c += uCut[i]*w; m += uMorphA[i]*w; hx += uPeakH[i]*w;
+      }
+      vCut = c/wsum; vMorph = m/wsum; vMax = hx/wsum;
+      /* Out in the country between summits the blend sits halfway between a lit
+         peak and a drained one, which is honest but puts a travelling sweep line
+         across ground that is not transitioning at all. This says how much of a
+         peak this ground actually is, and the survey line is scaled by it. */
+      vOn = smoothstep(0.02, 0.85, wmax);
+
+      vec4 mv = modelViewMatrix*vec4(position,1.0);
+      vFog = 1.0 - smoothstep(uFogNear, uFogFar, -mv.z);
+      gl_Position=projectionMatrix*mv;
+    }`,
+  fragmentShader:`
+    precision highp float;
+    varying float vH, vCut, vMorph, vFog, vMax, vOn;
+    varying vec3 vN;
+    uniform float uAlpha, uBand, uMode, uEdgeAmt;
+    void main(){
+      /* The ramp is curved, not linear. Read straight off height, an apron a
+         quarter of the way up the massif lands in the darkest quarter of the
+         palette and disappears into the ground; the reference keeps its whole
+         body mid-tone and spends the bright end on the cap alone. */
+      float t=pow(clamp(vH/vMax,0.0,1.0), 0.70);
+      vec3 c0=vec3(0.048,0.054,0.108);
+      vec3 c1=vec3(0.095,0.115,0.200);
+      vec3 c2=vec3(0.210,0.250,0.380);
+      vec3 c3=vec3(0.420,0.470,0.600);
+      vec3 c4=vec3(0.790,0.820,0.905);
+      vec3 col;
+      if     (t<0.25) col=mix(c0,c1,t/0.25);
+      else if(t<0.50) col=mix(c1,c2,(t-0.25)/0.25);
+      else if(t<0.75) col=mix(c2,c3,(t-0.50)/0.25);
+      else            col=mix(c3,c4,(t-0.75)/0.25);
+      float cl=exp(-abs(sin(vH*1.15))*16.0);
+      col=mix(col,col*0.55,cl*0.28);
+      vec3 l=normalize(vec3(-0.3,2.8,1.0));
+      float diff=dot(vN,l)*0.34+0.66;
+      float side=max(0.0,dot(vN,normalize(vec3(1.0,0.4,-0.4)))*0.10);
+      col=col*diff+col*side;
+
+      /* ── the redraw ────────────────────────────────────────────────────
+         How much of this fragment is still rendered as a solid, lit surface.
+         The contour layer uses the complement of exactly this expression, so
+         the two are always a partition — no gap, no double-draw. Every term
+         reads this peak's own cut, so one summit can be lighting up while the
+         four beside it stay as line. */
+      float solid;
+      float edge = 0.0;
+      if (uMode < 0.5) {                      // sweep
+        solid = 1.0 - smoothstep(vCut - uBand, vCut + uBand, vH);
+        edge  = exp(-pow((vH - vCut) / max(0.001, uBand * 0.7), 2.0));
+      } else if (uMode < 1.5) {               // ink
+        solid = 1.0 - clamp(vMorph * 1.9 - (1.0 - t) * 0.9, 0.0, 1.0);
+      } else {                                // fade
+        solid = 1.0 - smoothstep(0.0, 1.0, vMorph);
+      }
+
+      /* The shading drains, but the mountain does not. What leaves is the light,
+         not the body: the surface settles onto a near-black paper tone a shade
+         under the page and stays fully opaque, so a contoured peak is a solid
+         silhouette carrying its lines rather than a transparent shell you can
+         read the page through. A trace of the shading is added back rather than
+         mixed in — mixing keeps a fixed share, which on a summit that was nearly
+         white leaves a grey cap sitting on an otherwise black mountain. */
+      vec3 paper = vec3(0.036,0.042,0.092);
+      col = mix(col, paper + col * 0.055, 1.0 - solid);
+
+      float live = uEdgeAmt * vOn;
+      col += vec3(0.34,0.40,0.66) * edge * live;
+
+      /* Opacity is now only ever reduced by distance — never by the redraw and
+         never by which peak this is near. The terrain is one body. */
+      float a = uAlpha * vFog;
+      if (a < 0.004) discard;
+      gl_FragColor=vec4(col, a);
+    }`,
+});
+const mountainMesh = new THREE.Mesh(geo, mountainMat);
+mountainGroup.add(mountainMesh);
+
+mountainGroup.position.y = HERO_INTRO_GROUP_Y;
+mountainMat.uniforms.uAlpha.value = 0;
+camBase.set(H_POS.x, H_POS.y - HERO_INTRO_CAM_Y, H_POS.z);
+camTarget.set(H_TGT.x, H_TGT.y - HERO_INTRO_TGT_Y, H_TGT.z);
+
+// Ground
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(700,700),
+  new THREE.MeshBasicMaterial({ color: 0x07080F })
+);
+ground.rotation.x = -Math.PI/2; ground.position.y = -0.1;
+scene.add(ground);
+
+/* ─── Routes and flags ───────────────────────────────────────── */
+/* One ascent per client summit, laid out against that peak's own footprint so a
+   broad shoulder gets a long traverse and a horn gets a tighter switchback. The
+   sign flips each time so consecutive routes do not read as the same drawing. */
+const PATH_PTS = 180;
+const PATH_CLR = CASES.map(c => c.accent);   // the route wears the project's colour
+PROJECT_PEAKS.forEach((pi, i) => PEAK_ACCENT[pi].copy(srgbVec(PATH_CLR[i])));
+
+const TREK = PROJECT_PEAKS.map((pi, i) => {
+  const p = PEAKS[pi], R = p.spread, sg = i % 2 ? -1 : 1;
+  const t = PEAK_TOP[pi];        // anchor the whole ascent on the real summit
+  /* Switchbacks kept inside the peak's own footprint. The earlier route started
+     a spread and a half out on flat ground and swung wider than the mountain,
+     which read as a stray line rather than as an ascent. */
+  const ctrl = [
+    [t.x + sg * 0.34 * R, t.z + 1.22 * R],   // trailhead, on the lower slope
+    [t.x - sg * 0.46 * R, t.z + 0.86 * R],
+    [t.x + sg * 0.48 * R, t.z + 0.48 * R],
+    [t.x - sg * 0.11 * R, t.z + 0.22 * R],   // last switchback, kept gentle so the
+    [t.x, t.z],                              // final approach does not hook at the top
+  ];
+  return { peak: pi, ctrl, base: { x: ctrl[0][0], z: ctrl[0][1] } };
+});
+
+const FLAG_XZ = TREK.map(t => ({ x: t.ctrl[4][0], z: t.ctrl[4][1] }));
+const FLAGS = FLAG_XZ.map(({x,z}) => ({ x, z, y: mh(x,z) }));
+
+/* ─── The routes ─────────────────────────────────────────────────────────
+   The mountain keeps its own ink; what carries the project's colour is the
+   line up it. So the route has to be the heaviest, most deliberate mark on the
+   sheet — a one-pixel THREE.Line cannot do that next to contour ribbons that
+   are already two and a half pixels wide, and a LineBasicMaterial ignores
+   linewidth on every desktop driver anyway. These are built the same way the
+   contours are: quad strips widened in screen space, so the trail holds an
+   exact width at any depth and any pixel density. */
+const TRAIL_PTS = 260;
+
+const trailPaths = TREK.map(({ ctrl }) => {
+  /* Centripetal rather than uniform: a uniform Catmull-Rom overshoots past its
+     last control point, which put a loop over the summit and sent the route
+     back down the far side. */
+  const curve = new THREE.CatmullRomCurve3(
+    ctrl.map(([x,z]) => new THREE.Vector3(x, mh(x,z), z)),
+    false, 'centripetal'
+  );
+  const pts = curve.getPoints(TRAIL_PTS);
+  // resample y off the terrain so the route hugs the surface rather than cutting through it
+  pts.forEach(p => { p.y = mh(p.x, p.z) + 0.55; });
+  return pts;
+});
+
+function buildTrailGeometry() {
+  let vCount = 0, iCount = 0;
+  trailPaths.forEach(P => { vCount += P.length * 2; iCount += (P.length - 1) * 6; });
+
+  const pos  = new Float32Array(vCount * 3),
+        prev = new Float32Array(vCount * 3),
+        next = new Float32Array(vCount * 3),
+        side = new Float32Array(vCount),
+        arc  = new Float32Array(vCount),
+        trl  = new Float32Array(vCount);
+  const idx = vCount > 65535 ? new Uint32Array(iCount) : new Uint16Array(iCount);
+
+  let v = 0, ii = 0;
+  trailPaths.forEach((P, t) => {
+    const n = P.length;
+    const cum = new Float32Array(n); let tot = 0;
+    for (let i = 1; i < n; i++) { tot += P[i].distanceTo(P[i-1]); cum[i] = tot; }
+    if (tot < 1e-5) tot = 1;
+
+    const base = v;
+    for (let i = 0; i < n; i++) {
+      const pt = P[i], pp = P[Math.max(0, i-1)], np = P[Math.min(n-1, i+1)];
+      for (let sd = 0; sd < 2; sd++) {
+        const o = v * 3;
+        pos[o]=pt.x;  pos[o+1]=pt.y;  pos[o+2]=pt.z;
+        prev[o]=pp.x; prev[o+1]=pp.y; prev[o+2]=pp.z;
+        next[o]=np.x; next[o+1]=np.y; next[o+2]=np.z;
+        /* arc runs 1 at the trailhead to 0 at the summit, so the reveal below
+           reads as a climb rather than as a line being extruded downhill */
+        side[v] = sd ? 1 : -1; arc[v] = 1 - cum[i] / tot; trl[v] = t;
+        v++;
+      }
+    }
+    for (let i = 0; i < n - 1; i++) {
+      const a = base + i * 2;
+      idx[ii++]=a; idx[ii++]=a+1; idx[ii++]=a+2;
+      idx[ii++]=a+1; idx[ii++]=a+3; idx[ii++]=a+2;
+    }
+  });
+
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('aPrev',    new THREE.BufferAttribute(prev, 3));
+  g.setAttribute('aNext',    new THREE.BufferAttribute(next, 3));
+  g.setAttribute('aSide',    new THREE.BufferAttribute(side, 1));
+  g.setAttribute('aArc',     new THREE.BufferAttribute(arc, 1));
+  g.setAttribute('aTrail',   new THREE.BufferAttribute(trl, 1));
+  g.setIndex(new THREE.BufferAttribute(idx, 1));
+  g.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 20, -60), 340);
+  return g;
+}
+
+const NTR = trailPaths.length;
+const trailMat = new THREE.ShaderMaterial({
+  transparent: true, depthWrite: false, depthTest: true, side: THREE.DoubleSide,
+  defines: { NT: NTR },
+  uniforms: {
+    uHalfRes: { value: new THREE.Vector2(1, 1) },
+    uWidth:   { value: 2.3 },                       // CSS px — heaviest mark on the sheet, but only just
+    uProgress:{ value: new Array(NTR).fill(0) },    // 0 = unclimbed, 1 = at the summit
+    uColor:   { value: PATH_CLR.map(srgbVec) },
+    uGlow:    { value: 0 },     // the route is the accent exactly; bloom is opt-in
+    uFogNear: { value: 210 },
+    uFogFar:  { value: 430 },
+  },
+  vertexShader: `
+    attribute vec3 aPrev, aNext;
+    attribute float aSide, aArc, aTrail;
+    uniform vec2 uHalfRes;
+    uniform float uWidth, uFogNear, uFogFar;
+    uniform float uProgress[NT];
+    uniform vec3 uColor[NT];
+    varying float vArc, vProg, vFog;
+    varying vec3 vCol;
+    void main(){
+      vec4 cur = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      vec4 prv = projectionMatrix * modelViewMatrix * vec4(aPrev,   1.0);
+      vec4 nxt = projectionMatrix * modelViewMatrix * vec4(aNext,   1.0);
+
+      vec2 cs = cur.xy / max(1e-5, abs(cur.w)) * uHalfRes;
+      vec2 ps = prv.xy / max(1e-5, abs(prv.w)) * uHalfRes;
+      vec2 ns = nxt.xy / max(1e-5, abs(nxt.w)) * uHalfRes;
+
+      vec2 dA = cs - ps, dB = ns - cs;
+      float lA = length(dA), lB = length(dB);
+      dA = lA > 1e-4 ? dA / lA : vec2(0.0);
+      dB = lB > 1e-4 ? dB / lB : vec2(0.0);
+      if (lA <= 1e-4) dA = dB;
+      if (lB <= 1e-4) dB = dA;
+      if (length(dA + dB) < 1e-4) dB = dA;
+
+      vec2 tg = normalize(dA + dB);
+      vec2 mi = vec2(-tg.y, tg.x);
+      vec2 nA = vec2(-dA.y, dA.x);
+      float k = 1.0 / clamp(abs(dot(mi, nA)), 0.35, 1.0);
+      cur.xy += (mi * aSide * uWidth * 0.5 * k) / uHalfRes * cur.w;
+
+      float pr = uProgress[0]; vec3 cl = uColor[0];
+      for (int i = 0; i < NT; i++){
+        if (abs(float(i) - aTrail) < 0.5){ pr = uProgress[i]; cl = uColor[i]; }
+      }
+      vArc = aArc; vProg = pr; vCol = cl;
+
+      vec4 mv = modelViewMatrix * vec4(position, 1.0);
+      vFog = 1.0 - smoothstep(uFogNear, uFogFar, -mv.z);
+      gl_Position = cur;
+    }`,
+  fragmentShader: `
+    precision highp float;
+    varying float vArc, vProg, vFog;
+    varying vec3 vCol;
+    uniform float uGlow;
+    void main(){
+      /* aArc is 1 at the trailhead and 0 at the summit, so after climbing a
+         fraction p the walked part is everything with aArc above 1 - p. The
+         edges have to run low-to-high or smoothstep reverses and an unclimbed
+         route draws in full. */
+      float climbed = 1.0 - vProg;
+      float on = smoothstep(climbed - 0.012, climbed + 0.012, vArc);
+      if (on < 0.01) discard;
+
+      /* the leading end burns brighter — it reads as a position on the route
+         rather than as a line that happens to be growing */
+      float head = exp(-pow((vArc - climbed) / 0.045, 2.0))
+                 * step(0.001, vProg) * step(vProg, 0.999);
+
+      /* Added, not multiplied. Multiplying by 1.5 pushed the red channel past
+         1.0 and clipped it, which is what turned a coral route orange. */
+      vec3 col = vCol + vCol * uGlow * 0.3 + vec3(1.0) * head * 0.75;
+      float a = on * vFog * (0.92 + 0.08 * head);
+      gl_FragColor = vec4(col, min(1.0, a));
+    }`,
+});
+
+const trailMesh = new THREE.Mesh(buildTrailGeometry(), trailMat);
+trailMesh.frustumCulled = false;
+trailMesh.renderOrder = 4;          // above the contours — it is the top mark
+mountainGroup.add(trailMesh);
+
+const trailProgress = new Array(NTR).fill(0);
+
+// Base origin dot (world scale adjusted each frame ≈ BASE_DOT_SCREEN_PX on screen).
+// It moves to the foot of whichever ascent is active.
+const BASE_DOT_GEO_R = 0.5;
+const baseDot = new THREE.Mesh(
+  new THREE.SphereGeometry(BASE_DOT_GEO_R, 12, 12),
+  new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 })
+);
+baseDot.position.set(TREK[0].base.x, mh(TREK[0].base.x, TREK[0].base.z)+0.65, TREK[0].base.z);
+mountainGroup.add(baseDot);
+
+function buildCaseCam(live) {
+  const e = SURVEY.elev * Math.PI / 180;
+  const up = SURVEY.dist * Math.sin(e), out = SURVEY.dist * Math.cos(e);
+  CASE_CAM = PROJECT_PEAKS.map((pi, i) => {
+    const t = PEAK_TOP[pi], a = CASE_AZIM[i] * Math.PI / 180;
+    const tgt = new THREE.Vector3(t.x, PEAK_H[pi] * SURVEY.look, t.z);
+    return {
+      tgt,
+      pos: new THREE.Vector3(tgt.x + out * Math.sin(a), tgt.y + up, tgt.z + out * Math.cos(a)),
+    };
+  });
+  if (live && phase === 'case' && active >= 0) {
+    if (camAnim) { camAnim.kill(); camTweening = false; }
+    camBase.copy(CASE_CAM[active].pos);
+    camTarget.copy(CASE_CAM[active].tgt);
+  }
+}
+buildCaseCam(false);
+/** Longer flights get longer, so the pan holds a roughly constant ground speed. */
+function flightDur(to) {
+  return Math.min(3.1, Math.max(1.5, camBase.distanceTo(to) / 74));
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CONTOUR LAYER
+   The same mountain, redrawn as its own level sets. Nothing here invents a
+   second terrain: marching squares runs over mh(x,z) — the exact heightfield
+   the shaded mesh is built from — so every line lies on the surface you were
+   just looking at, seen through the same camera.
+
+   field → marching squares → smooth → resample → smooth → snap back onto the
+   level → screen-space ribbons (so stroke width is exact at any DPR).
+   ═══════════════════════════════════════════════════════════════════════════ */
+const CT = {
+  LEVELS: 30,        // contour count on the tallest peak; the interval is shared
+  START: 1,          // the lowest contours are the ones that run between the
+                     // summits, so they are what makes the range one landmass
+  INDEX_EVERY: 5,    // every Nth line is an index (heavy) contour
+  W_MINOR: 1.35,     // CSS px
+  W_INDEX: 2.70,
+  LIFT: 0.12,        // world units the ribbon floats off the surface
+  OPACITY: 0.92,
+  STEP: 0.56,        // field spacing — fine enough to resolve the fluting
+  X0: -186, X1: 190, // the field covers the whole range, in one piece
+  Z0: -196, Z1:  58,
+  FADE_R: 232,       // radius the aerial fade is measured against
+  MIN_LEN: 7,        // world units — anything shorter is a speck, not a contour
+};
+
+/* One field across the entire range rather than a box per summit. Local boxes
+   are cheaper, but they stop at their own edges: the contours die out in the
+   saddles and every peak ends up sitting on its own separate base. A single
+   grid gives one continuous survey — ridges and cols carry through from one
+   summit to the next, which is what makes it read as a range. */
+let CF, CT_NX, CT_NZ, CT_STEP, CT_ORX, CT_ORZ;
+
+function ctBuildField() {
+  CT_STEP = CT.STEP;
+  CT_ORX = CT.X0; CT_ORZ = CT.Z0;
+  CT_NX = Math.round((CT.X1 - CT.X0) / CT_STEP) + 1;
+  CT_NZ = Math.round((CT.Z1 - CT.Z0) / CT_STEP) + 1;
+  CF = new Float32Array(CT_NX * CT_NZ);
+  for (let j = 0; j < CT_NZ; j++) {
+    const z = CT_ORZ + j * CT_STEP;
+    for (let i = 0; i < CT_NX; i++) CF[j * CT_NX + i] = mh(CT_ORX + i * CT_STEP, z);
+  }
+}
+
+function ctField(i, j) {
+  i = i < 0 ? 0 : (i > CT_NX - 1 ? CT_NX - 1 : i);
+  j = j < 0 ? 0 : (j > CT_NZ - 1 ? CT_NZ - 1 : j);
+  return CF[j * CT_NX + i];
+}
+function ctSample(x, z) {                       // bilinear read of the field
+  const gx = (x - CT_ORX) / CT_STEP, gz = (z - CT_ORZ) / CT_STEP;
+  const i = Math.floor(gx), j = Math.floor(gz), fx = gx - i, fz = gz - j;
+  const a = ctField(i, j), b = ctField(i + 1, j), c = ctField(i, j + 1), d = ctField(i + 1, j + 1);
+  return a + (b - a) * fx + (c - a) * fz + (d - c - b + a) * fx * fz;
+}
+function ctSlope(x, z) {
+  const e = CT_STEP;
+  const gx = (ctSample(x + e, z) - ctSample(x - e, z)) / (2 * e);
+  const gz = (ctSample(x, z + e) - ctSample(x, z - e)) / (2 * e);
+  return Math.hypot(gx, gz);
+}
+
+/* --------------------------- marching squares ---------------------------- */
+function ctHEdge(i, j) { return j * (CT_NX - 1) + i; }
+function ctVEdge(i, j) { return (CT_NX - 1) * CT_NZ + j * CT_NX + i; }
+
+function contoursAt(level) {
+  const pos = new Map(), segs = [], adj = new Map();
+
+  function px(i, j, i2, j2, eid) {
+    if (pos.has(eid)) return eid;
+    const f0 = CF[j * CT_NX + i], f1 = CF[j2 * CT_NX + i2];
+    let t = (level - f0) / (f1 - f0);
+    if (!isFinite(t)) t = 0.5;
+    t = t < 0 ? 0 : (t > 1 ? 1 : t);
+    pos.set(eid, [CT_ORX + (i + (i2 - i) * t) * CT_STEP, CT_ORZ + (j + (j2 - j) * t) * CT_STEP]);
+    return eid;
+  }
+  function add(e1, e2) {
+    const k = segs.length; segs.push([e1, e2]);
+    const a = adj.get(e1); if (a) a.push(k); else adj.set(e1, [k]);
+    const b = adj.get(e2); if (b) b.push(k); else adj.set(e2, [k]);
+  }
+
+  for (let j = 0; j < CT_NZ - 1; j++) {
+    for (let i = 0; i < CT_NX - 1; i++) {
+      const a = CF[j * CT_NX + i], b = CF[j * CT_NX + i + 1],
+            c = CF[(j + 1) * CT_NX + i + 1], d = CF[(j + 1) * CT_NX + i];
+      const code = (a >= level ? 1 : 0) | (b >= level ? 2 : 0) | (c >= level ? 4 : 0) | (d >= level ? 8 : 0);
+      if (code === 0 || code === 15) continue;
+
+      let B = 0, R = 0, T = 0, L = 0;
+      if ((code & 1) !== ((code >> 1) & 1)) B = px(i, j, i + 1, j, ctHEdge(i, j));
+      if (((code >> 1) & 1) !== ((code >> 2) & 1)) R = px(i + 1, j, i + 1, j + 1, ctVEdge(i + 1, j));
+      if (((code >> 3) & 1) !== ((code >> 2) & 1)) T = px(i, j + 1, i + 1, j + 1, ctHEdge(i, j + 1));
+      if ((code & 1) !== ((code >> 3) & 1)) L = px(i, j, i, j + 1, ctVEdge(i, j));
+
+      switch (code) {
+        case 1: case 14: add(L, B); break;
+        case 2: case 13: add(B, R); break;
+        case 3: case 12: add(L, R); break;
+        case 4: case 11: add(R, T); break;
+        case 6: case 9:  add(B, T); break;
+        case 7: case 8:  add(T, L); break;
+        case 5:  if ((a+b+c+d) * 0.25 >= level) { add(B,R); add(T,L); } else { add(L,B); add(R,T); } break;
+        case 10: if ((a+b+c+d) * 0.25 >= level) { add(L,B); add(R,T); } else { add(B,R); add(T,L); } break;
+      }
+    }
+  }
+
+  const used = new Uint8Array(segs.length), lines = [];
+  const other = (seg, e) => (seg[0] === e ? seg[1] : seg[0]);
+  function walk(startSeg, startEdge) {
+    const pts = []; let e = startEdge, s = startSeg;
+    pts.push(pos.get(e));
+    for (;;) {
+      used[s] = 1;
+      e = other(segs[s], e);
+      pts.push(pos.get(e));
+      const list = adj.get(e); let nxt = -1;
+      if (list) for (let q = 0; q < list.length; q++) if (!used[list[q]]) { nxt = list[q]; break; }
+      if (nxt < 0) break;
+      s = nxt;
+    }
+    return pts;
+  }
+  for (let p = 0; p < 2; p++) {                  // open chains first, then rings
+    for (let k = 0; k < segs.length; k++) {
+      if (used[k]) continue;
+      const s0 = segs[k]; let start = -1;
+      if (p === 0) {
+        if ((adj.get(s0[0]) || []).length === 1) start = s0[0];
+        else if ((adj.get(s0[1]) || []).length === 1) start = s0[1];
+        else continue;
+      } else start = s0[0];
+      const pts = walk(k, start);
+      if (pts.length > 12) lines.push(pts);
+    }
+  }
+  return lines;
+}
+
+/* ---------------------------- line conditioning -------------------------- */
+/* Marching squares emits points at wildly uneven spacing — short slivers where
+   a contour clips a cell corner. Re-walking at a fixed step removes them, which
+   is most of what makes a stroke look jagged. */
+function ctSmooth(pts) {
+  const n = pts.length, out = new Array(n);
+  out[0] = pts[0]; out[n - 1] = pts[n - 1];
+  for (let i = 1; i < n - 1; i++)
+    out[i] = [(pts[i-1][0] + 2*pts[i][0] + pts[i+1][0]) * 0.25,
+              (pts[i-1][1] + 2*pts[i][1] + pts[i+1][1]) * 0.25];
+  return out;
+}
+function ctResample(pts, spacing) {
+  const out = [pts[0]]; let acc = 0, cur = pts[0];
+  for (let i = 1; i < pts.length; i++) {
+    const nx = pts[i][0], nz = pts[i][1];
+    let dx = nx - cur[0], dz = nz - cur[1], seg = Math.hypot(dx, dz);
+    while (acc + seg >= spacing && seg > 1e-9) {
+      const need = (spacing - acc) / seg;
+      cur = [cur[0] + dx * need, cur[1] + dz * need];
+      out.push(cur);
+      dx = nx - cur[0]; dz = nz - cur[1]; seg = Math.hypot(dx, dz); acc = 0;
+    }
+    acc += seg; cur = [nx, nz];
+  }
+  if (out.length < 2) out.push(pts[pts.length - 1]);
+  return out;
+}
+/* Smoothing moves a polyline off its own level set, which buries parts of it in
+   the terrain once the depth pass is accurate. Two Newton steps along the
+   gradient put every point back on the contour, keeping the smoothed shape. */
+function ctSnap(pts, lev) {
+  const e = CT_STEP;
+  /* A Newton step is (level - height) / |grad|², so it blows up wherever the
+     ground is nearly flat — and the range is now full of nearly flat ground:
+     mesa tops, benches, the apron under the hero summit. Unbounded, a single
+     step throws a point tens of units across the map, which is what tore the
+     contours into long straight jogs and broken runs. The point began on its
+     level set and has only been nudged off it by the smoothing passes, so no
+     honest correction is more than a cell or two — cap it there and a
+     degenerate gradient can no longer do any damage. */
+  const CAP = CT_STEP * 1.5;
+  for (let i = 0; i < pts.length; i++) {
+    let x = pts[i][0], z = pts[i][1];
+    for (let it = 0; it < 3; it++) {
+      const gx = (ctSample(x+e, z) - ctSample(x-e, z)) / (2*e);
+      const gz = (ctSample(x, z+e) - ctSample(x, z-e)) / (2*e);
+      const g2 = gx*gx + gz*gz;
+      if (!(g2 > 1e-6)) break;                      // also catches NaN
+      let k = (lev - ctSample(x, z)) / g2;
+      const mv = Math.hypot(gx * k, gz * k);
+      if (!(mv > 0)) break;
+      if (mv > CAP) k *= CAP / mv;                  // never further than a cell or two
+      x += gx * k; z += gz * k;
+    }
+    pts[i] = [x, z];
+  }
+  return pts;
+}
+
+/* --------------------------- ribbon geometry ----------------------------- */
+/* Each polyline becomes a quad strip. The vertex shader does the widening in
+   screen space, so a stroke keeps one pixel width at any depth or DPR — and it
+   scales with nothing, which is what stops the lines going heavy as the camera
+   pulls back across the range. */
+function buildContourGeometry() {
+  ctBuildField();
+  const lines = [];
+  /* One vertical interval across the whole range. Contours that share an
+     elevation carry through from summit to saddle to summit, which is what
+     makes it one survey sheet rather than five separate charts. */
+  const interval = MAX_H / CT.LEVELS;
+
+  for (let n = CT.START; n <= CT.LEVELS; n++) {
+    const level = n * interval;
+    const isIndex = (n % CT.INDEX_EVERY) === 0;
+    const polys = contoursAt(level);
+
+    for (let q = 0; q < polys.length; q++) {
+      let pl = polys[q];
+      for (let sm = 0; sm < 4; sm++) pl = ctSmooth(pl);
+      if (pl.length < 12) continue;
+      pl = ctResample(pl, CT_STEP * 1.15);
+      if (pl.length < 10) continue;
+      for (let sm = 0; sm < 3; sm++) pl = ctSmooth(pl);
+      pl = ctSnap(pl, level);
+
+      /* closed rings lose the duplicated end point so there is no seam */
+      const closed = Math.hypot(pl[0][0] - pl[pl.length-1][0],
+                                pl[0][1] - pl[pl.length-1][1]) < CT_STEP * 0.9;
+      if (closed) pl = pl.slice(0, pl.length - 1);
+      if (pl.length < 8) continue;
+
+      let mx = 0, mz = 0, len = 0;
+      for (let w = 0; w < pl.length; w++) { mx += pl[w][0]; mz += pl[w][1]; }
+      for (let w = 1; w < pl.length; w++) len += Math.hypot(pl[w][0]-pl[w-1][0], pl[w][1]-pl[w-1][1]);
+      if (len < CT.MIN_LEN) continue;
+      mx /= pl.length; mz /= pl.length;
+
+      /* Steep flanks read denser and the summit blocks read strongest, so the
+         flat country between peaks stays as hairlines and does not compete.
+         Kept deliberately gentle all the same: modulate a stroke too hard and
+         an index contour on a flank ends up thinner than a minor one in the
+         middle, which is the hierarchy the heavy line existed to carry. */
+      const steep = Math.min(1, ctSlope(pl[0][0], pl[0][1]) / 1.5);
+      let central = 0;
+      for (let k = 0; k < PEAKS.length; k++)
+        central = Math.max(central, Math.exp(-Math.pow(Math.hypot(mx - PEAKS[k].x, mz - PEAKS[k].z) / (PEAKS[k].spread * 1.5), 2.2)));
+      const w = (isIndex ? CT.W_INDEX : CT.W_MINOR) * (0.62 + 0.38 * steep) * (0.62 + 0.38 * central);
+
+      lines.push({ pts: pl, level, weight: w, closed });
+    }
+  }
+
+  let vCount = 0, iCount = 0;
+  for (const L of lines) { vCount += L.pts.length * 2; iCount += (L.pts.length - 1) * 6; }
+
+  const pos  = new Float32Array(vCount * 3),
+        prev = new Float32Array(vCount * 3),
+        next = new Float32Array(vCount * 3),
+        side = new Float32Array(vCount),
+        wid  = new Float32Array(vCount),
+        rad  = new Float32Array(vCount),
+        lev  = new Float32Array(vCount),
+        arc  = new Float32Array(vCount);
+  const idx = vCount > 65535 ? new Uint32Array(iCount) : new Uint16Array(iCount);
+
+  /* every point's height, clear of the mesh */
+  const ySafe = (x, z, level) => Math.max(level, meshYAt(x, z)) + CT.LIFT;
+
+  let v = 0, ii = 0;
+  for (const L of lines) {
+    const P = L.pts, n = P.length;
+    const cum = new Float32Array(n); let tot = 0;
+    for (let i = 1; i < n; i++) { tot += Math.hypot(P[i][0]-P[i-1][0], P[i][1]-P[i-1][1]); cum[i] = tot; }
+    if (tot < 1e-5) tot = 1;
+
+    const base = v;
+    for (let i = 0; i < n; i++) {
+      const pt = P[i];
+      const pp = P[L.closed ? (i === 0 ? n - 1 : i - 1) : Math.max(0, i - 1)];
+      const np = P[L.closed ? (i === n - 1 ? 0 : i + 1) : Math.min(n - 1, i + 1)];
+      /* distance from the middle of the range, normalised — one aerial fade for
+         the whole sheet, so the country dissolves at the horizon and nowhere else */
+      const r = Math.hypot(pt[0], pt[1] + 60) / CT.FADE_R;
+      const yc = ySafe(pt[0], pt[1], L.level);
+      const yp = ySafe(pp[0], pp[1], L.level);
+      const yn = ySafe(np[0], np[1], L.level);
+      for (let sd = 0; sd < 2; sd++) {
+        const o = v * 3;
+        pos[o] = pt[0];  pos[o+1] = yc; pos[o+2] = pt[1];
+        prev[o] = pp[0]; prev[o+1] = yp; prev[o+2] = pp[1];
+        next[o] = np[0]; next[o+1] = yn; next[o+2] = np[1];
+        side[v] = sd ? 1 : -1; wid[v] = L.weight; rad[v] = r;
+        lev[v] = L.level; arc[v] = cum[i] / tot;
+        v++;
+      }
+    }
+    for (let i = 0; i < n - 1; i++) {
+      const a = base + i * 2;
+      idx[ii++] = a; idx[ii++] = a + 1; idx[ii++] = a + 2;
+      idx[ii++] = a + 1; idx[ii++] = a + 3; idx[ii++] = a + 2;
+    }
+  }
+
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('aPrev',    new THREE.BufferAttribute(prev, 3));
+  g.setAttribute('aNext',    new THREE.BufferAttribute(next, 3));
+  g.setAttribute('aSide',    new THREE.BufferAttribute(side, 1));
+  g.setAttribute('aWidth',   new THREE.BufferAttribute(wid, 1));
+  g.setAttribute('aRadius',  new THREE.BufferAttribute(rad, 1));
+  g.setAttribute('aLevel',   new THREE.BufferAttribute(lev, 1));
+  g.setAttribute('aArc',     new THREE.BufferAttribute(arc, 1));
+  g.setIndex(new THREE.BufferAttribute(idx, 1));
+  g.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, MAX_H * 0.4, -60), 340);
+  CF = null;                       // the field is only needed during the build
+  return g;
+}
+
+/* The palette is lifted verbatim from the surface shader. That is the whole
+   trick behind the crossfade reading as one object: at the moment the sweep
+   crosses a band, the ink under it is the exact colour the shading was. */
+const CT_PALETTE_GLSL = `
+  vec3 palette(float t){
+    t = pow(clamp(t, 0.0, 1.0), 0.70);   // matches the surface ramp exactly
+    vec3 c0=vec3(0.048,0.054,0.108);
+    vec3 c1=vec3(0.095,0.115,0.200);
+    vec3 c2=vec3(0.210,0.250,0.380);
+    vec3 c3=vec3(0.420,0.470,0.600);
+    vec3 c4=vec3(0.790,0.820,0.905);
+    if     (t<0.25) return mix(c0,c1,t/0.25);
+    else if(t<0.50) return mix(c1,c2,(t-0.25)/0.25);
+    else if(t<0.75) return mix(c2,c3,(t-0.50)/0.25);
+    return mix(c3,c4,(t-0.75)/0.25);
+  }`;
+
+const contourMat = new THREE.ShaderMaterial({
+  transparent: true,
+  depthWrite: false,
+  depthTest: true,
+  side: THREE.DoubleSide,
+  defines: { NP: PEAKS.length },
+  uniforms: {
+    uHalfRes:  { value: new THREE.Vector2(1, 1) },
+    uWeight:   { value: 1 },
+    uPeak:     { value: PEAK_XZS },
+    uCut:      { value: PEAKS.map(() => 1e4) },
+    uMorphA:   { value: PEAKS.map(() => 0) },
+    uPeakH:    { value: PEAK_TONE.slice() },
+    uReveal:   { value: PEAKS.map(() => 1) },   // per-peak ink master, 0 hides a peak outright
+    uLit:      { value: PEAKS.map(() => 0) },   // per-peak highlight, 0..1
+    uAnyLit:   { value: 0 },
+    uHiWeight: { value: 0.30 },
+    uDim:      { value: 0.38 },
+    uHoverCol: { value: srgbVec(0x7B8FF5) },     // the pointed-at peak's colour
+    uHoverY:   { value: -1e4 },                 // elevation under the cursor
+    uHoverXZ:  { value: new THREE.Vector2() },
+    uHoverAmt: { value: 0 },
+    uHoverBand:{ value: 2.8 },                  // half-width of the lit band, world units
+    uHoverR:   { value: 60 },                   // how far round the ring it carries
+    uHoverPeak:{ value: -1 },                   // which summit the pointer is on
+    uPulse:    { value: 0 },
+    uBand:     { value: MAX_H * 0.11 },
+    uMode:     { value: 0 },
+    uOpacity:  { value: CT.OPACITY },
+    uEdgeAmt:  { value: 0 },
+    uFadeA:    { value: 0.74 },                 // aerial fade, in units of the range's reach
+    uFadeB:    { value: 1.0 },
+    uFogNear:  { value: 200 },
+    uFogFar:   { value: 520 },
+    uInk:      { value: new THREE.Color(0x9FB0E8) },
+    uEdge:     { value: new THREE.Color(0xC9D4FF) },
+  },
+  vertexShader: `
+    attribute vec3 aPrev, aNext;
+    attribute float aSide, aWidth, aRadius, aArc, aLevel;
+    uniform vec2 uHalfRes;
+    uniform float uWeight, uFogNear, uFogFar;
+    uniform vec3 uPeak[NP];
+    uniform float uCut[NP];
+    uniform float uMorphA[NP];
+    uniform float uPeakH[NP];
+    uniform float uReveal[NP];
+    uniform float uLit[NP];
+    uniform float uHiWeight;
+    uniform float uHoverPeak;
+    varying float vY, vR, vArc, vCut, vMorph, vMax, vReveal, vFog, vOn, vLit, vSame;
+    varying vec2  vXZ;
+    void main(){
+      vec4 cur = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      vec4 prv = projectionMatrix * modelViewMatrix * vec4(aPrev,   1.0);
+      vec4 nxt = projectionMatrix * modelViewMatrix * vec4(aNext,   1.0);
+
+      vec2 cs = cur.xy / max(1e-5, abs(cur.w)) * uHalfRes;
+      vec2 ps = prv.xy / max(1e-5, abs(prv.w)) * uHalfRes;
+      vec2 ns = nxt.xy / max(1e-5, abs(nxt.w)) * uHalfRes;
+
+      vec2 dA = cs - ps, dB = ns - cs;
+      float lA = length(dA), lB = length(dB);
+      dA = lA > 1e-4 ? dA / lA : vec2(0.0);
+      dB = lB > 1e-4 ? dB / lB : vec2(0.0);
+      if (lA <= 1e-4) dA = dB;
+      if (lB <= 1e-4) dB = dA;
+      if (length(dA + dB) < 1e-4) dB = dA;
+
+      vec2 tg = normalize(dA + dB);
+      vec2 mi = vec2(-tg.y, tg.x);
+      vec2 nA = vec2(-dA.y, dA.x);
+      float k = 1.0 / clamp(abs(dot(mi, nA)), 0.35, 1.0);   // mitre, length-capped
+
+      /* the width has to be widened here, not in the fragment stage — a ribbon
+         is geometry, and a highlighted peak reads heavier only if its quads are
+         actually fatter */
+      float wLit = 0.0;
+      for (int i=0;i<NP;i++){
+        vec2 dw = position.xz - uPeak[i].xy;
+        float qw = dot(dw,dw) / (uPeak[i].z * uPeak[i].z);
+        wLit = max(wLit, uLit[i] / (qw*qw + 1.0));
+      }
+      float wid = aWidth * uWeight * (1.0 + uHiWeight * clamp(wLit, 0.0, 1.0));
+      cur.xy += (mi * aSide * wid * 0.5 * k) / uHalfRes * cur.w;
+
+      /* the same proximity blend the surface uses, so a contour and the fill
+         beneath it always agree about which peak they are near */
+      float wsum=0.0, c=0.0, m=0.0, hx=0.0, rv=0.0, wmax=0.0, li=0.0, wh=0.0;
+      for (int i=0;i<NP;i++){
+        vec2 dd = position.xz - uPeak[i].xy;
+        float q = dot(dd,dd) / (uPeak[i].z * uPeak[i].z);
+        float w = 1.0 / (q*q + 0.02);
+        wsum += w; wmax = max(wmax, w);
+        c += uCut[i]*w; m += uMorphA[i]*w; hx += uPeakH[i]*w; rv += uReveal[i]*w;
+        li += uLit[i]*w;
+        /* how much of this line belongs to the summit the pointer is on — the
+           same proximity weighting everything else uses, so it hands over
+           smoothly across a saddle instead of switching at a hard boundary */
+        if (abs(float(i) - uHoverPeak) < 0.5) wh = w;
+      }
+      vCut = c/wsum; vMorph = m/wsum; vMax = hx/wsum; vReveal = rv/wsum;
+      vLit = li/wsum; vXZ = position.xz;
+      vSame = wh / wsum;
+      vOn = smoothstep(0.02, 0.85, wmax);
+
+      vec4 mv = modelViewMatrix * vec4(position, 1.0);
+      vFog = 1.0 - smoothstep(uFogNear, uFogFar, -mv.z);
+
+      /* the sweep, the hover band and the palette all key off the contour's own
+         elevation — not the height its geometry was nudged to */
+      vY = aLevel; vR = aRadius; vArc = aArc;
+      gl_Position = cur;
+    }`,
+  fragmentShader: `
+    precision highp float;
+    varying float vY, vR, vArc, vCut, vMorph, vMax, vReveal, vFog, vOn, vLit, vSame;
+    varying vec2  vXZ;
+    uniform float uBand, uMode, uOpacity, uFadeA, uFadeB, uEdgeAmt;
+    uniform float uAnyLit, uDim;
+    uniform float uHoverY, uHoverAmt, uHoverBand, uHoverR, uPulse;
+    uniform vec2  uHoverXZ;
+    uniform vec3 uInk, uEdge, uHoverCol;
+    ${CT_PALETTE_GLSL}
+    void main(){
+      float t = clamp(vY / vMax, 0.0, 1.0);
+
+      /* how much of this line has been drawn yet */
+      float vis;
+      float edge = 0.0;
+      if (uMode < 0.5) {                        // sweep — an elevation plane travels
+        vis  = smoothstep(vCut - uBand, vCut + uBand, vY);
+        edge = exp(-pow((vY - vCut) / max(0.001, uBand * 0.85), 2.0)) * vOn * uEdgeAmt;
+      } else if (uMode < 1.5) {                 // ink — floods down from the summit
+        float lead = clamp(vMorph * 1.9 - (1.0 - t) * 0.9, 0.0, 1.0);
+        vis  = smoothstep(vArc, vArc + 0.035, lead);
+        edge = exp(-pow((lead - vArc) / 0.05, 2.0)) * step(0.001, lead) * step(lead, 0.999);
+      } else {                                  // fade — the flat baseline
+        vis = smoothstep(0.0, 1.0, vMorph);
+      }
+
+      /* aerial fade: the country around each summit drops away so the range
+         reads as discrete peaks rather than one field of noise */
+      float aer = 1.0 - smoothstep(uFadeA, uFadeB, vR);
+
+      vec3 col = mix(palette(t) * 1.70, uInk, 0.52);
+      col = mix(col, uEdge, edge * 0.85);
+      col += uEdge * edge * 0.35;
+
+      /* The ground itself stays the same ink at every peak. Recolouring a whole
+         summit made the mountain the subject; the route up it is the subject,
+         and it carries the project's colour on its own. All that survives here
+         is a little extra weight on the peak being discussed. */
+      float live = smoothstep(0.0, 0.03, vMorph) * vReveal * vFog;
+      float a = vis * aer * uOpacity * live;
+      a *= mix(0.72, 1.0, t);                   // low ground sits back, but stays
+      a = max(a, edge * aer * 0.55 * live);
+      /* everything that is not the peak under discussion recedes a little, so
+         the route being drawn has a quieter drawing to sit on */
+      a *= mix(1.0, 1.0 - uDim, clamp(uAnyLit - vLit, 0.0, 1.0));
+
+      /* ── hover ──────────────────────────────────────────────────────────
+         A contour is the set of points at one elevation, so pointing at the
+         ground and lighting everything at that height is what the line already
+         means — the whole ring answers, not just the bit under the cursor.
+
+         But only on the summit being pointed at. Distance alone will not do
+         that job: leave any floor under the falloff and every peak in the range
+         keeps a share of the highlight, because they all have a contour at that
+         elevation. vSame gates it to the hovered peak; the distance term is
+         then free to shade the ring from the cursor round to its far side
+         without ever reaching across the saddle. */
+      float dy = (vY - uHoverY) / uHoverBand;
+      float band = exp(-dy * dy);
+      float dxz = length(vXZ - uHoverXZ) / uHoverR;
+      float hov = uHoverAmt * band * vSame * mix(0.55, 1.0, exp(-dxz * dxz));
+      hov *= 0.60 + 0.40 * uPulse;
+
+      /* one colour for the whole highlight: the peak being pointed at. Reading
+         it off the per-vertex proximity blend instead tinted the saddle toward
+         whichever neighbour was closer, so a ring gated to one summit could
+         come up in the colour of the next one along. */
+      col = mix(col, uHoverCol, hov * 0.95);
+      col += uHoverCol * hov * 0.55;
+      a *= 1.0 + 1.1 * hov;                     // and it comes forward off the sheet
+
+      if (a < 0.004) discard;
+      gl_FragColor = vec4(col, min(1.0, a));
+    }`,
+});
+
+const contourMesh = new THREE.Mesh(buildContourGeometry(), contourMat);
+contourMesh.frustumCulled = false;
+contourMesh.renderOrder = 2;
+mountainGroup.add(contourMesh);
+
+/* A depth-only copy of the surface. It writes nothing to colour, so the
+   mountain stays solid to the depth test even once the shading has drained —
+   which is what makes contours on the far side genuinely disappear behind the
+   ridge instead of showing through like a wireframe. */
+const depthMat = new THREE.MeshBasicMaterial({
+  colorWrite: false, depthWrite: true,
+  polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 2,
+  side: THREE.DoubleSide,
+});
+const depthMesh = new THREE.Mesh(geo, depthMat);
+depthMesh.renderOrder = -1;
+mountainGroup.add(depthMesh);
+
+/* the shaded surface no longer owns depth — the pass above does */
+mountainMat.depthWrite = false;
+mountainMesh.renderOrder = 1;
+ground.renderOrder = -2;
+
+/* ─── Morph driver ───────────────────────────────────────────────────────── */
+/* morph 0 = lit, shaded surface.  morph 1 = contour line.
+   Every peak carries its own value, which is the whole mechanism behind the
+   range: the studio's summit drains to line as the hero scrolls away, and each
+   client summit runs the same move backwards — 1 to 0 — when the camera lands
+   on it, so the light washes up the flanks exactly the way it does on scroll-up. */
+const MORPH = {
+  START: 0.26,        // × viewport height — where the hero redraw begins
+  END:   0.86,        //                     where it has fully landed
+  SPRING: 7.5,        // how hard the hero peak chases the scroll
+  ARRIVE_SPRING: 3.1, // slower, so an arriving peak highlights over about a second
+  ARRIVE_DELAY: 0.52, // × the camera flight — the highlight starts before it settles
+  CLIMB: 2.4,         // seconds the route takes to walk from trailhead to summit
+  HANDOFF: 0.85,      // how far the hero peak has drained before the page moves on
+  COPY_OUT: 0.72,     // and how far before the flanking copy has finished fading
+  mode: 0,            // 0 sweep · 1 ink · 2 fade — the hero fill only
+  hiWeight: 0.30,     // how much heavier the peak under discussion draws
+  dim: 0.38,          // how far the rest of the range recedes while one is up
+  scrub: null,        // panel override on the hero peak; null = driven by scroll
+};
+
+const peakMorph  = PEAKS.map((_, i) => (i === 0 ? 0 : 1));  // clients are always line
+const peakTarget = peakMorph.slice();
+const peakReveal = PEAKS.map((_, i) => (i === 0 ? 1 : 0));  // and start unrevealed
+let rangeReveal = 0, rangeRevealTarget = 0, edgeAmt = 0;
+let arriveTimer = null;
+
+/* Once the studio's peak has finished drawing itself out there is nothing left
+   in the hero to look at, so the page stops waiting for more scroll and takes
+   itself to the first case. Armed only after a proper visit to the hero: coming
+   back up from the work section passes through this same point with the morph
+   already at 1, and firing there would trap you in the case studies. */
+let handoffArmed = true;
+const scrollHint = document.getElementById('scroll-hint');
+const heroSideEls = [...document.querySelectorAll('#hero-copy .hero-side-left, #hero-copy .hero-side-right')];
+
+function handoffToWork() {
+  handoffArmed = false;
+  /* the flanking copy has already faded itself out by now, so this is the
+     studio name and the announcement bar going with the move */
+  gsap.to('#hero-copy, #hero-top-bar, #hero-studio-line',
+          { opacity: 0, duration: 0.55, ease: 'power2.out' });
+  jumpTo(0);
+}
+
+function heroMorphFromScroll() {
+  if (MORPH.scrub !== null) return MORPH.scrub;
+  const p = (window.scrollY / innerHeight - MORPH.START) / (MORPH.END - MORPH.START);
+  return Math.min(1, Math.max(0, p));
+}
+
+/** Highlight one client summit and release the others. -1 highlights none. */
+function lightPeak(caseIdx, delaySec) {
+  if (arriveTimer) { clearTimeout(arriveTimer); arriveTimer = null; }
+  const apply = () => {
+    for (let i = 1; i < NPK; i++) peakLitT[i] = 0;
+    if (caseIdx >= 0) peakLitT[PROJECT_PEAKS[caseIdx]] = 1;
+    arriveTimer = null;
+  };
+  if (delaySec > 0) arriveTimer = setTimeout(apply, delaySec * 1000);
+  else apply();
+}
+
+/* The plane travels over the first SWEEP_SPAN of a peak's morph, not all of it.
+   Run it to the very end and the last third of the move pushes the cut through
+   ground that is already out of frame — the transition reads as finished long
+   before the scroll agrees. Landing it early leaves a short settle where the
+   survey line fades out and the ink comes up to full. */
+const SWEEP_SPAN = 0.78;
+
+function stepMorph(dt) {
+  const heroT = heroMorphFromScroll();
+  peakTarget[0] = heroT;
+
+  /* The flanking copy tracks the drain: gone by the time the peak is three
+     quarters redrawn, and back again on the way up. The studio name is left
+     alone — it holds until the handoff and leaves with it. */
+  if (phase === 'hero' && heroIntroRan) {
+    const f = 1 - Math.min(1, Math.max(0, (peakMorph[0] - 0.03) / (MORPH.COPY_OUT - 0.03)));
+    const e = f * f * (3 - 2 * f);
+    heroSideEls.forEach(el => { el.style.opacity = e; });
+  }
+
+  /* only while there is still a hero to scroll away from, and only once the
+     opening animation has handed over */
+  scrollHint.classList.toggle('on',
+    phase === 'hero' && heroIntroRan && peakMorph[0] < 0.04);
+
+  if (phase === 'hero' && MORPH.scrub === null) {
+    if (peakMorph[0] < 0.75) handoffArmed = true;
+    else if (handoffArmed && peakMorph[0] >= MORPH.HANDOFF) handoffToWork();
+  }
+
+  /* the client range only exists once the studio's peak has drawn itself out —
+     before that it is neither lit nor inked, so the hero frame stays clean */
+  rangeRevealTarget = Math.min(1, Math.max(0, (peakMorph[0] - 0.34) / 0.42))
+                    * (phase === 'case' ? 1 : 0.52);   // a hint in the hero, full once travelling
+  rangeReveal += (rangeRevealTarget - rangeReveal) * Math.min(1, dt * 4.5);
+
+  /* Aerial perspective is off in the hero — the original framing has no haze on
+     it anywhere — and closes in as the range appears, so neighbouring summits
+     recede with distance instead of stacking up at equal strength. */
+  const fw = peakMorph[0];
+  const fn = 210 + (130 - 210) * fw;
+  const ff = 430 + (310 - 430) * fw;
+  mountainMat.uniforms.uFogNear.value = fn; mountainMat.uniforms.uFogFar.value = ff;
+  contourMat.uniforms.uFogNear.value  = fn; contourMat.uniforms.uFogFar.value  = ff;
+
+  let fastest = 0;
+  for (let i = 0; i < NPK; i++) {
+    const was = peakMorph[i];
+    peakMorph[i] += (peakTarget[i] - peakMorph[i]) * Math.min(1, dt * MORPH.SPRING);
+    if (Math.abs(peakTarget[i] - peakMorph[i]) < 0.0004) peakMorph[i] = peakTarget[i];
+    fastest = Math.max(fastest, Math.abs(peakMorph[i] - was) / Math.max(1e-4, dt));
+    peakReveal[i] = i === 0 ? 1 : rangeReveal;
+
+    peakLit[i] += (peakLitT[i] - peakLit[i]) * Math.min(1, dt * MORPH.ARRIVE_SPRING);
+    if (Math.abs(peakLitT[i] - peakLit[i]) < 0.0004) peakLit[i] = peakLitT[i];
+  }
+
+  /* The bright survey line marks where the redraw is happening right now, so it
+     only exists while something is moving. Left permanently on, it settles into
+     the saddle between a lit peak and a drained one and reads as a light leak. */
+  const tp = trailMat.uniforms.uProgress.value;
+  for (let i = 0; i < NTR; i++) tp[i] = trailProgress[i];
+  trailMat.uniforms.uFogNear.value = fn;
+  trailMat.uniforms.uFogFar.value  = ff;
+
+  const want = Math.min(1, fastest * 7);
+  edgeAmt += (want - edgeAmt) * Math.min(1, dt * (want > edgeAmt ? 16 : 5));
+  mountainMat.uniforms.uEdgeAmt.value = edgeAmt;
+  contourMat.uniforms.uEdgeAmt.value = edgeAmt;
+
+  applyMorph();
+}
+
+function applyMorph() {
+  const band = contourMat.uniforms.uBand.value;
+  const cuts = contourMat.uniforms.uCut.value;
+  const morphs = contourMat.uniforms.uMorphA.value;
+  let anyInk = false, anyLit = 0;
+
+  for (let i = 0; i < NPK; i++) {
+    const m = peakMorph[i];
+    const c = Math.min(1, m / SWEEP_SPAN);
+    const e = c * c * c * (c * (c * 6 - 15) + 10);          // smootherstep
+    const hi = PEAK_H[i] + band * 1.25, lo = -band * 1.25;
+    cuts[i] = hi + (lo - hi) * e;
+    morphs[i] = m;
+    if (m > 0.002 && peakReveal[i] > 0.002) anyInk = true;
+    anyLit = Math.max(anyLit, peakLit[i]);
+  }
+
+  contourMat.uniforms.uMode.value = MORPH.mode;
+  contourMat.uniforms.uReveal.value = peakReveal;
+  contourMat.uniforms.uLit.value = peakLit;
+  contourMat.uniforms.uAnyLit.value = anyLit;
+  contourMat.uniforms.uHiWeight.value = MORPH.hiWeight;
+  contourMat.uniforms.uDim.value = MORPH.dim;
+  mountainMat.uniforms.uCut.value = cuts;
+  mountainMat.uniforms.uMorphA.value = morphs;
+  mountainMat.uniforms.uBand.value = band;
+  mountainMat.uniforms.uMode.value = MORPH.mode;
+
+  depthMesh.visible = true;
+  mountainMesh.visible = true;    // it is the solid body under the contours now
+  contourMesh.visible = anyInk;
+}
+function syncContourRes() {
+  contourMat.uniforms.uHalfRes.value.set(innerWidth * 0.5, innerHeight * 0.5);
+  trailMat.uniforms.uHalfRes.value.set(innerWidth * 0.5, innerHeight * 0.5);
+}
+syncContourRes();
+
+/* ─── State ──────────────────────────────────────────────────── */
+let phase     = 'hero';   // 'hero' | 'case'
+let active    = -1;
+let pathAnim  = null;
+let camAnim   = null;
+let camTweening = false;
+let cardTimer = null;
+let heroIntroRan = false;
+let heroIntroTl = null;
+
+// Pointer parallax
+const mouse  = { x: 0, y: 0 };
+const mSmooth = { x: 0, y: 0 };
+
+/* ─── Camera animation ───────────────────────────────────────── */
+function moveCam(p, t, dur=1.4, cb) {
+  if(camAnim) camAnim.kill();
+  camTweening = true;
+  camAnim = gsap.timeline({ onComplete(){ camTweening=false; if(cb)cb(); } });
+  camAnim.to(camBase,  {x:p.x,y:p.y,z:p.z,duration:dur,ease:'power3.inOut'},0);
+  camAnim.to(camTarget,{x:t.x,y:t.y,z:t.z,duration:dur,ease:'power3.inOut'},0);
+}
+
+/* ─── Markers ────────────────────────────────────────────────── */
+const mkrEls = FLAGS.map((_,i) => document.getElementById(`mkr-${i}`));
+mkrEls.forEach((el, i) => {
+  el.addEventListener('click', () => jumpTo(i));
+  el.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      jumpTo(i);
+    }
+  });
+});
+
+/** Bottom→top mask reveal for the main title (inset top shrinks from 100% → 0). */
+const STUDIO_MASK_HIDDEN = 'inset(80% 0 0 0)';
+const STUDIO_MASK_FULL = 'inset(0% 0% 0% 0%)';
+const STUDIO_REVEAL_DUR = 2;
+
+function revealStudioLine(delay = 0) {
+  gsap.killTweensOf('#hero-studio-line');
+  gsap.set('#hero-studio-line', { opacity: 1, clipPath: STUDIO_MASK_HIDDEN });
+  gsap.to('#hero-studio-line', {
+    clipPath: STUDIO_MASK_FULL,
+    duration: STUDIO_REVEAL_DUR,
+    ease: 'power2.out',
+    delay,
+  });
+}
+
+/** Same staggered UI as returning to hero (title uses clip reveal; rest fade). */
+function fadeInHeroLayered(startAt = 0) {
+  const ease = 'power2.out';
+  revealStudioLine(startAt);
+  gsap.to('#hero-top-bar', { opacity: 1, duration: 0.48, ease, delay: startAt + 0.14 });
+  /* the flanking copy is not tweened here — once the intro is over its opacity
+     belongs to the scroll, in stepMorph, so it fades out as the peak drains and
+     back in if you scroll up again */
+}
+
+function runHeroIntro() {
+  if (heroIntroRan || heroIntroTl) return;
+  gsap.set('#hero-studio-line', { opacity: 1, clipPath: STUDIO_MASK_HIDDEN });
+  gsap.set('#hero-top-bar', { opacity: 0 });
+  gsap.set('#hero-copy .hero-side-left, #hero-copy .hero-side-right', { opacity: 0 });
+  if (camAnim) camAnim.kill();
+  camTweening = true;
+  const easeCam = 'power3.inOut';
+  heroIntroTl = gsap.timeline({
+    onComplete() {
+      heroIntroTl = null;
+      camTweening = false;
+      heroIntroRan = true;
+    },
+  });
+  heroIntroTl.to(mountainGroup.position, { y: 0, duration: 1.15, ease: 'power3.out' }, 0);
+  heroIntroTl.to(mountainMat.uniforms.uAlpha, { value: 1, duration: 1.1, ease: 'power2.out' }, 0);
+  heroIntroTl.to(camBase, { x: H_POS.x, y: H_POS.y, z: H_POS.z, duration: 1.15, ease: easeCam }, 0);
+  heroIntroTl.to(camTarget, { x: H_TGT.x, y: H_TGT.y, z: H_TGT.z, duration: 1.15, ease: easeCam }, 0);
+  heroIntroTl.to('#hero-studio-line', { clipPath: STUDIO_MASK_FULL, duration: STUDIO_REVEAL_DUR, ease: 'power2.out' }, 0.95);
+  heroIntroTl.to('#hero-top-bar', { opacity: 1, duration: 0.48, ease: 'power2.out' }, 1.38);
+  heroIntroTl.to('.hero-side-left', { opacity: 1, duration: 0.52, ease: 'power2.out' }, 1.42);
+  heroIntroTl.to('.hero-side-right', { opacity: 1, duration: 0.52, ease: 'power2.out' }, 1.52);
+}
+
+const tmp = new THREE.Vector3();
+const baseDotWorld = new THREE.Vector3();
+/** Screen diameter in CSS pixels (matches .mkr-dot, 5×5). */
+const BASE_DOT_SCREEN_PX = 5;
+
+function updateMarkers() {
+  /* The flags sit on the client summits now, which in the hero are specks on the
+     horizon — four dormant dots out there read as dirt on the lens, not as
+     waypoints. They belong to the range, so they appear once you are in it. */
+  if (phase !== 'case') { mkrEls.forEach(el => { el.style.display = 'none'; }); return; }
+  FLAGS.forEach((f,i) => {
+    tmp.set(f.x, f.y+0.9, f.z);
+    mountainGroup.localToWorld(tmp);
+    tmp.project(camera);
+    const el = mkrEls[i];
+    /* The dot is the flag at the summit, so it is not there until the route
+       has actually got there. Gating on the climb rather than on the phase
+       makes arriving the payoff for the ascent instead of something that has
+       already happened by the time the line starts drawing. */
+    el.classList.toggle('landed', trailProgress[i] >= 0.995);
+    if(tmp.z >= 1){ el.style.display='none'; return; }
+    el.style.display = 'flex';
+    el.style.left = ((tmp.x*.5+.5)*innerWidth)+'px';
+    el.style.top  = ((-tmp.y*.5+.5)*innerHeight)+'px';
+  });
+}
+
+/* ─── Case band ──────────────────────────────────────────────── */
+const cardEl = document.getElementById('case-card');
+/* #cc-inner is display:contents, so it generates no box and opacity on it does
+   nothing at all — the case-to-case crossfade has to run on the pieces. */
+const ccParts = ['cc-cat', 'cc-title', 'cc-body'].map(id => document.getElementById(id));
+const setParts = v => ccParts.forEach(el => { el.style.opacity = v; });
+
+function applyCaseContent(idx) {
+  const c = CASES[idx];
+  /* on the root, so the progress rail can pick up the same accent the band and
+     the route are using */
+  document.documentElement.style.setProperty('--ca', c.accent);
+  document.getElementById('cc-cat').textContent   = c.cat;
+  /* the circle rides at the end of the title, so it is written with it */
+  document.getElementById('cc-title').innerHTML = c.titleHTML +
+    '<span class="cc-go"><span class="cc-go-roll"><i>\u2192</i><i>\u2192</i></span></span>';
+  document.getElementById('cc-body').textContent  = c.body;
+  cardEl.setAttribute('href', c.link);
+  cardEl.setAttribute('aria-label', 'View case study: ' + c.cat.split('\u00B7')[0].trim());
+}
+
+function showCard(idx) {
+  gsap.killTweensOf(ccParts);
+  setParts('1');
+  applyCaseContent(idx);
+  cardEl.classList.add('open');
+  requestAnimationFrame(() => requestAnimationFrame(() => cardEl.classList.add('shown')));
+}
+
+/** Cross-fade the copy while the band stays where it is. */
+function transitionCaseCard(idx) {
+  gsap.killTweensOf(ccParts);
+  gsap.to(ccParts, {
+    opacity: 0, duration: 0.14, ease: 'power1.out',
+    onComplete() {
+      applyCaseContent(idx);
+      gsap.to(ccParts, { opacity: 1, duration: 0.26, ease: 'power1.out', stagger: 0.045 });
+    },
+  });
+}
+
+function hideCard() {
+  /* selectCase queues the band on a timer, and the handoff means you can be
+     back on the hero well inside that window — without cancelling it the timer
+     fires anyway and the case title reappears over the hero. */
+  if (cardTimer) { clearTimeout(cardTimer); cardTimer = null; }
+  gsap.killTweensOf(ccParts);
+  setParts('1');
+  cardEl.classList.remove('shown');
+  setTimeout(() => cardEl.classList.remove('open'), 420);
+}
+
+function hexToRgba(hex, a) {
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+/* ─── Select case ────────────────────────────────────────────── */
+function selectCase(idx) {
+  const prev = active;
+  active = idx;
+
+  // Markers
+  mkrEls.forEach((el,i) => {
+    el.classList.remove('active','dimmed');
+    el.classList.add(i===idx ? 'active' : 'dimmed');
+  });
+
+  // Progress dots
+  pDots().forEach((d,i) => d.classList.toggle('active', i===idx));
+
+  // Counter
+  document.getElementById('c-num').textContent = String(idx+1).padStart(2,'0');
+
+  // Retract the previous route
+  if(prev >= 0 && prev !== idx) {
+    gsap.killTweensOf(trailProgress);
+    gsap.to(trailProgress, { [prev]: 0, duration: .5, ease: 'power2.in' });
+  }
+
+  /* Fly the survey camera to this summit's station. */
+  const station = CASE_CAM[idx];
+  const dur = flightDur(station.pos);
+  moveCam(station.pos, station.tgt, dur);
+
+  /* Settle the peak: the rest of the range recedes a little so the route has a
+     quieter drawing to sit on. Starts partway through the flight so it is
+     already happening as the camera arrives. */
+  lightPeak(idx, dur * MORPH.ARRIVE_DELAY);
+
+  /* Then the climb. This is the whole highlight now — the mountain keeps its
+     own ink and the project's colour walks up it, trailhead to summit. */
+  const pathDelay = dur * MORPH.ARRIVE_DELAY + 0.35;
+  trailProgress[idx] = 0;
+  if(pathAnim) pathAnim.kill();
+  pathAnim = gsap.to(trailProgress, {
+    [idx]: 1, duration: MORPH.CLIMB, ease: 'power1.inOut', delay: pathDelay,
+  });
+
+  // Trailhead dot — moves to the foot of this ascent
+  const bs = TREK[idx].base;
+  baseDot.position.set(bs.x, mh(bs.x, bs.z) + 0.65, bs.z);
+  gsap.to(baseDot.material, { opacity: 0.55, duration: .4, delay: pathDelay });
+
+  /* The band stays put; only its copy changes between cases. */
+  if(cardTimer) { clearTimeout(cardTimer); cardTimer = null; }
+  if(prev >= 0 && prev !== idx && cardEl.classList.contains('open')) {
+    transitionCaseCard(idx);
+  } else {
+    cardTimer = setTimeout(() => showCard(idx), prev >= 0 ? 380 : 560);
+  }
+}
+
+/* ─── Phase transitions ──────────────────────────────────────── */
+function toHero() {
+  if(phase === 'hero') return;
+  phase = 'hero';
+
+  if (heroIntroTl) {
+    heroIntroTl.kill();
+    heroIntroTl = null;
+    camTweening = false;
+  }
+  gsap.set('#hero-studio-line', { clipPath: STUDIO_MASK_FULL });
+  mountainGroup.position.y = 0;
+  mountainMat.uniforms.uAlpha.value = 1;
+
+  gsap.killTweensOf([
+    '#hero-copy', '#hero-studio-line', '#hero-top-bar',
+    '.hero-side-left', '.hero-side-right',
+  ]);
+  gsap.set('#hero-studio-line', { opacity: 1, clipPath: STUDIO_MASK_HIDDEN });
+  /* Going into the case phase fades #hero-copy itself, not just the two columns
+     inside it. Restoring only the children leaves them at full opacity inside a
+     parent still at zero, which is why the side copy never came back. */
+  gsap.set('#hero-copy', { opacity: 1 });
+  gsap.set('#hero-top-bar', { opacity: 0 });
+
+  document.body.classList.remove('work-phase');   // takes the top menu with it
+  setPillActive('home');
+  fadeInHeroLayered(0);
+
+  document.getElementById('case-ui').classList.remove('visible');
+  mkrEls.forEach(el => {
+    el.style.display = 'none';
+    el.classList.remove('active','dimmed');
+    el.classList.add('dormant');
+  });
+  hideCard();
+
+  // Reset mountain rotation
+  gsap.to(mountainGroup.rotation, { y: 0, duration: 1.5, ease: 'power3.inOut' });
+
+  // Retract every route
+  if(pathAnim) pathAnim.kill();
+  gsap.killTweensOf(trailProgress);
+  gsap.to(trailProgress, { 0:0, 1:0, 2:0, 3:0, duration: .45, ease: 'power2.in' });
+  gsap.to(baseDot.material, { opacity: 0, duration: .3 });
+  active = -1;
+  lightPeak(-1, 0);           // every client summit back to line
+
+  moveCam(H_POS, H_TGT, 1.3);
+}
+
+function toCasePhase() {
+  if(phase === 'case') return;
+
+  if (heroIntroTl) {
+    heroIntroTl.kill();
+    heroIntroTl = null;
+    camTweening = false;
+    mountainGroup.position.y = 0;
+    mountainMat.uniforms.uAlpha.value = 1;
+    heroIntroRan = true;
+    camBase.copy(H_POS);
+    camTarget.copy(H_TGT);
+    /* killing the timeline freezes the reveal mask wherever it had got to, and
+       a mask stuck at 8% crops the tops off the words for good */
+    gsap.set('#hero-studio-line', { clipPath: STUDIO_MASK_FULL });
+  }
+
+  phase = 'case';
+
+  document.body.classList.add('work-phase');
+  // Fade hero chrome but keep pill nav visible — just swap its active tab
+  gsap.to('#hero-copy, #hero-top-bar, #hero-studio-line', { opacity: 0, duration: .4 });
+  setPillActive('work');
+  document.getElementById('case-ui').classList.add('visible');
+  mkrEls.forEach(el => {
+    el.style.display = 'flex';
+    el.classList.remove('dormant');
+  });
+
+  /* No camera move here — selectCase flies to the summit it is about to light,
+     and two moveCam calls in one frame would fight over the same tween. */
+}
+
+/* ─── Pill nav active tab ────────────────────────────────────── */
+function setPillActive(label) {
+  document.querySelectorAll('.nav-pill-link').forEach(el => {
+    el.classList.toggle('is-active', el.textContent.trim() === label);
+  });
+}
+
+/* ─── Jump (dots / markers / keyboard) ──────────────────────── */
+function jumpTo(idx) {
+  const vh = innerHeight;
+  window.scrollTo({ top: vh + idx * 1.2 * vh + 10, behavior: 'smooth' });
+}
+
+/* ─── Scroll handler ─────────────────────────────────────────── */
+function onScroll() {
+  const sy = window.scrollY;
+  const vh = innerHeight;
+  if (!vh) return;            // a zero-height viewport makes every ratio below NaN
+  const HERO_END = vh * 0.88; // cross-over threshold
+
+  if(sy < HERO_END) {
+    toHero();
+  } else {
+    toCasePhase();
+    const raw = (sy - HERO_END) / (vh * 1.2); // 1.2 = case section vh
+    const idx = Math.min(3, Math.max(0, Math.floor(raw)));
+    if(idx !== active) selectCase(idx);
+  }
+}
+window.addEventListener('scroll', onScroll, { passive: true });
+
+/* ─── Pointer parallax ───────────────────────────────────────── */
+window.addEventListener('mousemove', e => {
+  mouse.x = (e.clientX / innerWidth)  * 2 - 1;
+  mouse.y = (e.clientY / innerHeight) * 2 - 1;
+  pointerInside = true;
+});
+
+/* ─── Hover ──────────────────────────────────────────────────────────────
+   A contour is the set of points at one elevation, so the honest answer to
+   "what am I pointing at" is the whole ring at that height, not the segment
+   under the cursor. Finding the height means intersecting the pointer ray with
+   the terrain, and a THREE.Raycaster against a 200k-vertex mesh is a per-frame
+   sweep of every triangle. Marching the ray against mh() instead costs about a
+   hundred samples: coarse steps that lengthen with distance, then a short
+   bisection once the ray has passed under the surface. */
+const HOVER = { band: 2.8, radius: 60, pulse: 2.2, strength: 1 };
+const _hr = new THREE.Vector3(), _ho = new THREE.Vector3();
+let hoverAmt = 0, hoverHit = false, hoverPeak = -1;
+const hoverPt = { x: 0, y: -1e4, z: 0 };
+let pointerInside = false;
+
+function pickTerrain() {
+  _hr.set(mouse.x, -mouse.y, 0.5).unproject(camera).sub(camera.position).normalize();
+  _ho.copy(camera.position).sub(mountainGroup.position);
+  if (_hr.y > 0 && _ho.y > MAX_H + 4) return false;   // pointing at sky from above it
+
+  let t = 1, prev = _ho.y - mh(_ho.x, _ho.z), prevT = 0;
+  for (let i = 0; i < 150 && t < 620; i++) {
+    const gap = (_ho.y + _hr.y * t) - mh(_ho.x + _hr.x * t, _ho.z + _hr.z * t);
+    if (gap < 0) {
+      let lo = prevT, hi = t;                          // bisect the crossing
+      for (let k = 0; k < 14; k++) {
+        const mid = (lo + hi) * 0.5;
+        const g = (_ho.y + _hr.y * mid) - mh(_ho.x + _hr.x * mid, _ho.z + _hr.z * mid);
+        if (g < 0) hi = mid; else lo = mid;
+      }
+      hoverPt.x = _ho.x + _hr.x * hi;
+      hoverPt.z = _ho.z + _hr.z * hi;
+      hoverPt.y = mh(hoverPt.x, hoverPt.z);
+      /* the same weighting the shaders use, so the peak picked here is the peak
+         the contour shader thinks this ground belongs to */
+      let best = 0, bw = -1;
+      for (let k = 0; k < NPK; k++) {
+        const pk = PEAKS[k];
+        const ddx = hoverPt.x - pk.x, ddz = hoverPt.z - pk.z;
+        const q = (ddx*ddx + ddz*ddz) / (pk.spread * pk.spread);
+        const w = 1 / (q*q + 0.02);
+        if (w > bw) { bw = w; best = k; }
+      }
+      hoverPeak = best;
+      return true;
+    }
+    prev = gap; prevT = t;
+    t += 1.1 + t * 0.035;                              // coarser the further out
+  }
+  return false;
+}
+
+function updateHover(dt) {
+  /* the pulse only means anything on line-work, so it is off wherever the
+     ground under the pointer is still filled */
+  const canHover = pointerInside && contourMesh.visible;
+  hoverHit = canHover ? pickTerrain() : false;
+  hoverAmt += ((hoverHit ? HOVER.strength : 0) - hoverAmt) * Math.min(1, dt * 9);
+
+  const c = caseUnderPointer();
+  canvas.style.cursor = (c >= 0 && c !== active) ? 'pointer' : '';
+
+  const u = contourMat.uniforms;
+  u.uHoverAmt.value = hoverAmt;
+  u.uHoverBand.value = HOVER.band;
+  u.uHoverR.value = HOVER.radius;
+  u.uPulse.value = 0.5 + 0.5 * Math.sin(_lastT * 0.001 * HOVER.pulse * Math.PI);
+  if (hoverHit) {
+    u.uHoverY.value = hoverPt.y;
+    u.uHoverXZ.value.set(hoverPt.x, hoverPt.z);
+    u.uHoverPeak.value = hoverPeak;
+    u.uHoverCol.value.copy(PEAK_ACCENT[hoverPeak]);
+  }
+}
+
+/* Clicking the mountain itself selects its project. The pointer ray is already
+   being cast every frame for the hover pulse, so the peak under the cursor is
+   known — this just routes it to the same jumpTo the rail uses, which scrolls,
+   which pans the camera and opens the band. */
+const CASE_OF_PEAK = {};
+PROJECT_PEAKS.forEach((pi, i) => { CASE_OF_PEAK[pi] = i; });
+
+function caseUnderPointer() {
+  if (!contourMesh.visible || !pointerInside) return -1;
+  if (!hoverHit) return -1;
+  const c = CASE_OF_PEAK[hoverPeak];
+  return c === undefined ? -1 : c;
+}
+
+canvas.addEventListener('click', () => {
+  const c = caseUnderPointer();
+  if (c >= 0 && c !== active) jumpTo(c);
+});
+
+window.addEventListener('pointerenter', () => { pointerInside = true; });
+window.addEventListener('pointerleave', () => { pointerInside = false; });
+document.addEventListener('mouseleave', () => { pointerInside = false; });
+
+/* ─── Keyboard ───────────────────────────────────────────────── */
+window.addEventListener('keydown', e => {
+  if(phase !== 'case') return;
+  if(e.key==='ArrowDown' && active<3) jumpTo(active+1);
+  if(e.key==='ArrowUp'   && active>0) jumpTo(active-1);
+});
+
+/* ─── Resize ─────────────────────────────────────────────────── */
+window.addEventListener('resize', () => {
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+  syncContourRes();
+});
+
+/* ─── Render loop ────────────────────────────────────────────── */
+let _lastT = performance.now();
+(function frame(){
+  requestAnimationFrame(frame);
+
+  /* The morph is eased per-frame rather than written straight from the scroll
+     position. Scroll events arrive in coarse, uneven jumps — trackpad flicks,
+     wheel notches, momentum — and driving the sweep plane off them directly
+     makes it stutter. Chasing the target with a framerate-independent lerp
+     turns any input cadence into one continuous move, and it keeps the tail of
+     a flick moving after the events have stopped. */
+  const _now = performance.now();
+  const dt = Math.min(0.05, (_now - _lastT) / 1000);
+  _lastT = _now;
+  stepMorph(dt);
+
+  /* Pointer parallax, in every phase and during flights too. It orbits the
+     station rather than sliding the camera sideways — a slide skews the whole
+     scene, a small orbit reads as the range having depth. */
+  const pe = Math.min(1, dt * PARALLAX.ease);
+  mSmooth.x += (mouse.x - mSmooth.x) * pe;
+  mSmooth.y += (mouse.y - mSmooth.y) * pe;
+  applyParallax();
+
+  camera.lookAt(camTarget);
+  updateHover(dt);
+  updateMarkers();
+
+  // Keep trek origin dot ~BASE_DOT_SCREEN_PX Ø in screen space (like HTML markers)
+  baseDot.getWorldPosition(baseDotWorld);
+  const dist = baseDotWorld.distanceTo(camera.position);
+  if (dist > 0.01) {
+    const vFOV = camera.fov * Math.PI / 180;
+    const cssH = renderer.domElement.clientHeight || innerHeight;
+    const worldPerPx = (2 * Math.tan(vFOV / 2) * dist) / cssH;
+    const rWorld = (BASE_DOT_SCREEN_PX * 0.5) * worldPerPx;
+    baseDot.scale.setScalar(rWorld / BASE_DOT_GEO_R);
+  }
+
+  renderer.render(scene, camera);
+})();
+
+/* ─── Transition tuning panel (preview only — strip for production) ──────── */
+(function tunePanel(){
+  const $ = id => document.getElementById(id);
+  const panel = $('tune'), pill = $('tune-pill');
+
+  function setHidden(h){ panel.classList.toggle('hidden', h); pill.classList.toggle('hidden', !h); }
+  setHidden(true);   // page five is a presentation, not a tuning surface — H brings it back
+  $('tune-hide').addEventListener('click', () => setHidden(true));
+  pill.addEventListener('click', () => setHidden(false));
+  window.addEventListener('keydown', e => {
+    if (e.key === 'h' || e.key === 'H') {
+      if (/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) return;
+      setHidden(!panel.classList.contains('hidden'));
+    }
+  });
+
+  /* hero fill style */
+  $('tune-mode').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    MORPH.mode = +b.dataset.mode;
+    [...$('tune-mode').children].forEach(c => c.classList.toggle('on', c === b));
+  });
+
+  /* replay the climb on whichever route is showing */
+  $('tune-climb').addEventListener('click', () => {
+    const i = active >= 0 ? active : 0;
+    if (pathAnim) pathAnim.kill();
+    gsap.killTweensOf(trailProgress);
+    trailProgress[i] = 0;
+    pathAnim = gsap.to(trailProgress, { [i]: 1, duration: MORPH.CLIMB, ease: 'power1.inOut' });
+  });
+
+  /* scrub — takes the morph off the scroll until handed back */
+  const scrubRow = $('tune-scrub-row'), sScrub = $('s-scrub'), vScrub = $('v-scrub');
+  function toScroll(){
+    MORPH.scrub = null;
+    scrubRow.classList.add('live');
+    vScrub.textContent = 'scroll';
+  }
+  sScrub.addEventListener('input', () => {
+    if (playTl) { playTl.kill(); playTl = null; }
+    MORPH.scrub = sScrub.value / 1000;
+    scrubRow.classList.remove('live');
+    vScrub.textContent = MORPH.scrub.toFixed(2);
+  });
+  $('tune-scroll').addEventListener('click', () => {
+    if (playTl) { playTl.kill(); playTl = null; }
+    toScroll();
+  });
+
+  /* replay — watch the transition without touching the scroll */
+  let playTl = null;
+  $('tune-play').addEventListener('click', () => {
+    if (playTl) playTl.kill();
+    const st = { v: 0 };
+    MORPH.scrub = 0; peakMorph[0] = 0;
+    scrubRow.classList.remove('live');
+    playTl = gsap.to(st, {
+      v: 1, duration: 2.4, ease: 'none', delay: 0.25,
+      onUpdate(){
+        MORPH.scrub = st.v;
+        sScrub.value = Math.round(st.v * 1000);
+        vScrub.textContent = st.v.toFixed(2);
+      },
+      onComplete(){ playTl = null; },
+    });
+  });
+
+  /* plain value sliders */
+  function bind(sid, vid, map, fmt, apply){
+    const s = $(sid), v = $(vid);
+    const run = () => { const x = map(+s.value); v.textContent = fmt(x); apply(x); };
+    s.addEventListener('input', run); run();
+  }
+  bind('s-spring', 'v-spring', n => n / 100, x => x.toFixed(1),
+       x => { MORPH.SPRING = x; });
+  bind('s-band', 'v-band', n => n / 1000, x => x.toFixed(2),
+       x => { contourMat.uniforms.uBand.value = MAX_H * x; });
+  bind('s-arrive', 'v-arrive', n => n / 100, x => x.toFixed(1),
+       x => { MORPH.ARRIVE_SPRING = x; });
+  bind('s-pyaw', 'v-pyaw', n => n / 100, x => x.toFixed(2),
+       x => { PARALLAX.yaw = x; PARALLAX.pitch = x * 0.5; });
+  bind('s-pease', 'v-pease', n => n / 100, x => x.toFixed(1),
+       x => { PARALLAX.ease = x; });
+  bind('s-hs', 'v-hs', n => n / 100, x => x.toFixed(2),
+       x => { HOVER.strength = x; });
+  bind('s-hb', 'v-hb', n => n / 100, x => x.toFixed(1),
+       x => { HOVER.band = x; });
+  bind('s-hrr', 'v-hrr', n => n, x => String(x),
+       x => { HOVER.radius = x; });
+  bind('s-hp', 'v-hp', n => n / 100, x => x.toFixed(1),
+       x => { HOVER.pulse = x; });
+  bind('s-tw', 'v-tw', n => n / 100, x => x.toFixed(1),
+       x => { trailMat.uniforms.uWidth.value = x; });
+  bind('s-tg', 'v-tg', n => n / 100, x => x.toFixed(2),
+       x => { trailMat.uniforms.uGlow.value = x; });
+  bind('s-climb', 'v-climb', n => n / 100, x => x.toFixed(1) + 's',
+       x => { MORPH.CLIMB = x; });
+  bind('s-hiw', 'v-hiw', n => n / 100, x => x.toFixed(2),
+       x => { MORPH.hiWeight = x; });
+  bind('s-dim', 'v-dim', n => n / 100, x => x.toFixed(2),
+       x => { MORPH.dim = x; });
+  bind('s-adelay', 'v-adelay', n => n / 100, x => x.toFixed(2),
+       x => { MORPH.ARRIVE_DELAY = x; });
+  bind('s-weight', 'v-weight', n => n / 100, x => x.toFixed(2),
+       x => { contourMat.uniforms.uWeight.value = x; });
+  bind('s-op', 'v-op', n => n / 100, x => x.toFixed(2),
+       x => { contourMat.uniforms.uOpacity.value = x; });
+  bind('s-fade', 'v-fade', n => n / 100, x => x.toFixed(2),
+       x => { contourMat.uniforms.uFadeA.value = x; });
+  bind('s-range', 'v-range', n => n / 100, x => MORPH.START.toFixed(2) + ' – ' + x.toFixed(2),
+       x => { MORPH.END = x; });
+
+  /* camera — angle and distance, live on whichever phase you are looking at */
+  const readEl = $('tune-read');
+  function readout(){
+    readEl.textContent =
+      'HERO  elev ' + HERO_CAM.elev + '  dist ' + HERO_CAM.dist +
+      '  swing ' + HERO_CAM.azim + '  look ' + HERO_CAM.tgtY +
+      '   |   SURVEY  elev ' + SURVEY.elev + '  dist ' + SURVEY.dist +
+      '   |   ROUTE  width ' + trailMat.uniforms.uWidth.value.toFixed(1) +
+      '  glow ' + trailMat.uniforms.uGlow.value.toFixed(2) +
+      '  climb ' + MORPH.CLIMB.toFixed(1) + 's' +
+      '  peakweight ' + MORPH.hiWeight.toFixed(2) + '  dim ' + MORPH.dim.toFixed(2) +
+      '   |   POINTER  swing ' + PARALLAX.yaw.toFixed(2) + '  ease ' + PARALLAX.ease.toFixed(1) +
+      '  hover ' + HOVER.strength.toFixed(2) + '/' + HOVER.band.toFixed(1) +
+      '/' + HOVER.radius + '  pulse ' + HOVER.pulse.toFixed(1);
+  }
+  function bindCam(sid, vid, fmt, apply){
+    const el = $(sid), v = $(vid);
+    const run = () => { const x = +el.value; v.textContent = fmt(x); apply(x); readout(); };
+    el.addEventListener('input', run); run();
+  }
+  bindCam('s-helev','v-helev', x => x + '\u00B0', x => { HERO_CAM.elev = x; applyHeroCam(true); });
+  bindCam('s-hdist','v-hdist', x => String(x),     x => { HERO_CAM.dist = x; applyHeroCam(true); });
+  bindCam('s-hazim','v-hazim', x => x + '\u00B0', x => { HERO_CAM.azim = x; applyHeroCam(true); });
+  bindCam('s-htgt', 'v-htgt',  x => String(x),     x => { HERO_CAM.tgtY = x; applyHeroCam(true); });
+  bindCam('s-selev','v-selev', x => x + '\u00B0', x => { SURVEY.elev = x; buildCaseCam(true); });
+  bindCam('s-sdist','v-sdist', x => String(x),     x => { SURVEY.dist = x; buildCaseCam(true); });
+
+  $('tune-copy').addEventListener('click', async () => {
+    const b = $('tune-copy'), was = b.textContent;
+    try { await navigator.clipboard.writeText(readEl.textContent); b.textContent = 'Copied'; }
+    catch { const r = document.createRange(); r.selectNodeContents(readEl);
+            const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+            b.textContent = 'Selected'; }
+    setTimeout(() => { b.textContent = was; }, 1400);
+  });
+
+  /* contour count rebuilds the geometry, so it is debounced */
+  const sLev = $('s-levels'), vLev = $('v-levels');
+  let rebuildT = null;
+  sLev.addEventListener('input', () => {
+    vLev.textContent = sLev.value;
+    clearTimeout(rebuildT);
+    rebuildT = setTimeout(() => {
+      CT.LEVELS = +sLev.value;
+      const g = buildContourGeometry();
+      contourMesh.geometry.dispose();
+      contourMesh.geometry = g;
+    }, 220);
+  });
+})();
+
+/* camBase is declared below the camera section, so the opening station is
+   seeded here rather than at definition time */
+camBase.copy(H_POS);
+camTarget.copy(H_TGT);
+
+/* ─── Boot ───────────────────────────────────────────────────── */
+/* Every phase on this page is a function of scrollY, so the browser restoring a
+   scroll position underneath us lands the scene mid-transition with none of the
+   state that got it there. The page sets its own starting point. */
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
+function boot() {
+  const vh = window.innerHeight;
+  const heroEnd = vh * 0.2;
+  if (window.scrollY < heroEnd) {
+    runHeroIntro();
+  } else {
+    heroIntroRan = true;
+    mountainGroup.position.y = 0;
+    mountainMat.uniforms.uAlpha.value = 1;
+    camBase.copy(H_POS);
+    camTarget.copy(H_TGT);
+    gsap.set('#hero-studio-line', { opacity: 1, clipPath: STUDIO_MASK_FULL });
+    gsap.set('#hero-top-bar', { opacity: 1 });
+    gsap.set('#hero-copy .hero-side-left, #hero-copy .hero-side-right', { opacity: 1 });
+    onScroll();
+  }
+}
+boot();
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Page five — choreography
+   ─────────────────────────────────────────────────────────────────────────
+   Range drives its scene from one scroll ramp: the hero peak drains, then the
+   page hands off to the client range. Here the same scene serves six sections,
+   so the ramp is replaced by a section timeline. Range's own driver is left in
+   place and simply told what to do — MORPH.scrub is its documented override,
+   which is what section four uses to summon the range on cue rather than at a
+   fixed scroll depth.
+   ════════════════════════════════════════════════════════════════════════ */
+(function studioChoreography(){
+  const secs = ['s-hero','s-numbers','s-partners','s-summits'].map(id => document.getElementById(id));
+  const canvasEl = document.getElementById('canvas');
+
+  /* how far through a section the viewport's midpoint sits, 0..1 */
+  function through(el){
+    if (!el) return 0;
+    const r = el.getBoundingClientRect();
+    return Math.min(1, Math.max(0, -r.top / Math.max(1, r.height)));
+  }
+  const ease = t => t * t * (3 - 2 * t);
+
+  /* the peak's resting place, so the slide is relative rather than absolute */
+  const homeX = mountainGroup.position.x;
+  let slid = 0, faded = 0;
+
+  function frame(){
+    requestAnimationFrame(frame);
+
+    const tNum  = through(secs[1]);       // 2 · figures  — the peak steps aside
+    const tPart = through(secs[2]);       // 3 · partners — and withdraws
+    const tSum  = through(secs[3]);       // 4 · the range returns
+
+    /* Slide left across the figures and hold there through the partners, so the
+       peak reads as one continuous move rather than two. */
+    const wantX = homeX - ease(tNum) * SLIDE_X;
+    slid += (wantX - slid) * 0.12;
+    mountainGroup.position.x = homeX + (slid - homeX);
+
+    /* Withdraw behind the partner list, then come back for section four. */
+    const wantFade = Math.max(0, ease(tPart) - ease(tSum) * 1.6);
+    faded += (wantFade - faded) * 0.12;
+    canvasEl.style.opacity = String(1 - faded * (1 - CANVAS_MIN));
+
+    /* Section four is the only place the range is asked for. Before it, the
+       hero peak stays whole; across it, Range's own morph runs on our clock. */
+    MORPH.scrub = tSum <= 0 ? 0 : ease(tSum);
+  }
+  const SLIDE_X = 46;      // world units the peak travels left
+  const CANVAS_MIN = 0.12; // how faint it gets behind the partner list
+  requestAnimationFrame(frame);
+})();
+
+/* ── partner list ─────────────────────────────────────────────────────── */
+(function partners(){
+  const NAMES = ['Zomato','Paytm','Firstpost','Zeta','Urban Company','Groww','HDFC Bank',
+                 'The Times of India','Policy Bazaar','BreatheESG','The Indian Express',
+                 'Shyft','Apnaklub','Simsim','Bombay Shirt Company'];
+  const list = document.getElementById('plist');
+  const logo = document.getElementById('plogo');
+  if (!list) return;
+  NAMES.forEach((n, i) => {
+    const a = document.createElement('a');
+    a.href = '#'; a.textContent = n.toUpperCase();
+    a.addEventListener('mouseenter', () => { logo.textContent = n; logo.classList.add('on'); });
+    a.addEventListener('mouseleave', () => logo.classList.remove('on'));
+    a.addEventListener('mousemove', e => {
+      logo.style.left = e.clientX + 'px';
+      logo.style.top  = (e.clientY - 34) + 'px';
+    });
+    list.appendChild(a);
+    if (i < NAMES.length - 1) {
+      const sep = document.createElement('span');
+      sep.className = 'sep'; sep.textContent = '/';
+      list.appendChild(sep);
+    }
+  });
+})();
+
+/* ── thumbnails ───────────────────────────────────────────────────────── */
+(function thumbs(){
+  const WORK = [
+    ['Apnaklub', 'Helped Apnaklub understand their users and market via research, and designed their app to achieve product market fit.'],
+    ['Indian Express', "Redesigned Indian Express's flagship product to create a brand new mobile app experience and monetisation strategy."],
+    ["Zeta's Cipher Docs", "A comprehensive overhaul of Cipher's documentation portal, built from scratch with extensive user testing."],
+    ['Urban Company', "Designed the first market versions of Urban Company's apps and incorporated research into their design workflow."],
+    ['Zomato', "Designed the first version of Zomato's food delivery app, alongside several other products and services."],
+    ["HDFC's Smart Buy", 'Helped HDFC design and experiment with layouts for their rewards platform.'],
+  ];
+  const host = document.getElementById('thumbs');
+  if (!host) return;
+  WORK.forEach(([title, body]) => {
+    const el = document.createElement('article');
+    el.className = 'thumb';
+    el.innerHTML = '<div><h3></h3><p></p>' +
+      '<div class="tags">App <span>/</span> Website <span>/</span> Fintech</div></div>' +
+      '<div class="thumb-art"></div>';
+    el.querySelector('h3').textContent = title;
+    el.querySelector('p').textContent = body;
+    host.appendChild(el);
+  });
+})();
+
+/* ── services ─────────────────────────────────────────────────────────── */
+(function services(){
+  const STAGES = {
+    'Early stage startups': [
+      ['User research', ['Generate an understanding of your market including competitors and customers.',
+                         'Gather insights with surveys, interviews and market analysis.',
+                         'Attain a deep understanding of your market to guide product development.']],
+      ['Marketing and growth design', ['Position the product for the audience you actually have.',
+                                       'Build the surfaces that carry the story.']],
+      ['Usability testing', ['Put the thing in front of people before it ships.']],
+      ['Design systems and style guides', ['One vocabulary, written down, so the team stops re-deciding.']],
+      ['Product design', ['From the first flow to the shipped screen.']],
+      ['Prototyping', ['Something clickable, early, to argue with.']],
+    ],
+    'Mid stage startup': [
+      ['Design systems and style guides', ['Consolidate what grew organically into something teachable.']],
+      ['Product design', ['Second-order problems: retention, depth, the long tail.']],
+      ['User research', ['Now with real users and real data to sample.']],
+    ],
+    'Established company': [
+      ['Design systems and style guides', ['Governance, versioning, and the migration path.']],
+      ['Usability testing', ['At a cadence, not as a one-off.']],
+      ['Product design', ['Modernisation without a rewrite.']],
+    ],
+  };
+  const tabsEl = document.getElementById('svc-tabs');
+  const listEl = document.getElementById('svc-list');
+  const detEl  = document.getElementById('svc-detail');
+  if (!tabsEl) return;
+
+  let stage = Object.keys(STAGES)[0], pick = 0;
+
+  function renderDetail(){
+    const [name, points] = STAGES[stage][pick];
+    detEl.innerHTML = '<h3></h3><ul></ul>';
+    detEl.querySelector('h3').textContent = name.toUpperCase();
+    const ul = detEl.querySelector('ul');
+    points.forEach(t => { const li = document.createElement('li'); li.textContent = t; ul.appendChild(li); });
+  }
+  function renderList(){
+    listEl.innerHTML = '';
+    STAGES[stage].forEach(([name], i) => {
+      const b = document.createElement('div');
+      b.className = 'svc-item'; b.tabIndex = 0;
+      b.setAttribute('aria-current', i === pick ? 'true' : 'false');
+      b.innerHTML = '<i></i><span></span>';
+      b.querySelector('span').textContent = name;
+      b.addEventListener('click', () => { pick = i; renderList(); renderDetail(); });
+      listEl.appendChild(b);
+    });
+  }
+  Object.keys(STAGES).forEach((name, i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.role = 'tab'; b.textContent = name;
+    b.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+    b.addEventListener('click', () => {
+      stage = name; pick = 0;
+      [...tabsEl.children].forEach(c => c.setAttribute('aria-selected', String(c === b)));
+      renderList(); renderDetail();
+    });
+    tabsEl.appendChild(b);
+  });
+  renderList(); renderDetail();
+})();
+
+/* ── odometer button ──────────────────────────────────────────────────────
+   Ported from the contentarchitecture build: each character is a 1em window
+   over [real, four decoys, real]; one --odometer-progress on the button drives
+   the whole label, and a per-character delay resolves it left to right. The
+   decoys come off a seed rather than Math.random so the markup is stable. */
+(function odometer(){
+  const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const DECOYS = 4, STAGGER = 28;
+
+  function charCol(ch, i){
+    const seed = ch.charCodeAt(0) + i * 31;
+    const col = [ch];
+    for (let d = 0; d < DECOYS; d++) col.push(GLYPHS[(seed + (d + 1) * 7) % GLYPHS.length]);
+    col.push(ch);
+    return col;
+  }
+  function segment(text, offset){
+    const seg = document.createElement('span');
+    seg.className = 'seg';
+    [...text].forEach((ch, i) => {
+      if (ch === ' ') { seg.appendChild(document.createTextNode(' ')); return; }
+      const oc = document.createElement('span');
+      oc.className = 'oc';
+      const ghost = document.createElement('span');
+      ghost.className = 'ghost'; ghost.textContent = ch;
+      const col = document.createElement('span');
+      col.className = 'col';
+      col.style.transitionDelay = ((i + offset) * STAGGER) + 'ms';
+      charCol(ch, i).forEach(g => {
+        const gs = document.createElement('span'); gs.textContent = g; col.appendChild(gs);
+      });
+      oc.appendChild(ghost); oc.appendChild(col);
+      seg.appendChild(oc);
+    });
+    return seg;
+  }
+  document.querySelectorAll('[data-odometer]').forEach(btn => {
+    const [lead, trail] = btn.dataset.odometer.split('|');
+    const label = document.createElement('span');
+    label.className = 'sr'; label.textContent = lead + ' ' + (trail || '');
+    label.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)';
+    btn.textContent = '';
+    btn.appendChild(label);
+    btn.appendChild(segment(lead, 0));
+    if (trail) {
+      const c = document.createElement('span'); c.className = 'conn';
+      btn.appendChild(c);
+      btn.appendChild(segment(trail, 0));   // restart the stagger on the second half
+    }
+  });
+})();
+
+</script>
+</body>
+</html>

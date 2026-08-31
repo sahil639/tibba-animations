@@ -13,6 +13,7 @@ browser and it runs.
 | `topo-hero-scroll.html` | *Scroll hero* — the same ridge wired into a page: it locks to the left on scroll, with a figure grid as section two. |
 | `topo-peaks.html` | *Three Summits* — three real mountains in one scene; scrolling moves focus between them. |
 | `tibba-range.html` | *Range* — the studio page: a scroll-driven Three.js range with case cards. Its own page at `/tibba-range`. It keeps its own bottom pill nav, so it carries no site switcher. |
+| `tibba-studio.html` | *Studio* — the full studio page at `/tibba-studio`. Range's scene re-choreographed across six sections: hero, figures, partners, the range, work, services. |
 | `dither-lab.html` | A separate experiment that lives in the same folder. |
 
 The three standalone files are what you drop into a page or port to Framer. The
@@ -36,6 +37,7 @@ files are reachable without the extension, and redirects the old
 | `/topo-hero-scroll` | the scroll hero |
 | `/topo-peaks` | Three Summits |
 | `/tibba-range` | Range |
+| `/tibba-studio` | Studio |
 | `/#ridge`, `/#scroll`, `/#peaks` | the combined viewer, opened on one animation |
 
 On Vercel the project needs **Framework Preset: Other** with no build command and
