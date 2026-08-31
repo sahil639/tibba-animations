@@ -67,6 +67,10 @@
     body.work-phase #hero-studio-line { opacity: 0; }
 
     /* ── Hero top announcement (Figma) ───────────────────────── */
+    .tune-sub{
+      margin: 14px 0 6px; font-size: 9.5px; letter-spacing: .16em;
+      color: rgba(255,255,255,.42);
+    }
     #hero-top-bar {
       position: fixed; top: 0; left: 0; right: 0; z-index: 50;
       display: flex; align-items: center; justify-content: space-between;
@@ -798,6 +802,44 @@
     <label>Survey distance<i id="v-sdist">80</i></label>
     <input type="range" id="s-sdist" min="35" max="190" value="80">
   </div>
+  <div class="tune-sub">SKY</div>
+  <div class="row">
+    <label>Clouds<i id="v-cl">7</i></label>
+    <input type="range" id="s-cl" min="0" max="16" value="7">
+  </div>
+  <div class="row">
+    <label>Cloud size<i id="v-cs">1.00</i></label>
+    <input type="range" id="s-cs" min="40" max="220" value="100">
+  </div>
+  <div class="row">
+    <label>Formation<i id="v-cf">0.55</i></label>
+    <input type="range" id="s-cf" min="0" max="120" value="55">
+  </div>
+  <div class="row">
+    <label>Cloud noise<i id="v-cn">0.45</i></label>
+    <input type="range" id="s-cn" min="0" max="120" value="45">
+  </div>
+  <div class="row">
+    <label>Cloud speed<i id="v-cv">1.00</i></label>
+    <input type="range" id="s-cv" min="0" max="300" value="100">
+  </div>
+  <div class="row">
+    <label>Cloud elevation<i id="v-ce">0.30</i></label>
+    <input type="range" id="s-ce" min="5" max="75" value="30">
+  </div>
+  <div class="row">
+    <label>Cloud spread<i id="v-cw">0.20</i></label>
+    <input type="range" id="s-cw" min="2" max="60" value="20">
+  </div>
+  <div class="row">
+    <label>Birds<i id="v-bd">5</i></label>
+    <input type="range" id="s-bd" min="0" max="14" value="5">
+  </div>
+  <div class="row">
+    <label>Bird speed<i id="v-bs">1.00</i></label>
+    <input type="range" id="s-bs" min="0" max="300" value="100">
+  </div>
+
   <div class="tune-read" id="tune-read">&hellip;</div>
 
   <div class="tune-acts">
@@ -2968,6 +3010,216 @@ function boot() {
   }
 }
 boot();
+
+/* ── atmosphere ───────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════════
+   Atmosphere — outlined clouds and a few birds
+   ─────────────────────────────────────────────────────────────────────────
+   A 2D layer rather than scene geometry, so it costs one canvas and drops onto
+   either engine without touching its shaders. Clouds are closed outlines built
+   from a radial noise walk, which is what keeps them reading as drawn contours
+   rather than sprites; birds are two short strokes that flap on a sine and
+   drift right to left. Depth is faked the honest way — the further back a
+   thing is, the slower, smaller and fainter it goes.
+   ═══════════════════════════════════════════════════════════════════════ */
+window.Atmos = (function () {
+  function make(opts) {
+    var host = opts.host || document.body;
+    var cv = document.createElement("canvas");
+    cv.setAttribute("aria-hidden", "true");
+    cv.style.cssText =
+      "position:fixed;inset:0;width:100%;height:100%;pointer-events:none;" +
+      "z-index:" + (opts.z == null ? 2 : opts.z) + ";";
+    host.appendChild(cv);
+    var ctx = cv.getContext("2d");
+
+    var P = {
+      clouds:     opts.clouds     == null ? 7    : opts.clouds,
+      cloudSize:  opts.cloudSize  == null ? 1    : opts.cloudSize,
+      shape:      opts.shape      == null ? 0.55 : opts.shape,   // lumpiness
+      noise:      opts.noise      == null ? 0.45 : opts.noise,   // edge texture
+      speed:      opts.speed      == null ? 1    : opts.speed,
+      elevation:  opts.elevation  == null ? 0.34 : opts.elevation,
+      spread:     opts.spread     == null ? 0.20 : opts.spread,  // vertical band
+      cloudAlpha: opts.cloudAlpha == null ? 0.30 : opts.cloudAlpha,
+      birds:      opts.birds      == null ? 5    : opts.birds,
+      birdSpeed:  opts.birdSpeed  == null ? 1    : opts.birdSpeed,
+      birdAlpha:  opts.birdAlpha  == null ? 0.55 : opts.birdAlpha,
+      ink:        opts.ink        || "#0d0e0b",
+      reduced:    !!opts.reduced,
+    };
+
+    var W = 0, H = 0, DPR = 1, clouds = [], birds = [], raf = 0, t0 = performance.now();
+
+    function rnd(seed) {          // deterministic, so a rebuild is not a reshuffle
+      var x = Math.sin(seed * 127.1) * 43758.5453;
+      return x - Math.floor(x);
+    }
+
+    function buildClouds() {
+      clouds = [];
+      for (var i = 0; i < P.clouds; i++) {
+        var depth = 0.35 + rnd(i * 3.1) * 0.65;       // 0 far · 1 near
+        clouds.push({
+          seed: i * 9.17,
+          depth: depth,
+          x: rnd(i * 5.7),                             // 0..1 of a wrapped span
+          y: rnd(i * 2.3),
+          r: (26 + rnd(i * 7.7) * 46) * depth,
+          lobes: 3 + Math.floor(rnd(i * 11.3) * 3),
+        });
+      }
+    }
+    function buildBirds() {
+      birds = [];
+      for (var i = 0; i < P.birds; i++) {
+        var depth = 0.4 + rnd(i * 13.7) * 0.6;
+        birds.push({
+          seed: i * 4.9, depth: depth,
+          x: rnd(i * 6.1), y: rnd(i * 8.9),
+          span: (4 + rnd(i * 3.3) * 5) * depth,
+          phase: rnd(i * 17.1) * 6.283,
+          rate: 5 + rnd(i * 5.5) * 4,
+        });
+      }
+    }
+
+    function resize() {
+      DPR = Math.min(window.devicePixelRatio || 1, 2);
+      var w = Math.round(innerWidth * DPR), h = Math.round(innerHeight * DPR);
+      if (w === W && h === H) return;
+      W = w; H = h; cv.width = W; cv.height = H;
+    }
+
+    function cloudPath(c, t) {
+      var n = c.lobes;
+      var unit = c.r * P.cloudSize;
+      var base = unit * 0.22;
+
+      /* Lay the puffs out first, then let them decide how wide the path is. Fix
+         the span up front and any puff larger than it gets clipped by the base
+         line, which is what turns the silhouette into a slab. */
+      var px = [], pr = [], maxR = 0, spread = unit * 0.62;
+      for (var i = 0; i < n; i++) {
+        var f = n === 1 ? 0.5 : i / (n - 1);
+        var wob = Math.sin(t * 0.35 + c.seed + i * 1.7) * P.noise * 0.18;
+        var crown = 0.34 + Math.sin(f * Math.PI) * 0.66;       // tallest in the middle
+        var r = unit * (0.30 + crown * 0.46 * (0.72 + P.shape * 0.55)) * (1 + wob);
+        px.push(-spread + f * spread * 2);
+        pr.push(r);
+        if (r > maxR) maxR = r;
+      }
+      var span = spread + maxR * 1.06;
+
+      var steps = 72;
+      ctx.beginPath();
+      ctx.moveTo(-span, base);
+      for (var s2 = 0; s2 <= steps; s2++) {
+        var x = -span + (s2 / steps) * span * 2;
+        var top = 0;
+        for (var k = 0; k < n; k++) {
+          var dx = x - px[k], rr = pr[k];
+          if (Math.abs(dx) < rr) {
+            var h = Math.sqrt(rr * rr - dx * dx);
+            if (h > top) top = h;
+          }
+        }
+        ctx.lineTo(x, base - top);
+      }
+      ctx.lineTo(span, base);
+      ctx.closePath();
+    }
+
+    function frame(now) {
+      raf = requestAnimationFrame(frame);
+      resize();
+      var t = (now - t0) / 1000;
+      ctx.clearRect(0, 0, W, H);
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
+      ctx.strokeStyle = P.ink;
+
+      var span = W + 600 * DPR;
+
+      for (var i = 0; i < clouds.length; i++) {
+        var c = clouds[i];
+        var drift = P.reduced ? 0 : t * 6 * P.speed * c.depth;
+        var x = ((c.x * span - drift * DPR) % span + span) % span - 300 * DPR;
+        var y = (P.elevation + (c.y - 0.5) * P.spread) * H;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.globalAlpha = P.cloudAlpha * (0.45 + c.depth * 0.55);
+        ctx.lineWidth = Math.max(0.6, 1.05 * c.depth) * DPR;
+        cloudPath(c, t + c.seed);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      for (var b = 0; b < birds.length; b++) {
+        var d = birds[b];
+        var bd = P.reduced ? 0 : t * 46 * P.birdSpeed * d.depth;
+        var bx = ((d.x * span - bd * DPR) % span + span) % span - 300 * DPR;
+        var by = (0.18 + d.y * 0.30) * H + Math.sin(t * 0.6 + d.phase) * 8 * DPR;
+        var flap = Math.sin(t * d.rate + d.phase);
+        var w = d.span * DPR, lift = w * (0.34 + flap * 0.30);
+        ctx.save();
+        ctx.translate(bx, by);
+        ctx.globalAlpha = P.birdAlpha * (0.5 + d.depth * 0.5);
+        ctx.lineWidth = Math.max(0.7, 0.95 * d.depth) * DPR;
+        ctx.beginPath();
+        ctx.moveTo(-w, 0); ctx.quadraticCurveTo(-w * 0.45, -lift, 0, 0);
+        ctx.quadraticCurveTo(w * 0.45, -lift, w, 0);
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    buildClouds(); buildBirds(); resize();
+    window.addEventListener("resize", resize);
+    raf = requestAnimationFrame(frame);
+
+    return {
+      params: P,
+      set: function (k, v) {
+        P[k] = v;
+        if (k === "clouds") buildClouds();
+        if (k === "birds") buildBirds();
+      },
+      setInk: function (hex) { P.ink = hex; },
+      destroy: function () { cancelAnimationFrame(raf); cv.remove(); },
+    };
+  }
+  return { make: make };
+})();
+
+const atmos = Atmos.make({
+  host: document.body,
+  z: 2,
+  ink: "#c9d4ff",
+  reduced: matchMedia("(prefers-reduced-motion: reduce)").matches,
+  elevation: 0.30, cloudAlpha: 0.22, birdAlpha: 0.42,
+});
+(function skyPanel(){
+  const g = id => document.getElementById(id);
+  function bind(sid, vid, key, div, dp){
+    const el = g(sid); if (!el) return;
+    el.addEventListener('input', () => {
+      const v = div === 1 ? +el.value : el.value / div;
+      g(vid).textContent = dp === 0 ? String(v) : v.toFixed(dp);
+      atmos.set(key, v);
+    });
+  }
+  bind('s-cl','v-cl','clouds',    1,   0);
+  bind('s-cs','v-cs','cloudSize', 100, 2);
+  bind('s-cf','v-cf','shape',     100, 2);
+  bind('s-cn','v-cn','noise',     100, 2);
+  bind('s-cv','v-cv','speed',     100, 2);
+  bind('s-ce','v-ce','elevation', 100, 2);
+  bind('s-cw','v-cw','spread',    100, 2);
+  bind('s-bd','v-bd','birds',     1,   0);
+  bind('s-bs','v-bs','birdSpeed', 100, 2);
+})();
+
 </script>
 </body>
 </html>

@@ -69,6 +69,19 @@ WebGL2 is needed for the outline; WebGL1 renders everything else.
 uses Three.js and GSAP from a CDN and Google Fonts, so unlike the contour files it
 needs a network connection at runtime.
 
+## Atmosphere
+
+Pages 01, 04 and 05 carry a shared sky layer: outlined clouds drifting right to
+left and a few small birds. It is a 2D canvas over the scene rather than scene
+geometry, so it costs one draw and drops onto either engine without touching a
+shader — the trade is that clouds pass in front of the peaks rather than between
+them. Each cloud is the union silhouette of a row of puffs, sampled as an upper
+envelope: stroking the puffs individually draws their internal edges and reads
+as a fence, and a radially modulated circle reads as a starburst.
+
+Controls live in each page's panel — count, size, formation, noise, speed,
+elevation, spread, and the birds' count and speed.
+
 ## Interaction
 
 **topo-hero.html** — the scene tilts with the cursor and the terrain bulges under
