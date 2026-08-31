@@ -48,12 +48,11 @@
   }
   .ln{min-height:1em;will-change:opacity,transform,filter}
   .scr{opacity:.55}
-  #caret{
+  .caret{
     display:inline-block;width:.58em;height:1em;
     background:var(--fg,#5aa9e6);vertical-align:-.13em;
-    box-shadow:var(--glow,none);
   }
-  #caret.off{opacity:0}
+  .caret.off{opacity:0}
 
   /* ---------- crt overlays ---------- */
   .fx{position:absolute;inset:0;pointer-events:none}
@@ -70,11 +69,6 @@
   }
   #noise{opacity:var(--noiseA,.05);mix-blend-mode:overlay;background-repeat:repeat}
   #flick{background:#fff;opacity:0;mix-blend-mode:overlay}
-  #ghostR,#ghostB{
-    position:absolute;inset:0;overflow:hidden;pointer-events:none;
-    mix-blend-mode:screen;opacity:var(--splitA,0);
-  }
-  #ghostR{filter:url(#none)}
 
   /* ---------- panel ---------- */
   #panel{
@@ -173,6 +167,7 @@
       <button id="bPlay">Pause</button>
       <button id="bReplay">Replay</button>
     </div>
+    <div class="row"><label>Scrub</label><input type="range" id="scrub" min="0" max="1000" step="1" value="0"><span class="val" id="scrub_v">0.0s</span></div>
     <div class="row"><label>Speed</label><input type="range" id="rate" min="0.1" max="3" step="0.05" value="1"><span class="val" id="rate_v"></span></div>
     <div class="row"><label>End hold</label><input type="range" id="hold" min="0" max="6" step="0.1" value="1.6"><span class="val" id="hold_v"></span></div>
     <label class="toggle"><input type="checkbox" id="loop" checked> Loop</label>
@@ -440,7 +435,8 @@
   function renderLines(){
     const t = S.t, tick = Math.floor(t * S.shz);
     const set = CHARSETS[S.cset] || CHARSETS.tech;
-    headLine = 0;
+    const html = new Array(LINES.length);
+    headLine = -1;
 
     for (let i=0;i<LINES.length;i++){
       const L = LINES[i], el = L.el;
@@ -450,7 +446,7 @@
       if (S.cas){
         const p = Math.max(0, Math.min(1, age / Math.max(.001,S.cdur)));
         const e = EASE[S.ease](p);
-        if (p <= 0){ el.style.opacity = '0'; }
+        if (p <= 0){ el.style.opacity = '0'; el.style.transform=''; el.style.filter=''; }
         else if (p >= 1){ el.style.opacity = ''; el.style.transform=''; el.style.filter=''; }
         else {
           el.style.opacity = e;
@@ -463,39 +459,39 @@
       }
 
       // ----- typing -----
-      let html, isHead = false;
       if (!S.tw){
-        html = age >= 0 ? esc(L.text) : '';
+        html[i] = age >= 0 ? esc(L.text) : '';
         if (age >= 0) headLine = i;
       } else if (age <= 0){
-        html = '';
+        html[i] = '';
       } else {
         const n = L.text.length;
         const shown = Math.min(n, Math.floor(age * S.cps));
-        if (shown >= n){ html = esc(L.text); headLine = i; }
+        headLine = i;
+        if (shown >= n) html[i] = esc(L.text);
         else {
-          headLine = i; isHead = true;
           const d = Math.min(S.depth, n - shown);
           let ghost = '';
           for (let k=0;k<d;k++){
             const ch = L.text[shown+k];
             ghost += (ch === ' ') ? ' ' : esc(pick(set, i, shown+k, tick+k));
           }
-          html = esc(L.text.slice(0,shown)) +
-                 (d ? `<span class="scr" style="opacity:${S.sfade}">${ghost}</span>` : '');
+          html[i] = esc(L.text.slice(0,shown)) +
+                    (d ? `<span class="scr" style="opacity:${S.sfade}">${ghost}</span>` : '');
         }
       }
+    }
 
-      // caret on the head line
-      if (isHead || (headLine === i && S.tw && html !== '')) {
-        if (S.caretOn && i === headLine){
-          const on = S.blink <= 0 || (Math.floor(t * S.blink) % 2 === 0);
-          html += `<span id="caret"${on?'':' class="off"'}></span>`;
-        }
-      }
+    // ----- caret: exactly one, on the head line -----
+    headEl = headLine >= 0 ? LINES[headLine].el : null;
+    if (S.caretOn && headLine >= 0){
+      const on = S.blink <= 0 || (Math.floor(t * S.blink * 2) % 2 === 0);
+      html[headLine] += `<span class="caret${on?'':' off'}"></span>`;
+    }
 
-      if (html !== L.last){ el.innerHTML = html; L.last = html; }
-      if (headLine === i) headEl = el;
+    for (let i=0;i<LINES.length;i++){
+      const L = LINES[i];
+      if (html[i] !== L.last){ L.el.innerHTML = html[i]; L.last = html[i]; }
     }
   }
 
@@ -543,10 +539,7 @@
     // glitch: displace the whole text block briefly
     if (S.glitch > 0 && Math.random() < S.glitch * dt * 6){
       const dx = (Math.random()*2-1)*S.glitchA;
-      const top = Math.random()*70, h = 4 + Math.random()*16;
       linesEl.style.transform = `translateX(${dx}px)`;
-      linesEl.style.clipPath = '';
-      stage.style.setProperty('--dummy', top+h);
       setTimeout(()=>{ linesEl.style.transform=''; }, 30 + Math.random()*70);
     }
   }
@@ -559,14 +552,15 @@
     if (S.playing) S.t += dt * S.rate;
 
     const end = TOTAL + S.hold;
-    if (S.t > end){
+    if (S.playing && S.t > end){
       if (S.loop){ S.t = 0; scrollY = 0; for (const L of LINES) L.last = null; }
-      else S.t = end;
+      else { S.t = end; setPlay(false); }
     }
 
     renderLines();
     updateScroll(dt);
     updateCRT(dt);
+    syncScrub();
     requestAnimationFrame(frame);
   }
 
@@ -583,7 +577,10 @@
     st.setProperty('--tt', S.upper ? 'uppercase' : 'none');
     st.setProperty('--fg', S.fg);
     st.setProperty('--bg', S.bg);
-    st.setProperty('--glow', S.glow > 0 ? `0 0 ${S.glow}px ${S.fg}, 0 0 ${S.glow*2.4}px ${hexA(S.fg,.35)}` : 'none');
+    const sh = [];
+    if (S.crt && S.splitA > 0) sh.push(`${S.splitA}px 0 rgba(255,0,64,.55)`, `${-S.splitA}px 0 rgba(0,190,255,.55)`);
+    if (S.glow > 0) sh.push(`0 0 ${S.glow}px ${hexA(S.fg,.9)}`, `0 0 ${S.glow*2.4}px ${hexA(S.fg,.35)}`);
+    st.setProperty('--glow', sh.length ? sh.join(', ') : 'none');
     st.setProperty('--scanA', S.crt ? S.scanA : 0);
     st.setProperty('--scanH', S.scanH+'px');
     st.setProperty('--noiseA', S.crt ? S.noiseA : 0);
@@ -743,6 +740,27 @@
     else if (e.key===' '){ e.preventDefault(); setPlay(!S.playing); }
   });
   addEventListener('resize', applyStage);
+
+  // scrub
+  const scrub = $('scrub'), scrubV = $('scrub_v');
+  let scrubbing = false;
+  const span = () => Math.max(.001, TOTAL + S.hold);
+  scrub.addEventListener('pointerdown', () => { scrubbing = true; setPlay(false); });
+  addEventListener('pointerup', () => { scrubbing = false; });
+  scrub.addEventListener('input', () => {
+    S.t = (scrub.value/1000) * span();
+    for (const L of LINES) L.last = null;
+    step();
+  });
+  function syncScrub(){
+    if (scrubbing) return;
+    scrub.value = Math.round(Math.min(1, S.t/span()) * 1000);
+    scrubV.textContent = S.t.toFixed(1)+'s';
+  }
+
+  // one-shot render, for scrubbing and for driving the page from the console
+  function step(){ renderLines(); updateScroll(1/60); syncScrub(); }
+  window.TT = { S, step, retime, replay: () => { S.t = 0; scrollY = 0; } };
 
   // boot
   buildLines(DEFAULT_TEXT);

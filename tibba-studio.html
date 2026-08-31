@@ -215,6 +215,25 @@
       .thumb { grid-template-columns: 1fr; }
     }
 
+    /* The bar carries the way back to the other studies. It sits here rather
+       than in a floating pill because this page's bar never fades — the work
+       phase it would disappear with is never entered. */
+    #hero-top-bar .bar-left { display: flex; align-items: center; gap: clamp(14px, 2.4vw, 30px); min-width: 0; }
+    #hero-top-bar .mark {
+      font-weight: 600; letter-spacing: -.01em; font-size: 15px;
+      color: rgba(var(--ink-rgb), .95); text-decoration: none;
+    }
+    #hero-top-bar .pages { display: flex; gap: clamp(6px, 1.1vw, 16px); flex-wrap: nowrap; }
+    #hero-top-bar .pages a, #hero-top-bar .pages span {
+      font-size: 11px; letter-spacing: .04em; white-space: nowrap; text-decoration: none;
+      color: rgba(var(--ink-rgb), .5); transition: color .18s;
+    }
+    #hero-top-bar .pages a:hover { color: rgba(var(--ink-rgb), .95); }
+    #hero-top-bar .pages [aria-current="page"] { color: var(--accent-2); }
+    @media (max-width: 720px){
+      #hero-top-bar .pages { display: none; }
+    }
+
     #hero-top-bar {
       position: fixed; top: 0; left: 0; right: 0; z-index: 50;
       display: flex; align-items: center; justify-content: space-between;
@@ -837,7 +856,16 @@
 
 <!-- ── Hero top bar (Figma) ─────────────────────────────────── -->
 <div id="hero-top-bar">
-  <span>We recently presented our work at VizChitra 2025!</span>
+  <div class="bar-left">
+    <a class="mark" href="/">tibba</a>
+    <nav class="pages" aria-label="Studies">
+      <a href="/#ridge">[ Ridge ]</a>
+      <a href="/#scroll">[ Scroll ]</a>
+      <a href="/#peaks">[ Summits ]</a>
+      <a href="/tibba-range">[ Range ]</a>
+      <span aria-current="page">[ Studio ]</span>
+    </nav>
+  </div>
   <button class="odo" type="button" data-odometer="Contact|us"></button>
 </div>
 
