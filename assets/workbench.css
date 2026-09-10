@@ -1,0 +1,277 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Workbench — the review chrome every page carries
+   ─────────────────────────────────────────────────────────────────────────
+   Two pieces: a collapsible site menu at the top left, and a dock down the
+   whole right edge holding that page's own controls with the comments under
+   them.
+
+   Everything is namespaced .wb-* and every property that matters is set
+   explicitly rather than inherited. The pages this drops onto are a decade of
+   different stylesheets with bare-element rules in them — `button {}`,
+   `input {}`, `a {}` — and chrome that inherits from the page it is reviewing
+   is chrome that looks broken on half the site.
+
+   The two themes are picked from the page's own background luminance at load,
+   so the menu reads as part of the work on a light page and on a dark one.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --wb-z: 2147482000;
+  --wb-dock-w: 344px;
+  --wb-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --wb-bg:     #12141a;
+  --wb-bg-2:   #171a22;
+  --wb-line:   rgba(255, 255, 255, .11);
+  --wb-fg:     #e9ecf2;
+  --wb-dim:    rgba(233, 236, 242, .52);
+  --wb-faint:  rgba(233, 236, 242, .30);
+  --wb-accent: #FF4B1F;
+}
+:root[data-wb-theme="light"] {
+  --wb-bg:     #f7f5f1;
+  --wb-bg-2:   #ffffff;
+  --wb-line:   rgba(13, 14, 11, .13);
+  --wb-fg:     #14150f;
+  --wb-dim:    rgba(20, 21, 15, .60);
+  --wb-faint:  rgba(20, 21, 15, .38);
+  --wb-accent: #e2620f;
+}
+
+.wb, .wb * { box-sizing: border-box; }
+.wb {
+  font-family: 'F37 Analog', system-ui, sans-serif;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  color: var(--wb-fg);
+  -webkit-font-smoothing: antialiased;
+}
+.wb button, .wb input, .wb textarea, .wb select {
+  font: inherit; color: inherit; background: none; border: 0; margin: 0;
+  letter-spacing: inherit;
+}
+.wb button { cursor: pointer; }
+.wb a { color: inherit; text-decoration: none; }
+.wb ::placeholder { color: var(--wb-faint); }
+
+/* ── the site menu ───────────────────────────────────────────────────────
+   Top left, over everything. Collapsed it is one bar; open it is the whole
+   index, so you can get from any page to any other without going home. */
+#wb-nav {
+  position: fixed; top: 14px; left: 14px; z-index: var(--wb-z);
+  width: 272px; max-width: calc(100vw - 28px);
+  background: var(--wb-bg); border: 1px solid var(--wb-line);
+  border-radius: 3px; box-shadow: 0 18px 44px rgba(0, 0, 0, .30);
+  display: flex; flex-direction: column;
+  max-height: calc(100vh - 28px);
+}
+#wb-nav[data-open="false"] { width: auto; }
+
+.wb-nav-bar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; width: 100%; text-align: left;
+}
+.wb-nav-bar .wb-mark {
+  font-size: 12px; font-weight: 600; letter-spacing: -.01em; white-space: nowrap;
+}
+.wb-nav-bar .wb-here {
+  font-size: 10.5px; color: var(--wb-dim); margin-left: auto; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; max-width: 130px;
+}
+#wb-nav[data-open="true"] .wb-nav-bar .wb-here { display: none; }
+.wb-caret {
+  width: 9px; height: 9px; flex: none; border-right: 1.4px solid var(--wb-dim);
+  border-bottom: 1.4px solid var(--wb-dim); transform: rotate(45deg) translate(-1px, -1px);
+  transition: transform .22s var(--wb-ease);
+}
+#wb-nav[data-open="true"] .wb-caret { transform: rotate(-135deg) translate(-2px, -2px); }
+
+.wb-nav-body {
+  border-top: 1px solid var(--wb-line);
+  overflow-y: auto; overscroll-behavior: contain; padding: 6px 0 8px;
+}
+#wb-nav[data-open="false"] .wb-nav-body { display: none; }
+
+.wb-home {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px; margin: 0 6px 6px; border-radius: 2px;
+  font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--wb-dim); border: 1px solid var(--wb-line);
+}
+.wb-home:hover { color: var(--wb-fg); border-color: var(--wb-faint); }
+
+.wb-group + .wb-group { border-top: 1px solid var(--wb-line); }
+.wb-group > summary {
+  display: flex; align-items: center; gap: 8px; cursor: pointer;
+  padding: 9px 12px; font-size: 11.5px; list-style: none;
+  color: var(--wb-dim);
+}
+.wb-group > summary::-webkit-details-marker { display: none; }
+.wb-group > summary:hover { color: var(--wb-fg); }
+.wb-group[open] > summary { color: var(--wb-fg); }
+.wb-group > summary .wb-tw {
+  width: 6px; height: 6px; flex: none; border-right: 1.3px solid currentColor;
+  border-bottom: 1.3px solid currentColor; transform: rotate(-45deg);
+  transition: transform .2s var(--wb-ease); opacity: .8;
+}
+.wb-group[open] > summary .wb-tw { transform: rotate(45deg); }
+.wb-group > summary .wb-n { margin-left: auto; font-size: 10px; color: var(--wb-faint); }
+.wb-group.wb-feature > summary { color: var(--wb-accent); font-weight: 600; }
+
+.wb-page {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 12px 7px 26px; font-size: 11.5px; color: var(--wb-dim);
+  border-left: 2px solid transparent;
+}
+.wb-page:hover { color: var(--wb-fg); background: var(--wb-bg-2); }
+.wb-page[aria-current="page"] {
+  color: var(--wb-fg); border-left-color: var(--wb-accent); background: var(--wb-bg-2);
+}
+.wb-page .wb-stub {
+  margin-left: auto; font-size: 9px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--wb-faint);
+}
+
+/* ── the dock ────────────────────────────────────────────────────────────
+   The whole right edge. The page's own control panel is moved into it at
+   load rather than rebuilt, so every slider keeps the listener it was wired
+   with — see wb.adopt() in workbench.js. */
+#wb-dock {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: calc(var(--wb-z) - 1);
+  width: var(--wb-dock-w); display: flex; flex-direction: column;
+  background: var(--wb-bg); border-left: 1px solid var(--wb-line);
+  box-shadow: -20px 0 50px rgba(0, 0, 0, .26);
+  transform: translateX(0); transition: transform .34s var(--wb-ease);
+}
+#wb-dock[data-open="false"] { transform: translateX(100%); }
+
+.wb-dock-tab {
+  position: absolute; top: 14px; right: 100%; z-index: 1;
+  display: flex; align-items: center; gap: 7px;
+  padding: 9px 12px; background: var(--wb-bg);
+  border: 1px solid var(--wb-line); border-right: 0; border-radius: 3px 0 0 3px;
+  font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--wb-dim);
+  box-shadow: -10px 0 26px rgba(0, 0, 0, .22);
+}
+.wb-dock-tab:hover { color: var(--wb-fg); }
+.wb-dock-tab .wb-dot {
+  width: 5px; height: 5px; border-radius: 50%; background: var(--wb-accent);
+  display: none;
+}
+.wb-dock-tab[data-unsaved="true"] .wb-dot { display: block; }
+
+/* drag the left edge to widen the dock; the page underneath never reflows,
+   so this is a preference, not a layout change */
+.wb-grip {
+  position: absolute; inset: 0 auto 0 -3px; width: 6px; cursor: col-resize; z-index: 2;
+}
+.wb-grip:hover { background: var(--wb-accent); opacity: .5; }
+
+.wb-dock-head {
+  display: flex; align-items: baseline; gap: 8px; flex: none;
+  padding: 14px 14px 12px; border-bottom: 1px solid var(--wb-line);
+}
+.wb-dock-head .wb-sec {
+  font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--wb-faint);
+}
+.wb-dock-head .wb-ttl { font-size: 13px; font-weight: 600; letter-spacing: -.01em; }
+.wb-dock-head .wb-x { margin-left: auto; font-size: 16px; line-height: 1; color: var(--wb-dim); }
+.wb-dock-head .wb-x:hover { color: var(--wb-fg); }
+
+.wb-dock-body { flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; min-height: 0; }
+.wb-empty { padding: 18px 14px; font-size: 11.5px; line-height: 1.7; color: var(--wb-faint); }
+
+/* The adopted panel. Its own rules put it somewhere fixed on the page with a
+   background and a shadow of its own; inside the dock it is a plain block. */
+.wb-adopted {
+  position: static !important; inset: auto !important;
+  width: 100% !important; max-width: none !important; min-width: 0 !important;
+  max-height: none !important; height: auto !important;
+  margin: 0 !important; border: 0 !important; border-radius: 0 !important;
+  box-shadow: none !important; background: none !important;
+  transform: none !important; opacity: 1 !important; visibility: visible !important;
+  display: block !important; pointer-events: auto !important;
+  backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+}
+.wb-adopted > h2:first-child, .wb-adopted > #tune-head { display: none !important; }
+
+/* ── comments ───────────────────────────────────────────────────────────── */
+.wb-notes {
+  flex: none; border-top: 1px solid var(--wb-line); background: var(--wb-bg-2);
+  display: flex; flex-direction: column;
+}
+.wb-notes-head {
+  display: flex; align-items: center; gap: 8px; padding: 11px 14px 9px;
+  font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--wb-faint);
+}
+/* Collapsing the comments hands their height back to the controls above, which
+   is the point: on a page with a long panel you want the sliders, and on a page
+   being reviewed you want the thread. */
+.wb-notes-toggle {
+  display: flex; align-items: center; gap: 8px; flex: 1 1 auto; min-width: 0;
+  padding: 0; text-align: left; letter-spacing: inherit;
+}
+.wb-notes-toggle:hover { color: var(--wb-dim); }
+.wb-notes-toggle .wb-tw {
+  width: 6px; height: 6px; flex: none; border-right: 1.3px solid currentColor;
+  border-bottom: 1.3px solid currentColor; transform: rotate(-45deg);
+  transition: transform .2s var(--wb-ease); opacity: .85;
+}
+.wb-notes[data-open="true"] .wb-notes-toggle .wb-tw { transform: rotate(45deg); }
+.wb-notes-head .wb-count { margin-left: auto; letter-spacing: 0; }
+/* a collapsed thread still has to be able to say something is unsent */
+.wb-notes-head .wb-count[data-unsaved="true"] { color: var(--wb-accent); }
+.wb-notes[data-open="false"] .wb-scope { display: none; }
+
+.wb-notes-body {
+  display: flex; flex-direction: column; min-height: 0; overflow: hidden;
+  max-height: 46vh; transition: max-height .3s var(--wb-ease);
+}
+.wb-notes[data-open="false"] .wb-notes-body { max-height: 0; }
+.wb-notes-head .wb-scope {
+  letter-spacing: 0; text-transform: none; font-size: 10.5px; color: var(--wb-dim);
+  border: 1px solid var(--wb-line); border-radius: 2px; padding: 2px 6px;
+}
+.wb-list { overflow-y: auto; padding: 0 14px; min-height: 0; }
+.wb-note { padding: 9px 0; border-top: 1px solid var(--wb-line); }
+.wb-note:first-child { border-top: 0; }
+.wb-note .wb-meta {
+  display: flex; gap: 7px; align-items: baseline;
+  font-size: 9.5px; color: var(--wb-faint); margin-bottom: 4px;
+}
+.wb-note .wb-who { color: var(--wb-dim); font-weight: 500; }
+.wb-note .wb-on { margin-left: auto; }
+.wb-note .wb-txt { font-size: 11.5px; line-height: 1.6; color: var(--wb-fg); white-space: pre-wrap; }
+.wb-note[data-unsaved="true"] .wb-who::after {
+  content: 'uncommitted'; margin-left: 6px; font-weight: 400;
+  color: var(--wb-accent); font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
+}
+.wb-none { padding: 4px 0 10px; font-size: 11px; color: var(--wb-faint); }
+
+.wb-compose { flex: none; padding: 10px 14px 12px; border-top: 1px solid var(--wb-line); }
+.wb-compose input, .wb-compose textarea {
+  width: 100%; background: var(--wb-bg); border: 1px solid var(--wb-line);
+  border-radius: 2px; padding: 7px 9px; font-size: 11.5px; color: var(--wb-fg);
+  display: block;
+}
+.wb-compose input { margin-bottom: 6px; }
+.wb-compose textarea { resize: vertical; min-height: 54px; line-height: 1.5; }
+.wb-compose input:focus, .wb-compose textarea:focus {
+  outline: 0; border-color: var(--wb-accent);
+}
+.wb-compose-row { display: flex; align-items: center; gap: 8px; margin-top: 7px; }
+.wb-btn {
+  border: 1px solid var(--wb-line); border-radius: 2px; padding: 6px 11px;
+  font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--wb-dim);
+}
+.wb-btn:hover { color: var(--wb-fg); border-color: var(--wb-faint); }
+.wb-btn.wb-primary { background: var(--wb-accent); border-color: var(--wb-accent); color: #fff; }
+.wb-btn.wb-primary:hover { color: #fff; filter: brightness(1.08); }
+.wb-say { font-size: 10px; color: var(--wb-faint); line-height: 1.5; }
+.wb-say b { color: var(--wb-accent); font-weight: 400; }
+
+@media (max-width: 720px) {
+  #wb-dock { width: min(var(--wb-dock-w), 92vw); }
+  #wb-nav  { width: min(272px, calc(100vw - 28px)); }
+}
+@media print { #wb-nav, #wb-dock { display: none !important; } }
