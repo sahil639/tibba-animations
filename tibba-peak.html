@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tibba — Peak</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="notes.js"></script>
+<script src="assets/workbench.js" defer></script>
+
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:      #0E0F13;
+    --ink:     #E8EBF5;
+    --muted:   rgba(232,235,245,.46);
+    --accent:  #FF4B1F;
+  }
+
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'F37 Analog', system-ui, sans-serif;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+
+  #c { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+
+  /* The leader is drawn in the overlay rather than the scene: it has to end on
+     a line of type, and type lives in the DOM. Its start point is the summit
+     ring projected to screen space each frame, so the two stay joined. */
+  #leader { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  #leader path { fill: none; stroke: var(--accent); stroke-width: 1; }
+
+  #ui { position: fixed; inset: 0; pointer-events: none; }
+  #ui > * { pointer-events: auto; }
+
+  h1#title {
+    position: absolute; top: clamp(26px, 4.4vh, 52px); left: clamp(24px, 4vw, 64px);
+    font-weight: 400; font-size: clamp(28px, 3.4vw, 52px); letter-spacing: -.015em;
+    line-height: 1.05; opacity: 0; pointer-events: none;
+  }
+
+  /* The definition sits where the leader lands: right of the summit, upper third. */
+  #panel {
+    position: absolute; top: clamp(96px, 17vh, 190px); right: clamp(24px, 4vw, 64px);
+    width: min(430px, 44vw); opacity: 0; pointer-events: none;
+  }
+  #panel .term {
+    font-size: clamp(15px, 1.15vw, 18px); letter-spacing: -.005em; white-space: nowrap;
+    color: var(--muted);
+  }
+  #panel .term b  { color: var(--accent); font-weight: 400; }
+  #panel .term i  { font-style: normal; color: rgba(232,235,245,.72); }
+  #panel .body {
+    margin-top: 18px; font-size: clamp(13px, 1.05vw, 16px); line-height: 1.9;
+    font-weight: 300; color: rgba(232,235,245,.58);
+  }
+
+  /* ── odometer ────────────────────────────────────────────────────────────
+     Reels rather than a counting label: each column is a 0-9 strip in a 1em
+     window, and the strip's offset is the digit's own continuous value, so a
+     column rolls over exactly as the one to its right passes 9. */
+  #odo {
+    margin-top: 26px; display: flex; align-items: baseline; gap: 10px;
+    font-variant-numeric: tabular-nums;
+  }
+  #odo .reels { display: inline-flex; height: 1em; font-size: clamp(26px, 2.4vw, 38px);
+                font-weight: 400; letter-spacing: -.02em; color: var(--ink); }
+  #odo .col { position: relative; display: inline-block; width: .62em; height: 1em;
+              overflow: hidden; }
+  #odo .col .strip { position: absolute; inset-inline: 0; top: 0; display: flex; flex-direction: column; }
+  #odo .col .strip span { display: block; height: 1em; line-height: 1em; text-align: center; }
+  #odo .sep { display: inline-block; width: .3em; text-align: center; line-height: 1em;
+              color: rgba(232,235,245,.4); }
+  #odo .unit { font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+               color: rgba(232,235,245,.38); }
+  #odo .rule { margin-top: 14px; height: 1px; background: rgba(232,235,245,.12); transform-origin: left; }
+
+  #hint {
+    position: absolute; left: 50%; bottom: clamp(22px, 4vh, 44px); transform: translateX(-50%);
+    font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
+    color: rgba(232,235,245,.34); transition: opacity .5s;
+  }
+  #hint em { font-style: normal; color: var(--accent); }
+
+  #back {
+    position: absolute; left: clamp(24px, 4vw, 64px); bottom: clamp(24px, 4vh, 48px);
+    border: 1px solid rgba(232,235,245,.18); background: none; color: rgba(232,235,245,.6);
+    font: inherit; font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+    padding: 11px 18px; cursor: pointer; opacity: 0; pointer-events: none;
+    transition: color .18s, border-color .18s;
+  }
+  #back:hover { color: var(--ink); border-color: rgba(232,235,245,.4); }
+
+  @media (max-width: 760px) {
+    #panel { right: auto; left: clamp(24px, 4vw, 64px); top: auto; bottom: 96px; width: min(420px, 84vw); }
+    #panel .term { white-space: normal; }
+  }
+</style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <svg id="leader" aria-hidden="true"><path id="leader-path" d=""></path></svg>
+
+  <div id="ui">
+    <h1 id="title">What does tibba mean ?</h1>
+
+    <div id="panel">
+      <p class="term"><b>tibba</b> / t&#618;b-b&#593; / n 1. a higher place &bull; 2. a peak</p>
+      <p class="body">Higher place, and that&rsquo;s exactly where we aim to take you and your
+         business, with design interventions</p>
+      <div id="odo">
+        <span class="reels" id="odo-reels"></span>
+        <span class="unit">m above the plain</span>
+      </div>
+      <div class="rule" id="odo-rule"></div>
+    </div>
+
+    <p id="hint">click the <em>orange</em> summit</p>
+    <button id="back" type="button">back to the range</button>
+  </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Tibba — Peak
+   ─────────────────────────────────────────────────────────────────────────
+   One massif drawn as a stack of contour rings, the top three in the accent.
+   The pipeline is the one the other files use: a procedural heightfield →
+   marching squares → smooth → resample → snap back onto the level set →
+   screen-space ribbons, so a stroke holds one pixel width at any depth or DPR.
+
+   What is new here is the interaction. The summit rings are their own object,
+   so they can lift on hover without the mountain moving; the ground carries a
+   second, much flatter survey drawn dashed, whose dashes drift along their own
+   arc length; and one GSAP timeline owns the click — camera, leader, type and
+   odometer are phases of a single piece of motion rather than four tweens
+   racing each other.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const CFG = {
+  LEVELS:      30,      // contour rings over the massif
+  START:       2,       // the lowest few sprawl off the apron; skip them
+  ACCENT_TOP:  3,       // rings from the summit down that wear the accent
+  INDEX_EVERY: 5,       // every Nth ring is an index (heavy) contour
+  W_MINOR:     1.15,    // CSS px
+  W_INDEX:     1.85,
+  W_ACCENT:    1.75,
+  LIFT:        0.10,
+  STEP:        0.62,    // field spacing over the massif
+  X0: -110, X1: 110,
+  Z0: -110, Z1: 110,
+  MIN_LEN:     6,
+
+  /* the ground survey: a separate, far coarser field over a much larger area */
+  G_STEP:      5.0,
+  G_X0: -1500, G_X1: 1500,
+  G_Z0: -1400, G_Z1: 460,
+  G_LEVELS:    20,
+  G_WIDTH:     1.0,
+};
+
+/* ─── noise ──────────────────────────────────────────────────────────────
+   An integer bit-mix rather than a sin-based hash: several times faster over
+   the hundreds of thousands of samples the two fields want, and with none of
+   sin-hash's lattice banding. */
+function h2(x, y){
+  let n = Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263);
+  n = Math.imul(n ^ (n >>> 13), 1274126177);
+  return ((n ^ (n >>> 16)) >>> 0) / 4294967296;
+}
+function vn(x, y){
+  const ix = Math.floor(x), iy = Math.floor(y), fx = x - ix, fy = y - iy;
+  const ux = fx*fx*(3-2*fx), uy = fy*fy*(3-2*fy);
+  const a = h2(ix,iy), b = h2(ix+1,iy), c = h2(ix,iy+1), d = h2(ix+1,iy+1);
+  return a + (b-a)*ux + (c-a)*uy + (d-c-b+a)*ux*uy;
+}
+function fbmN(x, y, oct){ let v=0,a=.5,f=1; for(let i=0;i<oct;i++){ v+=a*vn(x*f,y*f); a*=.5; f*=2.09; } return v; }
+function sstep(t){ return t<=0 ? 0 : (t>=1 ? 1 : t*t*(3-2*t)); }
+
+/* ─── the massif ─────────────────────────────────────────────────────────
+   Built the way the range file builds its hero: separate masses summed, not
+   one cone bent into shape. The reference is a compact cusped top standing on
+   a broad lobed shelf that sprawls toward the viewer — a profile alone cannot
+   give that, because what makes a mountain read as a mountain is its plan
+   outline, and a cone's plan outline is a circle.
+
+   warp   domain warp in world units, applied once so every mass distorts
+          together — this is what breaks the circle
+   spur   the coarse ridge armature, ridged noise sampled around a circle in
+          theta so it wraps with no seam
+   flute  the same again, finer, on a wobbled angle so gullies are not radial */
+const PK = {
+  x: 0, z: 0, h: 40, spread: 46, seed: 11.7, rot: 0.30, aniso: 1.00, warp: 15,
+  spur: 0.22, spurF: 2.6, flute: 0.075, fluteF: 9,
+  parts: [
+    { dx:  0, dz:   0, h: 23.0, spread: 17, sharp: 2.00, aniso: 1.08 },  // summit
+    { dx:  2, dz:   7, h: 13.0, spread: 26, sharp: 2.50, aniso: 1.16 },  // bench
+    { dx: -6, dz:  19, h: 14.0, spread: 43, mesa: 0.55,  aniso: 1.34 },  // apron
+    { dx: 24, dz:  12, h:  5.5, spread: 29, mesa: 0.50,  aniso: 1.15 },  // side lobe
+    { dx:-26, dz:  10, h:  4.5, spread: 24, mesa: 0.52,  aniso: 1.20 },  // west shelf
+    { dx: -5, dz:  17, h:  3.6, spread:  8, sharp: 2.00, aniso: 1.00 },  // front bump
+  ],
+};
+PK._cos = Math.cos(PK.rot); PK._sin = Math.sin(PK.rot);
+PK._ax = PK.spread * PK.aniso; PK._az = PK.spread / PK.aniso;
+let _reach = 0;
+PK.parts.forEach(t => {
+  t._c = PK._cos; t._s = PK._sin;
+  t._ax = t.spread * t.aniso; t._az = t.spread / t.aniso;
+  /* a mesa is finished at r = 1; a cone needs a couple of radii to be nothing */
+  t._lim = t.mesa ? 1.02 : 2.0;
+  _reach = Math.max(_reach, Math.hypot(t.dx, t.dz) + Math.max(t._ax, t._az) * t._lim);
+});
+PK._cut2 = (_reach + PK.warp) ** 2;   // cheap reject, measured before the warp
+
+function mh(x, z){
+  const qx = x - PK.x, qz = z - PK.z;
+  if (qx*qx + qz*qz > PK._cut2) return 0;
+
+  const S = PK.seed;
+  const wx = x + PK.warp * (fbmN(x*.055 + 5.2 + S, z*.055 - 2.1 + S, 2) - .5);
+  const wz = z + PK.warp * (fbmN(x*.055 - 7.7 + S, z*.055 + 4.3 + S, 2) - .5);
+  const bx = wx - PK.x, bz = wz - PK.z;
+
+  let hSum = 0;
+  for (let k = 0; k < PK.parts.length; k++){
+    const t = PK.parts[k];
+    const dx = bx - t.dx, dz = bz - t.dz;
+    const px = (dx*t._c - dz*t._s) / t._ax;
+    const pz = (dx*t._s + dz*t._c) / t._az;
+    const r = Math.sqrt(px*px + pz*pz);
+    if (r > t._lim) continue;
+    hSum += t.h * (t.mesa ? sstep((1 - r) / t.mesa) : Math.exp(-Math.pow(r, t.sharp) * 3));
+  }
+  if (hSum < 0.02) return 0;
+
+  /* erosion rides on the combined form, so a spur running off the summit
+     carries on down across the bench below it */
+  const u = Math.min(1, hSum / PK.h);
+  const flank = Math.pow(1 - u, 0.9);      // relief dies at the summit
+  const env   = 4 * u * (1 - u);           // and peaks mid-height
+
+  const ax = (bx*PK._cos - bz*PK._sin) / PK._ax;
+  const az = (bx*PK._sin + bz*PK._cos) / PK._az;
+  const th = Math.atan2(az, ax);
+  const sp = fbmN(Math.cos(th)*PK.spurF + 31 + S, Math.sin(th)*PK.spurF - 12 + S, 2);
+  const spur = sstep(1 - Math.abs(sp*2 - 1));
+
+  const thw = th + 0.38 * (fbmN(ax*.9 + 3.3 + S, az*.9 - 1.1 + S, 2) - .5);
+  const fn  = fbmN(Math.cos(thw)*PK.fluteF + 57 + S, Math.sin(thw)*PK.fluteF - 23 + S, 2);
+  const flute = sstep(1 - Math.abs(fn*2 - 1));
+
+  const grain = (fbmN(ax*3.4 + 2.2 + S, az*3.4 - 8.8 + S, 2) - .5) * 2;
+
+  return hSum + PK.h * (PK.spur*spur*env + PK.flute*flute*env*env + 0.03*env*grain) * flank;
+}
+
+/* the true summit, which the warp moves several units off PK.x / PK.z — a
+   camera aimed at the nominal centre frames the peak off-centre */
+let MAX_H = 0, TOP_X = 0, TOP_Z = 0;
+for (let a = -30; a <= 30; a += 0.5)
+  for (let b = -30; b <= 30; b += 0.5){
+    const v = mh(a, b);
+    if (v > MAX_H){ MAX_H = v; TOP_X = a; TOP_Z = b; }
+  }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Survey — a sampled field, marching squares over it, and line conditioning.
+   Both the massif and the ground plain go through the same code; they differ
+   only in the function sampled, how fine the grid is, and how far it reaches.
+   ═════════════════════════════════════════════════════════════════════════ */
+function buildField(fn, step, x0, x1, z0, z1){
+  const nx = Math.round((x1 - x0) / step) + 1;
+  const nz = Math.round((z1 - z0) / step) + 1;
+  const F  = new Float32Array(nx * nz);
+  for (let j = 0; j < nz; j++){
+    const z = z0 + j * step;
+    for (let i = 0; i < nx; i++) F[j * nx + i] = fn(x0 + i * step, z);
+  }
+  const at = (i, j) => F[(j < 0 ? 0 : j > nz-1 ? nz-1 : j) * nx + (i < 0 ? 0 : i > nx-1 ? nx-1 : i)];
+  const sample = (x, z) => {                       // bilinear read
+    const gx = (x - x0) / step, gz = (z - z0) / step;
+    const i = Math.floor(gx), j = Math.floor(gz), fx = gx - i, fz = gz - j;
+    const a = at(i,j), b = at(i+1,j), c = at(i,j+1), d = at(i+1,j+1);
+    return a + (b-a)*fx + (c-a)*fz + (d-c-b+a)*fx*fz;
+  };
+  const slope = (x, z) => {
+    const e = step;
+    return Math.hypot((sample(x+e,z) - sample(x-e,z)) / (2*e),
+                      (sample(x,z+e) - sample(x,z-e)) / (2*e));
+  };
+  return { F, nx, nz, step, x0, z0, sample, slope };
+}
+
+/* --------------------------- marching squares ---------------------------- */
+function contoursAt(fd, level){
+  const { F, nx, nz, step, x0, z0 } = fd;
+  const pos = new Map(), segs = [], adj = new Map();
+  const hEdge = (i, j) => j * (nx - 1) + i;
+  const vEdge = (i, j) => (nx - 1) * nz + j * nx + i;
+
+  function px(i, j, i2, j2, eid){
+    if (pos.has(eid)) return eid;
+    const f0 = F[j * nx + i], f1 = F[j2 * nx + i2];
+    let t = (level - f0) / (f1 - f0);
+    if (!isFinite(t)) t = .5;
+    t = t < 0 ? 0 : t > 1 ? 1 : t;
+    pos.set(eid, [x0 + (i + (i2-i)*t) * step, z0 + (j + (j2-j)*t) * step]);
+    return eid;
+  }
+  function add(e1, e2){
+    const k = segs.length; segs.push([e1, e2]);
+    const a = adj.get(e1); if (a) a.push(k); else adj.set(e1, [k]);
+    const b = adj.get(e2); if (b) b.push(k); else adj.set(e2, [k]);
+  }
+
+  for (let j = 0; j < nz - 1; j++){
+    for (let i = 0; i < nx - 1; i++){
+      const a = F[j*nx+i], b = F[j*nx+i+1], c = F[(j+1)*nx+i+1], d = F[(j+1)*nx+i];
+      const code = (a>=level?1:0) | (b>=level?2:0) | (c>=level?4:0) | (d>=level?8:0);
+      if (code === 0 || code === 15) continue;
+      let B=0, R=0, T=0, L=0;
+      if ((code & 1) !== ((code>>1)&1))      B = px(i, j, i+1, j, hEdge(i, j));
+      if (((code>>1)&1) !== ((code>>2)&1))   R = px(i+1, j, i+1, j+1, vEdge(i+1, j));
+      if (((code>>3)&1) !== ((code>>2)&1))   T = px(i, j+1, i+1, j+1, hEdge(i, j+1));
+      if ((code & 1) !== ((code>>3)&1))      L = px(i, j, i, j+1, vEdge(i, j));
+      switch (code){
+        case 1: case 14: add(L, B); break;
+        case 2: case 13: add(B, R); break;
+        case 3: case 12: add(L, R); break;
+        case 4: case 11: add(R, T); break;
+        case 6: case 9:  add(B, T); break;
+        case 7: case 8:  add(T, L); break;
+        case 5:  if ((a+b+c+d)*.25 >= level) { add(B,R); add(T,L); } else { add(L,B); add(R,T); } break;
+        case 10: if ((a+b+c+d)*.25 >= level) { add(L,B); add(R,T); } else { add(B,R); add(T,L); } break;
+      }
+    }
+  }
+
+  const used = new Uint8Array(segs.length), lines = [];
+  const other = (seg, e) => (seg[0] === e ? seg[1] : seg[0]);
+  function walk(startSeg, startEdge){
+    const pts = []; let e = startEdge, s = startSeg;
+    pts.push(pos.get(e));
+    for (;;){
+      used[s] = 1;
+      e = other(segs[s], e);
+      pts.push(pos.get(e));
+      const list = adj.get(e); let nxt = -1;
+      if (list) for (let q = 0; q < list.length; q++) if (!used[list[q]]) { nxt = list[q]; break; }
+      if (nxt < 0) break;
+      s = nxt;
+    }
+    return pts;
+  }
+  for (let p = 0; p < 2; p++){                     // open chains first, then rings
+    for (let k = 0; k < segs.length; k++){
+      if (used[k]) continue;
+      const s0 = segs[k]; let start = -1;
+      if (p === 0){
+        if ((adj.get(s0[0]) || []).length === 1) start = s0[0];
+        else if ((adj.get(s0[1]) || []).length === 1) start = s0[1];
+        else continue;
+      } else start = s0[0];
+      const pts = walk(k, start);
+      if (pts.length > 10) lines.push(pts);
+    }
+  }
+  return lines;
+}
+
+/* ---------------------------- line conditioning -------------------------- */
+/* Marching squares emits points at wildly uneven spacing — short slivers where
+   a contour clips a cell corner — and those slivers are most of what makes a
+   stroke look jagged. Re-walking at a fixed step removes them. */
+function smooth(pts){
+  const n = pts.length, out = new Array(n);
+  out[0] = pts[0]; out[n-1] = pts[n-1];
+  for (let i = 1; i < n - 1; i++)
+    out[i] = [(pts[i-1][0] + 2*pts[i][0] + pts[i+1][0]) * .25,
+              (pts[i-1][1] + 2*pts[i][1] + pts[i+1][1]) * .25];
+  return out;
+}
+function resample(pts, spacing){
+  const out = [pts[0]]; let acc = 0, cur = pts[0];
+  for (let i = 1; i < pts.length; i++){
+    const nx = pts[i][0], nz = pts[i][1];
+    let dx = nx - cur[0], dz = nz - cur[1], seg = Math.hypot(dx, dz);
+    while (acc + seg >= spacing && seg > 1e-9){
+      const need = (spacing - acc) / seg;
+      cur = [cur[0] + dx*need, cur[1] + dz*need];
+      out.push(cur);
+      dx = nx - cur[0]; dz = nz - cur[1]; seg = Math.hypot(dx, dz); acc = 0;
+    }
+    acc += seg; cur = [nx, nz];
+  }
+  if (out.length < 2) out.push(pts[pts.length - 1]);
+  return out;
+}
+/* Smoothing moves a polyline off its own level set, which buries parts of it
+   in the terrain once the depth pass is honest. Newton steps along the
+   gradient put every point back on the contour, keeping the smoothed shape —
+   capped at a cell or two, because the step blows up wherever the ground is
+   nearly flat, and this landform is full of nearly flat ground. */
+function snap(fd, pts, lev){
+  const e = fd.step, CAP = fd.step * 1.5;
+  for (let i = 0; i < pts.length; i++){
+    let x = pts[i][0], z = pts[i][1];
+    for (let it = 0; it < 3; it++){
+      const gx = (fd.sample(x+e,z) - fd.sample(x-e,z)) / (2*e);
+      const gz = (fd.sample(x,z+e) - fd.sample(x,z-e)) / (2*e);
+      const g2 = gx*gx + gz*gz;
+      if (!(g2 > 1e-6)) break;                     // also catches NaN
+      let k = (lev - fd.sample(x,z)) / g2;
+      const mv = Math.hypot(gx*k, gz*k);
+      if (!(mv > 0)) break;
+      if (mv > CAP) k *= CAP / mv;
+      x += gx*k; z += gz*k;
+    }
+    pts[i] = [x, z];
+  }
+  return pts;
+}
+
+/* Pull one conditioned polyline set out of a field at one level. */
+function traceLevel(fd, level, minLen){
+  const out = [];
+  for (const raw of contoursAt(fd, level)){
+    let pl = raw;
+    for (let s = 0; s < 4; s++) pl = smooth(pl);
+    if (pl.length < 12) continue;
+    pl = resample(pl, fd.step * 1.15);
+    if (pl.length < 10) continue;
+    for (let s = 0; s < 3; s++) pl = smooth(pl);
+    pl = snap(fd, pl, level);
+
+    const closed = Math.hypot(pl[0][0] - pl[pl.length-1][0],
+                              pl[0][1] - pl[pl.length-1][1]) < fd.step * 0.9;
+    if (closed) pl = pl.slice(0, pl.length - 1);   // no duplicated seam point
+    if (pl.length < 8) continue;
+
+    let len = 0;
+    for (let w = 1; w < pl.length; w++) len += Math.hypot(pl[w][0]-pl[w-1][0], pl[w][1]-pl[w-1][1]);
+    if (len < minLen) continue;
+    out.push({ pts: pl, level, closed, len });
+  }
+  return out;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Ribbons — each polyline becomes a quad strip that the vertex shader widens
+   in screen space. A stroke then holds one CSS pixel at any depth or DPR, and
+   scales with nothing, which is what stops the lines going heavy as the camera
+   pushes in on the summit.
+   ═════════════════════════════════════════════════════════════════════════ */
+function buildRibbons(lines){
+  let vCount = 0, iCount = 0;
+  for (const L of lines){ vCount += L.pts.length * 2; iCount += (L.pts.length - 1) * 6; }
+
+  const pos  = new Float32Array(vCount * 3),
+        prev = new Float32Array(vCount * 3),
+        next = new Float32Array(vCount * 3),
+        side = new Float32Array(vCount),
+        wid  = new Float32Array(vCount),
+        tone = new Float32Array(vCount),
+        arc  = new Float32Array(vCount),
+        dash = new Float32Array(vCount),
+        seed = new Float32Array(vCount);
+  const idx = vCount > 65535 ? new Uint32Array(iCount) : new Uint16Array(iCount);
+
+  let v = 0, ii = 0;
+  for (let li = 0; li < lines.length; li++){
+    const L = lines[li], P = L.pts, n = P.length;
+    const y = L.y;
+    const cum = new Float32Array(n); let tot = 0;
+    for (let i = 1; i < n; i++){ tot += Math.hypot(P[i][0]-P[i-1][0], P[i][1]-P[i-1][1]); cum[i] = tot; }
+
+    const base = v, sd = h2(li * 7 + 3, li * 13 + 11);
+    for (let i = 0; i < n; i++){
+      const pt = P[i];
+      const pp = P[L.closed ? (i === 0 ? n-1 : i-1) : Math.max(0, i-1)];
+      const np = P[L.closed ? (i === n-1 ? 0 : i+1) : Math.min(n-1, i+1)];
+      for (let s = 0; s < 2; s++){
+        const o = v * 3;
+        pos[o]  = pt[0]; pos[o+1] = y; pos[o+2] = pt[1];
+        prev[o] = pp[0]; prev[o+1] = y; prev[o+2] = pp[1];
+        next[o] = np[0]; next[o+1] = y; next[o+2] = np[1];
+        side[v] = s ? 1 : -1;
+        wid[v]  = L.weight; tone[v] = L.tone; arc[v] = cum[i];
+        dash[v] = L.dash || 0; seed[v] = sd;
+        v++;
+      }
+    }
+    for (let i = 0; i < n - 1; i++){
+      const a = base + i * 2;
+      idx[ii++] = a;     idx[ii++] = a + 1; idx[ii++] = a + 2;
+      idx[ii++] = a + 1; idx[ii++] = a + 3; idx[ii++] = a + 2;
+    }
+  }
+
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('aPrev',    new THREE.BufferAttribute(prev, 3));
+  g.setAttribute('aNext',    new THREE.BufferAttribute(next, 3));
+  g.setAttribute('aSide',    new THREE.BufferAttribute(side, 1));
+  g.setAttribute('aWidth',   new THREE.BufferAttribute(wid, 1));
+  g.setAttribute('aTone',    new THREE.BufferAttribute(tone, 1));
+  g.setAttribute('aArc',     new THREE.BufferAttribute(arc, 1));
+  g.setAttribute('aDash',    new THREE.BufferAttribute(dash, 1));
+  g.setAttribute('aSeed',    new THREE.BufferAttribute(seed, 1));
+  g.setIndex(new THREE.BufferAttribute(idx, 1));
+  g.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, MAX_H * .3, -40), 900);
+  return g;
+}
+
+/* Colours headed for a raw ShaderMaterial have to be plain sRGB components:
+   THREE.Color converts to linear working space, and a raw shader has no
+   <colorspace_fragment> to convert it back, so the linear value would be
+   written to an sRGB framebuffer verbatim — a different colour from the one
+   the same hex gives the CSS. */
+function srgb(hex){
+  return new THREE.Vector3(((hex >> 16) & 255) / 255, ((hex >> 8) & 255) / 255, (hex & 255) / 255);
+}
+const ACCENT = 0xFF4B1F;
+
+function ribbonMaterial(opts = {}){
+  return new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, depthTest: true, side: THREE.DoubleSide,
+    uniforms: {
+      uHalfRes: { value: new THREE.Vector2(1, 1) },
+      uWeight:  { value: 1 },
+      uOpacity: { value: opts.opacity ?? 1 },
+      uAccent:  { value: opts.accent ?? 0 },        // 0 = the survey palette, 1 = accent ink
+      uAccentC: { value: srgb(ACCENT) },
+      uGlow:    { value: 0 },                       // hover lift on the summit rings
+      uPhase:   { value: 0 },                       // dash drift, in world units
+      uFogNear: { value: opts.fogNear ?? 210 },
+      uFogFar:  { value: opts.fogFar  ?? 620 },
+      uTime:    { value: 0 },
+      uReveal:  { value: 1 },
+    },
+    vertexShader: `
+      attribute vec3 aPrev, aNext;
+      attribute float aSide, aWidth, aTone, aArc, aDash, aSeed;
+      uniform vec2 uHalfRes;
+      uniform float uWeight, uGlow, uFogNear, uFogFar;
+      varying float vTone, vArc, vDash, vFog, vSeed, vEdge, vSide;
+      varying vec2 vWXZ;
+      void main(){
+        vec4 cur = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        vec4 prv = projectionMatrix * modelViewMatrix * vec4(aPrev,   1.0);
+        vec4 nxt = projectionMatrix * modelViewMatrix * vec4(aNext,   1.0);
+
+        vec2 cs = cur.xy / max(1e-5, abs(cur.w)) * uHalfRes;
+        vec2 ps = prv.xy / max(1e-5, abs(prv.w)) * uHalfRes;
+        vec2 ns = nxt.xy / max(1e-5, abs(nxt.w)) * uHalfRes;
+
+        vec2 dA = cs - ps, dB = ns - cs;
+        float lA = length(dA), lB = length(dB);
+        dA = lA > 1e-4 ? dA / lA : vec2(0.0);
+        dB = lB > 1e-4 ? dB / lB : vec2(0.0);
+        if (lA <= 1e-4) dA = dB;
+        if (lB <= 1e-4) dB = dA;
+        if (length(dA + dB) < 1e-4) dB = dA;
+
+        vec2 tg = normalize(dA + dB);
+        vec2 mi = vec2(-tg.y, tg.x);
+        vec2 nA = vec2(-dA.y, dA.x);
+        float k = 1.0 / clamp(abs(dot(mi, nA)), 0.35, 1.0);   // mitre, length-capped
+
+        /* a highlighted ring reads heavier only if its quads are actually
+           fatter, so the widening happens here and not in the fragment stage */
+        float wid = aWidth * uWeight * (1.0 + 0.22 * uGlow) + 0.9;  // +0.9px of feather
+        cur.xy += (mi * aSide * wid * 0.5 * k) / uHalfRes * cur.w;
+
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        vFog  = 1.0 - smoothstep(uFogNear, uFogFar, -mv.z);
+        vTone = aTone; vArc = aArc; vDash = aDash; vSeed = aSeed;
+        vEdge = aWidth * uWeight / max(0.6, wid);   // where the ink ends inside the quad
+        vSide = aSide;
+        vWXZ  = position.xz;
+        gl_Position = cur;
+      }`,
+    fragmentShader: `
+      precision highp float;
+      varying float vTone, vArc, vDash, vFog, vSeed, vEdge, vSide;
+      varying vec2 vWXZ;
+      uniform float uTime;
+      uniform float uOpacity, uAccent, uGlow, uPhase, uReveal;
+      uniform vec3 uAccentC;
+
+      /* the survey palette: the base dissolves into the ground it stands on and
+         the summit blocks read hardest, which is the hierarchy a contour sheet
+         has and the reference keeps */
+      vec3 palette(float t){
+        t = pow(clamp(t, 0.0, 1.0), 0.50);
+        vec3 c0 = vec3(0.170, 0.180, 0.225);
+        vec3 c1 = vec3(0.400, 0.425, 0.520);
+        vec3 c2 = vec3(0.640, 0.670, 0.775);
+        vec3 c3 = vec3(0.845, 0.870, 0.955);
+        if (t < 0.34) return mix(c0, c1, t / 0.34);
+        if (t < 0.70) return mix(c1, c2, (t - 0.34) / 0.36);
+        return mix(c2, c3, (t - 0.70) / 0.30);
+      }
+
+      void main(){
+        /* the quad is drawn 0.9px wider than the stroke and the surplus is
+           spent on a soft edge, so a hairline stays a hairline at any DPR
+           instead of aliasing into a dotted line of its own */
+        float a = uOpacity * vFog * uReveal;
+        a *= 1.0 - smoothstep(vEdge, 1.0, abs(vSide));
+
+        /* dashes are measured along the line's own arc length in world units,
+           so the pattern is even everywhere on a ring and does not stretch
+           where the camera sees the ground edge-on */
+        if (vDash > 0.0){
+          float ph = vArc / vDash + uPhase * (0.6 + 0.8 * vSeed) + vSeed * 7.0;
+          float f  = fract(ph);
+          float duty = 0.30 + 0.34 * vSeed;                 // dots through to dashes
+          a *= smoothstep(0.0, 0.10, f) * (1.0 - smoothstep(duty, duty + 0.10, f));
+
+          /* and a second, much slower wave crosses the plain diagonally, so the
+             ground breathes as well as drifts. Kept shallow on purpose: the
+             plain is depth cueing, and anything that reads as an event on it
+             pulls the eye off the summit. */
+          float w = sin((vWXZ.x * 0.010 + vWXZ.y * 0.016) - uTime * 0.22);
+          a *= 0.72 + 0.28 * (0.5 + 0.5 * w);
+        }
+        if (a <= 0.002) discard;
+
+        vec3 col = mix(palette(vTone), uAccentC, uAccent);
+        col = mix(col, min(vec3(1.0), uAccentC * 1.5), uAccent * uGlow * 0.45);
+        gl_FragColor = vec4(col, a * (0.82 + 0.30 * uGlow * uAccent));
+      }`,
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Scene
+   ═════════════════════════════════════════════════════════════════════════ */
+const canvas   = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setClearColor(0x0E0F13, 1);
+
+const scene  = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(46, innerWidth / innerHeight, 0.5, 2400);
+
+const world = new THREE.Group();
+scene.add(world);
+
+/* The massif is solid, not hollow: this pass writes depth in the background
+   colour, so a contour on the far flank is genuinely hidden behind the near
+   one instead of showing through it. It carries no shading of its own —
+   everything you see on the mountain is line. */
+const TERRAIN_SPAN = 230, TERRAIN_SEG = 300;
+const occGeo = new THREE.PlaneGeometry(TERRAIN_SPAN, TERRAIN_SPAN, TERRAIN_SEG, TERRAIN_SEG);
+occGeo.rotateX(-Math.PI / 2);
+{
+  const p = occGeo.attributes.position;
+  for (let i = 0; i < p.count; i++) p.setY(i, mh(p.getX(i), p.getZ(i)) - 0.05);
+  p.needsUpdate = true;
+}
+const occluder = new THREE.Mesh(occGeo, new THREE.MeshBasicMaterial({ color: 0x0E0F13 }));
+occluder.renderOrder = 0;
+world.add(occluder);
+
+/* ─── the massif's contours ─────────────────────────────────────────────── */
+const field = buildField(mh, CFG.STEP, CFG.X0, CFG.X1, CFG.Z0, CFG.Z1);
+const interval = MAX_H / CFG.LEVELS;
+
+const byLevel = [];
+for (let n = CFG.START; n <= CFG.LEVELS; n++){
+  const level = n * interval;
+  const lines = traceLevel(field, level, CFG.MIN_LEN);
+  if (lines.length) byLevel.push({ n, level, lines });
+}
+
+/* the accent is the top few rings that actually close — the nominal top level
+   sits at the summit height itself and traces nothing */
+const accentFrom = Math.max(0, byLevel.length - CFG.ACCENT_TOP);
+
+const bodyLines = [], ringLines = [];
+byLevel.forEach((band, bi) => {
+  const isIndex  = (band.n % CFG.INDEX_EVERY) === 0;
+  const isAccent = bi >= accentFrom;
+  for (const L of band.lines){
+    /* Steep flanks read denser than flat benches do, so the stroke picks up a
+       little weight where the ground falls away. Gently: modulate it hard and
+       an index contour on a flank comes out thinner than a minor one on the
+       apron, which is the hierarchy the heavy line existed to carry. */
+    const steep = Math.min(1, field.slope(L.pts[0][0], L.pts[0][1]) / 1.5);
+    const weight = (isAccent ? CFG.W_ACCENT : isIndex ? CFG.W_INDEX : CFG.W_MINOR) * (0.70 + 0.30 * steep);
+    const entry = {
+      pts: L.pts, closed: L.closed, weight,
+      tone: Math.min(1, band.level / MAX_H),
+      y: band.level + CFG.LIFT, dash: 0,
+    };
+    (isAccent ? ringLines : bodyLines).push(entry);
+  }
+});
+
+let plainMaterial;
+
+const bodyMat  = ribbonMaterial({ opacity: 0.95 });
+const bodyMesh = new THREE.Mesh(buildRibbons(bodyLines), bodyMat);
+bodyMesh.frustumCulled = false;
+bodyMesh.renderOrder = 2;
+world.add(bodyMesh);
+
+/* The summit rings are their own object for one reason: they have to be able
+   to lift without the mountain lifting with them. */
+const ringGroup = new THREE.Group();
+const ringMat   = ribbonMaterial({ opacity: 1, accent: 1 });
+const ringMesh  = new THREE.Mesh(buildRibbons(ringLines), ringMat);
+ringMesh.frustumCulled = false;
+ringMesh.renderOrder = 3;
+ringGroup.add(ringMesh);
+world.add(ringGroup);
+
+/* where the accent rings actually are, so the camera and the leader can both
+   aim at the ink rather than at the nominal summit */
+const RING_Y = ringLines.reduce((m, L) => Math.max(m, L.y), 0);
+const SUMMIT = new THREE.Vector3(TOP_X, RING_Y, TOP_Z);
+
+/* ─── the plain ──────────────────────────────────────────────────────────
+   A second survey at a far coarser interval over a far larger area, drawn
+   dashed and dim. It is not the same landform sampled twice: the massif's
+   field is clamped to nothing outside its own reach, so a shared field would
+   have given the plain no lines at all. */
+function gh(x, z){
+  return fbmN(x * 0.0026 + 40.5, z * 0.0026 - 17.2, 4) * 1.6
+       + fbmN(x * 0.0072 - 8.1,  z * 0.0072 + 26.7, 3) * 0.38;
+}
+const gField = buildField(gh, CFG.G_STEP, CFG.G_X0, CFG.G_X1, CFG.G_Z0, CFG.G_Z1);
+{
+  let lo = Infinity, hi = -Infinity;
+  for (const v of gField.F){ if (v < lo) lo = v; if (v > hi) hi = v; }
+  const plainLines = [];
+  for (let n = 1; n < CFG.G_LEVELS; n++){
+    const level = lo + (hi - lo) * (n / CFG.G_LEVELS);
+    for (const L of traceLevel(gField, level, 26)){
+      plainLines.push({
+        pts: L.pts, closed: L.closed, weight: CFG.G_WIDTH,
+        tone: 0.30, y: 0.12,
+        dash: 3.0 + 6.0 * h2(n * 17 + plainLines.length, n * 5 + 9),   // dots through to dashes
+      });
+    }
+  }
+  const plainMat  = ribbonMaterial({ opacity: 0.58, fogNear: 260, fogFar: 1150 });
+  const plainMesh = new THREE.Mesh(buildRibbons(plainLines), plainMat);
+  plainMesh.frustumCulled = false;
+  plainMesh.renderOrder = 1;
+  world.add(plainMesh);
+  plainMaterial = plainMat;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Camera — a rig rather than a position, so the click can tween six readable
+   numbers instead of interpolating a matrix through the mountain.
+   ═════════════════════════════════════════════════════════════════════════ */
+const CAM = { elev: 24.0, dist: 116, azim: 4.0, tx: TOP_X, ty: MAX_H * 0.26, tz: TOP_Z + 20 };
+const WIDE  = { ...CAM };
+/* The focus is a push, not a flight. The reference frames the massif the same
+   way with the definition on it as without, so the click closes some of the
+   distance and lifts the summit clear of the type — anything more and the
+   composition the whole piece is built on comes apart on the way in. */
+const FOCUS = { elev: 22.5, dist: 101, azim: 0.0, tx: TOP_X, ty: MAX_H * 0.42, tz: TOP_Z + 16 };
+
+const _tgt = new THREE.Vector3();
+const pointer = { x: 0, y: 0, sx: 0, sy: 0 };     // -1..1, and its eased follow
+
+function applyCamera(){
+  const e = (CAM.elev + pointer.sy * 1.6) * Math.PI / 180;
+  const a = (CAM.azim + pointer.sx * 2.4) * Math.PI / 180;
+  const ce = Math.cos(e);
+  camera.position.set(
+    CAM.tx + CAM.dist * ce * Math.sin(a),
+    CAM.ty + CAM.dist * Math.sin(e),
+    CAM.tz + CAM.dist * ce * Math.cos(a)
+  );
+  _tgt.set(CAM.tx, CAM.ty, CAM.tz);
+  camera.lookAt(_tgt);
+}
+
+/* A hidden pane or a collapsed window reports a zero viewport, and a zero
+   aspect is a NaN projection matrix — the scene does not come back when the
+   window returns. Everything downstream of the viewport is floored at a pixel. */
+function vpW(){ return Math.max(1, innerWidth); }
+function vpH(){ return Math.max(1, innerHeight); }
+
+function resize(){
+  const w = vpW(), h = vpH();
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  const hr = new THREE.Vector2(w * 0.5, h * 0.5);
+  [bodyMat, ringMat, plainMaterial].forEach(m => m.uniforms.uHalfRes.value.copy(hr));
+}
+addEventListener('resize', resize);
+resize();
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Interaction
+   ═════════════════════════════════════════════════════════════════════════ */
+const raycaster = new THREE.Raycaster();
+const _ndc = new THREE.Vector2();
+
+/* The rings are ribbons a pixel and a half wide — a ray will essentially never
+   hit one. What the pointer is actually tested against is an invisible ball
+   sitting on the summit, which is the hit target the rings stand for. */
+const hitTarget = new THREE.Mesh(
+  new THREE.SphereGeometry(11, 16, 12),
+  new THREE.MeshBasicMaterial({ visible: false })
+);
+hitTarget.position.copy(SUMMIT);
+world.add(hitTarget);
+
+let hovering = false, opened = false, floatTl = null;
+
+/* the hover: the rings breathe up and down off the summit and the accent
+   brightens. Subtle by design — it is an invitation to click, not an event. */
+function startFloat(){
+  if (REDUCED) return;
+  floatTl = gsap.timeline({ repeat: -1, yoyo: true })
+    .to(ringGroup.position, { y: 0.85, duration: 1.15, ease: 'sine.inOut' })
+    .to(ringGroup.position, { y: 0.20, duration: 1.15, ease: 'sine.inOut' });
+}
+function setHover(on){
+  if (on === hovering) return;
+  hovering = on;
+  document.body.style.cursor = on ? 'pointer' : '';
+  gsap.killTweensOf(ringMat.uniforms.uGlow);
+  gsap.to(ringMat.uniforms.uGlow, { value: on ? 1 : 0, duration: 0.45, ease: 'power2.out' });
+  if (floatTl){ floatTl.kill(); floatTl = null; }
+  if (on && !opened) startFloat();
+  else if (!opened) gsap.to(ringGroup.position, { y: 0, duration: 0.6, ease: 'power2.out' });
+}
+
+addEventListener('pointermove', e => {
+  pointer.x = (e.clientX / vpW()) * 2 - 1;
+  pointer.y = (e.clientY / vpH()) * 2 - 1;
+  if (opened) return;
+  _ndc.set(pointer.x, -pointer.y);
+  raycaster.setFromCamera(_ndc, camera);
+  setHover(raycaster.intersectObject(hitTarget, false).length > 0);
+});
+addEventListener('pointerdown', e => {
+  if (opened || e.button !== 0) return;
+  _ndc.set((e.clientX / vpW()) * 2 - 1, -((e.clientY / vpH()) * 2 - 1));
+  raycaster.setFromCamera(_ndc, camera);
+  if (raycaster.intersectObject(hitTarget, false).length) open();
+});
+
+/* ─── the leader ─────────────────────────────────────────────────────────
+   Drawn in the overlay, not the scene, because it has to end on a line of
+   type. Its start is the summit ring projected to screen space every frame,
+   so the two stay joined while the camera is still moving. */
+const leaderEl  = document.getElementById('leader-path');
+const panelEl   = document.getElementById('panel');
+const termEl    = panelEl.querySelector('.term');
+const leader    = { prog: 0 };
+const _proj     = new THREE.Vector3();
+
+function updateLeader(){
+  if (leader.prog <= 0){ leaderEl.setAttribute('d', ''); return; }
+  _proj.copy(SUMMIT).add(ringGroup.position).project(camera);
+  const sx = (_proj.x * 0.5 + 0.5) * vpW();
+  const sy = (-_proj.y * 0.5 + 0.5) * vpH();
+
+  const r  = termEl.getBoundingClientRect();
+  const ex = r.left - 14, ey = r.top + r.height * 0.5;
+
+  /* The elbow is where the diagonal off the summit becomes the horizontal run
+     into the type. It has to stay between the two ends: when the summit is
+     nearly under the panel there is no room for a dog-leg and the leader is
+     one straight line, which is better than a hook doubling back on itself. */
+  const gap = ex - sx;
+  const d = gap > 90
+    ? `M ${sx.toFixed(1)} ${sy.toFixed(1)} L ${(ex - Math.min(150, gap * 0.45)).toFixed(1)} ${ey.toFixed(1)} L ${ex.toFixed(1)} ${ey.toFixed(1)}`
+    : `M ${sx.toFixed(1)} ${sy.toFixed(1)} L ${ex.toFixed(1)} ${ey.toFixed(1)}`;
+  leaderEl.setAttribute('d', d);
+  const len = leaderEl.getTotalLength();
+  leaderEl.style.strokeDasharray  = len;
+  leaderEl.style.strokeDashoffset = len * (1 - leader.prog);
+}
+
+/* ─── the odometer ───────────────────────────────────────────────────────
+   Reels, not a counting label. Each column is a 0-9 strip in a 1em window and
+   its offset is that place's own continuous value, so a column rolls over at
+   exactly the moment the one to its right passes nine — which is the whole
+   reason an odometer reads as a measurement being taken rather than a number
+   being written. */
+const ELEV = 2412;
+const reelsEl = document.getElementById('odo-reels');
+const digits  = [];
+{
+  const chars = String(ELEV);
+  chars.split('').forEach((ch, i) => {
+    const place = chars.length - 1 - i;
+    const col = document.createElement('span');
+    col.className = 'col';
+    const strip = document.createElement('span');
+    strip.className = 'strip';
+    for (let d = 0; d <= 10; d++){        // 0-9 plus a repeat of 0, so it wraps
+      const s = document.createElement('span');
+      s.textContent = String(d % 10);
+      strip.appendChild(s);
+    }
+    col.appendChild(strip);
+    reelsEl.appendChild(col);
+    digits.push({ strip, pv: Math.pow(10, place) });
+    if (place === 3){
+      const sep = document.createElement('span');
+      sep.className = 'sep'; sep.textContent = ',';
+      reelsEl.appendChild(sep);
+    }
+  });
+}
+const odo = { value: 0 };
+function paintOdo(){
+  for (const d of digits){
+    const v = odo.value / d.pv;
+    const f = v - Math.floor(v);
+    /* the units wheel turns continuously; every wheel above it stands still
+       until the one to its right is about to pass nine, then turns with it.
+       Roll them all continuously and it reads as a slot machine, not a
+       measurement being taken. */
+    const roll = d.pv === 1 ? f : (f < 0.86 ? 0 : (f - 0.86) / 0.14);
+    d.strip.style.transform = `translateY(${(-((Math.floor(v) % 10) + roll)).toFixed(4)}em)`;
+  }
+}
+paintOdo();
+
+/* ══════════════════════════════════════════════════════════════════════════
+   The click — one timeline
+   ─────────────────────────────────────────────────────────────────────────
+   Camera, rings, leader, type and odometer are phases of a single piece of
+   motion rather than five tweens racing each other: the leader only starts
+   drawing once the camera has most of its move behind it, the type follows the
+   leader into the frame, and the odometer runs underneath the words being
+   revealed so the number finishes as the sentence does.
+   ═════════════════════════════════════════════════════════════════════════ */
+const titleEl = document.getElementById('title');
+const hintEl  = document.getElementById('hint');
+const backEl  = document.getElementById('back');
+const ruleEl  = document.getElementById('odo-rule');
+let openTl = null;
+
+gsap.set([titleEl, panelEl], { opacity: 0, y: 14 });
+gsap.set(ruleEl, { scaleX: 0 });
+
+function open(){
+  if (opened) return;
+  opened = true;
+  setHover(false);
+  if (floatTl){ floatTl.kill(); floatTl = null; }
+  document.body.style.cursor = '';
+
+  const D = REDUCED ? 0.01 : 1;
+  openTl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+    .to(hintEl, { opacity: 0, duration: 0.3 * D }, 0)
+    .to(CAM, { ...FOCUS, duration: 2.0 * D, ease: 'power3.inOut' }, 0)
+    .to(ringGroup.position, { y: 0.9, duration: 1.6 * D, ease: 'power2.inOut' }, 0)
+    .to(ringMat.uniforms.uGlow, { value: 1, duration: 0.9 * D }, 0.1)
+    .to(bodyMat.uniforms.uOpacity, { value: 0.80, duration: 1.4 * D }, 0.2)
+    .to(plainMaterial.uniforms.uOpacity, { value: 0.30, duration: 1.4 * D }, 0.2)
+    .to(titleEl, { opacity: 1, y: 0, duration: 0.9 * D }, 0.45)
+    .to(leader, { prog: 1, duration: 0.85 * D, ease: 'power2.inOut' }, 1.05)
+    .to(panelEl, { opacity: 1, y: 0, duration: 0.8 * D }, 1.45)
+    .to(odo, { value: ELEV, duration: 1.9 * D, ease: 'power2.out', onUpdate: paintOdo }, 1.5)
+    .to(ruleEl, { scaleX: 1, duration: 1.9 * D, ease: 'power2.out' }, 1.5)
+    .to(backEl, { opacity: 1, duration: 0.5 * D }, 2.1)
+    .set(backEl, { pointerEvents: 'auto' });
+}
+
+function close(){
+  if (!opened) return;
+  opened = false;
+  if (openTl) openTl.kill();
+  gsap.set(backEl, { pointerEvents: 'none' });
+
+  const D = REDUCED ? 0.01 : 1;
+  gsap.timeline({ defaults: { ease: 'power3.inOut' } })
+    .to([panelEl, titleEl], { opacity: 0, y: 14, duration: 0.45 * D }, 0)
+    .to(backEl, { opacity: 0, duration: 0.3 * D }, 0)
+    .to(leader, { prog: 0, duration: 0.4 * D }, 0)
+    .to(CAM, { ...WIDE, duration: 1.5 * D }, 0.15)
+    .to(ringGroup.position, { y: 0, duration: 1.0 * D }, 0.15)
+    .to(ringMat.uniforms.uGlow, { value: 0, duration: 0.6 * D }, 0.15)
+    .to(bodyMat.uniforms.uOpacity, { value: 0.95, duration: 1.0 * D }, 0.15)
+    .to(plainMaterial.uniforms.uOpacity, { value: 0.58, duration: 1.0 * D }, 0.15)
+    .to(hintEl, { opacity: 1, duration: 0.5 * D }, 0.9)
+    .set(odo, { value: 0, onComplete: paintOdo })
+    .set(ruleEl, { scaleX: 0 });
+}
+backEl.addEventListener('click', close);
+addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Frame
+   ═════════════════════════════════════════════════════════════════════════ */
+const clock = new THREE.Clock();
+let t = 0;
+
+function frame(){
+  requestAnimationFrame(frame);
+  const dt = Math.min(0.05, clock.getDelta());
+  t += dt;
+
+  /* the pointer eases in rather than being read raw: an un-eased parallax on a
+     line drawing reads as the whole sheet twitching */
+  const k = 1 - Math.exp(-dt * 4.5);
+  pointer.sx += (pointer.x - pointer.sx) * k;
+  pointer.sy += (pointer.y - pointer.sy) * k;
+
+  /* the plain drifts along its own arc length, forever and in one direction */
+  if (!REDUCED){
+    plainMaterial.uniforms.uPhase.value -= dt * 0.055;
+    plainMaterial.uniforms.uTime.value = t;
+  }
+
+  applyCamera();
+  updateLeader();
+  renderer.render(scene, camera);
+}
+frame();
+</script>
+</body>
+</html>

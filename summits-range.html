@@ -3,19 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tibba Design Studio</title>
-  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-  <style>
+  <title>Our summits — Range</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="notes.js"></script>
+<script src="assets/workbench.js" defer></script>
+<style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html { scroll-behavior: smooth; overflow-x: hidden; }
+    html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-family: 'F37 Analog', system-ui, sans-serif;
       font-weight: 400;
       background: #0D0F1E;
       color: #fff;
       -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
 
     /* Tall scroll sentinel — hero 100vh + 4 cases × 120vh */
@@ -38,7 +43,7 @@
       padding-bottom: min(72vh, calc(80vh + 80px));
       transform: translateY(2vh);
       pointer-events: none;
-      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-family: 'F37 Analog', system-ui, sans-serif;
       font-weight: 700;
       /* The box this sits in is 28vh tall, so a size driven by width alone
          overflows it on any wide-but-short window and the words lose their
@@ -66,174 +71,6 @@
     body.work-phase #hero-studio-line { opacity: 0; }
 
     /* ── Hero top announcement (Figma) ───────────────────────── */
-
-    /* ══════════════════════════════════════════════════════════════════════
-       Page five. The scene, its shaders and its morph driver are Range's,
-       untouched. What changes is the choreography around them: the peak slides
-       aside for the figures, fades out behind the partner list, and the range
-       is only summoned in section four. Everything below is additive — Range's
-       own hero furniture is hidden rather than removed, so its script keeps
-       every element it expects to find.
-       ═══════════════════════════════════════════════════════════════════ */
-    :root{
-      --ink: #fff;            --ink-rgb: 255,255,255;
-      --bg:  #0D0F1E;         --bg-rgb:  13,15,30;
-      --accent-2: #E9663A;
-    }
-    #scroll-space { display: none; }
-    #hero-studio-line, #hero-copy, #progress-rail, #case-ui { display: none !important; }
-
-    .wrap { width: min(1180px, 92vw); margin: 0 auto; }
-
-    /* sections 1–4 sit over the canvas; 5–6 carry their own ground */
-    .sec { position: relative; z-index: 10; }
-    .sec-hero      { min-height: 100vh; display: flex; align-items: center; }
-    .sec-numbers   { min-height: 100vh; display: flex; align-items: center; }
-    .sec-partners  { min-height: 100vh; display: flex; align-items: center; }
-    .sec-summits   { min-height: 170vh; }
-    .sec-thumbs    { padding: 14vh 0 6vh; background: var(--bg); }
-    .sec-services  { padding: 2vh 0 16vh;  background: var(--bg); }
-
-    /* ── 1 · hero ─────────────────────────────────────────────────────── */
-    .hero-card {
-      background: rgba(var(--bg-rgb), .78);
-      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
-      border: 1px solid rgba(var(--ink-rgb), .10);
-      padding: 30px 34px 26px; max-width: 560px;
-    }
-    .hero-card h1 {
-      margin: 0; font-size: clamp(38px, 5.4vw, 74px); line-height: .97;
-      letter-spacing: -0.02em; text-transform: uppercase; font-weight: 600;
-    }
-    .hero-card p {
-      margin: 16px 0 0; max-width: 42ch; font-size: 13px; line-height: 1.6;
-      color: rgba(var(--ink-rgb), .62);
-    }
-
-    /* ── 2 · figures ──────────────────────────────────────────────────── */
-    .fig-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px;
-                width: min(620px, 46vw); margin-left: auto; }
-    .fig {
-      background: rgba(var(--bg-rgb), .72);
-      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
-      border: 1px solid rgba(var(--ink-rgb), .10);
-      padding: 24px 26px 20px; min-height: 168px;
-      display: flex; flex-direction: column; justify-content: space-between;
-    }
-    .fig b { font-size: clamp(30px, 3.6vw, 52px); font-weight: 300; letter-spacing: -.03em; }
-    .fig span { display: flex; align-items: center; gap: 9px; font-size: 12px;
-                color: rgba(var(--ink-rgb), .58); }
-    .fig i { width: 8px; height: 8px; background: var(--accent-2); display: block; }
-
-    /* ── 3 · partners ─────────────────────────────────────────────────── */
-    .partners { display: grid; grid-template-columns: minmax(240px, 340px) 1fr; gap: clamp(30px, 6vw, 90px); }
-    .partners h2 { margin: 0 0 14px; font-size: clamp(24px, 2.6vw, 34px); line-height: 1.15; font-weight: 500; }
-    .partners .lede { margin: 0; font-size: 12.5px; line-height: 1.7; color: rgba(var(--ink-rgb), .55); }
-    .plist { font-size: clamp(18px, 2.1vw, 30px); line-height: 1.55; letter-spacing: -.01em; }
-    .plist a {
-      position: relative; color: inherit; text-decoration: none; white-space: nowrap;
-      border-bottom: 1px solid transparent; transition: border-color .18s;
-    }
-    .plist a:hover, .plist a:focus-visible { border-bottom-color: currentColor; }
-    .plist .sep { opacity: .32; padding: 0 .28em; }
-    .plogo {
-      position: fixed; z-index: 30; pointer-events: none; opacity: 0;
-      transform: translate(-50%, -50%) scale(.94);
-      transition: opacity .18s, transform .18s;
-      padding: 10px 14px; background: rgba(var(--bg-rgb), .92);
-      border: 1px solid rgba(var(--ink-rgb), .14);
-      font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
-    }
-    .plogo.on { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-
-    /* ── 5 · thumbnails ───────────────────────────────────────────────── */
-    .thumbs { display: grid; gap: 0; }
-    .thumb {
-      display: grid; grid-template-columns: 1fr minmax(180px, 260px);
-      gap: clamp(20px, 4vw, 60px); align-items: center;
-      padding: 26px 0; border-bottom: 1px solid rgba(var(--ink-rgb), .12);
-    }
-    .thumb h3 { margin: 0 0 8px; font-size: clamp(18px, 2vw, 26px); font-weight: 600; letter-spacing: -.01em; }
-    .thumb p  { margin: 0 0 12px; max-width: 46ch; font-size: 12.5px; line-height: 1.6;
-                color: rgba(var(--ink-rgb), .6); }
-    .tags { display: flex; gap: 14px; font-size: 11px; letter-spacing: .1em;
-            text-transform: uppercase; color: var(--accent-2); }
-    .tags span { color: rgba(var(--ink-rgb), .3); }
-    .thumb-art { aspect-ratio: 16 / 10; background: rgba(var(--ink-rgb), .05);
-                 border: 1px solid rgba(var(--ink-rgb), .10); }
-
-    /* ── 6 · services ─────────────────────────────────────────────────── */
-    .svc-head h2 { margin: 0 0 6px; font-size: clamp(24px, 3vw, 38px); font-weight: 500; letter-spacing: .01em; }
-    .svc-head p  { margin: 0 0 24px; font-size: 12.5px; color: rgba(var(--ink-rgb), .55); }
-    .svc-tabs { display: inline-flex; border: 1px solid rgba(var(--ink-rgb), .16); margin-bottom: 18px; }
-    .svc-tabs button {
-      appearance: none; border: 0; background: none; cursor: pointer; font: inherit;
-      font-size: 11px; letter-spacing: .09em; text-transform: uppercase;
-      padding: 11px 16px; color: rgba(var(--ink-rgb), .6);
-    }
-    .svc-tabs button[aria-selected="true"] { background: var(--accent-2); color: #fff; }
-    .svc-body { display: grid; grid-template-columns: 1.25fr 1fr; gap: clamp(20px, 3vw, 40px); align-items: start; }
-    .svc-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .svc-item {
-      display: flex; gap: 10px; align-items: flex-start; cursor: pointer;
-      border: 1px solid rgba(var(--ink-rgb), .12); padding: 14px 14px 16px;
-      font-size: 12px; line-height: 1.35; text-transform: uppercase; letter-spacing: .04em;
-      background: rgba(var(--ink-rgb), .02); transition: border-color .18s, background .18s;
-    }
-    .svc-item i { width: 7px; height: 7px; flex: none; margin-top: 3px; background: var(--accent-2); }
-    .svc-item[aria-current="true"] { border-color: var(--accent-2); background: rgba(var(--bg-rgb), .9); }
-    .svc-detail { border: 1px solid rgba(var(--ink-rgb), .12); padding: 20px 22px; min-height: 300px;
-                  background: rgba(var(--ink-rgb), .02); }
-    .svc-detail h3 { margin: 0 0 14px; font-size: 15px; letter-spacing: .02em; }
-    .svc-detail li { margin: 0 0 10px; font-size: 12.5px; line-height: 1.55; color: rgba(var(--ink-rgb), .68); }
-
-    /* ── odometer button (ported from the contentarchitecture build) ───── */
-    .odo {
-      --odometer-progress: 0;
-      display: inline-flex; align-items: stretch; cursor: pointer; border: 0; background: none;
-      font: inherit; font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
-      color: inherit; padding: 0;
-    }
-    @media (prefers-reduced-motion: no-preference) {
-      .odo:hover, .odo:focus-visible { --odometer-progress: 1; }
-    }
-    .odo .seg { display: inline-flex; align-items: center; padding: 0 16px; height: 38px;
-                background: var(--ink); color: var(--bg); }
-    .odo .conn { width: 1px; background: rgba(var(--bg-rgb), .45); }
-    .odo .oc { position: relative; display: inline-block; overflow: hidden; height: 1em; line-height: 1em; }
-    .odo .oc .ghost { visibility: hidden; }
-    .odo .oc .col {
-      position: absolute; inset-inline: 0; top: 0; display: flex; flex-direction: column;
-      transform: translateY(calc(var(--odometer-progress) * -5em));
-      transition: transform 520ms cubic-bezier(0.23, 1, 0.32, 1);
-    }
-    .odo .oc .col span { display: block; height: 1em; line-height: 1em; }
-    @media (max-width: 900px){
-      .partners, .svc-body { grid-template-columns: 1fr; }
-      .fig-grid { width: auto; margin-left: 0; }
-      .svc-list { grid-template-columns: repeat(2, 1fr); }
-      .thumb { grid-template-columns: 1fr; }
-    }
-
-    /* The bar carries the way back to the other studies. It sits here rather
-       than in a floating pill because this page's bar never fades — the work
-       phase it would disappear with is never entered. */
-    #hero-top-bar .bar-left { display: flex; align-items: center; gap: clamp(14px, 2.4vw, 30px); min-width: 0; }
-    #hero-top-bar .mark {
-      font-weight: 600; letter-spacing: -.01em; font-size: 15px;
-      color: rgba(var(--ink-rgb), .95); text-decoration: none;
-    }
-    #hero-top-bar .pages { display: flex; gap: clamp(6px, 1.1vw, 16px); flex-wrap: nowrap; }
-    #hero-top-bar .pages a, #hero-top-bar .pages span {
-      font-size: 11px; letter-spacing: .04em; white-space: nowrap; text-decoration: none;
-      color: rgba(var(--ink-rgb), .5); transition: color .18s;
-    }
-    #hero-top-bar .pages a:hover { color: rgba(var(--ink-rgb), .95); }
-    #hero-top-bar .pages [aria-current="page"] { color: var(--accent-2); }
-    @media (max-width: 720px){
-      #hero-top-bar .pages { display: none; }
-    }
-
     .tune-sub{
       margin: 14px 0 6px; font-size: 9.5px; letter-spacing: .16em;
       color: rgba(255,255,255,.42);
@@ -351,7 +188,7 @@
       letter-spacing: 0.01em;
       text-transform: lowercase;
       color: rgba(255, 255, 255, 0.78);
-      font-family: 'Lora', Georgia, 'Times New Roman', serif;
+      font-family: 'F37 Analog', Georgia, serif;
     }
     .hero-side-right {
       position: absolute;
@@ -359,7 +196,7 @@
       top: 50%;
       transform: translateY(-50%);
       max-width: min(280px, 26vw);
-      font-family: 'Lora', Georgia, 'Times New Roman', serif;
+      font-family: 'F37 Analog', Georgia, serif;
       font-size: clamp(12px, 1vw, 13px);
       font-weight: 400;
       font-style: italic;
@@ -675,7 +512,7 @@
       border: 1px solid rgba(255,255,255,.11);
       border-radius: 12px;
       backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-      font: 400 11px/1.4 'Hanken Grotesk', system-ui, sans-serif;
+      font: 400 11px/1.4 'F37 Analog', system-ui, sans-serif;
       color: rgba(255,255,255,.78);
       box-shadow: 0 18px 48px rgba(0,0,0,.5);
       user-select: none;
@@ -693,7 +530,7 @@
     .tune-read {
       margin-top: 10px; padding: 8px 9px; border-radius: 7px;
       background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.08);
-      font: 400 10px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+      font: 400 10px/1.5 'F37 Analog', ui-monospace, monospace;
       color: rgba(255,255,255,.72); user-select: text; cursor: text;
       word-break: break-word;
     }
@@ -713,13 +550,13 @@
     }
     #tune-head button:hover { color: #fff; }
 
-    #tune-pill { top: auto !important; bottom: 18px !important;
+    #tune-pill {
       position: fixed; top: 16px; right: 16px; z-index: 200;
       padding: 7px 13px; border-radius: 999px; cursor: pointer;
       background: rgba(10,12,26,.86);
       border: 1px solid rgba(255,255,255,.11);
       backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-      font: 600 10px/1 'Hanken Grotesk', system-ui, sans-serif;
+      font: 600 10px/1 'F37 Analog', system-ui, sans-serif;
       letter-spacing: .11em; text-transform: uppercase;
       color: rgba(255,255,255,.55);
     }
@@ -732,7 +569,7 @@
       background: rgba(255,255,255,.05);
       border: 1px solid rgba(255,255,255,.09);
       border-radius: 7px;
-      font: 500 10.5px/1 'Hanken Grotesk', system-ui, sans-serif;
+      font: 500 10.5px/1 'F37 Analog', system-ui, sans-serif;
       letter-spacing: .04em;
       color: rgba(255,255,255,.6);
       transition: background .16s, color .16s, border-color .16s;
@@ -778,7 +615,7 @@
       background: rgba(255,255,255,.05);
       border: 1px solid rgba(255,255,255,.11);
       border-radius: 7px;
-      font: 500 10.5px/1 'Hanken Grotesk', system-ui, sans-serif;
+      font: 500 10.5px/1 'F37 Analog', system-ui, sans-serif;
       color: rgba(255,255,255,.72);
       transition: background .16s, color .16s;
     }
@@ -793,84 +630,13 @@
 <body>
 
 <div id="scroll-space"></div>
-
-<main id="studio">
-  <!-- 1 · hero ────────────────────────────────────────────────────────── -->
-  <section class="sec sec-hero" id="s-hero">
-    <div class="wrap">
-      <div class="hero-card">
-        <h1>Tibba Design<br>Studio</h1>
-        <p>Tibba is a UI/UX design studio that helps tech companies solve
-        problems and take ideas from zero to one.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- 2 · figures ─────────────────────────────────────────────────────── -->
-  <section class="sec sec-numbers" id="s-numbers">
-    <div class="wrap">
-      <div class="fig-grid">
-        <div class="fig"><b>12+</b><span><i></i>Years of experience</span></div>
-        <div class="fig"><b>30+</b><span><i></i>Products shipped</span></div>
-        <div class="fig"><b>08</b><span><i></i>Unicorns serviced</span></div>
-        <div class="fig"><b>$400M</b><span><i></i>Revenue unlocked</span></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 3 · partners ────────────────────────────────────────────────────── -->
-  <section class="sec sec-partners" id="s-partners">
-    <div class="wrap partners">
-      <div>
-        <h2>We&rsquo;ve worked with start ups and market leaders</h2>
-        <p class="lede">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-        eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-      </div>
-      <div class="plist" id="plist"></div>
-    </div>
-  </section>
-
-  <!-- 4 · the range ───────────────────────────────────────────────────── -->
-  <section class="sec sec-summits" id="s-summits"></section>
-
-  <!-- 5 · thumbnails ──────────────────────────────────────────────────── -->
-  <section class="sec sec-thumbs" id="s-thumbs">
-    <div class="wrap thumbs" id="thumbs"></div>
-  </section>
-
-  <!-- 6 · services ────────────────────────────────────────────────────── -->
-  <section class="sec sec-services" id="s-services">
-    <div class="wrap svc-head">
-      <h2>[ Our services ]</h2>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-      <div class="svc-tabs" id="svc-tabs" role="tablist"></div>
-      <p style="margin:0 0 14px;font-size:12.5px;">Here&rsquo;s a list of the different services you can choose from</p>
-      <div class="svc-body">
-        <div class="svc-list" id="svc-list"></div>
-        <div class="svc-detail" id="svc-detail"></div>
-      </div>
-    </div>
-  </section>
-</main>
-
-<div class="plogo" id="plogo" aria-hidden="true"></div>
-
 <h1 id="hero-studio-line">Tibba Design Studio<span class="stop">.</span></h1>
 <canvas id="canvas"></canvas>
 
 <!-- ── Hero top bar (Figma) ─────────────────────────────────── -->
 <div id="hero-top-bar">
-  <div class="bar-left">
-    <a class="mark" href="/">tibba</a>
-    <nav class="pages" aria-label="Studies">
-      <a href="/#ridge">[ Ridge ]</a>
-      <a href="/#scroll">[ Scroll ]</a>
-      <a href="/#peaks">[ Summits ]</a>
-      <a href="/tibba-range">[ Range ]</a>
-      <span aria-current="page">[ Studio ]</span>
-    </nav>
-  </div>
-  <button class="odo" type="button" data-odometer="Contact|us"></button>
+  <span>We recently presented our work at VizChitra 2025!</span>
+  <a class="top-bar-link" href="#">Watch the talk →</a>
 </div>
 
 <!-- ── Hero flanking copy ───────────────────────────────────── -->
@@ -3062,7 +2828,6 @@ let _lastT = performance.now();
   const panel = $('tune'), pill = $('tune-pill');
 
   function setHidden(h){ panel.classList.toggle('hidden', h); pill.classList.toggle('hidden', !h); }
-  setHidden(true);   // page five is a presentation, not a tuning surface — H brings it back
   $('tune-hide').addEventListener('click', () => setHidden(true));
   pill.addEventListener('click', () => setHidden(false));
   window.addEventListener('keydown', e => {
@@ -3249,228 +3014,6 @@ function boot() {
   }
 }
 boot();
-
-
-/* ══════════════════════════════════════════════════════════════════════════
-   Page five — choreography
-   ─────────────────────────────────────────────────────────────────────────
-   Range drives its scene from one scroll ramp: the hero peak drains, then the
-   page hands off to the client range. Here the same scene serves six sections,
-   so the ramp is replaced by a section timeline. Range's own driver is left in
-   place and simply told what to do — MORPH.scrub is its documented override,
-   which is what section four uses to summon the range on cue rather than at a
-   fixed scroll depth.
-   ════════════════════════════════════════════════════════════════════════ */
-(function studioChoreography(){
-  const secs = ['s-hero','s-numbers','s-partners','s-summits'].map(id => document.getElementById(id));
-  const canvasEl = document.getElementById('canvas');
-
-  /* how far through a section the viewport's midpoint sits, 0..1 */
-  function through(el){
-    if (!el) return 0;
-    const r = el.getBoundingClientRect();
-    return Math.min(1, Math.max(0, -r.top / Math.max(1, r.height)));
-  }
-  const ease = t => t * t * (3 - 2 * t);
-
-  /* the peak's resting place, so the slide is relative rather than absolute */
-  const homeX = mountainGroup.position.x;
-  let slid = 0, faded = 0;
-
-  function frame(){
-    requestAnimationFrame(frame);
-
-    const tNum  = through(secs[1]);       // 2 · figures  — the peak steps aside
-    const tPart = through(secs[2]);       // 3 · partners — and withdraws
-    const tSum  = through(secs[3]);       // 4 · the range returns
-
-    /* Slide left across the figures and hold there through the partners, so the
-       peak reads as one continuous move rather than two. */
-    const wantX = homeX - ease(tNum) * SLIDE_X;
-    slid += (wantX - slid) * 0.12;
-    mountainGroup.position.x = homeX + (slid - homeX);
-
-    /* Withdraw behind the partner list, then come back for section four. */
-    const wantFade = Math.max(0, ease(tPart) - ease(tSum) * 1.6);
-    faded += (wantFade - faded) * 0.12;
-    canvasEl.style.opacity = String(1 - faded * (1 - CANVAS_MIN));
-
-    /* Section four is the only place the range is asked for. Before it, the
-       hero peak stays whole; across it, Range's own morph runs on our clock. */
-    MORPH.scrub = tSum <= 0 ? 0 : ease(tSum);
-  }
-  const SLIDE_X = 46;      // world units the peak travels left
-  const CANVAS_MIN = 0.12; // how faint it gets behind the partner list
-  requestAnimationFrame(frame);
-})();
-
-/* ── partner list ─────────────────────────────────────────────────────── */
-(function partners(){
-  const NAMES = ['Zomato','Paytm','Firstpost','Zeta','Urban Company','Groww','HDFC Bank',
-                 'The Times of India','Policy Bazaar','BreatheESG','The Indian Express',
-                 'Shyft','Apnaklub','Simsim','Bombay Shirt Company'];
-  const list = document.getElementById('plist');
-  const logo = document.getElementById('plogo');
-  if (!list) return;
-  NAMES.forEach((n, i) => {
-    const a = document.createElement('a');
-    a.href = '#'; a.textContent = n.toUpperCase();
-    a.addEventListener('mouseenter', () => { logo.textContent = n; logo.classList.add('on'); });
-    a.addEventListener('mouseleave', () => logo.classList.remove('on'));
-    a.addEventListener('mousemove', e => {
-      logo.style.left = e.clientX + 'px';
-      logo.style.top  = (e.clientY - 34) + 'px';
-    });
-    list.appendChild(a);
-    if (i < NAMES.length - 1) {
-      const sep = document.createElement('span');
-      sep.className = 'sep'; sep.textContent = '/';
-      list.appendChild(sep);
-    }
-  });
-})();
-
-/* ── thumbnails ───────────────────────────────────────────────────────── */
-(function thumbs(){
-  const WORK = [
-    ['Apnaklub', 'Helped Apnaklub understand their users and market via research, and designed their app to achieve product market fit.'],
-    ['Indian Express', "Redesigned Indian Express's flagship product to create a brand new mobile app experience and monetisation strategy."],
-    ["Zeta's Cipher Docs", "A comprehensive overhaul of Cipher's documentation portal, built from scratch with extensive user testing."],
-    ['Urban Company', "Designed the first market versions of Urban Company's apps and incorporated research into their design workflow."],
-    ['Zomato', "Designed the first version of Zomato's food delivery app, alongside several other products and services."],
-    ["HDFC's Smart Buy", 'Helped HDFC design and experiment with layouts for their rewards platform.'],
-  ];
-  const host = document.getElementById('thumbs');
-  if (!host) return;
-  WORK.forEach(([title, body]) => {
-    const el = document.createElement('article');
-    el.className = 'thumb';
-    el.innerHTML = '<div><h3></h3><p></p>' +
-      '<div class="tags">App <span>/</span> Website <span>/</span> Fintech</div></div>' +
-      '<div class="thumb-art"></div>';
-    el.querySelector('h3').textContent = title;
-    el.querySelector('p').textContent = body;
-    host.appendChild(el);
-  });
-})();
-
-/* ── services ─────────────────────────────────────────────────────────── */
-(function services(){
-  const STAGES = {
-    'Early stage startups': [
-      ['User research', ['Generate an understanding of your market including competitors and customers.',
-                         'Gather insights with surveys, interviews and market analysis.',
-                         'Attain a deep understanding of your market to guide product development.']],
-      ['Marketing and growth design', ['Position the product for the audience you actually have.',
-                                       'Build the surfaces that carry the story.']],
-      ['Usability testing', ['Put the thing in front of people before it ships.']],
-      ['Design systems and style guides', ['One vocabulary, written down, so the team stops re-deciding.']],
-      ['Product design', ['From the first flow to the shipped screen.']],
-      ['Prototyping', ['Something clickable, early, to argue with.']],
-    ],
-    'Mid stage startup': [
-      ['Design systems and style guides', ['Consolidate what grew organically into something teachable.']],
-      ['Product design', ['Second-order problems: retention, depth, the long tail.']],
-      ['User research', ['Now with real users and real data to sample.']],
-    ],
-    'Established company': [
-      ['Design systems and style guides', ['Governance, versioning, and the migration path.']],
-      ['Usability testing', ['At a cadence, not as a one-off.']],
-      ['Product design', ['Modernisation without a rewrite.']],
-    ],
-  };
-  const tabsEl = document.getElementById('svc-tabs');
-  const listEl = document.getElementById('svc-list');
-  const detEl  = document.getElementById('svc-detail');
-  if (!tabsEl) return;
-
-  let stage = Object.keys(STAGES)[0], pick = 0;
-
-  function renderDetail(){
-    const [name, points] = STAGES[stage][pick];
-    detEl.innerHTML = '<h3></h3><ul></ul>';
-    detEl.querySelector('h3').textContent = name.toUpperCase();
-    const ul = detEl.querySelector('ul');
-    points.forEach(t => { const li = document.createElement('li'); li.textContent = t; ul.appendChild(li); });
-  }
-  function renderList(){
-    listEl.innerHTML = '';
-    STAGES[stage].forEach(([name], i) => {
-      const b = document.createElement('div');
-      b.className = 'svc-item'; b.tabIndex = 0;
-      b.setAttribute('aria-current', i === pick ? 'true' : 'false');
-      b.innerHTML = '<i></i><span></span>';
-      b.querySelector('span').textContent = name;
-      b.addEventListener('click', () => { pick = i; renderList(); renderDetail(); });
-      listEl.appendChild(b);
-    });
-  }
-  Object.keys(STAGES).forEach((name, i) => {
-    const b = document.createElement('button');
-    b.type = 'button'; b.role = 'tab'; b.textContent = name;
-    b.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
-    b.addEventListener('click', () => {
-      stage = name; pick = 0;
-      [...tabsEl.children].forEach(c => c.setAttribute('aria-selected', String(c === b)));
-      renderList(); renderDetail();
-    });
-    tabsEl.appendChild(b);
-  });
-  renderList(); renderDetail();
-})();
-
-/* ── odometer button ──────────────────────────────────────────────────────
-   Ported from the contentarchitecture build: each character is a 1em window
-   over [real, four decoys, real]; one --odometer-progress on the button drives
-   the whole label, and a per-character delay resolves it left to right. The
-   decoys come off a seed rather than Math.random so the markup is stable. */
-(function odometer(){
-  const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  const DECOYS = 4, STAGGER = 28;
-
-  function charCol(ch, i){
-    const seed = ch.charCodeAt(0) + i * 31;
-    const col = [ch];
-    for (let d = 0; d < DECOYS; d++) col.push(GLYPHS[(seed + (d + 1) * 7) % GLYPHS.length]);
-    col.push(ch);
-    return col;
-  }
-  function segment(text, offset){
-    const seg = document.createElement('span');
-    seg.className = 'seg';
-    [...text].forEach((ch, i) => {
-      if (ch === ' ') { seg.appendChild(document.createTextNode(' ')); return; }
-      const oc = document.createElement('span');
-      oc.className = 'oc';
-      const ghost = document.createElement('span');
-      ghost.className = 'ghost'; ghost.textContent = ch;
-      const col = document.createElement('span');
-      col.className = 'col';
-      col.style.transitionDelay = ((i + offset) * STAGGER) + 'ms';
-      charCol(ch, i).forEach(g => {
-        const gs = document.createElement('span'); gs.textContent = g; col.appendChild(gs);
-      });
-      oc.appendChild(ghost); oc.appendChild(col);
-      seg.appendChild(oc);
-    });
-    return seg;
-  }
-  document.querySelectorAll('[data-odometer]').forEach(btn => {
-    const [lead, trail] = btn.dataset.odometer.split('|');
-    const label = document.createElement('span');
-    label.className = 'sr'; label.textContent = lead + ' ' + (trail || '');
-    label.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)';
-    btn.textContent = '';
-    btn.appendChild(label);
-    btn.appendChild(segment(lead, 0));
-    if (trail) {
-      const c = document.createElement('span'); c.className = 'conn';
-      btn.appendChild(c);
-      btn.appendChild(segment(trail, 0));   // restart the stagger on the second half
-    }
-  });
-})();
-
 
 /* ── atmosphere ───────────────────────────────────────────────────────── */
 /* ══════════════════════════════════════════════════════════════════════════

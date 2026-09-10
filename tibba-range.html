@@ -4,14 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tibba Design Studio — Range</title>
-  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-  <style>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="notes.js"></script>
+<script src="assets/workbench.js" defer></script>
+<style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-family: 'F37 Analog', system-ui, sans-serif;
       font-weight: 400;
       background: #0D0F1E;
       color: #fff;
@@ -39,7 +43,7 @@
       padding-bottom: min(72vh, calc(80vh + 80px));
       transform: translateY(2vh);
       pointer-events: none;
-      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-family: 'F37 Analog', system-ui, sans-serif;
       font-weight: 700;
       /* The box this sits in is 28vh tall, so a size driven by width alone
          overflows it on any wide-but-short window and the words lose their
@@ -184,7 +188,7 @@
       letter-spacing: 0.01em;
       text-transform: lowercase;
       color: rgba(255, 255, 255, 0.78);
-      font-family: 'Lora', Georgia, 'Times New Roman', serif;
+      font-family: 'F37 Analog', Georgia, serif;
     }
     .hero-side-right {
       position: absolute;
@@ -192,7 +196,7 @@
       top: 50%;
       transform: translateY(-50%);
       max-width: min(280px, 26vw);
-      font-family: 'Lora', Georgia, 'Times New Roman', serif;
+      font-family: 'F37 Analog', Georgia, serif;
       font-size: clamp(12px, 1vw, 13px);
       font-weight: 400;
       font-style: italic;
@@ -508,7 +512,7 @@
       border: 1px solid rgba(255,255,255,.11);
       border-radius: 12px;
       backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-      font: 400 11px/1.4 'Hanken Grotesk', system-ui, sans-serif;
+      font: 400 11px/1.4 'F37 Analog', system-ui, sans-serif;
       color: rgba(255,255,255,.78);
       box-shadow: 0 18px 48px rgba(0,0,0,.5);
       user-select: none;
@@ -526,7 +530,7 @@
     .tune-read {
       margin-top: 10px; padding: 8px 9px; border-radius: 7px;
       background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.08);
-      font: 400 10px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+      font: 400 10px/1.5 'F37 Analog', ui-monospace, monospace;
       color: rgba(255,255,255,.72); user-select: text; cursor: text;
       word-break: break-word;
     }
@@ -552,7 +556,7 @@
       background: rgba(10,12,26,.86);
       border: 1px solid rgba(255,255,255,.11);
       backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-      font: 600 10px/1 'Hanken Grotesk', system-ui, sans-serif;
+      font: 600 10px/1 'F37 Analog', system-ui, sans-serif;
       letter-spacing: .11em; text-transform: uppercase;
       color: rgba(255,255,255,.55);
     }
@@ -565,7 +569,7 @@
       background: rgba(255,255,255,.05);
       border: 1px solid rgba(255,255,255,.09);
       border-radius: 7px;
-      font: 500 10.5px/1 'Hanken Grotesk', system-ui, sans-serif;
+      font: 500 10.5px/1 'F37 Analog', system-ui, sans-serif;
       letter-spacing: .04em;
       color: rgba(255,255,255,.6);
       transition: background .16s, color .16s, border-color .16s;
@@ -611,7 +615,7 @@
       background: rgba(255,255,255,.05);
       border: 1px solid rgba(255,255,255,.11);
       border-radius: 7px;
-      font: 500 10.5px/1 'Hanken Grotesk', system-ui, sans-serif;
+      font: 500 10.5px/1 'F37 Analog', system-ui, sans-serif;
       color: rgba(255,255,255,.72);
       transition: background .16s, color .16s;
     }
