@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagonal Roll</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="notes.js"></script>
+<script src="assets/workbench.js" defer></script>
+<style>
+  /* ════════════════════════════════════════════════════════════════════════
+     Diagonal Roll — a hero where a procession of objects crosses the frame
+     on one diagonal, bottom-right to top-left, forever.
+
+     Built against a frame-by-frame read of the Studio Loop hero: the travel
+     angle, the pace, the tile sizes and the stacking order below are all
+     measured off that capture rather than guessed. See DR.DEFAULTS.
+     ═══════════════════════════════════════════════════════════════════════ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ground: #23160F;      /* sampled from the reference frame */
+    --ink:    #F6EFE6;
+    --accent: #F0380C;
+    --ui-fg:  #EFE6DA;
+    --ui-dim: rgba(239, 230, 218, .55);
+    --ui-line: rgba(239, 230, 218, .16);
+  }
+
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: var(--ground); color: var(--ink);
+    font-family: 'F37 Analog', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* The stage clips the field: tiles live well outside the viewport at both
+     ends of the path, and the whole point is that you never see them arrive. */
+  #stage { position: fixed; inset: 0; overflow: hidden; }
+
+  /* a little depth under the procession, so the corners sit back */
+  #stage::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 400;
+    background: radial-gradient(120% 90% at 50% 50%, transparent 42%, rgba(0,0,0,.34) 100%);
+  }
+
+  #field { position: absolute; inset: 0; }
+  .tile {
+    position: absolute; top: 0; left: 0;
+    will-change: transform;
+    transform-origin: 50% 50%;
+    user-select: none; -webkit-user-drag: none;
+  }
+  .tile img {
+    display: block; width: 100%; height: auto;
+    /* the objects are cut-outs on transparent ground; a soft drop shadow is
+       what seats them on the backdrop instead of floating flat on it */
+    filter: drop-shadow(0 26px 34px rgba(0, 0, 0, .40));
+  }
+
+  /* ── page furniture ──────────────────────────────────────────────────── */
+  .mark {
+    position: fixed; z-index: 410; font-size: 11px; letter-spacing: .18em;
+    text-transform: uppercase; color: rgba(246, 239, 230, .62); pointer-events: none;
+  }
+  .mark.tl { top: 26px; left: 28px; }
+  .mark.bl { bottom: 26px; left: 28px; color: rgba(246, 239, 230, .34); }
+  .mark.br { bottom: 26px; right: 28px; color: rgba(246, 239, 230, .34); }
+  .mark .dot { color: var(--accent); }
+  @media (max-width: 700px) { .mark.bl, .mark.br { display: none; } }
+
+  /* ── control panel — the workbench dock adopts this whole block ──────── */
+  #ui {
+    position: fixed; top: 16px; right: 16px; width: 300px; z-index: 500;
+    background: rgba(20, 12, 8, .92); border: 1px solid var(--ui-line);
+    color: var(--ui-fg); padding: 14px; max-height: 92vh; overflow-y: auto;
+    font-size: 11px;
+  }
+  #ui h2 { font-size: 12px; font-weight: 600; margin-bottom: 12px; }
+  #ui .grp {
+    margin: 14px 0 8px; font-size: 9px; letter-spacing: .18em; text-transform: uppercase;
+    color: rgba(239, 230, 218, .38); border-top: 1px solid var(--ui-line); padding-top: 11px;
+  }
+  #ui .grp:first-of-type { border-top: 0; margin-top: 4px; }
+  #ui .row { margin-bottom: 11px; }
+  #ui .row label {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+    margin-bottom: 5px; color: var(--ui-dim); font-size: 10.5px; line-height: 1.3;
+  }
+  #ui .row label b { color: var(--ui-fg); font-weight: 400; font-variant-numeric: tabular-nums; }
+  #ui .row .why { display: block; font-size: 9.5px; color: rgba(239,230,218,.34); line-height: 1.45; margin: -2px 0 5px; }
+  #ui input[type="range"] { width: 100%; accent-color: var(--accent); height: 16px; }
+  #ui .seg { display: flex; gap: 1px; margin-bottom: 4px; }
+  #ui .seg button {
+    flex: 1; padding: 7px 4px; font: inherit; font-size: 9.5px; letter-spacing: .08em;
+    text-transform: uppercase; cursor: pointer; color: var(--ui-dim);
+    background: rgba(255,255,255,.05); border: 1px solid var(--ui-line);
+  }
+  #ui .seg button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  #ui .btn {
+    width: 100%; padding: 9px; margin-top: 6px; font: inherit; font-size: 9.5px;
+    letter-spacing: .12em; text-transform: uppercase; cursor: pointer;
+    color: var(--ui-dim); background: none; border: 1px solid var(--ui-line);
+  }
+  #ui .btn:hover { color: var(--ui-fg); border-color: rgba(239,230,218,.4); }
+  #ui .note { font-size: 9.5px; line-height: 1.6; color: rgba(239,230,218,.42); margin-top: 8px; }
+  #ui .note b { color: var(--accent); font-weight: 400; }
+</style>
+</head>
+<body>
+
+<div id="stage"><div id="field"></div></div>
+
+<p class="mark tl">Diagonal roll<span class="dot">.</span></p>
+<p class="mark bl">Bottom-right &rarr; top-left, forever</p>
+<p class="mark br" id="readout">&nbsp;</p>
+
+<section id="ui" aria-label="Animation controls">
+  <h2>Diagonal Roll</h2>
+
+  <div class="grp">Motion</div>
+  <div class="seg" id="k-motion">
+    <button data-motion="drift" class="on">Drift</button>
+    <button data-motion="pulse">Pulse</button>
+    <button data-motion="scroll">Scroll</button>
+  </div>
+  <p class="why">Drift is a constant crossing. <b>Pulse</b> is the reference's own
+     cadence, measured off the capture: a kick every 1.3&nbsp;s, 15% of the viewport
+     long, decaying to a stop in about 0.6&nbsp;s. Scroll hands the same kick to the wheel.</p>
+
+  <div class="row">
+    <label for="k-loop">Loop duration <b id="v-loop">13.0 s</b></label>
+    <span class="why">Seconds for one tile to cross entry to exit. The master pace.</span>
+    <input id="k-loop" type="range" min="4" max="40" step="0.5" value="13">
+  </div>
+  <div class="row">
+    <label for="k-speed">Base speed <b id="v-speed">1.00&times;</b></label>
+    <span class="why">Multiplier over the loop duration. 2&times; halves the crossing.</span>
+    <input id="k-speed" type="range" min="0.1" max="4" step="0.05" value="1">
+  </div>
+  <div class="row">
+    <label for="k-svar">Speed variance <b id="v-svar">0.18</b></label>
+    <span class="why">Per-tile spread, so the procession does not move as one sheet. It oscillates about the base rate, so tiles never drift into a clump.</span>
+    <input id="k-svar" type="range" min="0" max="0.8" step="0.01" value="0.18">
+  </div>
+  <div class="row">
+    <label for="k-angle">Path angle <b id="v-angle">-144&deg;</b></label>
+    <span class="why">Travel direction. -144&deg; is the reference; -135&deg; is the exact corner diagonal.</span>
+    <input id="k-angle" type="range" min="-180" max="-90" step="1" value="-144">
+  </div>
+  <div class="row">
+    <label for="k-ease">Easing <b id="v-ease">linear</b></label>
+    <span class="why">Velocity profile along the path, in drift mode.</span>
+    <div class="seg" id="k-easeseg">
+      <button data-ease="linear" class="on">Linear</button>
+      <button data-ease="easeInOut">In-out</button>
+      <button data-ease="breathe">Breathe</button>
+    </div>
+  </div>
+
+  <div class="grp">The field</div>
+  <div class="row">
+    <label for="k-count">Tile count <b id="v-count">9</b></label>
+    <span class="why">How many objects are on the path at once. Density.</span>
+    <input id="k-count" type="range" min="3" max="20" step="1" value="9">
+  </div>
+  <div class="row">
+    <label for="k-size">Tile size <b id="v-size">19.5%</b></label>
+    <span class="why">Base width as a share of the viewport, before per-tile scale.</span>
+    <input id="k-size" type="range" min="8" max="45" step="0.5" value="19.5">
+  </div>
+  <div class="row">
+    <label for="k-scalemin">Scale range <b id="v-scale">0.85 – 1.12</b></label>
+    <span class="why">Per-tile size spread. Wider = less uniform, more depth.</span>
+    <input id="k-scalemin" type="range" min="0.3" max="1" step="0.02" value="0.85">
+    <input id="k-scalemax" type="range" min="1" max="2.2" step="0.02" value="1.12">
+  </div>
+  <div class="row">
+    <label for="k-stagger">Stagger <b id="v-stagger">0.55</b></label>
+    <span class="why">Jitter in the spacing between tiles. 0 = a perfectly even queue.</span>
+    <input id="k-stagger" type="range" min="0" max="1" step="0.01" value="0.55">
+  </div>
+  <div class="row">
+    <label for="k-lateral">Lateral spread <b id="v-lateral">7%</b></label>
+    <span class="why">How far off the centre line tiles sit, so it reads as a band not a wire.</span>
+    <input id="k-lateral" type="range" min="0" max="40" step="0.5" value="7">
+  </div>
+
+  <div class="grp">Rotation</div>
+  <div class="row">
+    <label for="k-rot">Rotation amount <b id="v-rot">5.0&deg;</b></label>
+    <span class="why">Peak rock either side of each tile's own resting tilt.</span>
+    <input id="k-rot" type="range" min="0" max="40" step="0.5" value="5">
+  </div>
+  <div class="row">
+    <label for="k-rotspeed">Rotation speed <b id="v-rotspeed">0.32</b></label>
+    <span class="why">Rocks per second. Low reads as weight, high as litter.</span>
+    <input id="k-rotspeed" type="range" min="0" max="2" step="0.01" value="0.32">
+  </div>
+  <div class="row">
+    <label for="k-tilt">Resting tilt <b id="v-tilt">14&deg;</b></label>
+    <span class="why">Spread of the fixed angle each tile is pinned at.</span>
+    <input id="k-tilt" type="range" min="0" max="45" step="1" value="14">
+  </div>
+
+  <div class="grp">Depth &amp; edges</div>
+  <div class="row">
+    <label for="k-opmin">Opacity range <b id="v-op">1.00 – 1.00</b></label>
+    <span class="why">Per-tile opacity spread. Pull the minimum down for haze.</span>
+    <input id="k-opmin" type="range" min="0.2" max="1" step="0.01" value="1">
+    <input id="k-opmax" type="range" min="0.2" max="1" step="0.01" value="1">
+  </div>
+  <div class="row">
+    <label for="k-z">Z layer variance <b id="v-z">3</b></label>
+    <span class="why">Random shuffle in stacking. 0 = strictly newest on top.</span>
+    <input id="k-z" type="range" min="0" max="40" step="1" value="3">
+  </div>
+  <div class="row">
+    <label for="k-entry">Entry offset <b id="v-entry">30%</b></label>
+    <span class="why">How far past the bottom-right corner a tile starts.</span>
+    <input id="k-entry" type="range" min="0" max="120" step="1" value="30">
+  </div>
+  <div class="row">
+    <label for="k-exit">Exit offset <b id="v-exit">30%</b></label>
+    <span class="why">How far past the top-left corner it runs before wrapping.</span>
+    <input id="k-exit" type="range" min="0" max="120" step="1" value="30">
+  </div>
+
+  <button class="btn" id="k-reseed" type="button">Reshuffle the field</button>
+  <button class="btn" id="k-ref" type="button">Reset to the reference</button>
+  <p class="note">Measured from the capture: <b>-144&deg;</b> travel, <b>0.133</b>
+     viewport-widths per second, tiles at <b>~19%</b> of the viewport, newest on top.</p>
+</section>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════════
+   DiagonalRollHero
+   ─────────────────────────────────────────────────────────────────────────
+   A procession of cut-out objects crossing the frame on one straight diagonal,
+   bottom-right to top-left, looping forever.
+
+   THE MODEL
+   Every tile is one number: `p`, how far along the path it has travelled, in
+   pixels. The path is a straight line through the centre of the viewport at
+   `pathAngle`, long enough that both of its ends are well outside the frame —
+   `span` (the viewport measured along that direction) plus an entry pad and an
+   exit pad. A tile at p = 0 sits off the bottom-right; at p = L it is off the
+   top-left, and it wraps back to 0.
+
+   That is the whole looping trick, and it is why there is no seam to hide: a
+   tile is only ever recycled at a position no one can see. Tiles are spread
+   over the path at even intervals of L / tileCount, so the flow through the
+   frame is steady; `staggerDelay` jitters those intervals so the queue does
+   not read as a grid.
+
+   MEASURED, NOT GUESSED
+   The defaults come from tracking the lamp's filament through the reference
+   capture frame by frame:
+     · travel angle    -144°  (36° above horizontal, up-left — steeper than the
+                               16:9 corner diagonal, which would be -151°)
+     · pace            0.133 viewport-widths per second averaged over the clip
+     · tile width      ~24% of the viewport
+     · stacking        the tile nearest the entry is drawn on top
+   The capture also showed something the eye misses: the reference does not
+   drift. It moves in kicks — roughly one every 1.3 s, decaying to a stop in
+   about 0.6 s — because that hero is driven by the scroll wheel, and what was
+   recorded was someone scrolling. `motion: 'pulse'` reproduces that cadence
+   from the measured numbers; `motion: 'scroll'` hands it back to the wheel.
+   The default is `drift`, the continuous crossing.
+   ═════════════════════════════════════════════════════════════════════════ */
+const DiagonalRollHero = (function () {
+  'use strict';
+
+  const DEFAULTS = {
+    /* --- the field ---------------------------------------------------- */
+    tileCount:     9,        // objects on the path at once
+    tileSize:      0.195,    // base width, as a fraction of the viewport width
+    scaleRange:    [0.85, 1.12],
+    staggerDelay:  0.55,     // 0 = evenly spaced queue, 1 = fully jittered
+    lateralSpread: 0.07,     // ± this fraction of the span, across the path
+    restingTilt:   14,       // ± degrees, the fixed angle a tile is pinned at
+
+    /* --- travel -------------------------------------------------------- */
+    pathAngle:     -144,     // degrees, screen space (y down). Measured.
+    loopDuration:  13,       // seconds for one tile to cross entry → exit
+    baseSpeed:     1,        // multiplier over loopDuration
+    speedVariance: 0.18,     // ± per tile
+    easingCurve:   'linear', // 'linear' | 'easeInOut' | 'breathe'
+    entryOffset:   0.30,     // pad beyond the bottom-right, as a share of span
+    exitOffset:    0.30,     // pad beyond the top-left
+
+    /* --- rotation ------------------------------------------------------ */
+    rotationAmount: 5,       // degrees of rock either side of the resting tilt
+    rotationSpeed:  0.32,    // rocks per second
+
+    /* --- depth --------------------------------------------------------- */
+    opacityRange:   [1, 1],
+    zLayerVariance: 3,
+
+    /* --- the reference's own cadence (see the header) ------------------ */
+    motion:       'drift',   // 'drift' | 'pulse' | 'scroll'
+    stepInterval: 1.30,      // seconds between kicks          ] all three
+    stepDistance: 0.15,      // viewport-widths travelled per kick ] measured
+    stepDamping:  5.4,       // decay rate of the kick, per second ] from the capture
+
+    /* Fewer, bigger objects on a narrow screen: the same nine at the same
+       share of a phone's width is a queue of postage stamps. Applied in
+       measure(), so it follows a rotation or a dragged window rather than
+       only being right at load. */
+    responsive: [
+      { upTo:  520, size: 1.95, count: 0.80 },
+      { upTo:  760, size: 1.45, count: 0.90 },
+      { upTo: 1e9,  size: 1.00, count: 1.00 },
+    ],
+
+    assets: [],
+    seed: 7,
+  };
+
+  /* A seeded PRNG rather than Math.random: reshuffling the field should be a
+     thing you can get back to, and a layout you like should survive a reload. */
+  function rng(seed) {
+    let s = seed >>> 0 || 1;
+    return function () {
+      s ^= s << 13; s >>>= 0;
+      s ^= s >> 17;
+      s ^= s << 5;  s >>>= 0;
+      return s / 4294967296;
+    };
+  }
+
+  const EASE = {
+    linear:    () => 1,
+    /* slower at the two ends, quicker across the middle. Normalised so the
+       crossing still takes loopDuration whichever curve is chosen. */
+    easeInOut: u => (0.45 + 1.1 * Math.sin(Math.PI * u)) / 1.15,
+    breathe:   u => (1 + 0.42 * Math.sin(Math.PI * 2 * u * 2)) ,
+  };
+
+  function DiagonalRollHero(mount, options) {
+    const cfg = Object.assign({}, DEFAULTS, options || {});
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let tiles = [], geom = {}, raf = 0, last = 0, clock = 0;
+    let stepClock = 0, wheelVel = 0, cursor = 0;
+
+    /* ── geometry ─────────────────────────────────────────────────────── */
+    function measure() {
+      const W = mount.clientWidth, H = mount.clientHeight;
+      const th = cfg.pathAngle * Math.PI / 180;
+      const dx = Math.cos(th), dy = Math.sin(th);
+      /* the viewport measured along the travel direction: how much path is
+         actually on screen, and therefore what the pads are relative to */
+      const span = Math.abs(W * dx) + Math.abs(H * dy);
+      const L = span * (1 + cfg.entryOffset + cfg.exitOffset);
+      const band = cfg.responsive.find(b => W <= b.upTo) || { size: 1, count: 1 };
+      geom = {
+        W, H, dx, dy, span, L, band,
+        size: cfg.tileSize * band.size,
+        count: Math.max(2, Math.round(cfg.tileCount * band.count)),
+        nx: -dy, ny: dx,                       // across the path
+        /* p = 0 is one half-length back down the path from the centre, which
+           puts it off the bottom-right corner */
+        x0: W / 2 - dx * L / 2,
+        y0: H / 2 - dy * L / 2,
+      };
+    }
+
+    /* ── the tiles ────────────────────────────────────────────────────── */
+    function build() {
+      const rand = rng(cfg.seed);
+      mount.textContent = '';
+      tiles = [];
+      cursor = 0;
+      const n = geom.count;
+
+      for (let i = 0; i < n; i++) {
+        const el = document.createElement('div');
+        el.className = 'tile';
+        const img = document.createElement('img');
+        img.alt = '';
+        img.decoding = 'async';
+        el.appendChild(img);
+        mount.appendChild(el);
+
+        const t = {
+          el, img, i,
+          /* evenly spaced round the loop, then jittered. The even part is what
+             keeps the flow steady; the jitter is what stops it being a grid. */
+          base: i / n,
+          jitter: (rand() * 2 - 1) * 0.35 / n,   // at most a third of a gap
+          wobble: 0, wobbleRate: 0.15, scale: 1, lateral: 0, tilt: 0,
+          phase: 0, opacity: 1, z: 0,
+          asset: -1, p: 0,
+        };
+        roll(t, rand);
+        tiles.push(t);
+      }
+      layoutStart();
+    }
+
+    /* Everything about a tile that is allowed to differ is drawn here, and it
+       is re-drawn each time the tile wraps — off-screen, so a tile coming back
+       round is a different object at a different size and speed rather than
+       the same one going past again. */
+    function roll(t, rand) {
+      const r = rand || rng((cfg.seed + t.i * 977 + Math.floor(clock * 31)) >>> 0);
+      const A = cfg.assets;
+      if (A.length) {
+        /* One rotating cursor across the whole field rather than a per-tile
+           step. Tiles wrap roughly in the order they were laid out, so dealing
+           the next asset off the top each time keeps the set cycling in order
+           and means the same object cannot be on screen twice until all of
+           them have been. A per-tile step looks equivalent and is not: two
+           tiles drift onto the same index and stay there. */
+        t.asset = cursor % A.length;
+        cursor = (cursor + 1) % (A.length * 1024);
+        if (t.img.getAttribute('src') !== A[t.asset]) t.img.src = A[t.asset];
+      }
+      t.wobble  = r() * Math.PI * 2;      // where in its own speed cycle it starts
+      t.wobbleRate = 0.11 + r() * 0.13;   // and how slowly that cycle turns
+      t.scale   = cfg.scaleRange[0] + r() * (cfg.scaleRange[1] - cfg.scaleRange[0]);
+      t.lateral = (r() * 2 - 1) * cfg.lateralSpread;
+      t.tilt    = (r() * 2 - 1) * cfg.restingTilt;
+      t.phase   = r() * Math.PI * 2;
+      t.opacity = cfg.opacityRange[0] + r() * (cfg.opacityRange[1] - cfg.opacityRange[0]);
+      t.z       = Math.round((r() * 2 - 1) * cfg.zLayerVariance);
+      t.w       = geom.W * geom.size * t.scale;
+    }
+
+    function layoutStart() {
+      tiles.forEach(t => {
+        /* jitter is scaled to the gap, not to the whole path: at staggerDelay
+           1 a tile sits at most half a gap off its slot, so the queue is never
+           reordered and two objects cannot start on top of each other */
+        t.p = ((t.base + t.jitter * cfg.staggerDelay) % 1 + 1) % 1 * geom.L;
+        t.w = geom.W * geom.size * t.scale;
+      });
+    }
+
+    /* ── the frame ────────────────────────────────────────────────────── */
+    function velocity(u) {
+      const base = geom.L / Math.max(0.1, cfg.loopDuration) * cfg.baseSpeed;
+      const shape = (EASE[cfg.easingCurve] || EASE.linear)(u);
+      return base * shape;
+    }
+
+    function step(dt) {
+      clock += dt;
+
+      /* Pulse and scroll share one impulse model, because they are the same
+         gesture: a kick, then an exponential decay to rest. The only
+         difference is who supplies the kick — a metronome or the wheel. */
+      let pulseV = 0;
+      if (cfg.motion === 'pulse') {
+        stepClock += dt;
+        if (stepClock >= cfg.stepInterval) {
+          stepClock -= cfg.stepInterval;
+          /* A kick decaying at rate k covers v0/k in total, so to land a step
+             of a given length the kick has to be that length times k. Sizing
+             the impulse this way means stepDistance stays true whatever the
+             damping is set to. */
+          wheelVel += cfg.stepDistance * geom.W * cfg.stepDamping;
+        }
+      }
+      if (cfg.motion === 'pulse' || cfg.motion === 'scroll') {
+        wheelVel *= Math.exp(-cfg.stepDamping * dt);
+        if (Math.abs(wheelVel) < 0.5) wheelVel = 0;
+        pulseV = wheelVel;
+      }
+
+      for (const t of tiles) {
+        const u = t.p / geom.L;
+        /* `p` is the tile's place in the queue and it advances at the base
+           rate, identically for every tile. Speed variation is NOT a per-tile
+           multiplier on this: a multiplier is the obvious way to write it and
+           it quietly destroys the loop, because over a few crossings the fast
+           tiles run down the slow ones until the whole procession is one clump
+           with a hole behind it. The variation is a bounded offset added at
+           draw time instead — see `wobbleOf`. Tiles still visibly speed up and
+           slow down relative to each other (the offset's slope is a real
+           velocity), but the spacing set at build time survives indefinitely. */
+        const v = cfg.motion === 'drift' ? velocity(u) : pulseV;
+        t.p += v * dt;
+
+        if (t.p >= geom.L) { t.p -= geom.L; roll(t); }
+        else if (t.p < 0)  { t.p += geom.L; roll(t); }
+        draw(t);
+      }
+    }
+
+    /* A slow sine along the path, amplitude measured as a share of the gap
+       between tiles, so however it is tuned a tile can never wander far enough
+       to sit on its neighbour. speedVariance 1.0 = half a gap either way. */
+    function wobbleOf(t) {
+      if (!cfg.speedVariance) return 0;
+      const gap = geom.L / Math.max(1, tiles.length);
+      return Math.sin(clock * Math.PI * 2 * t.wobbleRate + t.wobble)
+           * cfg.speedVariance * gap * 0.5;
+    }
+
+    function draw(t) {
+      const g = geom;
+      const off = t.lateral * g.span;
+      const p = t.p + wobbleOf(t);
+      const x = g.x0 + g.dx * p + g.nx * off;
+      const y = g.y0 + g.dy * p + g.ny * off;
+      const rock = cfg.rotationAmount
+        ? Math.sin(clock * Math.PI * 2 * cfg.rotationSpeed + t.phase) * cfg.rotationAmount
+        : 0;
+
+      t.el.style.width = t.w + 'px';
+      /* -50% on both axes centres the tile on the path; the half-height is
+         only known once the image has loaded, so translate(-50%,-50%) does it
+         in the compositor instead of us measuring it every frame */
+      t.el.style.transform =
+        'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0)' +
+        ' translate(-50%,-50%)' +
+        ' rotate(' + (t.tilt + rock).toFixed(2) + 'deg)';
+      t.el.style.opacity = t.opacity;
+      /* newest — nearest the entry — on top, which is the stacking the
+         reference uses: the procession passes behind what is already there */
+      t.el.style.zIndex = String(200 - Math.round((t.p / geom.L) * 100) + t.z);
+    }
+
+    function frame(now) {
+      raf = requestAnimationFrame(frame);
+      const dt = Math.min(0.05, (now - last) / 1000 || 0);
+      last = now;
+      step(dt);
+      if (cfg.onFrame) cfg.onFrame(readout());
+    }
+
+    function readout() {
+      const vwps = cfg.motion === 'drift'
+        ? (geom.L / cfg.loopDuration * cfg.baseSpeed) / geom.W
+        : Math.abs(wheelVel) / geom.W;
+      return { vwPerSecond: vwps, crossing: geom.L / (geom.L / cfg.loopDuration * cfg.baseSpeed) };
+    }
+
+    /* ── api ──────────────────────────────────────────────────────────── */
+    function start() {
+      if (raf) return;
+      last = performance.now();
+      raf = requestAnimationFrame(frame);
+    }
+    function stop() { cancelAnimationFrame(raf); raf = 0; }
+
+    function resize() {
+      const before = tiles.map(t => t.p / (geom.L || 1));
+      const wasCount = geom.count;
+      measure();
+      if (geom.count !== wasCount) {        /* crossed a responsive band */
+        build();
+        tiles.forEach(draw);
+        return;
+      }
+      tiles.forEach((t, i) => { t.p = before[i] * geom.L; t.w = geom.W * geom.size * t.scale; draw(t); });
+    }
+
+    measure();
+    build();
+    tiles.forEach(draw);
+
+    if (reduced) { step(0); }        /* one static, composed frame */
+    else start();
+
+    addEventListener('resize', resize);
+
+    /* the wheel drives it in scroll mode, and nudges it in the other two —
+       the same impulse the reference responds to */
+    addEventListener('wheel', function (e) {
+      if (cfg.motion === 'drift') return;
+      wheelVel += Math.sign(e.deltaY) * Math.min(140, Math.abs(e.deltaY)) * geom.W * 0.0016;
+    }, { passive: true });
+
+    return {
+      cfg,
+      update(patch) {
+        const rebuild = ('tileCount' in patch) || ('assets' in patch) || ('seed' in patch);
+        Object.assign(cfg, patch);
+        measure();
+        if (rebuild) build();
+        else tiles.forEach(t => { t.w = geom.W * geom.size * t.scale; });
+        if (reduced) { tiles.forEach(draw); }
+      },
+      reseed(s) { cfg.seed = s; build(); tiles.forEach(draw); },
+      readout,
+      start, stop,
+    };
+  }
+
+  DiagonalRollHero.DEFAULTS = DEFAULTS;
+  return DiagonalRollHero;
+})();
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Wiring — the page's own instance, and the panel that drives it
+   ═════════════════════════════════════════════════════════════════════════ */
+(function () {
+  const ASSETS = [
+    'assets/loop/poster-eye.webp',
+    'assets/loop/lamp.webp',
+    'assets/loop/chair.webp',
+    'assets/loop/book-idea.webp',
+    'assets/loop/table.webp',
+    'assets/loop/poster-yellow.webp',
+    'assets/loop/shirt.webp',
+    'assets/loop/keyring.webp',
+    'assets/loop/poster-language.webp',
+  ];
+
+  /* The engine handles narrow screens itself, live, through cfg.responsive —
+     so these are the desktop numbers and nothing here watches the viewport. */
+  const hero = DiagonalRollHero(document.getElementById('field'), { assets: ASSETS });
+
+  const readout = document.getElementById('readout');
+  let tick = 0;
+  hero.cfg.onFrame = function (r) {
+    if ((tick++ & 31) !== 0) return;
+    readout.textContent = r.vwPerSecond.toFixed(3) + ' vw / s';
+  };
+
+  /* ── panel ────────────────────────────────────────────────────────────
+     Every control writes one key into the config and the running animation
+     picks it up on the next frame — nothing here rebuilds the field except
+     tile count and the reshuffle. */
+  const $ = id => document.getElementById(id);
+  function bind(id, vid, fmt, apply) {
+    const input = $(id), out = $(vid);
+    const run = () => {
+      const v = parseFloat(input.value);
+      if (out) out.textContent = fmt(v);
+      apply(v);
+    };
+    input.addEventListener('input', run);
+    run();
+  }
+
+  bind('k-loop',    'v-loop',    v => v.toFixed(1) + ' s',  v => hero.update({ loopDuration: v }));
+  bind('k-speed',   'v-speed',   v => v.toFixed(2) + '×', v => hero.update({ baseSpeed: v }));
+  bind('k-svar',    'v-svar',    v => v.toFixed(2),         v => hero.update({ speedVariance: v }));
+  bind('k-angle',   'v-angle',   v => v + '°',         v => hero.update({ pathAngle: v }));
+  bind('k-count',   'v-count',   v => String(v),            v => hero.update({ tileCount: v }));
+  bind('k-size',    'v-size',    v => v.toFixed(1) + '%',   v => hero.update({ tileSize: v / 100 }));
+  bind('k-stagger', 'v-stagger', v => v.toFixed(2),         v => hero.update({ staggerDelay: v }));
+  bind('k-lateral', 'v-lateral', v => v.toFixed(0) + '%',   v => hero.update({ lateralSpread: v / 100 }));
+  bind('k-rot',     'v-rot',     v => v.toFixed(1) + '°', v => hero.update({ rotationAmount: v }));
+  bind('k-rotspeed','v-rotspeed',v => v.toFixed(2),         v => hero.update({ rotationSpeed: v }));
+  bind('k-tilt',    'v-tilt',    v => v.toFixed(0) + '°', v => hero.update({ restingTilt: v }));
+  bind('k-z',       'v-z',       v => String(v),            v => hero.update({ zLayerVariance: v }));
+  bind('k-entry',   'v-entry',   v => v.toFixed(0) + '%',   v => hero.update({ entryOffset: v / 100 }));
+  bind('k-exit',    'v-exit',    v => v.toFixed(0) + '%',   v => hero.update({ exitOffset: v / 100 }));
+
+  /* the paired ranges write one array between them */
+  function pair(loId, hiId, vid, key, fmt) {
+    const lo = $(loId), hi = $(hiId), out = $(vid);
+    const run = () => {
+      let a = parseFloat(lo.value), b = parseFloat(hi.value);
+      if (a > b) { const t = a; a = b; b = t; }
+      out.textContent = fmt(a) + ' – ' + fmt(b);
+      hero.update({ [key]: [a, b] });
+    };
+    lo.addEventListener('input', run); hi.addEventListener('input', run); run();
+  }
+  pair('k-scalemin', 'k-scalemax', 'v-scale', 'scaleRange',   v => v.toFixed(2));
+  pair('k-opmin',    'k-opmax',    'v-op',    'opacityRange', v => v.toFixed(2));
+
+  function seg(wrapId, attr, apply) {
+    const wrap = $(wrapId);
+    wrap.addEventListener('click', e => {
+      const b = e.target.closest('button[data-' + attr + ']');
+      if (!b) return;
+      [...wrap.querySelectorAll('button')].forEach(x => x.classList.toggle('on', x === b));
+      apply(b.dataset[attr]);
+    });
+  }
+  seg('k-motion',  'motion', v => hero.update({ motion: v }));
+  seg('k-easeseg', 'ease',   v => { $('v-ease').textContent = v; hero.update({ easingCurve: v }); });
+
+  $('k-reseed').addEventListener('click', () => hero.reseed((Math.random() * 1e9) | 0));
+
+  $('k-ref').addEventListener('click', () => {
+    const D = DiagonalRollHero.DEFAULTS;
+    const set = (id, v) => { const e = $(id); e.value = v; e.dispatchEvent(new Event('input', { bubbles: true })); };
+    set('k-loop', D.loopDuration); set('k-speed', D.baseSpeed); set('k-svar', D.speedVariance);
+    set('k-angle', D.pathAngle);   set('k-count', D.tileCount);
+    set('k-size', D.tileSize * 100);
+    set('k-stagger', D.staggerDelay); set('k-lateral', D.lateralSpread * 100);
+    set('k-rot', D.rotationAmount); set('k-rotspeed', D.rotationSpeed); set('k-tilt', D.restingTilt);
+    set('k-z', D.zLayerVariance);   set('k-entry', D.entryOffset * 100); set('k-exit', D.exitOffset * 100);
+    set('k-scalemin', D.scaleRange[0]); set('k-scalemax', D.scaleRange[1]);
+    set('k-opmin', D.opacityRange[0]);  set('k-opmax', D.opacityRange[1]);
+    $('k-motion').querySelector('[data-motion="drift"]').click();
+    $('k-easeseg').querySelector('[data-ease="linear"]').click();
+  });
+
+  window.hero = hero;   // for poking at from the console
+})();
+</script>
+
+</body>
+</html>

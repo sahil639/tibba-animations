@@ -3,39 +3,279 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>About us</title>
+<title>About us — Tibba Design Studio</title>
+<meta name="description" content="Tibba is a lean design team based out of India — a young studio founded in 2023, with over a decade of experience behind it.">
+
 <link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/workbench.css">
 <script src="assets/manifest.js"></script>
 <script src="notes.js"></script>
 <script src="assets/workbench.js" defer></script>
-<link rel="stylesheet" href="assets/stub.css">
+<script src="assets/odometer.js" defer></script>
+<script src="assets/site-chrome.js" defer></script>
+
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   About us
+   ─────────────────────────────────────────────────────────────────────────
+   The reference's four sections in its order: the definition as the hero, the
+   studio in prose, what it is built on, and the people. The nav, the footer,
+   the tokens and the odometer are all the shared ones.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+/* ── hero ────────────────────────────────────────────────────────────────
+   The page opens on the question the studio is named after, and answers it
+   with the dictionary entry. The definition is the one piece of type on the
+   site that is allowed to be the whole of a screen. */
+#about-hero {
+  padding-top: calc(var(--nav-h) + clamp(56px, 10vw, 140px));
+  padding-bottom: clamp(48px, 8vw, 120px);
+}
+#about-hero h1 {
+  font-size: clamp(34px, 5.4vw, 86px);
+  font-weight: 500; line-height: 1.04; letter-spacing: -.035em;
+  color: var(--ink); max-width: 15ch;
+  --odo-h: 1.08em;
+}
+#about-hero .definition {
+  margin-top: clamp(26px, 3.4vw, 46px);
+  font-size: clamp(15px, 1.4vw, 20px);
+  color: var(--ink-mute);
+}
+#about-hero .definition b { color: var(--accent); font-weight: 400; }
+#about-hero .aim {
+  margin-top: clamp(24px, 3vw, 40px);
+  font-size: clamp(17px, 2.1vw, 30px);
+  font-weight: 400; line-height: 1.3; letter-spacing: -.02em;
+  color: var(--ink-warm); max-width: 26ch;
+}
+
+/* ── the studio in prose ─────────────────────────────────────────────── */
+.about-section { padding-block: clamp(56px, 8vw, 118px); border-top: 1px solid var(--line-soft); }
+
+#about-description .cols {
+  margin-top: clamp(26px, 3.4vw, 48px);
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(22px, 3vw, 54px);
+}
+#about-description p { color: var(--ink-mute); font-size: clamp(14px, 1.05vw, 16.5px); }
+@media (max-width: 860px) { #about-description .cols { grid-template-columns: 1fr; } }
+
+/* ── what the studio is built on ─────────────────────────────────────── */
+#about-foundations .pillars {
+  margin-top: clamp(28px, 4vw, 56px);
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px; background: var(--line-soft); border: 1px solid var(--line-soft);
+}
+.pillar { background: var(--bg); padding: clamp(24px, 3vw, 46px); }
+.pillar h3 {
+  font-size: clamp(19px, 2vw, 28px); font-weight: 400;
+  letter-spacing: -.02em; color: var(--ink);
+  --odo-h: 1.08em;
+}
+.pillar > p { margin-top: 16px; color: var(--ink-mute); font-size: 15px; max-width: 46ch; }
+.pillar ul {
+  list-style: none; margin-top: 24px;
+  display: flex; flex-wrap: wrap; gap: 7px;
+}
+.pillar li {
+  font-size: 12px; color: var(--ink-mute);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 13px;
+}
+@media (max-width: 760px) { #about-foundations .pillars { grid-template-columns: 1fr; } }
+
+/* ── the team ────────────────────────────────────────────────────────── */
+#about-team .people {
+  margin-top: clamp(28px, 4vw, 56px);
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(14px, 2vw, 28px);
+}
+.person .portrait {
+  aspect-ratio: 4 / 5;
+  border: 1px solid var(--line);
+  background:
+    repeating-linear-gradient(135deg,
+      rgba(255,255,255,.014) 0 12px, transparent 12px 24px),
+    var(--bg-raise);
+  display: grid; place-items: end start;
+  padding: 16px;
+}
+.person .portrait span {
+  font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.person .name { margin-top: 15px; font-size: 16px; color: var(--ink); }
+.person .role { margin-top: 3px; font-size: 12px; color: var(--ink-faint); }
+@media (max-width: 860px) { #about-team .people { grid-template-columns: repeat(2, 1fr); } }
+
+/* ── the numbers, shared with the home page's metrics ────────────────── */
+#about-numbers .metric-grid {
+  margin-top: clamp(28px, 4vw, 52px);
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px; background: var(--line-soft);
+  border-block: 1px solid var(--line-soft);
+}
+#about-numbers .metric { background: var(--bg); padding: clamp(24px, 3vw, 42px) clamp(18px, 2vw, 30px); }
+#about-numbers .n {
+  display: block; font-size: clamp(32px, 4.2vw, 62px); font-weight: 500;
+  line-height: 1; letter-spacing: -.035em; color: var(--ink);
+  --odo-h: 1.04em;
+}
+#about-numbers .l {
+  display: block; margin-top: 14px; font-size: 12px;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--ink-mute);
+}
+@media (max-width: 640px) { #about-numbers .metric-grid { grid-template-columns: 1fr; } }
+</style>
 </head>
-<body>
 
-<!-- ─────────────────────────────────────────────────────────────────────────
-     About us
+<body data-page="about">
 
-     Nothing has been designed into this page yet. Replace everything between
-     these comments with the section itself; keep the four lines in the head
-     that carry the type and the workbench, and drop assets/stub.css when the
-     placeholder below goes.
+<header data-site-nav></header>
 
-     The dock on the right files its comments against this page's id in
-     assets/manifest.js. Change the label there and notes follow; change the
-     id and they do not.
-     ───────────────────────────────────────────────────────────────────── -->
+<main>
 
-<main class="stub">
-  <p class="eyebrow">About — page</p>
-  <h1>About us</h1>
-  <div class="rule"></div>
-  <p>The whole about page, its sections assembled in order.</p>
-  <p>Start in <code>about.html</code>. Leave a note in the dock on the right as you
-     go, and commit <code>notes.js</code> with the change.</p>
+<!-- ═════════════════════════════════════════════════════════════════════════
+     Hero — the question, and the definition that answers it
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section id="about-hero">
+  <div class="wrap">
+    <h1 data-odo>What does Tibba mean?</h1>
+    <p class="definition"><b>tibba</b> / tɪb-bɑ / n &nbsp;1. a higher place &nbsp;•&nbsp; 2. a peak</p>
+    <p class="aim">Higher place, and that's exactly where we aim to take you and your
+       business, with design interventions.</p>
+  </div>
+</section>
+
+<!-- ═════════════════════════════════════════════════════════════════════════
+     The studio, in prose
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section class="about-section" id="about-description" aria-labelledby="who-h">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow" data-odo>[ &nbsp;WHO WE ARE&nbsp; ]</p>
+      <h2 id="who-h" data-odo data-odo-delay="0.08">A lean design team, based out of India</h2>
+    </div>
+
+    <div class="cols">
+      <p>We are Tibba, a lean design team based out of India. Tibba is a young studio
+         founded in 2023, but it comes with over a decade of experience. Our team has
+         shipped over 25 products and generated over $400 million in revenue, for
+         start-ups and established businesses alike.</p>
+      <p>Design, for us, is the ability to solve real problems. We enjoy working closely
+         with stakeholders to understand and execute their vision. We love using research
+         to better understand our clients' audiences and to impact their bottom line.</p>
+      <p>Our approach to every client we work with is unique. We believe in actively
+         listening to a client's needs and modifying our processes accordingly — rather
+         than arriving with a process and fitting the client into it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════════════════════════════════════════════════════════
+     The numbers
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section class="about-section" id="about-numbers" aria-labelledby="num-h">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="num-h" data-odo>Founded in 2023. A decade of work behind it.</h2>
+    </div>
+    <div class="metric-grid">
+      <div class="metric">
+        <span class="n" data-odo-count data-odo-delay="0.05">25+</span>
+        <span class="l">Products shipped</span>
+      </div>
+      <div class="metric">
+        <span class="n" data-odo-count data-odo-delay="0.18">$400M</span>
+        <span class="l">Revenue generated</span>
+      </div>
+      <div class="metric">
+        <span class="n" data-odo-count data-odo-delay="0.31">08</span>
+        <span class="l">Unicorns serviced</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════════════════════════════════════════════════════════
+     What the studio is built on
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section class="about-section" id="about-foundations" aria-labelledby="found-h">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow" data-odo>[ &nbsp;OUR FOUNDATION&nbsp; ]</p>
+      <h2 id="found-h" data-odo data-odo-delay="0.08">What the studio is built on</h2>
+    </div>
+
+    <div class="pillars">
+      <article class="pillar">
+        <h3 data-odo>Agile</h3>
+        <p>Different clients require different approaches. We are comfortable working as
+           a support function to your internal design team, launching keystone projects,
+           and chasing KPIs.</p>
+        <ul>
+          <li>User feedback</li><li>Rapid prototyping</li><li>Quick turnarounds</li>
+          <li>Collaborative</li><li>Iterative</li><li>Sprint planning</li>
+        </ul>
+      </article>
+
+      <article class="pillar">
+        <h3 data-odo>Creating value</h3>
+        <p>We work on two tracks — delivery and discovery. The former focuses on immediate
+           client needs and deadlines; the latter looks for opportunities we can help our
+           clients capitalise on.</p>
+        <ul>
+          <li>Value-driven solutions</li><li>Client ROI focus</li><li>Strategic impact</li>
+          <li>Client investment mindset</li><li>Design excellence</li><li>Maximum outcomes</li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════════════════════════════════════════════════════════════════
+     The people
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section class="about-section" id="about-team" aria-labelledby="team-h">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow" data-odo>[ &nbsp;OUR TEAM&nbsp; ]</p>
+      <h2 id="team-h" data-odo data-odo-delay="0.08">The people, and the ones beside them</h2>
+      <p>In addition to our team, we work with a number of collaborators and advisors,
+         depending on the needs of a project.</p>
+    </div>
+
+    <!-- The portraits are the studio's own photography and are not in this
+         repo; each plate is labelled with what belongs in it. -->
+    <div class="people">
+      <article class="person">
+        <div class="portrait"><span>Portrait</span></div>
+        <p class="name">Rahul Beniwal</p>
+        <p class="role">Founder, designer</p>
+      </article>
+      <article class="person">
+        <div class="portrait"><span>Portrait</span></div>
+        <p class="name">Neel Lakhwani</p>
+        <p class="role">Designer</p>
+      </article>
+      <article class="person">
+        <div class="portrait"><span>Portrait</span></div>
+        <p class="name">Riya Pandey</p>
+        <p class="role">Designer</p>
+      </article>
+      <article class="person">
+        <div class="portrait"><span>Portrait</span></div>
+        <p class="name">Sahil Pednekar</p>
+        <p class="role">Designer</p>
+      </article>
+    </div>
+  </div>
+</section>
+
 </main>
 
-<!-- ─────────────────────────────────────────────────────────────────────── -->
+<footer data-site-footer></footer>
 
 </body>
 </html>

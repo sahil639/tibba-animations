@@ -20,7 +20,7 @@ window.TIBBA_SITE = {
     note: 'The whole site, every section assembled in order. The thing all the work below feeds into.',
     pages: [
       { id: 'final-website', label: 'Final website', file: 'final-website.html',
-        note: 'Sections assembled end to end', state: 'stub' },
+        note: 'Loader, hero and its three scroll states, metrics, brands, the four-summit walk, services, testimonials', state: 'live' },
     ],
   },
 
@@ -61,6 +61,22 @@ window.TIBBA_SITE = {
       note: 'The work that does not get a summit.',
       pages: [ { id: 'case-studies-01', label: 'Extra case studies', file: 'case-studies.html', note: '', state: 'stub' } ] },
 
+    /* The four summits, each at full length. All four are one template and four
+       data objects — the layout is assets/case.js and assets/case.css, and the
+       copy is assets/cases.js. Adding a fifth means a data entry and a shell. */
+    { id: 'case-pages', label: 'Case study pages',
+      note: 'The four summits at full length, off one template.',
+      pages: [
+        { id: 'case-groww', label: 'Groww', file: 'case-groww.html',
+          note: 'Feed, Stories and the XIRR calculator', state: 'live' },
+        { id: 'case-firstpost', label: 'Firstpost', file: 'case-firstpost.html',
+          note: 'The video-first pivot, and what it returned', state: 'live' },
+        { id: 'case-breathe', label: 'Breathe ESG', file: 'case-breathe-esg.html',
+          note: 'A platform redesigned in eight weeks of sprints', state: 'live' },
+        { id: 'case-shyft', label: 'Shyft & Mindhouse', file: 'case-shyft-mindhouse.html',
+          note: 'Two sister brands, and the therapy flow', state: 'live' },
+      ] },
+
     { id: 'services', label: 'Our services',
       note: 'What the studio sells, as a section.',
       pages: [ { id: 'services-01', label: 'Our services', file: 'services-section.html', note: '', state: 'stub' } ] },
@@ -91,7 +107,8 @@ window.TIBBA_SITE = {
 
     { id: 'about', label: 'About us',
       note: 'The whole about page, its sections assembled.',
-      pages: [ { id: 'about-01', label: 'About us', file: 'about.html', note: '', state: 'stub' } ] },
+      pages: [ { id: 'about-01', label: 'About us', file: 'about.html',
+                 note: 'The definition, the studio in prose, the foundation and the team', state: 'live' } ] },
 
     { id: 'about-foundations', label: 'About us — foundations',
       note: 'What the studio is built on.',
@@ -108,6 +125,10 @@ window.TIBBA_SITE = {
     { id: 'misc', label: 'Miscellaneous animations',
       note: 'Experiments that have not found a section yet.',
       pages: [
+        { id: 'misc-diagonal', label: 'Diagonal Roll', file: 'misc-diagonal-roll.html',
+          note: 'Objects crossing on one diagonal, forever', state: 'live' },
+        { id: 'misc-cardfan', label: 'Card Fan', file: 'misc-card-fan.html',
+          note: 'A hand on an arc that springs and bounces back', state: 'live' },
         { id: 'misc-dither', label: 'Dither Lab', file: 'dither-lab.html',
           note: 'A separate experiment in the same folder', state: 'live' },
       ] },

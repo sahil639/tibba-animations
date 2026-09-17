@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card Fan</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="notes.js"></script>
+<script src="assets/workbench.js" defer></script>
+<style>
+  /* ════════════════════════════════════════════════════════════════════════
+     Card Fan — a hand of cards laid on an arc, each one springing up under
+     the cursor and bouncing past its resting place on the way back.
+
+     Measured off the Studio Loop footer frame by frame. The numbers that
+     matter are in CardFan.DEFAULTS; the ones worth knowing here:
+       · cards are tangent to a circle of radius 0.91 x viewport width
+       · 16 degrees between neighbours
+       · a card lifts 24% of its own height and rotates 5.5 degrees FURTHER
+         from vertical — it tips outward, it does not straighten
+       · coming back it undershoots its resting place by a third of the lift
+         before settling: one spring at zeta 0.33, omega 10 rad/s
+     ═══════════════════════════════════════════════════════════════════════ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ground: #23160F;
+    --ink:    #F6EFE6;
+    --accent: #F0380C;
+    --ui-fg:  #EFE6DA;
+    --ui-dim: rgba(239, 230, 218, .55);
+    --ui-line: rgba(239, 230, 218, .16);
+  }
+
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: var(--ground); color: var(--ink);
+    font-family: 'F37 Analog', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #stage { position: fixed; inset: 0; overflow: hidden; }
+  #fan   { position: absolute; inset: 0; }
+
+  .card {
+    position: absolute; top: 0; left: 0;
+    border-radius: 14px; overflow: hidden;
+    background: #2E1D16;
+    will-change: transform;
+    /* the card is placed by its own centre, so it rotates about itself */
+    transform-origin: 50% 50%;
+    box-shadow: 0 30px 50px rgba(0, 0, 0, .45), 0 2px 0 rgba(255, 255, 255, .05) inset;
+    cursor: pointer;
+  }
+  .card img {
+    display: block; width: 100%; height: 100%;
+    pointer-events: none; user-select: none;
+  }
+  .card img.fit-cover   { object-fit: cover; }
+  .card img.fit-contain { object-fit: contain; padding: 11%; }
+
+  /* the hit area is the card, but a fan overlaps heavily — a card only takes
+     the pointer where it is actually the top one, which pointer-events on the
+     stacked elements gives for free */
+
+  .mark {
+    position: fixed; z-index: 410; font-size: 11px; letter-spacing: .18em;
+    text-transform: uppercase; color: rgba(246, 239, 230, .62); pointer-events: none;
+  }
+  .mark.tl { top: 26px; left: 28px; }
+  .mark.bl { bottom: 26px; left: 28px; color: rgba(246, 239, 230, .34); }
+  .mark .dot { color: var(--accent); }
+  @media (max-width: 700px) { .mark.bl { display: none; } }
+
+  /* ── control panel — adopted by the workbench dock ───────────────────── */
+  #ui {
+    position: fixed; top: 16px; right: 16px; width: 300px; z-index: 500;
+    background: rgba(20, 12, 8, .92); border: 1px solid var(--ui-line);
+    color: var(--ui-fg); padding: 14px; max-height: 92vh; overflow-y: auto;
+    font-size: 11px;
+  }
+  #ui h2 { font-size: 12px; font-weight: 600; margin-bottom: 12px; }
+  #ui .grp {
+    margin: 14px 0 8px; font-size: 9px; letter-spacing: .18em; text-transform: uppercase;
+    color: rgba(239, 230, 218, .38); border-top: 1px solid var(--ui-line); padding-top: 11px;
+  }
+  #ui .grp:first-of-type { border-top: 0; margin-top: 4px; }
+  #ui .row { margin-bottom: 11px; }
+  #ui .row label {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+    margin-bottom: 5px; color: var(--ui-dim); font-size: 10.5px; line-height: 1.3;
+  }
+  #ui .row label b { color: var(--ui-fg); font-weight: 400; font-variant-numeric: tabular-nums; }
+  #ui .row .why { display: block; font-size: 9.5px; color: rgba(239,230,218,.34); line-height: 1.45; margin: -2px 0 5px; }
+  #ui input[type="range"] { width: 100%; accent-color: var(--accent); height: 16px; }
+  #ui .btn {
+    width: 100%; padding: 9px; margin-top: 6px; font: inherit; font-size: 9.5px;
+    letter-spacing: .12em; text-transform: uppercase; cursor: pointer;
+    color: var(--ui-dim); background: none; border: 1px solid var(--ui-line);
+  }
+  #ui .btn:hover { color: var(--ui-fg); border-color: rgba(239,230,218,.4); }
+  #ui .note { font-size: 9.5px; line-height: 1.6; color: rgba(239,230,218,.42); margin-top: 8px; }
+  #ui .note b { color: var(--accent); font-weight: 400; }
+</style>
+</head>
+<body>
+
+<div id="stage"><div id="fan"></div></div>
+
+<p class="mark tl">Card fan<span class="dot">.</span></p>
+<p class="mark bl">Hover a card &mdash; it springs, and bounces back past its place</p>
+
+<section id="ui" aria-label="Animation controls">
+  <h2>Card Fan</h2>
+
+  <div class="grp">The hand</div>
+  <div class="row">
+    <label for="k-count">Cards <b id="v-count">5</b></label>
+    <span class="why">How many are dealt onto the arc.</span>
+    <input id="k-count" type="range" min="2" max="12" step="1" value="5">
+  </div>
+  <div class="row">
+    <label for="k-width">Card width <b id="v-width">21.4%</b></label>
+    <span class="why">Share of the viewport width. The reference is 21%.</span>
+    <input id="k-width" type="range" min="8" max="40" step="0.5" value="21.4">
+  </div>
+  <div class="row">
+    <label for="k-aspect">Card aspect <b id="v-aspect">0.70</b></label>
+    <span class="why">Width &divide; height. 0.70 is the reference's card.</span>
+    <input id="k-aspect" type="range" min="0.45" max="1.4" step="0.01" value="0.70">
+  </div>
+  <div class="row">
+    <label for="k-spacing">Card spacing <b id="v-spacing">21.4%</b></label>
+    <span class="why">Centre to centre, as a share of the viewport. Set it below
+      the card width and the hand overlaps; above and it opens into a row.</span>
+    <input id="k-spacing" type="range" min="4" max="40" step="0.5" value="21.4">
+  </div>
+  <div class="row">
+    <label for="k-rise">Arc rise <b id="v-rise">14.9%</b></label>
+    <span class="why">How much lower the outermost cards sit than the middle one.
+      0 is a straight line; this is what makes it a fan rather than a row.</span>
+    <input id="k-rise" type="range" min="0" max="40" step="0.5" value="14.9">
+  </div>
+  <div class="row">
+    <label for="k-step">Fan step <b id="v-step">16.0&deg;</b></label>
+    <span class="why">Degrees between neighbours. Sets both the spacing and how
+      much each card is turned, because the cards are tangent to the arc.</span>
+    <input id="k-step" type="range" min="0" max="40" step="0.5" value="16">
+  </div>
+  <div class="row">
+    <label for="k-drop">Arc drop <b id="v-drop">-5%</b></label>
+    <span class="why">Slides the whole fan down the frame.</span>
+    <input id="k-drop" type="range" min="-30" max="60" step="1" value="-5">
+  </div>
+
+  <div class="grp">Hover</div>
+  <div class="row">
+    <label for="k-lift">Lift <b id="v-lift">24%</b></label>
+    <span class="why">How far the card rises, as a share of its own height.</span>
+    <input id="k-lift" type="range" min="0" max="80" step="1" value="24">
+  </div>
+  <div class="row">
+    <label for="k-hrot">Extra rotation <b id="v-hrot">5.5&deg;</b></label>
+    <span class="why">Added to the card's resting angle, pushing it further from
+      vertical. The reference tips outward rather than straightening — negative
+      values straighten instead.</span>
+    <input id="k-hrot" type="range" min="-25" max="25" step="0.5" value="5.5">
+  </div>
+  <div class="row">
+    <label for="k-hscale">Scale <b id="v-hscale">1.00&times;</b></label>
+    <span class="why">The reference does not scale at all. 1.00 keeps it honest.</span>
+    <input id="k-hscale" type="range" min="0.9" max="1.3" step="0.01" value="1">
+  </div>
+
+  <div class="grp">The bounce</div>
+  <div class="row">
+    <label for="k-freq">Spring frequency <b id="v-freq">10.0</b></label>
+    <span class="why">rad/s. Higher is a snappier, faster spring.</span>
+    <input id="k-freq" type="range" min="3" max="30" step="0.2" value="10">
+  </div>
+  <div class="row">
+    <label for="k-damp">Damping <b id="v-damp">0.33</b></label>
+    <span class="why">Below 1 it overshoots — that is the recoil. 0.33 gives the
+      reference's bounce: it passes its resting place by a third of the lift.
+      1.0 glides home with no bounce at all.</span>
+    <input id="k-damp" type="range" min="0.08" max="1.2" step="0.01" value="0.33">
+  </div>
+  <div class="row">
+    <label for="k-spread">Neighbour recoil <b id="v-spread">0.22</b></label>
+    <span class="why">How much of the lift the cards either side pick up, so the
+      hand shifts as a whole rather than one card moving alone.</span>
+    <input id="k-spread" type="range" min="0" max="1" step="0.01" value="0.22">
+  </div>
+  <div class="row">
+    <label for="k-push">Neighbour push <b id="v-push">18</b></label>
+    <span class="why">Degrees per unit of recoil that neighbours swing away from
+      the hovered card, as if shouldered aside.</span>
+    <input id="k-push" type="range" min="0" max="60" step="1" value="18">
+  </div>
+
+  <button class="btn" id="k-nudge" type="button">Flick the middle card</button>
+  <button class="btn" id="k-ref" type="button">Reset to the reference</button>
+  <p class="note">Measured from the capture: lift <b>24%</b> of card height,
+     rotation <b>+5.5&deg;</b> outward, undershoot <b>33%</b> of the lift,
+     half-period <b>0.33 s</b>.</p>
+</section>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════════
+   CardFan
+   ─────────────────────────────────────────────────────────────────────────
+   A hand of cards on an arc. Hovering one springs it up; letting go drops it
+   back past its resting place and bounces it home.
+
+   THE LAYOUT
+   Cards are tangent to a circle sitting below the frame. Card i takes the
+   angle i * fanStep away from centre, its position is that angle swept round
+   the circle, and its resting rotation IS that angle — which is why one
+   control, fanStep, sets both the spacing and the turn of every card at once,
+   and why the fan stays coherent at any radius.
+
+   THE BOUNCE
+   Each card owns one spring — a value, a velocity, and a target — integrated
+   every frame rather than handed to a tween:
+
+       a = k(target - x) - c·v,    k = ω²,  c = 2ζω
+
+   Everything visible is driven off that one number `l`: the lift up the card's
+   own axis, the extra rotation, the scale, the shadow. Below ζ = 1 the spring
+   overshoots, and THAT is the recoil — it is not a second animation bolted on
+   the end, it is the same spring passing its rest position on the way back.
+   The capture gives ζ = 0.33 and ω = 10 rad/s: a third of the lift overshot,
+   a third of a second per half-swing.
+
+   A spring is also the reason this survives a flicked cursor. A tween has to
+   be interrupted and restarted from wherever it got to; a spring just takes a
+   new target and keeps its velocity, so crossing four cards quickly leaves the
+   hand moving like a hand rather than four animations fighting.
+   ═════════════════════════════════════════════════════════════════════════ */
+const CardFan = (function () {
+  'use strict';
+
+  const DEFAULTS = {
+    /* --- the hand (measured) ------------------------------------------ */
+    cardCount:   5,
+    cardWidth:   0.214,   // share of viewport width
+    cardAspect:  0.70,    // width / height
+    cardSpacing: 0.214,   // centre to centre, share of viewport width
+    fanStep:     16,      // degrees of turn between neighbours
+    arcRise:     0.149,   // how much lower the outermost card sits, share of vw
+    arcDrop:     -0.05,   // slides the whole hand down, share of viewport height
+
+    /* --- hover (measured) --------------------------------------------- */
+    hoverLift:   0.24,    // share of card height
+    hoverRotate: 5.5,     // degrees ADDED to the resting angle, outward
+    hoverScale:  1.00,    // the reference does not scale
+
+    /* --- the spring (measured) ---------------------------------------- */
+    springFreq:    10,    // rad/s
+    springDamping: 0.33,  // < 1 overshoots; this is the recoil
+
+    /* --- how much the rest of the hand feels it ----------------------- */
+    neighbourRecoil: 0.22,
+    neighbourPush:   18,  // degrees per unit of recoil, swung away
+
+    /* A phone cannot hold five cards at 21% each. Applied in measure(), so it
+       follows a rotation or a dragged window rather than only being right at
+       load. */
+    responsive: [
+      { upTo: 560, count: 3, width: 0.38, spacing: 0.30 },
+      { upTo: 900, count: 4, width: 0.27, spacing: 0.25 },
+      { upTo: 1e9 },
+    ],
+
+    cards: [],
+  };
+
+  function CardFan(mount, options) {
+    const cfg = Object.assign({}, DEFAULTS, options || {});
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let cards = [], geom = {}, raf = 0, last = 0, hovered = -1;
+
+    function measure() {
+      const W = mount.clientWidth, H = mount.clientHeight;
+      const band = (cfg.responsive || []).find(b => W <= b.upTo) || {};
+      const cw = W * (band.width || cfg.cardWidth);
+      /* Spacing, turn and arc depth are kept independent rather than derived
+         from one tangent circle. The reference is not tangent to a circle —
+         measured, its spacing implies a 13.5deg step while its arc depth
+         implies 16deg — so a single radius cannot reproduce it, and three
+         plain numbers tune far better than one radius anyway. */
+      geom = {
+        W, H, cw, ch: cw / cfg.cardAspect,
+        cx: W / 2, cy: H / 2 + H * cfg.arcDrop,
+        spacing: W * (band.spacing || cfg.cardSpacing),
+        rise: W * cfg.arcRise,
+        count: band.count || Math.round(cfg.cardCount),
+      };
+    }
+
+    function build() {
+      mount.textContent = '';
+      cards = [];
+      const n = Math.max(1, geom.count);
+      for (let i = 0; i < n; i++) {
+        const spec = cfg.cards.length ? cfg.cards[i % cfg.cards.length] : {};
+        const el = document.createElement('div');
+        el.className = 'card';
+        if (spec.bg) el.style.background = spec.bg;
+        if (spec.src) {
+          const img = document.createElement('img');
+          img.src = spec.src;
+          img.alt = '';
+          img.decoding = 'async';
+          img.className = 'fit-' + (spec.fit || 'cover');
+          el.appendChild(img);
+        }
+        mount.appendChild(el);
+
+        const c = { el, i, l: 0, v: 0, target: 0, weight: 0 };
+        el.addEventListener('pointerenter', () => { hovered = i; retarget(); });
+        el.addEventListener('pointerleave', () => { if (hovered === i) { hovered = -1; retarget(); } });
+        cards.push(c);
+      }
+      retarget();
+      layout();
+    }
+
+    /* One hovered card sets a target for the whole hand: 1 for itself, and a
+       share of it for the others that falls off with distance, so the fan
+       moves together instead of one card jumping out of a static row. */
+    function retarget() {
+      const n = cards.length;
+      for (const c of cards) {
+        if (hovered < 0) { c.target = 0; continue; }
+        const d = Math.abs(c.i - hovered);
+        c.target = d === 0 ? 1 : cfg.neighbourRecoil / d;
+      }
+      void n;
+    }
+
+    /* seat i, as an offset from the middle of the hand: -2, -1, 0, 1, 2 */
+    function slotOf(i) { return i - (cards.length - 1) / 2; }
+    function angleOf(i) { return slotOf(i) * cfg.fanStep; }
+
+    function layout() {
+      for (const c of cards) {
+        c.el.style.width  = geom.cw + 'px';
+        c.el.style.height = geom.ch + 'px';
+      }
+      draw();
+    }
+
+    function draw() {
+      const g = geom;
+      for (const c of cards) {
+        const k = slotOf(c.i);
+        const mid = Math.max(1e-6, (cards.length - 1) / 2);
+        const norm = k / mid;                       // -1 at the ends, 0 in the middle
+        const base = k * cfg.fanStep;
+        const th = base * Math.PI / 180;
+        /* the resting seat: evenly spaced across, dropping away on a parabola */
+        const x = g.cx + k * g.spacing;
+        const y = g.cy + g.rise * norm * norm;
+
+        const own = c.i === hovered;
+        const lift = c.l * cfg.hoverLift * g.ch;
+        /* A card rises along its OWN axis, not up the screen — a card leaning
+           17 degrees left goes up and to the left, which is what the capture
+           shows (93px up came with 45px left). Lifting straight up instead
+           reads as the card sliding rather than being picked up. */
+        const lx = x + Math.sin(th) * lift;
+        const ly = y - Math.cos(th) * lift;
+
+        /* the hovered card turns further out; its neighbours swing away from
+           it, which is the shouldered-aside part of the recoil */
+        const away = hovered < 0 || own ? 0
+          : Math.sign(c.i - hovered) * c.l * cfg.neighbourPush;
+        const rot = base + c.l * (own ? cfg.hoverRotate : 0) + away;
+        const sc = 1 + (cfg.hoverScale - 1) * (own ? c.l : 0);
+
+        c.el.style.transform =
+          'translate3d(' + (lx - g.cw / 2).toFixed(1) + 'px,' + (ly - g.ch / 2).toFixed(1) + 'px,0)' +
+          ' rotate(' + rot.toFixed(2) + 'deg)' +
+          (sc !== 1 ? ' scale(' + sc.toFixed(3) + ')' : '');
+        /* a lifted card also lifts off the page — the shadow is the only cue
+           that says up rather than merely north */
+        const s = Math.max(0, c.l);
+        c.el.style.boxShadow =
+          '0 ' + (30 + 40 * s).toFixed(0) + 'px ' + (50 + 40 * s).toFixed(0) + 'px rgba(0,0,0,' +
+          (0.45 + 0.2 * s).toFixed(2) + '), 0 2px 0 rgba(255,255,255,.05) inset';
+        c.el.style.zIndex = String(100 + (own ? 60 : 0) + Math.round(c.l * 20)
+          - Math.abs(c.i - (cards.length - 1) / 2));
+      }
+    }
+
+    function step(dt) {
+      const k = cfg.springFreq * cfg.springFreq;
+      const damp = 2 * cfg.springDamping * cfg.springFreq;
+      let moving = false;
+      for (const c of cards) {
+        const a = k * (c.target - c.l) - damp * c.v;
+        c.v += a * dt;
+        c.l += c.v * dt;
+        if (Math.abs(c.v) > 1e-3 || Math.abs(c.target - c.l) > 1e-4) moving = true;
+      }
+      draw();
+      return moving;
+    }
+
+    function frame(now) {
+      raf = requestAnimationFrame(frame);
+      /* a long dt — a background tab, a stalled main thread — would make the
+         spring explode, so it is clamped and sub-stepped */
+      let dt = Math.min(0.05, (now - last) / 1000 || 0);
+      last = now;
+      const sub = Math.ceil(dt / 0.008) || 1;
+      for (let s = 0; s < sub; s++) step(dt / sub);
+    }
+
+    measure(); build();
+    if (!reduced) { last = performance.now(); raf = requestAnimationFrame(frame); }
+
+    addEventListener('resize', () => {
+      const was = geom.count;
+      measure();
+      if (geom.count !== was) build(); else layout();   /* crossed a band */
+    });
+
+    return {
+      cfg,
+      /* a getter, not the array itself: build() replaces `cards` wholesale, so
+         a plain reference handed out here goes stale the first time the count
+         changes and reports the state of cards that are no longer on screen */
+      get cards() { return cards; },
+      get hovered() { return hovered; },
+      update(patch) {
+        const rebuild = ('cardCount' in patch) || ('cards' in patch);
+        Object.assign(cfg, patch);
+        measure();
+        if (rebuild) build(); else layout();
+      },
+      /* a shove with no pointer involved — the same spring, given velocity */
+      flick(i, amount) {
+        const c = cards[i == null ? (cards.length / 2) | 0 : i];
+        if (c) c.v += (amount == null ? 9 : amount);
+      },
+      stop() { cancelAnimationFrame(raf); raf = 0; },
+    };
+  }
+
+  CardFan.DEFAULTS = DEFAULTS;
+  return CardFan;
+})();
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Wiring — this page's hand, and the panel that drives it
+   ═════════════════════════════════════════════════════════════════════════ */
+(function () {
+  /* The reference deals photographs; what this repo has is the cut-out object
+     set from the Diagonal Roll page. Flat artwork fills the card edge to edge;
+     an object on a transparent ground is inset on a tinted card instead, which
+     is what `fit` picks between. */
+  const CARDS = [
+    { src: 'assets/loop/poster-eye.webp',      fit: 'cover',   bg: '#F2E456' },
+    { src: 'assets/loop/shirt.webp',           fit: 'contain', bg: '#3B2A21' },
+    { src: 'assets/loop/poster-yellow.webp',   fit: 'cover',   bg: '#EDE7DA' },
+    { src: 'assets/loop/chair.webp',           fit: 'contain', bg: '#2E1D16' },
+    { src: 'assets/loop/book-idea.webp',       fit: 'cover',   bg: '#C9BFA8' },
+    { src: 'assets/loop/lamp.webp',            fit: 'contain', bg: '#3B2A21' },
+    { src: 'assets/loop/poster-language.webp', fit: 'cover',   bg: '#F2E456' },
+    { src: 'assets/loop/keyring.webp',         fit: 'contain', bg: '#C96A3A' },
+    { src: 'assets/loop/table.webp',           fit: 'contain', bg: '#2E1D16' },
+  ];
+
+  /* narrow screens are handled inside the engine, live, via cfg.responsive */
+  const fan = CardFan(document.getElementById('fan'), { cards: CARDS });
+
+  const $ = id => document.getElementById(id);
+  function bind(id, vid, fmt, apply) {
+    const input = $(id), out = $(vid);
+    const run = () => { const v = parseFloat(input.value); if (out) out.textContent = fmt(v); apply(v); };
+    input.addEventListener('input', run); run();
+  }
+
+  bind('k-count',  'v-count',  v => String(v),          v => fan.update({ cardCount: v }));
+  bind('k-width',  'v-width',  v => v.toFixed(1) + '%', v => fan.update({ cardWidth: v / 100 }));
+  bind('k-aspect', 'v-aspect', v => v.toFixed(2),       v => fan.update({ cardAspect: v }));
+  bind('k-spacing','v-spacing',v => v.toFixed(1) + '%', v => fan.update({ cardSpacing: v / 100 }));
+  bind('k-rise',   'v-rise',   v => v.toFixed(1) + '%', v => fan.update({ arcRise: v / 100 }));
+  bind('k-step',   'v-step',   v => v.toFixed(1) + '°', v => fan.update({ fanStep: v }));
+  bind('k-drop',   'v-drop',   v => v.toFixed(0) + '%', v => fan.update({ arcDrop: v / 100 }));
+  bind('k-lift',   'v-lift',   v => v.toFixed(0) + '%', v => fan.update({ hoverLift: v / 100 }));
+  bind('k-hrot',   'v-hrot',   v => v.toFixed(1) + '°', v => fan.update({ hoverRotate: v }));
+  bind('k-hscale', 'v-hscale', v => v.toFixed(2) + '×', v => fan.update({ hoverScale: v }));
+  bind('k-freq',   'v-freq',   v => v.toFixed(1),       v => fan.update({ springFreq: v }));
+  bind('k-damp',   'v-damp',   v => v.toFixed(2),       v => fan.update({ springDamping: v }));
+  bind('k-spread', 'v-spread', v => v.toFixed(2),       v => fan.update({ neighbourRecoil: v }));
+  bind('k-push',   'v-push',   v => v.toFixed(0),       v => fan.update({ neighbourPush: v }));
+
+  $('k-nudge').addEventListener('click', () => fan.flick());
+
+  $('k-ref').addEventListener('click', () => {
+    const D = CardFan.DEFAULTS;
+    const set = (id, v) => { const e = $(id); e.value = v; e.dispatchEvent(new Event('input', { bubbles: true })); };
+    set('k-count', D.cardCount);
+    set('k-width', D.cardWidth * 100);
+    set('k-spacing', D.cardSpacing * 100);
+    set('k-aspect', D.cardAspect); set('k-spacing', D.cardSpacing * 100);
+    set('k-rise', D.arcRise * 100);
+    set('k-step', D.fanStep);      set('k-drop', D.arcDrop * 100);
+    set('k-lift', D.hoverLift * 100); set('k-hrot', D.hoverRotate);
+    set('k-hscale', D.hoverScale);
+    set('k-freq', D.springFreq);   set('k-damp', D.springDamping);
+    set('k-spread', D.neighbourRecoil); set('k-push', D.neighbourPush);
+  });
+
+  window.fan = fan;
+})();
+</script>
+
+</body>
+</html>
