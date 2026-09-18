@@ -803,6 +803,26 @@ const CT = {
   Z0: -196, Z1:  58,
   FADE_R: 232,       // radius the aerial fade is measured against
   MIN_LEN: 7,        // world units — anything shorter is a speck, not a contour
+
+  /* ── dotted rings ──────────────────────────────────────────────────────
+     The lowest contours — the ones running between the summits rather than up
+     them — are drawn as a travelling row of dots instead of a solid stroke,
+     which is what Contour Ridge does with its outermost three levels. Lifted
+     from that page verbatim: period 0.42 world units, the dot holding to 0.16
+     of it and gone by 0.30, drifting at 0.16 units a second.
+
+     Those numbers are in WORLD units, which is the whole reason the geometry
+     below grows a second arc attribute. The normalised one it already had is
+     a fraction of a ring's own circumference, so dots measured against it
+     would come out at the same COUNT on every ring — twelve around a tiny
+     summit ring and twelve around a base ring fifty times its length.
+     Measured in world units they come out at the same SIZE, which is what
+     reads as one dotted pen rather than as a dashed circle. */
+  DOTTED_LEVELS: 3,  // how many of the lowest rings are dotted
+  DOT_PERIOD: 0.42,  // world units from one dot to the next
+  DOT_ON:     0.16,  // where the dot starts fading out, as a fraction of that
+  DOT_OFF:    0.30,  // and where it has gone
+  DOT_FLOW:   0.16,  // world units a second the row drifts along its own arc
 };
 
 /* One field across the entire range rather than a box per summit. Local boxes
@@ -1032,7 +1052,11 @@ function buildContourGeometry() {
         central = Math.max(central, Math.exp(-Math.pow(Math.hypot(mx - PEAKS[k].x, mz - PEAKS[k].z) / (PEAKS[k].spread * 1.5), 2.2)));
       const w = (isIndex ? CT.W_INDEX : CT.W_MINOR) * (0.62 + 0.38 * steep) * (0.62 + 0.38 * central);
 
-      lines.push({ pts: pl, level, weight: w, closed });
+      /* The lowest rings are the ones carrying between the summits, and they
+         are the ones that go dotted — counted from CT.START, so moving where
+         the sheet begins does not change which rings are dashed. */
+      const dotted = n < CT.START + CT.DOTTED_LEVELS;
+      lines.push({ pts: pl, level, weight: w, closed, dotted });
     }
   }
 
@@ -1046,7 +1070,9 @@ function buildContourGeometry() {
         wid  = new Float32Array(vCount),
         rad  = new Float32Array(vCount),
         lev  = new Float32Array(vCount),
-        arc  = new Float32Array(vCount);
+        arc  = new Float32Array(vCount),
+        arcW = new Float32Array(vCount),   // the same walk, in world units
+        dot  = new Float32Array(vCount);   // 1 on the rings that are dotted
   const idx = vCount > 65535 ? new Uint32Array(iCount) : new Uint16Array(iCount);
 
   /* every point's height, clear of the mesh */
@@ -1077,6 +1103,7 @@ function buildContourGeometry() {
         next[o] = np[0]; next[o+1] = yn; next[o+2] = np[1];
         side[v] = sd ? 1 : -1; wid[v] = L.weight; rad[v] = r;
         lev[v] = L.level; arc[v] = cum[i] / tot;
+        arcW[v] = cum[i]; dot[v] = L.dotted ? 1 : 0;
         v++;
       }
     }
@@ -1096,6 +1123,8 @@ function buildContourGeometry() {
   g.setAttribute('aRadius',  new THREE.BufferAttribute(rad, 1));
   g.setAttribute('aLevel',   new THREE.BufferAttribute(lev, 1));
   g.setAttribute('aArc',     new THREE.BufferAttribute(arc, 1));
+  g.setAttribute('aArcW',    new THREE.BufferAttribute(arcW, 1));
+  g.setAttribute('aDot',     new THREE.BufferAttribute(dot, 1));
   g.setIndex(new THREE.BufferAttribute(idx, 1));
   g.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, MAX_H * 0.4, -60), 340);
   CF = null;                       // the field is only needed during the build
@@ -1148,6 +1177,12 @@ const contourMat = new THREE.ShaderMaterial({
     uBand:     { value: MAX_H * 0.11 },
     uMode:     { value: 0 },
     uOpacity:  { value: CT.OPACITY },
+    /* the dotted rings — uTime is ticked in the render loop below */
+    uTime:      { value: 0 },
+    uDotPeriod: { value: CT.DOT_PERIOD },
+    uDotOn:     { value: CT.DOT_ON },
+    uDotOff:    { value: CT.DOT_OFF },
+    uDotFlow:   { value: CT.DOT_FLOW },
     uEdgeAmt:  { value: 0 },
     uFadeA:    { value: 0.74 },                 // aerial fade, in units of the range's reach
     uFadeB:    { value: 1.0 },
@@ -1158,7 +1193,7 @@ const contourMat = new THREE.ShaderMaterial({
   },
   vertexShader: `
     attribute vec3 aPrev, aNext;
-    attribute float aSide, aWidth, aRadius, aArc, aLevel;
+    attribute float aSide, aWidth, aRadius, aArc, aLevel, aArcW, aDot;
     uniform vec2 uHalfRes;
     uniform float uWeight, uFogNear, uFogFar;
     uniform vec3 uPeak[NP];
@@ -1170,6 +1205,7 @@ const contourMat = new THREE.ShaderMaterial({
     uniform float uHiWeight;
     uniform float uHoverPeak;
     varying float vY, vR, vArc, vCut, vMorph, vMax, vReveal, vFog, vOn, vLit, vSame;
+    varying float vArcW, vDot;
     varying vec2  vXZ;
     void main(){
       vec4 cur = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
@@ -1231,13 +1267,16 @@ const contourMat = new THREE.ShaderMaterial({
       /* the sweep, the hover band and the palette all key off the contour's own
          elevation — not the height its geometry was nudged to */
       vY = aLevel; vR = aRadius; vArc = aArc;
+      vArcW = aArcW; vDot = aDot;
       gl_Position = cur;
     }`,
   fragmentShader: `
     precision highp float;
     varying float vY, vR, vArc, vCut, vMorph, vMax, vReveal, vFog, vOn, vLit, vSame;
+    varying float vArcW, vDot;
     varying vec2  vXZ;
     uniform float uBand, uMode, uOpacity, uFadeA, uFadeB, uEdgeAmt;
+    uniform float uTime, uDotPeriod, uDotOn, uDotOff, uDotFlow;
     uniform float uAnyLit, uDim;
     uniform float uHoverY, uHoverAmt, uHoverBand, uHoverR, uPulse;
     uniform vec2  uHoverXZ;
@@ -1304,6 +1343,16 @@ const contourMat = new THREE.ShaderMaterial({
       col = mix(col, uHoverCol, hov * 0.95);
       col += uHoverCol * hov * 0.55;
       a *= 1.0 + 1.1 * hov;                     // and it comes forward off the sheet
+
+      /* ── the dots ──────────────────────────────────────────────────────
+         Applied last, so a dotted ring still takes the ink sweep, the aerial
+         fade and the hover highlight exactly as a solid one does. The dashes
+         only decide where along the stroke ink lands — never what colour it
+         is, and never whether it has been revealed yet. */
+      if (vDot > 0.5 && uDotPeriod > 0.0) {
+        float d = fract((vArcW + uTime * uDotFlow) / uDotPeriod);
+        a *= 1.0 - smoothstep(uDotOn, uDotOff, d);
+      }
 
       if (a < 0.004) discard;
       gl_FragColor = vec4(col, min(1.0, a));
@@ -1684,6 +1733,7 @@ addEventListener('resize', resize);
 
 /* ─── Render loop ────────────────────────────────────────────── */
 let _lastT = performance.now();
+let dotClock = 0;
 let rafId = 0, running = true;
 /* Scheduled rather than entered. The loop used to run its first frame the
    instant it was defined, which was fine when it was the last thing on the
@@ -1706,6 +1756,14 @@ function frame(){
   const dt = Math.min(0.05, (_now - _lastT) / 1000);
   _lastT = _now;
   stepMorph(dt);
+
+  /* The dotted rings drift along their own arc length. Accumulated rather than
+     read off performance.now(): the clock keeps running while the scene is
+     parked off screen, and a scene that has been parked for a minute would
+     otherwise come back with its dots teleported to wherever the wall clock
+     had got to. */
+  dotClock += dt;
+  contourMat.uniforms.uTime.value = dotClock;
 
   /* The zoom is chased rather than set, for the same reason the morph is: the
      page drives it off a scroll position, and a scroll arrives in jumps. */

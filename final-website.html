@@ -98,28 +98,47 @@
 }
 #hero-copy .wrap { width: 100%; }
 
+/* The title and the copy under it are one panel, not two pieces of type
+   floating over the scene. A hairline box gives the words their own ground so
+   they stay legible wherever the terrain happens to be bright behind them —
+   which, with the camera moving through three states, is not somewhere a
+   layout can predict. */
+#hero-panel {
+  display: inline-block;
+  border: 1px solid var(--line);
+  background: rgba(10, 10, 11, .42);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  padding: clamp(20px, 2.4vw, 34px) clamp(22px, 2.8vw, 40px);
+  max-width: min(46ch, 100%);
+}
+
 #hero-title {
-  font-size: clamp(38px, 6.6vw, 104px);
-  font-weight: 500;
-  line-height: 1.02;
-  letter-spacing: -.035em;
+  font-size: clamp(30px, 4.2vw, 62px);
+  font-weight: 400;
+  line-height: 1.04;
+  letter-spacing: -.02em;
+  text-transform: uppercase;
   color: var(--ink);
-  max-width: 13ch;
+  max-width: 11ch;
   --odo-h: 1.06em;      /* this face has almost no descender in caps */
 }
+/* the full stop is the one piece of accent in the hero's type */
+#hero-title .stop { color: var(--accent); }
+
 #hero-lede {
-  margin-top: clamp(18px, 2.4vw, 34px);
-  max-width: 44ch;
-  font-size: clamp(14px, 1.15vw, 17px);
+  margin-top: clamp(14px, 1.8vw, 26px);
+  max-width: 40ch;
+  font-size: clamp(13px, 1.02vw, 15px);
   color: var(--ink-warm);
 }
 #hero-lede .sub {
-  display: block; margin-top: 12px;
-  color: var(--ink-mute); max-width: 42ch;
+  display: block; margin-top: 11px;
+  color: var(--ink-mute);
 }
 /* the copy has to get out of the way once the peak is being redrawn — at
    state 3 the camera is close enough that the words sit on top of the summit */
-#hero-title, #hero-lede { transition: opacity .45s var(--ease); }
+#hero-panel, #hero-def { transition: opacity .45s var(--ease); }
 
 /* The definition, set small at the right the way the reference sets it. */
 #hero-def {
@@ -617,34 +636,6 @@
 .quote .cta:hover { border-bottom-color: var(--accent); color: var(--accent); }
 @media (max-width: 760px) { #testimonials .quotes { grid-template-columns: 1fr; } }
 
-/* ── work · the summits index ────────────────────────────────────────── */
-#work .case-grid {
-  margin-top: clamp(30px, 4vw, 56px);
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1px; background: var(--line-soft);
-  border: 1px solid var(--line-soft);
-}
-.case-cell {
-  background: var(--bg); padding: clamp(24px, 3vw, 42px);
-  text-decoration: none; display: flex; flex-direction: column; gap: 14px;
-  transition: background .3s var(--ease);
-}
-.case-cell:hover { background: var(--bg-raise); }
-.case-cell .tag {
-  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
-  color: var(--client, var(--accent));
-}
-.case-cell h3 {
-  font-size: clamp(17px, 1.7vw, 24px); font-weight: 400;
-  line-height: 1.3; letter-spacing: -.015em; color: var(--ink); max-width: 26ch;
-}
-.case-cell p { color: var(--ink-mute); font-size: 14px; max-width: 46ch; }
-.case-cell .go {
-  margin-top: 8px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
-  color: var(--ink-faint);
-}
-.case-cell:hover .go { color: var(--ink); }
-@media (max-width: 760px) { #work .case-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 
@@ -673,12 +664,14 @@
          it rolls, because the roll and the camera's pull-back are one move -->
     <div id="hero-copy" data-odo-hold>
       <div class="wrap">
-        <h1 id="hero-title" data-odo>Tibba Design Studio</h1>
+        <div id="hero-panel">
+        <h1 id="hero-title"><span data-odo>Tibba Design Studio</span><span class="stop">.</span></h1>
         <p id="hero-lede">
           <span data-odo data-odo-delay="0.1">Helping ambitious teams reach the next peak.</span>
           <span class="sub">We partner with founders and design leaders to turn ambitious
             ideas into shipped, high-impact work.</span>
         </p>
+        </div>
       </div>
     </div>
 
@@ -777,19 +770,6 @@
         </span>
       </a>
     </div>
-  </div>
-</section>
-
-<!-- ═════════════════════════════════════════════════════════════════════════
-     WORK — the four case studies the range is about
-     ═══════════════════════════════════════════════════════════════════════ -->
-<section class="section" id="work" aria-labelledby="work-h">
-  <div class="wrap">
-    <div class="section-head">
-      <h2 id="work-h" data-odo>We help turn ideas into outcomes</h2>
-      <p>Researching and crafting thoughtful, cohesive apps, websites, interfaces and systems.</p>
-    </div>
-    <div class="case-grid" id="case-grid"><!-- built from CASES below --></div>
   </div>
 </section>
 

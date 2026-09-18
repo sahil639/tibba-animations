@@ -209,7 +209,7 @@ const INTRO = REDUCED ? 0 : 2.4;      // seconds of pull-back
 function runLoader() {
   const sheet = $('#loader');
   const bar = $('#loader-bar');
-  const title = $('#hero-title');
+  const title = $('#hero-title [data-odo]');
   const lede = $('#hero-lede [data-odo]');
   const nav = document.querySelector('.site-nav');
 
@@ -287,8 +287,7 @@ else addEventListener('load', runLoader);
    whole thing in reverse rather than leaving the scene in its end state.
    ═════════════════════════════════════════════════════════════════════════ */
 const hero = $('#hero');
-const heroTitle = $('#hero-title');
-const heroLede = $('#hero-lede');
+const heroPanel = $('#hero-panel');
 const heroDef = $('#hero-def');
 const cue = $('#scroll-cue');
 const hint = $('#hover-hint');
@@ -314,16 +313,17 @@ function heroScroll() {
   const wantHover = zoom > 0.25;
   if (wantHover !== hoverOn) { hoverOn = wantHover; heroScene.setHover(wantHover); }
 
-  /* The copy leaves in two stages rather than one, because the two halves of
-     it are in the way at different moments. The lede and the definition go
-     with the redraw — they are small type sitting on the flank, and the flank
-     is what is changing. The title holds through all of that, because it is
-     the thing the hero is, and only leaves as the camera comes in, by which
-     point the summit is behind the words. */
-  const ledeOut = 1 - clamp01((ink - 0.05) / 0.5);
-  heroLede.style.opacity = ledeOut;
-  heroDef.style.opacity = ledeOut;
-  heroTitle.style.opacity = 1 - clamp01(zoom / 0.55);
+  /* The title and the copy are one panel now, so they leave as one thing. It
+     used to be two curves — the lede going with the redraw and the title
+     holding on until the camera closed in — but that only worked while they
+     were two pieces of type floating separately. Fading a child inside a box
+     that stays put reads as the panel failing to load, not as copy making way.
+
+     It goes late in the ink and is gone before the zoom starts, so the summit
+     is never behind the words at the moment the camera arrives on it. */
+  const panelOut = 1 - clamp01((ink - 0.45) / 0.45);
+  heroPanel.style.opacity = panelOut;
+  heroDef.style.opacity = 1 - clamp01((ink - 0.05) / 0.5);
 
   cue.style.opacity = t < 0.05 ? 1 : 0;
   hint.style.opacity = wantHover && t < ZOOM_OUT ? 1 : 0;
@@ -552,26 +552,6 @@ mkrEls.slice(1).forEach(el => el.classList.add('dimmed'));
   }
 
   show(0);
-}
-
-/* ══════════════════════════════════════════════════════════════════════════
-   WORK
-   ═════════════════════════════════════════════════════════════════════════ */
-{
-  const grid = $('#case-grid');
-  CASES.forEach(c => {
-    const a = document.createElement('a');
-    a.className = 'case-cell';
-    a.href = c.file;
-    a.style.setProperty('--client', c.colour);
-    a.innerHTML =
-      `<p class="tag">${c.tags}</p>` +
-      `<h3>${c.title}</h3>` +
-      `<p>${c.body}</p>` +
-      `<p class="go"><span data-odo>View project</span></p>`;
-    a.setAttribute('data-odo-hover', '');
-    grid.appendChild(a);
-  });
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
