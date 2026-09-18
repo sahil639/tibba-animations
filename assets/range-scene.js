@@ -44,6 +44,10 @@ import * as THREE from 'three';
 export function createRangeScene(opts) {
   const MODE_RANGE = opts.mode === 'range';
 
+  /* Which country the hero drew this load. Reported on the API so the control
+     panel can show it and hand it back to pin the landscape down. */
+  let HERO_TERRAIN_SEED = 0;
+
   /* Every measurement in here used to be innerWidth/innerHeight, because the
      canvas was the window. It is a section now, so the scene measures its own
      box — and falls back to the window only before layout has happened. */
@@ -139,17 +143,92 @@ const PEAKS = [
     spur:0.44, spurF:2.9, flute:0.12, fluteF:13,
     parts: [ { dx:0, dz:0, h:23, spread:23, sharp:1.35, aniso:1.10 },
              { dx:-6, dz:8, h:3, spread:20, mesa:0.70, aniso:1.10 } ] },
-  // Breathe — a plateau, flat-topped with steep sides
-  { x:  44, z: -121, h:18, spread:32, seed:129.3, rot: 0.15, aniso:1.30, warp:14,
-    spur:0.26, spurF:2.2, flute:0.13, fluteF:12,
-    parts: [ { dx:0, dz:0, h:15, spread:24, mesa:0.42, aniso:1.30 },
-             { dx:3, dz:9, h:6, spread:34, mesa:0.58, aniso:1.22 } ] },
-  // Shyft — an even cone, near symmetric
-  { x: 114, z:  -95, h:22, spread:26, seed:191.5, rot: 0.00, aniso:1.05, warp: 5,
-    spur:0.17, spurF:3.2, flute:0.13, fluteF:14,
-    parts: [ { dx:0, dz:0, h:22, spread:26, sharp:2.00, aniso:1.05 },
-             { dx:0, dz:6, h:4, spread:30, mesa:0.66, aniso:1.05 } ] },
+  /* Breathe — a plateau, but no longer only a plateau. A mesa on its own has
+     no top: its contours stop at the rim and the middle is blank, so on the
+     walk it read as a stump next to three mountains. It keeps the flat-topped
+     bench it is built on and gains a cusped summit standing on it. */
+  { x:  44, z: -121, h:20, spread:32, seed:129.3, rot: 0.15, aniso:1.30, warp:14,
+    spur:0.30, spurF:2.2, flute:0.13, fluteF:12,
+    parts: [ { dx:0, dz:0, h: 9.5, spread:13, sharp:1.55, aniso:1.12 }, // summit
+             { dx:0, dz:0, h:13.0, spread:25, mesa:0.44, aniso:1.30 }, // the bench
+             { dx:3, dz:9, h: 5.5, spread:34, mesa:0.58, aniso:1.22 } ] },
+  /* Shyft — an even cone, near symmetric, now drawn to a point. At sharp 2.0
+     the exponential is still wide at the top and the last few rings sat almost
+     on top of each other; 1.45 gives the same mass a summit you can see. */
+  { x: 114, z:  -95, h:23, spread:26, seed:191.5, rot: 0.00, aniso:1.05, warp: 5,
+    spur:0.22, spurF:3.2, flute:0.13, fluteF:14,
+    parts: [ { dx:0, dz:0, h:23, spread:26, sharp:1.45, aniso:1.05 },
+             { dx:0, dz:6, h: 4, spread:30, mesa:0.66, aniso:1.05 } ] },
 ];
+/* ── the hero's own country ───────────────────────────────────────────────
+   In 'hero' the four client summits have no business being there. They are not
+   what the section is about, and because the terrain is one mesh their
+   silhouettes are in the frame whether or not their contours are revealed.
+
+   So in hero mode they are replaced — same four slots, so every uniform array
+   in the shaders keeps its size — with landforms scattered and shaped at
+   random: some cusped, some flat-topped benches, at a spread of heights, and
+   pushed out far enough to sit on the horizon rather than crowd the massif.
+   Peak 0, the studio's own, is never touched.
+
+   Seeded rather than Math.random, so a reload gives a different country but a
+   given seed always gives the same one — a landscape you cannot get back to is
+   one you cannot tune, and the control panel needs to be able to hold one
+   still while the camera is being set against it. */
+function makeCountry(seed) {
+  let t = seed >>> 0;
+  const rnd = () => {                       // xorshift32, uniform in [0,1)
+    t ^= t << 13; t >>>= 0;
+    t ^= t >> 17;
+    t ^= t << 5;  t >>>= 0;
+    return t / 4294967296;
+  };
+  const between = (a, b) => a + (b - a) * rnd();
+
+  /* Four bearings, one per quadrant of the far field, jittered inside their
+     own arc. Picking four angles at random instead clumps them — three on one
+     side and a gap is the single most common draw, and it reads as a mistake
+     rather than as a range. */
+  return [0, 1, 2, 3].map(i => {
+    const ang = (-Math.PI * 0.86) + (i + between(0.18, 0.82)) * (Math.PI * 0.72 / 2);
+    const dist = between(108, 168);
+    const x = Math.cos(ang) * dist;
+    const z = -Math.abs(Math.sin(ang) * dist) - between(24, 60);
+
+    /* Held below the studio's massif on purpose. The hero is about one peak;
+       a generated hill that out-tops it steals the skyline, and it would also
+       take the top of the shared contour interval with it. */
+    const h = between(11, 23);
+    const spread = between(22, 40);
+    const mesa = rnd() < 0.38;              // a bench rather than a horn
+    const sd = between(10, 240);
+
+    return {
+      x, z, h, spread, seed: sd,
+      rot: between(-1, 1), aniso: between(1.0, 1.45), warp: between(5, 16),
+      spur: between(0.16, 0.42), spurF: between(1.9, 3.2),
+      flute: between(0.05, 0.14), fluteF: between(8, 14),
+      parts: mesa
+        ? [ { dx: 0, dz: 0, h: h * 0.42, spread: spread * 0.42, sharp: between(1.4, 1.9), aniso: 1.1 },
+            { dx: 0, dz: 0, h: h * 0.62, spread: spread * 0.8, mesa: between(0.4, 0.6), aniso: 1.25 } ]
+        : [ { dx: 0, dz: 0, h, spread, sharp: between(1.4, 2.4), aniso: between(1.0, 1.3) },
+            { dx: between(-8, 8), dz: between(4, 12), h: h * 0.22,
+              spread: spread * 1.15, mesa: between(0.5, 0.7), aniso: 1.15 } ],
+    };
+  });
+}
+
+if (!MODE_RANGE && opts.terrain !== false) {
+  /* ?seed=… pins the country, which is what makes it tunable: a landscape you
+     cannot get back to is one you cannot set a camera against. */
+  const fromUrl = new URLSearchParams(location.search).get('seed');
+  const seed = opts.terrainSeed != null ? opts.terrainSeed
+    : (fromUrl ? (parseInt(fromUrl, 10) >>> 0)
+               : (Math.random() * 0xFFFFFFFF) >>> 0);
+  HERO_TERRAIN_SEED = seed;
+  makeCountry(seed).forEach((p, i) => { PEAKS[i + 1] = p; });
+}
+
 PEAKS.forEach(p => {
   p._cos = Math.cos(p.rot); p._sin = Math.sin(p.rot);
   p._ax = p.spread * p.aniso; p._az = p.spread / p.aniso;
@@ -823,6 +902,18 @@ const CT = {
   DOT_ON:     0.16,  // where the dot starts fading out, as a fraction of that
   DOT_OFF:    0.30,  // and where it has gone
   DOT_FLOW:   0.16,  // world units a second the row drifts along its own arc
+
+  /* The summit's own rings. The top few contours of the studio's massif are
+     drawn in the accent rather than in ink and can be lifted off the mountain
+     under the cursor — the same three rings the reference site wears at its
+     peak, and the same object tibba-peak.html lifts on hover.
+
+     They are not separate geometry. A ring is flagged in the contour buffer
+     and the shaders do the rest, so it stays part of the same survey sheet:
+     it takes the ink sweep, the aerial fade and the occlusion exactly as every
+     other contour does, and there is no second mesh to keep in step. */
+  ACCENT_TOP: 3,     // rings down from the summit that wear the accent
+  RING_LIFT: 1.15,   // world units the hovered ring rises
 };
 
 /* One field across the entire range rather than a box per summit. Local boxes
@@ -1007,7 +1098,14 @@ function ctSnap(pts, lev) {
    screen space, so a stroke keeps one pixel width at any depth or DPR — and it
    scales with nothing, which is what stops the lines going heavy as the camera
    pulls back across the range. */
+/* Where the summit's accent rings sit in the world, filled as the geometry is
+   built. The page projects these to find what the cursor is over — the rings
+   are the one part of this scene with copy attached to them, and hit-testing
+   three small ellipses is a job for the DOM rather than for a ray march. */
+const ACCENT_RINGS = [];
+
 function buildContourGeometry() {
+  ACCENT_RINGS.length = 0;
   ctBuildField();
   const lines = [];
   /* One vertical interval across the whole range. Contours that share an
@@ -1056,9 +1154,39 @@ function buildContourGeometry() {
          are the ones that go dotted — counted from CT.START, so moving where
          the sheet begins does not change which rings are dashed. */
       const dotted = n < CT.START + CT.DOTTED_LEVELS;
-      lines.push({ pts: pl, level, weight: w, closed, dotted });
+
+      /* Is this ring one of the studio massif's own? Answered by where it is,
+         not by how high it is. Height alone looked like it would do — peak 0
+         is the tallest thing in the range and MAX_H is measured on it — but
+         that is only true of the four client summits as authored. The hero
+         generates its own country at random, and two generated landforms whose
+         skirts overlap sum to something taller than the massif, at which point
+         the top three levels belong to a hill on the horizon and the accent
+         rings are painted on the wrong mountain.
+
+         Proximity is true in both modes and under any terrain. */
+      const near0 = Math.hypot(mx - PEAKS[0].x, mz - PEAKS[0].z) < PEAKS[0].spread * 0.9;
+      let rr = 0;
+      for (const q of pl) rr += Math.hypot(q[0] - mx, q[1] - mz);
+
+      lines.push({ pts: pl, level, weight: w, closed, dotted, ring: 0,
+                   near0, cx: mx, cz: mz, cr: rr / pl.length });
     }
   }
+
+  /* The accent rings, chosen after the whole sheet exists rather than during
+     it. Taking "the top three levels" as they are generated does not work: the
+     very highest level of a field is a single point, not a ring, so marching
+     squares returns nothing for it and counting it leaves two. Picking the
+     three highest rings that were actually BUILT takes whatever the field
+     gave, and is right whether the summit lands on a level or between two. */
+  const crown = lines.filter(L => L.near0 && L.closed)
+                     .sort((a, b) => b.level - a.level)
+                     .slice(0, CT.ACCENT_TOP);
+  crown.forEach((L, i) => {
+    L.ring = i + 1;                                   // 1 is the topmost
+    ACCENT_RINGS[i] = { x: L.cx, z: L.cz, y: L.level, r: L.cr };
+  });
 
   let vCount = 0, iCount = 0;
   for (const L of lines) { vCount += L.pts.length * 2; iCount += (L.pts.length - 1) * 6; }
@@ -1072,7 +1200,8 @@ function buildContourGeometry() {
         lev  = new Float32Array(vCount),
         arc  = new Float32Array(vCount),
         arcW = new Float32Array(vCount),   // the same walk, in world units
-        dot  = new Float32Array(vCount);   // 1 on the rings that are dotted
+        dot  = new Float32Array(vCount),   // 1 on the rings that are dotted
+        rng  = new Float32Array(vCount);   // 1..3 on the summit's accent rings
   const idx = vCount > 65535 ? new Uint32Array(iCount) : new Uint16Array(iCount);
 
   /* every point's height, clear of the mesh */
@@ -1103,7 +1232,7 @@ function buildContourGeometry() {
         next[o] = np[0]; next[o+1] = yn; next[o+2] = np[1];
         side[v] = sd ? 1 : -1; wid[v] = L.weight; rad[v] = r;
         lev[v] = L.level; arc[v] = cum[i] / tot;
-        arcW[v] = cum[i]; dot[v] = L.dotted ? 1 : 0;
+        arcW[v] = cum[i]; dot[v] = L.dotted ? 1 : 0; rng[v] = L.ring;
         v++;
       }
     }
@@ -1125,6 +1254,7 @@ function buildContourGeometry() {
   g.setAttribute('aArc',     new THREE.BufferAttribute(arc, 1));
   g.setAttribute('aArcW',    new THREE.BufferAttribute(arcW, 1));
   g.setAttribute('aDot',     new THREE.BufferAttribute(dot, 1));
+  g.setAttribute('aRing',    new THREE.BufferAttribute(rng, 1));
   g.setIndex(new THREE.BufferAttribute(idx, 1));
   g.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, MAX_H * 0.4, -60), 340);
   CF = null;                       // the field is only needed during the build
@@ -1183,6 +1313,10 @@ const contourMat = new THREE.ShaderMaterial({
     uDotOn:     { value: CT.DOT_ON },
     uDotOff:    { value: CT.DOT_OFF },
     uDotFlow:   { value: CT.DOT_FLOW },
+    /* the summit's accent rings — lift and heat, one per ring */
+    uAccent:    { value: srgbVec(0xE85D3D) },
+    uRingLift:  { value: [0, 0, 0] },
+    uRingHot:   { value: [0, 0, 0] },
     uEdgeAmt:  { value: 0 },
     uFadeA:    { value: 0.74 },                 // aerial fade, in units of the range's reach
     uFadeB:    { value: 1.0 },
@@ -1193,7 +1327,7 @@ const contourMat = new THREE.ShaderMaterial({
   },
   vertexShader: `
     attribute vec3 aPrev, aNext;
-    attribute float aSide, aWidth, aRadius, aArc, aLevel, aArcW, aDot;
+    attribute float aSide, aWidth, aRadius, aArc, aLevel, aArcW, aDot, aRing;
     uniform vec2 uHalfRes;
     uniform float uWeight, uFogNear, uFogFar;
     uniform vec3 uPeak[NP];
@@ -1204,13 +1338,33 @@ const contourMat = new THREE.ShaderMaterial({
     uniform float uLit[NP];
     uniform float uHiWeight;
     uniform float uHoverPeak;
+    uniform float uRingLift[3];
     varying float vY, vR, vArc, vCut, vMorph, vMax, vReveal, vFog, vOn, vLit, vSame;
-    varying float vArcW, vDot;
+    varying float vArcW, vDot, vRing, vRingHot;
     varying vec2  vXZ;
+
+    uniform float uRingHot[3];
+
     void main(){
-      vec4 cur = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      vec4 prv = projectionMatrix * modelViewMatrix * vec4(aPrev,   1.0);
-      vec4 nxt = projectionMatrix * modelViewMatrix * vec4(aNext,   1.0);
+      /* A lifted ring rises off the mountain without the mountain moving with
+         it. Resolved with a loop rather than by indexing the uniform array
+         with a varying — dynamic indexing of a uniform array is not something
+         every GLSL ES 1.0 driver will take, and three iterations costs less
+         than finding out which ones will. */
+      vec3 p = position, pP = aPrev, pN = aNext;
+      vRing = aRing; vRingHot = 0.0;
+      for (int k = 0; k < 3; k++) {
+        if (aRing > float(k) + 0.5 && aRing < float(k) + 1.5) {
+          p.y  += uRingLift[k];
+          pP.y += uRingLift[k];
+          pN.y += uRingLift[k];
+          vRingHot = uRingHot[k];
+        }
+      }
+
+      vec4 cur = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+      vec4 prv = projectionMatrix * modelViewMatrix * vec4(pP,  1.0);
+      vec4 nxt = projectionMatrix * modelViewMatrix * vec4(pN,  1.0);
 
       vec2 cs = cur.xy / max(1e-5, abs(cur.w)) * uHalfRes;
       vec2 ps = prv.xy / max(1e-5, abs(prv.w)) * uHalfRes;
@@ -1273,10 +1427,11 @@ const contourMat = new THREE.ShaderMaterial({
   fragmentShader: `
     precision highp float;
     varying float vY, vR, vArc, vCut, vMorph, vMax, vReveal, vFog, vOn, vLit, vSame;
-    varying float vArcW, vDot;
+    varying float vArcW, vDot, vRing, vRingHot;
     varying vec2  vXZ;
     uniform float uBand, uMode, uOpacity, uFadeA, uFadeB, uEdgeAmt;
     uniform float uTime, uDotPeriod, uDotOn, uDotOff, uDotFlow;
+    uniform vec3  uAccent;
     uniform float uAnyLit, uDim;
     uniform float uHoverY, uHoverAmt, uHoverBand, uHoverR, uPulse;
     uniform vec2  uHoverXZ;
@@ -1343,6 +1498,16 @@ const contourMat = new THREE.ShaderMaterial({
       col = mix(col, uHoverCol, hov * 0.95);
       col += uHoverCol * hov * 0.55;
       a *= 1.0 + 1.1 * hov;                     // and it comes forward off the sheet
+
+      /* ── the summit's rings ────────────────────────────────────────────
+         Painted rather than mixed: an accent ring is not ink with a tint on
+         it, it is a different pen. Under the cursor it brightens and thickens
+         a little, which together with the lift in the vertex shader is the
+         whole of the hover. */
+      if (vRing > 0.5) {
+        col = mix(uAccent, uAccent * 1.5 + 0.28, vRingHot);
+        a  *= 1.0 + 0.85 * vRingHot;
+      }
 
       /* ── the dots ──────────────────────────────────────────────────────
          Applied last, so a dotted ring still takes the ink sweep, the aerial
@@ -1734,6 +1899,7 @@ addEventListener('resize', resize);
 /* ─── Render loop ────────────────────────────────────────────── */
 let _lastT = performance.now();
 let dotClock = 0;
+let ringHover = -1;
 let rafId = 0, running = true;
 /* Scheduled rather than entered. The loop used to run its first frame the
    instant it was defined, which was fine when it was the last thing on the
@@ -1764,6 +1930,20 @@ function frame(){
      had got to. */
   dotClock += dt;
   contourMat.uniforms.uTime.value = dotClock;
+
+  /* The rings chase their hover rather than snapping to it. A ring that lifts
+     the instant the cursor crosses it reads as a hit-test firing; one that
+     rises over a fifth of a second reads as the ring responding. */
+  {
+    const lift = contourMat.uniforms.uRingLift.value;
+    const hot  = contourMat.uniforms.uRingHot.value;
+    const e = Math.min(1, dt * 9);
+    for (let k = 0; k < 3; k++) {
+      const want = ringHover === k ? 1 : 0;
+      hot[k]  += (want - hot[k]) * e;
+      lift[k] += (want * CT.RING_LIFT - lift[k]) * e;
+    }
+  }
 
   /* The zoom is chased rather than set, for the same reason the morph is: the
      page drives it off a scroll position, and a scroll arrives in jumps. */
@@ -1815,7 +1995,12 @@ camTarget.copy(H_TGT);
    'range' has one station of its own, far enough back to hold all four client
    summits with air around them.
    ═════════════════════════════════════════════════════════════════════════ */
-const HERO_CLOSE = { elev: 15, dist: 62, azim: 4, tgtX: 4, tgtY: 24, tgtZ: -2 };
+/* The close station. It is framed on the SUMMIT rather than on the mountain,
+   because what the third scroll state is for is the three accent rings at the
+   top of it — and a station close enough to fill the frame with the massif
+   puts those rings above the top of it. Aimed high on the peak and held far
+   enough back that all three rings are in shot and large enough to point at. */
+const HERO_CLOSE = { elev: 18, dist: 95, azim: 4, tgtX: 4, tgtY: 30, tgtZ: -2 };
 
 function station(c) {
   const e = c.elev * Math.PI / 180, a = c.azim * Math.PI / 180;
@@ -1865,6 +2050,31 @@ function syncFraming() {
   }
 }
 
+/* ── the lock ────────────────────────────────────────────────────────────
+   Where the hero's peak goes when the page has finished with it: turned,
+   shrunk, moved to one side and faded back, so it becomes the thing the
+   metrics sit beside rather than the thing they sit on.
+
+   The numbers are topo-hero-scroll.html's, which is the page this move was
+   worked out on — its LOCK_YAW, LOCK_SCALE and LOCK_OPACITY carried straight
+   across. The one that could not was LOCK_X: that page states the final
+   position in normalised device coordinates, which it can because it owns its
+   own projection. Here the same displacement is a world-space shift of the
+   camera, so it is expressed in world units and is a function of how far away
+   the camera happens to be.
+
+   Nothing here touches the morph. The peak arrives at this section already
+   drawn out as contour line and it stays that way — re-lighting it on the way
+   into the metrics would undo the whole redraw the hero just performed. */
+const LOCK = {
+  yaw: 0.58,        // radians the peak turns through on the way down
+  scale: 0.62,      // final size, as a fraction of the hero's
+  shift: 46,        // world units the camera slides, putting the peak left
+  drop: 0.16,       // and how far it settles, as a fraction of its height
+  opacity: 0.45,    // what the line fades back to
+};
+let lockT = 0;
+
 /* 0 = wide, 1 = close. Held rather than tweened directly so that a scroll that
    reverses mid-flight is chased rather than fought. */
 let zoom = 0, zoomT = 0;
@@ -1877,11 +2087,26 @@ function applyZoom() {
   _zt.lerpVectors(HERO_WIDE.tgt, HERO_TIGHT.tgt, e);
   camTarget.copy(_zt);
   camBase.copy(_zt).addScaledVector(_zp.sub(_zt), frameOut);
+
+  /* The lock rides on top of whatever the zoom has just decided, so the two
+     compose instead of fighting: the peak can still be at its close station
+     and be sliding out of the middle of the frame at the same time. Both the
+     station and what it looks at move together, which slides the subject
+     across the frame rather than swinging the camera round it. */
+  if (lockT > 0) {
+    const e = lockT * lockT * (3 - 2 * lockT);
+    const dx = LOCK.shift * e;
+    const dy = -LOCK.drop * e * camTarget.y;
+    camBase.x += dx; camTarget.x += dx;
+    camBase.y += dy; camTarget.y += dy;
+  }
 }
 
 /* A station, pushed back for the window's aspect. Every flight goes through
    this — a summit framed at desktop width is half out of shot on a phone for
    exactly the same reason the wide view was. */
+const _rc = new THREE.Vector3(), _re = new THREE.Vector3(), _rx = new THREE.Vector3();
+
 const _fp = new THREE.Vector3();
 function framed(st) {
   _fp.copy(st.pos).sub(st.tgt);
@@ -1963,6 +2188,22 @@ return {
     if (!on) { hoverHit = false; canvas.style.cursor = ''; }
   },
 
+  /* ── the lock ─────────────────────────────────────────────────────────
+     0 leaves the peak where the hero left it; 1 has it turned, shrunk, moved
+     aside and faded back, which is the state the metrics are read against. */
+  lockTo(t) {
+    if (MODE_RANGE) return;
+    lockT = Math.min(1, Math.max(0, t));
+    const e = lockT * lockT * (3 - 2 * lockT);
+    mountainGroup.rotation.y = LOCK.yaw * e;
+    mountainGroup.scale.setScalar(1 + (LOCK.scale - 1) * e);
+    /* The ink fades, the fill is left alone — by the time anything locks, the
+       fill has already been drawn out of the peak and has nothing left to
+       fade. Touching uAlpha here would only bring the drained silhouette back
+       up through the contours. */
+    contourMat.uniforms.uOpacity.value = CT.OPACITY * (1 + (LOCK.opacity - 1) * e);
+  },
+
   /** 0 = the wide hero station, 1 = in close on the summit. */
   zoomTo(t, dur) {
     zoomT = Math.min(1, Math.max(0, t));
@@ -2020,8 +2261,90 @@ return {
   /** Which summit the walk is on, or -1 before it starts. */
   get focused() { return focused; },
 
+  /* What the scene is actually made of, for the tuning panel: the peak table
+     as it ended up (which in the hero is generated, so it is not something a
+     reader can look up in the source) and the seed that produced it. */
+  info() {
+    return {
+      seed: HERO_TERRAIN_SEED,
+      maxH: MAX_H,
+      peaks: PEAKS.map((p, i) => ({
+        i, x: +p.x.toFixed(1), z: +p.z.toFixed(1),
+        h: +p.h.toFixed(1), spread: +p.spread.toFixed(1),
+        top: +PEAK_H[i].toFixed(1),
+      })),
+      camera: camera.position.toArray().map(n => +n.toFixed(1)),
+      target: camTarget.toArray().map(n => +n.toFixed(1)),
+    };
+  },
+
+  /* ── the tuning surface ───────────────────────────────────────────────
+     What the dock's panel drives. Everything here is live: a uniform written
+     this frame is on screen the next one, and the one control that cannot be
+     (how many rings are dotted, which is baked into the geometry) says so by
+     rebuilding it. */
+  setAccent(hex) {
+    contourMat.uniforms.uAccent.value.copy(srgbVec(hex));
+  },
+
+  setHeroCam(next) {
+    if (MODE_RANGE) return;
+    Object.assign(HERO_CAM, next);
+    applyHeroCam(false);          // recompute H_POS / H_TGT in place
+    applyZoom();                  // and put the camera on the new station now
+  },
+
+  setDots(next) {
+    const u = contourMat.uniforms;
+    if (next.period != null) u.uDotPeriod.value = next.period;
+    if (next.on != null) { u.uDotOn.value = next.on; u.uDotOff.value = next.on * 1.9; }
+    if (next.flow != null) u.uDotFlow.value = next.flow;
+  },
+
+  /* Which rings are dotted is a per-vertex flag, so this is the one control
+     that costs a rebuild rather than a uniform write. */
+  setDottedLevels(n) {
+    CT.DOTTED_LEVELS = Math.max(0, n | 0);
+    const g = buildContourGeometry();
+    contourMesh.geometry.dispose();
+    contourMesh.geometry = g;
+  },
+
   /** Put the camera on a summit with no flight and no climb. */
   openOn,
+
+  /* ── the summit's rings ───────────────────────────────────────────────
+     Three accent contours at the top of the studio's massif, each with a line
+     of copy attached to it on the page. The scene draws them and lifts the
+     one it is told to; the page decides which, because hit-testing three
+     small ellipses and putting a description beside them is a job the DOM
+     does better than a ray march.
+
+     ringScreen() hands back where each one is right now, in CSS pixels
+     relative to the canvas, with the radius it projects to. `behind` is true
+     once a ring has gone round the back of the camera, which is the one case
+     a projected point is a real position and a nonsense one at the same
+     time. */
+  setRingHover(i) { ringHover = (i == null ? -1 : i); },
+
+  ringScreen() {
+    const w = vpW(), h = vpH();
+    return ACCENT_RINGS.map((r, k) => {
+      if (!r) return null;
+      const lift = contourMat.uniforms.uRingLift.value[k] || 0;
+      _rc.set(r.x, r.y + lift, r.z);
+      mountainGroup.localToWorld(_rc);
+      _re.copy(_rc).add(_rx.set(r.r, 0, 0));   // a point on the ring itself
+      _rc.project(camera);
+      _re.project(camera);
+      return {
+        x: (_rc.x * 0.5 + 0.5) * w,
+        y: (-_rc.y * 0.5 + 0.5) * h,
+        r: Math.abs(_re.x - _rc.x) * 0.5 * w,
+        behind: _rc.z >= 1,
+      };
+    });
+  },
 
   /* Climb the route on the summit the camera is already on. walkTo() does this
      at the end of a flight; this is the same move without one, for the summit

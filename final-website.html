@@ -13,7 +13,9 @@
 <script src="notes.js"></script>
 <script src="assets/workbench.js" defer></script>
 <script src="assets/odometer.js" defer></script>
+<script src="assets/footer-range.js" defer></script>
 <script src="assets/site-chrome.js" defer></script>
+<script src="assets/services.js" defer></script>
 
 <style>
 /* ══════════════════════════════════════════════════════════════════════════
@@ -81,10 +83,21 @@
    300vh sentinel is the same gesture on everything, and it can be scrubbed
    backwards, which a counted event cannot.
    ═════════════════════════════════════════════════════════════════════════ */
-#hero { position: relative; height: 300vh; }
+/* Four viewports, not three. The fourth is the metrics: the peak does not
+   hand over to that section, it travels into it — turning, shrinking and
+   moving aside while the numbers come up beside it. Which means the metrics
+   have to live inside the hero's scroll region, on top of the same stuck
+   canvas, rather than being the next section down.
+
+   The alternative was a sticky canvas spanning both sections, and it is worse:
+   a sticky element's scope is its container, so making one span two sections
+   means wrapping them, and then neither section can be moved without the
+   other. This way the hero owns its own animation from end to end. */
+#hero { position: relative; height: 400vh; }
 
 #hero-stage {
-  position: sticky; top: 0; height: 100vh;
+  position: sticky; top: 0;
+  height: 100vh; height: 100svh;
   overflow: hidden;
 }
 #hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -148,6 +161,40 @@
   transition: opacity .5s var(--ease);
 }
 
+/* ── the summit's rings ──────────────────────────────────────────────────
+   Three hit-targets tracking the projected position of the accent rings, each
+   with a line of copy beside it. Invisible: what the cursor is over is drawn
+   in the scene, by the ring itself lifting and brightening. The DOM is here
+   for the hit-test and the words, not for the artwork. */
+.ring-hit {
+  position: absolute; z-index: 24;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  cursor: pointer;
+  display: none;
+}
+.ring-hit.on { display: block; }
+
+#ring-note {
+  position: absolute; z-index: 25;
+  max-width: 27ch;
+  padding: 13px 16px;
+  border: 1px solid var(--line);
+  background: rgba(10, 10, 11, .86);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  color: var(--ink-warm);
+  font-size: 13px; line-height: 1.5;
+  pointer-events: none;
+  opacity: 0; transform: translateY(5px);
+  transition: opacity .28s var(--ease), transform .28s var(--ease);
+}
+#ring-note.on { opacity: 1; transform: none; }
+#ring-note b {
+  display: block; margin-bottom: 5px;
+  font-weight: 500; font-size: 10px; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--accent);
+}
+
 #scroll-cue {
   position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%);
   display: flex; flex-direction: column; align-items: center; gap: 8px;
@@ -184,102 +231,107 @@
 .section + .section { border-top: 1px solid var(--line-soft); }
 
 /* ── 2 · metrics ─────────────────────────────────────────────────────────
-   Four measurements. Each number is a column of digit reels counting up to
-   its value with a real carry, not a label being retyped — see the count()
-   half of assets/odometer.js. */
-#metrics .metric-grid {
-  margin-top: clamp(34px, 5vw, 66px);
-  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1px; background: var(--line-soft);
-  border-block: 1px solid var(--line-soft);
+   A layer inside the hero stage rather than a section after it, so the numbers
+   share the frame with the peak that has just moved aside for them. Four
+   boxes, each counting to its value on the odometer's place-value reels. */
+#metrics-layer {
+  position: absolute; inset: 0;
+  display: flex; align-items: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .5s var(--ease);
 }
-.metric { background: var(--bg); padding: clamp(24px, 3vw, 44px) clamp(18px, 2vw, 32px); }
+#metrics-layer.on { opacity: 1; pointer-events: auto; }
+#metrics-layer .wrap { width: 100%; }
+
+/* pushed to the right half, which is the half the peak has just left */
+.metric-grid {
+  margin-left: auto;
+  width: min(760px, 58%);
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px; background: var(--line-soft);
+  border: 1px solid var(--line-soft);
+}
+.metric {
+  background: rgba(22, 22, 23, .82);
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  padding: clamp(22px, 2.6vw, 40px);
+  /* each box arrives on its own beat, set from the markup */
+  opacity: 0; transform: translateY(14px);
+  transition: opacity .55s var(--ease), transform .55s var(--ease);
+  transition-delay: var(--in, 0s);
+}
+#metrics-layer.on .metric { opacity: 1; transform: none; }
 .metric .n {
   display: block;
-  font-size: clamp(34px, 4.6vw, 70px);
-  font-weight: 500; line-height: 1; letter-spacing: -.035em;
+  font-size: clamp(30px, 3.6vw, 58px);
+  font-weight: 400; line-height: 1; letter-spacing: -.035em;
   color: var(--ink);
   --odo-h: 1.04em;
 }
 .metric .l {
-  display: block; margin-top: 14px;
-  font-size: 12px; letter-spacing: .1em; text-transform: uppercase;
-  color: var(--ink-mute);
+  display: flex; align-items: center; gap: 9px;
+  margin-top: 16px;
+  font-size: 12px; letter-spacing: .04em; color: var(--ink-mute);
 }
-@media (max-width: 860px) { #metrics .metric-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 460px) { #metrics .metric-grid { grid-template-columns: 1fr; } }
+.metric .l i { width: 8px; height: 8px; background: var(--accent); flex: none; }
+
+@media (max-width: 980px) {
+  .metric-grid { width: 100%; margin-left: 0; }
+}
+@media (max-width: 460px) { .metric-grid { grid-template-columns: 1fr; } }
 
 /* ── 3 · brands ──────────────────────────────────────────────────────────
-   The names on the left are the control; the plate on the right is the
-   display. Hovering a name underlines it and swaps the plate.  */
-#brands .brand-layout {
-  margin-top: clamp(34px, 5vw, 62px);
-  display: grid; grid-template-columns: 1fr minmax(280px, .82fr);
-  gap: clamp(28px, 5vw, 86px); align-items: start;
-}
-.brand-list { list-style: none; border-top: 1px solid var(--line-soft); }
-.brand-list li { border-bottom: 1px solid var(--line-soft); }
-.brand-name {
-  display: flex; align-items: baseline; gap: 14px; width: 100%;
-  background: none; border: 0; cursor: pointer; text-align: left;
-  /* half these are links to a case study and half are plain names, so the
-     underline has to come only from the hover — a link's own one would leave
-     four rows permanently marked */
-  text-decoration: none;
-  font: inherit; color: var(--ink-mute);
-  padding: clamp(9px, 1.1vw, 14px) 0;
-  transition: color .22s var(--ease);
-}
-.brand-name .n {
-  font-size: clamp(16px, 1.7vw, 25px); font-weight: 400; letter-spacing: -.01em;
-  /* the underline is drawn rather than text-decoration, so it can grow from
-     the left instead of appearing all at once */
-  background-image: linear-gradient(currentColor, currentColor);
-  background-repeat: no-repeat;
-  background-position: 0 100%;
-  background-size: 0% 1px;
-  transition: background-size .38s var(--ease);
-  padding-bottom: 2px;
-}
-.brand-name .y {
-  font-size: 11px; letter-spacing: .1em; color: var(--ink-faint);
-  margin-left: auto;
-}
-.brand-name:hover, .brand-name:focus-visible, .brand-name.is-on { color: var(--ink); outline: none; }
-.brand-name:hover .n, .brand-name:focus-visible .n, .brand-name.is-on .n { background-size: 100% 1px; }
+   The heading holds the left column and the names run as one wrapped
+   paragraph on the right, separated by rules — a list of clients reads as a
+   body of work that way, where a column of one name per line reads as a
+   directory.
 
-/* The display. A placeholder plate until the real marks are supplied — it is
-   labelled as one rather than dressed up as a logo, so nobody mistakes it for
-   finished artwork. */
-.brand-plate {
-  position: sticky; top: calc(var(--nav-h) + 28px);
-  aspect-ratio: 4 / 3;
-  border: 1px solid var(--line);
-  background: var(--bg-raise);
-  display: grid; place-items: center;
-  overflow: hidden;
+   The mark appears at the cursor rather than in a fixed panel. A plate off to
+   one side makes the eye leave the name to check what it did; at the pointer
+   the answer is already where you are looking. */
+#brands .brand-layout {
+  margin-top: clamp(30px, 4vw, 56px);
+  display: grid; grid-template-columns: minmax(240px, .38fr) 1fr;
+  gap: clamp(24px, 4vw, 72px); align-items: start;
 }
-.brand-plate-inner { text-align: center; padding: 24px; }
-.brand-plate .bp-mark {
-  font-size: clamp(20px, 2.6vw, 38px); font-weight: 500; letter-spacing: -.02em;
-  color: var(--ink);
-  transition: opacity .3s var(--ease), transform .3s var(--ease);
+#brands .brand-layout .lede { color: var(--ink-mute); font-size: 14px; max-width: 42ch; }
+
+.brand-list {
+  list-style: none; display: flex; flex-wrap: wrap;
+  align-items: baseline; gap: 0 clamp(10px, 1vw, 16px);
 }
-.brand-plate .bp-meta {
-  margin-top: 12px; font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
-  color: var(--ink-faint);
+.brand-list li { display: inline-flex; align-items: baseline; gap: clamp(10px, 1vw, 16px); }
+/* the separator is generated, so the markup is just the names */
+.brand-list li:not(:last-child)::after { content: '/'; color: var(--ink-faint); font-size: 18px; }
+
+.brand-name {
+  background: none; border: 0; padding: 4px 0; cursor: pointer;
+  font: inherit; color: var(--ink-mute); text-decoration: none;
+  font-size: clamp(18px, 2.1vw, 31px); letter-spacing: -.01em;
+  text-transform: uppercase; white-space: nowrap;
+  /* drawn, so it grows from the left instead of appearing all at once */
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat; background-position: 0 100%; background-size: 0% 1px;
+  transition: color .22s var(--ease), background-size .34s var(--ease);
 }
-.brand-plate.is-swapping .bp-mark { opacity: 0; transform: translateY(6px); }
-/* the accent bar picks up the brand's own colour where it has one */
-.brand-plate .bp-rule {
-  width: 34px; height: 2px; margin: 18px auto 0;
-  background: var(--accent);
-  transition: background .3s var(--ease), width .3s var(--ease);
+.brand-name:hover, .brand-name:focus-visible { color: var(--ink); background-size: 100% 1px; outline: none; }
+
+/* the mark that follows the cursor */
+#brand-mark {
+  position: fixed; z-index: 120; pointer-events: none;
+  transform: translate(-50%, -50%) scale(.92);
+  padding: 12px 18px;
+  background: var(--mark-bg, #E8433C); color: #fff;
+  font-size: clamp(13px, 1.1vw, 17px); font-weight: 500;
+  letter-spacing: .01em; text-transform: uppercase; text-align: center;
+  line-height: 1.15; max-width: 240px;
+  opacity: 0;
+  transition: opacity .2s var(--ease), transform .28s var(--ease);
 }
-@media (max-width: 860px) {
-  #brands .brand-layout { grid-template-columns: 1fr; }
-  .brand-plate { position: static; order: -1; }
-}
+#brand-mark.on { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+@media (max-width: 860px) { #brands .brand-layout { grid-template-columns: 1fr; } }
 
 /* ── 4 · the range ───────────────────────────────────────────────────────
    The second half of the animation, and the walk through it. Four viewports
@@ -321,10 +373,21 @@
 }
 #range-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 
-/* The section has no visible heading of its own. It opens already on the first
-   summit, and the band at the foot of the frame is the title — a second
-   heading above it would be two things introducing the same thing. The h2 is
-   still in the markup, just not painted, so the document still has it. */
+/* The section's heading, at the top of the stage where the band at the foot
+   cannot reach it. Pinned inside the stuck stage rather than placed at the top
+   of the scroll region — the section is five viewports tall, and a heading at
+   the top of that is out of sight for four of them. */
+#range-head {
+  position: absolute; inset: 0 0 auto 0;
+  padding-top: calc(var(--nav-h) + clamp(18px, 3vh, 38px));
+  z-index: 12; pointer-events: none;
+}
+#range-head h2 {
+  margin-top: 12px;
+  font-size: clamp(19px, 2.1vw, 30px); font-weight: 400;
+  line-height: 1.2; letter-spacing: -.02em; color: var(--ink); max-width: 22ch;
+}
+
 .sr-only {
   position: absolute; width: 1px; height: 1px;
   margin: -1px; padding: 0; border: 0;
@@ -544,97 +607,93 @@
   #progress-rail { display: none; }
 }
 
-/* ── 5 · services ────────────────────────────────────────────────────────
-   Three scales of company across the top; picking one changes the list of
-   services underneath, and picking a service changes the panel beside it.
-   The same two-level structure the reference uses. */
-#services .svc-tabs {
-  margin-top: clamp(30px, 4vw, 54px);
-  display: flex; flex-wrap: wrap; gap: 8px;
-}
-.svc-tab {
-  font: inherit; font-size: 13px; cursor: pointer;
-  color: var(--ink-mute); background: transparent;
-  border: 1px solid var(--line); border-radius: 999px;
-  padding: 10px 20px;
-  transition: color .25s var(--ease), border-color .25s var(--ease), background .25s var(--ease);
-}
-.svc-tab:hover { color: var(--ink); border-color: rgba(255,255,255,.22); }
-.svc-tab[aria-selected='true'] {
-  color: #101010; background: var(--ink-warm); border-color: var(--ink-warm);
-}
-#svc-blurb { margin-top: 22px; max-width: 58ch; color: var(--ink-mute); font-size: 15px; }
+/* ── 6 · testimonials ────────────────────────────────────────────────────
+   A horizontal rail rather than a grid. Three cards now and room for more
+   without the layout having to change shape, which a two-up grid does not
+   give you — a fourth testimonial in a grid is a new row with a hole in it.
 
-.svc-body {
-  margin-top: clamp(28px, 4vw, 52px);
-  display: grid; grid-template-columns: minmax(240px, .82fr) 1fr;
-  gap: clamp(24px, 4vw, 64px); align-items: start;
+   Scroll-snap does the paging, so the rail is driven by the same gesture on
+   every device: a trackpad swipe, a shift-wheel, a drag on a phone, or the
+   arrow keys once a card has focus. There is no custom scroll handler in it
+   at all; the only script is the one that reads which card is centred and
+   writes the counter. */
+#testimonials .rail {
+  margin-top: clamp(30px, 4vw, 56px);
+  display: grid; grid-auto-flow: column;
+  /* A hard track size, not minmax(0, 46%). With a zero minimum the tracks
+     are free to shrink to fit the container, which is exactly what a grid
+     does — and then the rail holds all three cards, never overflows, and the
+     counter has nothing to count. */
+  grid-auto-columns: 46%;
+  gap: clamp(16px, 2vw, 28px);
+  overflow-x: auto; overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+  scrollbar-width: none; -ms-overflow-style: none;
 }
-.svc-list { list-style: none; border-top: 1px solid var(--line-soft); }
-.svc-list li { border-bottom: 1px solid var(--line-soft); }
-.svc-item {
-  width: 100%; text-align: left; font: inherit; cursor: pointer;
-  background: none; border: 0; color: var(--ink-mute);
-  padding: 13px 0; font-size: 15px;
-  display: flex; align-items: center; gap: 12px;
-  transition: color .22s var(--ease);
-}
-.svc-item::before {
-  content: ''; width: 5px; height: 5px; border-radius: 50%;
-  background: currentColor; opacity: .3;
-  transition: opacity .22s var(--ease), transform .22s var(--ease);
-}
-.svc-item:hover { color: var(--ink); }
-.svc-item[aria-selected='true'] { color: var(--ink); }
-.svc-item[aria-selected='true']::before { opacity: 1; background: var(--accent); transform: scale(1.4); }
+#testimonials .rail::-webkit-scrollbar { display: none; }
 
-.svc-panel {
+.quote { scroll-snap-align: start; display: flex; flex-direction: column; }
+.quote .card {
+  flex: 1;
   border: 1px solid var(--line); background: var(--bg-raise);
-  padding: clamp(24px, 3vw, 44px);
-  min-height: 260px;
-}
-.svc-panel h3 {
-  font-size: clamp(20px, 2.2vw, 30px); font-weight: 400;
-  letter-spacing: -.02em; color: var(--ink);
-}
-.svc-panel ul { list-style: none; margin-top: 22px; display: grid; gap: 12px; }
-.svc-panel li {
-  display: flex; gap: 12px; color: var(--ink-mute); font-size: 15px;
-  padding-left: 0;
-}
-.svc-panel li::before { content: '—'; color: var(--accent); flex: none; }
-/* the panel swaps rather than cross-fades: its content changes wholesale */
-.svc-panel.is-swapping { opacity: 0; transform: translateY(5px); }
-.svc-panel { transition: opacity .26s var(--ease), transform .26s var(--ease); }
-@media (max-width: 860px) { .svc-body { grid-template-columns: 1fr; } }
-
-/* ── 6 · testimonials ────────────────────────────────────────────────── */
-#testimonials .quotes {
-  margin-top: clamp(34px, 5vw, 62px);
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(18px, 2.4vw, 32px);
-}
-.quote {
-  border: 1px solid var(--line); background: var(--bg-raise);
-  padding: clamp(26px, 3vw, 44px);
-  display: flex; flex-direction: column; gap: 26px;
+  padding: clamp(24px, 2.8vw, 44px);
+  display: flex; flex-direction: column; gap: clamp(22px, 3vw, 44px);
 }
 .quote blockquote {
-  font-size: clamp(16px, 1.5vw, 21px); line-height: 1.5;
-  letter-spacing: -.01em; color: var(--ink-warm);
+  font-size: clamp(16px, 1.5vw, 22px); line-height: 1.45;
+  letter-spacing: -.01em; color: var(--ink);
 }
-.quote footer { margin-top: auto; }
-.quote .who { font-size: 15px; color: var(--ink); }
-.quote .role { font-size: 12px; color: var(--ink-faint); margin-top: 3px; }
+.quote .card footer {
+  margin-top: auto; display: flex; align-items: center;
+  justify-content: space-between; gap: 18px;
+}
+/* the client's own wordmark goes here; a labelled plate until it arrives */
+.quote .logo {
+  font-size: 15px; letter-spacing: .02em; color: var(--ink-faint);
+  border: 1px dashed var(--line); padding: 7px 12px;
+}
 .quote .cta {
-  margin-top: 20px; display: inline-flex; align-items: center; gap: 9px;
-  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  display: inline-flex; align-items: center; gap: 9px;
+  font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
   color: var(--ink); text-decoration: none;
-  border-bottom: 1px solid var(--line); padding-bottom: 5px; align-self: flex-start;
-  transition: border-color .25s var(--ease), color .25s var(--ease);
+  border: 1px solid var(--line); padding: 10px 15px;
+  transition: background .25s var(--ease), color .25s var(--ease), border-color .25s var(--ease);
+  white-space: nowrap;
 }
-.quote .cta:hover { border-bottom-color: var(--accent); color: var(--accent); }
-@media (max-width: 760px) { #testimonials .quotes { grid-template-columns: 1fr; } }
+.quote .cta:hover { background: var(--ink); color: #101010; border-color: var(--ink); }
+
+/* the person sits below the card, not inside it */
+.quote .who { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+.quote .who .pic {
+  width: 38px; height: 38px; flex: none;
+  border: 1px solid var(--line); background: var(--bg-raise-2);
+  display: grid; place-items: center;
+  font-size: 11px; letter-spacing: .04em; color: var(--ink-faint);
+}
+.quote .who .n { font-size: 15px; color: var(--ink); }
+.quote .who .r { font-size: 12px; color: var(--ink-faint); margin-top: 2px; }
+
+#testi-rail-foot {
+  margin-top: clamp(20px, 2.4vw, 32px);
+  display: flex; align-items: center; gap: 18px;
+}
+#testi-count {
+  font-size: 12px; letter-spacing: .12em;
+  font-variant-numeric: tabular-nums; color: var(--ink-faint);
+}
+#testi-count b { color: var(--ink); font-weight: 500; }
+/* the rule fills as the rail advances — the same idea as the case counter */
+#testi-bar { flex: 1; height: 1px; background: var(--line); position: relative; }
+#testi-bar i {
+  position: absolute; inset: 0 auto 0 0; background: var(--accent);
+  transition: width .3s var(--ease), transform .3s var(--ease);
+}
+
+@media (max-width: 860px) {
+  #testimonials .rail { grid-auto-columns: 84%; }
+}
 
 </style>
 </head>
@@ -644,6 +703,8 @@
 <!-- ═════════════════════════════════════════════════════════════════════════
      Loader — an opaque sheet over the first second of the hero scene
      ═══════════════════════════════════════════════════════════════════════ -->
+<div id="brand-mark" aria-hidden="true"></div>
+
 <div id="loader" role="status" aria-live="polite">
   <p class="mark">Tibba Design Studio</p>
   <div class="bar"><i id="loader-bar"></i></div>
@@ -677,41 +738,39 @@
 
     <p id="hero-def">tibba / tɪb-bɑ / n 1. a higher place • 2. a peak</p>
 
+    <!-- the summit's three rings: hit-targets and the copy they carry -->
+    <button class="ring-hit" id="ring-hit-0" type="button" aria-describedby="ring-note"></button>
+    <button class="ring-hit" id="ring-hit-1" type="button" aria-describedby="ring-note"></button>
+    <button class="ring-hit" id="ring-hit-2" type="button" aria-describedby="ring-note"></button>
+    <div id="ring-note" role="status"></div>
+
+    <!-- The metrics ride inside the hero stage: the peak turns and moves
+         aside and these come up in the space it leaves. -->
+    <div id="metrics-layer" aria-hidden="true">
+      <div class="wrap">
+        <div class="metric-grid">
+          <div class="metric" style="--in:.06s">
+            <span class="n" data-odo-count data-odo-hold>12+</span>
+            <span class="l"><i></i>Years of experience</span>
+          </div>
+          <div class="metric" style="--in:.16s">
+            <span class="n" data-odo-count data-odo-hold>30+</span>
+            <span class="l"><i></i>Products shipped</span>
+          </div>
+          <div class="metric" style="--in:.26s">
+            <span class="n" data-odo-count data-odo-hold>08</span>
+            <span class="l"><i></i>Unicorns serviced</span>
+          </div>
+          <div class="metric" style="--in:.36s">
+            <span class="n" data-odo-count data-odo-hold>$400M</span>
+            <span class="l"><i></i>Revenue unlocked</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div id="scroll-cue" aria-hidden="true"><span>Scroll</span><i></i></div>
     <p id="hover-hint" aria-hidden="true">Move across the peak</p>
-  </div>
-</section>
-
-<!-- ═════════════════════════════════════════════════════════════════════════
-     2 · METRICS
-     ═══════════════════════════════════════════════════════════════════════ -->
-<section class="section" id="metrics" aria-labelledby="metrics-h">
-  <div class="wrap">
-    <div class="section-head">
-      <p class="eyebrow" data-odo>[ &nbsp;BY THE NUMBERS&nbsp; ]</p>
-      <h2 id="metrics-h" data-odo data-odo-delay="0.08">A decade of work, measured</h2>
-      <p>A young studio with a long run-up. The numbers below are the studio's
-         and its founders' work taken together, across start-ups and market leaders.</p>
-    </div>
-
-    <div class="metric-grid">
-      <div class="metric">
-        <span class="n" data-odo-count data-odo-delay="0.05">12+</span>
-        <span class="l">Years of experience</span>
-      </div>
-      <div class="metric">
-        <span class="n" data-odo-count data-odo-delay="0.15">30+</span>
-        <span class="l">Products shipped</span>
-      </div>
-      <div class="metric">
-        <span class="n" data-odo-count data-odo-delay="0.25">08</span>
-        <span class="l">Unicorns serviced</span>
-      </div>
-      <div class="metric">
-        <span class="n" data-odo-count data-odo-delay="0.35">$400M</span>
-        <span class="l">Revenue unlocked</span>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -723,20 +782,13 @@
     <div class="section-head">
       <p class="eyebrow" data-odo>[ &nbsp;WHO WE WORK WITH&nbsp; ]</p>
       <h2 id="brands-h" data-odo data-odo-delay="0.08">We've worked with start-ups and market leaders</h2>
-      <p>Over the past decade we've helped companies deliver food, perform services,
-         insure health, provide financial services, publish news and sell products.</p>
     </div>
 
     <div class="brand-layout">
-      <ul class="brand-list" id="brand-list"><!-- built from BRANDS below --></ul>
-
-      <div class="brand-plate" id="brand-plate" aria-live="polite">
-        <div class="brand-plate-inner">
-          <p class="bp-mark" id="bp-mark">Zomato</p>
-          <p class="bp-meta" id="bp-meta">Foodtech · App &amp; website</p>
-          <div class="bp-rule" id="bp-rule"></div>
-        </div>
-      </div>
+      <p class="lede">Over the past decade we've helped companies deliver food, perform
+         services, insure health, provide financial services, publish news and sell
+         products.</p>
+      <ul class="brand-list" id="brand-list"><!-- built from BRANDS --></ul>
     </div>
   </div>
 </section>
@@ -749,7 +801,12 @@
     <div id="range-stage">
       <canvas id="range-canvas"></canvas>
 
-      <h2 id="range-h" class="sr-only">Our summits — four climbs, and what they were for</h2>
+      <div id="range-head">
+        <div class="wrap">
+          <p class="eyebrow" data-odo>[ &nbsp;OUR SUMMITS&nbsp; ]</p>
+          <h2 id="range-h" data-odo data-odo-delay="0.08">Four climbs, and what they were for</h2>
+        </div>
+      </div>
 
       <!-- the walk's own furniture: the rail, the counter, the summit marks -->
       <div id="case-ui">
@@ -780,18 +837,12 @@
   <div class="wrap">
     <div class="section-head">
       <p class="eyebrow" data-odo>[ &nbsp;OUR SERVICES&nbsp; ]</p>
-      <h2 id="services-h" data-odo data-odo-delay="0.08">Select the scale your business operates at</h2>
-      <p>At Tibba we offer a variety of services. Pick the stage you are at and the
-         list below changes to the work that actually moves the needle there.</p>
+      <h2 id="services-h" data-odo data-odo-delay="0.08">Our services</h2>
+      <p>At Tibba we offer a variety of services. Select the scale at which your
+         business operates to see how we can help you.</p>
     </div>
 
-    <div class="svc-tabs" role="tablist" aria-label="Company stage" id="svc-tabs"></div>
-    <p id="svc-blurb"></p>
-
-    <div class="svc-body">
-      <ul class="svc-list" role="tablist" aria-orientation="vertical" id="svc-list"></ul>
-      <div class="svc-panel" id="svc-panel" role="tabpanel"></div>
-    </div>
+    <div id="services-panel"></div>
   </div>
 </section>
 
@@ -805,27 +856,11 @@
       <h2 id="testi-h" data-odo data-odo-delay="0.08">What our clients say about us</h2>
     </div>
 
-    <div class="quotes">
-      <article class="quote">
-        <blockquote>“Working with Rahul and team has been an absolute pleasure! The website
-          they've designed not only captures the essence of our brand but also resonates with
-          our target audience, resulting in increased engagement and satisfaction.”</blockquote>
-        <footer>
-          <p class="who">Milan Sachdeva</p>
-          <p class="role">Senior General Manager, Firstpost</p>
-          <a class="cta" href="case-firstpost.html" data-odo-hover><span data-odo>View case study</span></a>
-        </footer>
-      </article>
+    <div class="rail" id="testi-rail"></div>
 
-      <article class="quote">
-        <blockquote>“Collaborating with the Tibba Design Studio team on our critical design
-          sprint was transformative for Breathe ESG.”</blockquote>
-        <footer>
-          <p class="who">Shaayak Chaterjee</p>
-          <p class="role">Founder, Breathe ESG</p>
-          <a class="cta" href="case-breathe-esg.html" data-odo-hover><span data-odo>View case study</span></a>
-        </footer>
-      </article>
+    <div id="testi-rail-foot">
+      <p id="testi-count"><b>01</b>&thinsp;/&thinsp;03</p>
+      <div id="testi-bar"><i></i></div>
     </div>
   </div>
 </section>
@@ -842,6 +877,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js"}}</script>
 <script type="module" src="assets/home.js"></script>
+
+<!-- Preview only — the dock adopts this; strip for production. -->
+<script src="assets/home-tune.js" defer></script>
 
 </body>
 </html>

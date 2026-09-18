@@ -431,6 +431,13 @@
     document.body.appendChild(buildDock());
     adopt();
     renderNotes();
+
+    /* adopt() is the dock's one piece of public surface. A page whose panel
+       is built later than DOMContentLoaded — because it waits on a module, or
+       on a scene that module creates — has no way to get itself adopted
+       otherwise, and would sit loose on top of the page instead. */
+    window.wb = window.wb || {};
+    window.wb.adopt = adopt;
     keepScrollLocal(nav);
     keepScrollLocal(dock);
 

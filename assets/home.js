@@ -68,94 +68,6 @@ const BAND = [
   'How we helped Shyft &amp; Mindhouse <span class="hi">grow their business</span> and supercharge PLG',
 ];
 
-/* Services, as the reference structures them: a stage, the outcome that stage
-   is chasing, and the services that get it there. Each service carries the
-   three things it actually delivers. */
-const STAGES = [
-  {
-    id: 'early', label: 'Early stage startup',
-    blurb: 'Design an MVP, secure funding, achieve market validation, and reach product–market fit.',
-    services: [
-      { name: 'User research', points: [
-        'Generate an understanding of your market, including competitors and customers',
-        'Gather insights with surveys, interviews and market analysis',
-        'Attain a deep understanding of your market to guide product development'] },
-      { name: 'Product strategy consulting', points: [
-        'Turn a thesis about the market into a roadmap somebody can build',
-        'Decide what the first version is not, which is most of the work',
-        'Pressure-test the plan against what the team can actually ship'] },
-      { name: 'Product design and prototyping', points: [
-        'Design the MVP end to end, at the fidelity the next conversation needs',
-        'Prototype the parts that are arguments rather than screens',
-        'Put it in front of users before it is built, not after'] },
-      { name: 'User interface (UI) design', points: [
-        'A visual language the product can grow into',
-        'Screens drawn to a grid and a type scale, not one at a time',
-        'Every state designed — empty, loading, error, and full'] },
-      { name: 'Usability testing', points: [
-        'Watch real users attempt the thing your funding depends on',
-        'Separate what people say from what they do',
-        'Come back with a ranked list of what to fix first'] },
-      { name: 'Development support and handoff', points: [
-        'Specs a developer can build from without asking a question',
-        'Sit with the build while it happens, not after it ships',
-        'Design QA against the real thing on a real device'] },
-    ],
-  },
-  {
-    id: 'mid', label: 'Mid stage startup',
-    blurb: 'Grow the numbers you are measured on, make releases boring, and turn design into something the whole team can use.',
-    services: [
-      { name: 'Design systems and style guides', points: [
-        'One component library the product and the marketing site both draw on',
-        'Tokens, so a brand change is a value change rather than a redesign',
-        'Documented well enough that a new engineer uses it by default'] },
-      { name: 'Marketing and growth design', points: [
-        'Landing pages built to be measured, not admired',
-        'Onboarding and activation flows designed against the funnel',
-        'Experiments with a hypothesis attached to each one'] },
-      { name: 'Optimization and iteration', points: [
-        'Find where users actually fall out, with data rather than opinion',
-        'Ship changes in a sequence that lets you attribute the result',
-        'Retire the parts of the product nobody uses'] },
-      { name: 'User experience (UX) design', points: [
-        'Redraw the flows that grew by accretion',
-        'Make the second and third use as good as the first',
-        'Design for the accounts that have real data in them'] },
-      { name: 'User research', points: [
-        'Segment the users you now have rather than the ones you imagined',
-        'Continuous discovery alongside the delivery track',
-        'Turn support tickets into a research input'] },
-    ],
-  },
-  {
-    id: 'scale', label: 'Established company',
-    blurb: 'Keystone projects, a design function that scales, and the discipline to leave the working parts alone.',
-    services: [
-      { name: 'Design sprints', points: [
-        'A week to turn a stuck decision into something tested',
-        'The whole room in it, so the outcome does not need selling afterwards',
-        'A prototype and five interviews at the end of it'] },
-      { name: 'Design systems and style guides', points: [
-        'Consolidate the four half-systems that already exist',
-        'Governance: who may add to it and how',
-        'Migration planned as work, not as a side effect'] },
-      { name: 'Product strategy consulting', points: [
-        'An outside read on where the product is actually going',
-        'The delivery track and the discovery track, run in parallel',
-        'Opportunities sized before they are scheduled'] },
-      { name: 'User interface (UI) design', points: [
-        'A refresh that does not throw away the equity in the current one',
-        'Accessibility treated as a requirement rather than an audit',
-        'Dense, data-heavy screens that stay readable'] },
-      { name: 'Development support and handoff', points: [
-        'Work with platform teams on the parts design cannot specify alone',
-        'Design QA in the release process rather than beside it',
-        'Support the rollout, including the parts that go wrong'] },
-    ],
-  },
-];
-
 /* ══════════════════════════════════════════════════════════════════════════
    THE TWO SCENES
    ═════════════════════════════════════════════════════════════════════════ */
@@ -183,13 +95,14 @@ window.tibba = { heroScene, rangeScene };
 /* Two terrains is two full redraws a frame, so whichever one is not on screen
    stops. The hero is on screen for its first three viewports and the range for
    one, and they never overlap. */
-function parkOffscreen(scene, section) {
-  const io = new IntersectionObserver(([e]) => scene.setRunning(e.isIntersecting), {
-    rootMargin: '20% 0px 20% 0px',
-  });
+function parkOffscreen(scene, section, onChange) {
+  const io = new IntersectionObserver(([e]) => {
+    scene.setRunning(e.isIntersecting);
+    if (onChange) onChange(e.isIntersecting);
+  }, { rootMargin: '20% 0px 20% 0px' });
   io.observe(section);
 }
-parkOffscreen(heroScene,  $('#hero'));
+parkOffscreen(heroScene,  $('#hero'), v => { heroVisible = v; });
 parkOffscreen(rangeScene, $('#range'));
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -292,8 +205,16 @@ const heroDef = $('#hero-def');
 const cue = $('#scroll-cue');
 const hint = $('#hover-hint');
 
-const INK_IN = 0.12, INK_OUT = 0.52, ZOOM_OUT = 0.88;
+/* Four bands over the hero's 400vh. The fourth is the lock: the peak turns,
+   shrinks and moves aside, and the metrics come up in the space it leaves. */
+const INK_IN = 0.09, INK_OUT = 0.39, ZOOM_OUT = 0.66, LOCK_IN = 0.70, LOCK_OUT = 0.90;
+const metricsLayer = $('#metrics-layer');
+let metricsRan = false;
 let hoverOn = null;
+
+/* Read by the ring tracker below: how far the redraw has got, and whether the
+   hero is the section on screen at all. */
+let heroInk = 0, heroVisible = true;
 
 function heroScroll() {
   const travel = hero.offsetHeight - innerHeight;
@@ -301,6 +222,7 @@ function heroScroll() {
 
   /* state 2 — the redraw */
   const ink = clamp01((t - INK_IN) / (INK_OUT - INK_IN));
+  heroInk = ink;
   heroScene.setHeroMorph(ink);
 
   /* state 3 — back in close, and the rings */
@@ -324,6 +246,24 @@ function heroScroll() {
   const panelOut = 1 - clamp01((ink - 0.45) / 0.45);
   heroPanel.style.opacity = panelOut;
   heroDef.style.opacity = 1 - clamp01((ink - 0.05) / 0.5);
+
+  /* state 4 — the peak moves aside and the numbers arrive */
+  const lock = clamp01((t - LOCK_IN) / (LOCK_OUT - LOCK_IN));
+  heroScene.lockTo(lock);
+
+  const showMetrics = lock > 0.18;
+  metricsLayer.classList.toggle('on', showMetrics);
+  metricsLayer.setAttribute('aria-hidden', String(!showMetrics));
+
+  /* The reels are held back until the peak has actually moved: counting to a
+     number nobody can see yet spends the one moment the odometer has. They
+     run once — scrolling back and forth should not re-roll them. */
+  if (showMetrics && !metricsRan) {
+    metricsRan = true;
+    metricsLayer.querySelectorAll('[data-odo-count]').forEach((el, i) => {
+      window.Odometer.count(el, { delay: 0.1 + i * 0.1 });
+    });
+  }
 
   cue.style.opacity = t < 0.05 ? 1 : 0;
   hint.style.opacity = wantHover && t < ZOOM_OUT ? 1 : 0;
@@ -500,123 +440,223 @@ mkrEls.slice(1).forEach(el => el.classList.add('dimmed'));
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
+   THE SUMMIT'S RINGS
+   ─────────────────────────────────────────────────────────────────────────
+   The three accent contours at the top of the massif, each carrying a line
+   about the studio. The scene owns the drawing — a hovered ring lifts off the
+   mountain and brightens — and this owns the hit-test and the words.
+
+   The targets are tracked against the projected position of the real rings
+   every frame rather than placed once, because the camera moves through three
+   states in this section and a ring is somewhere different in all of them.
+   ═════════════════════════════════════════════════════════════════════════ */
+const RINGS = [
+  { k: 'tibba / tɪb-bɑ / n',
+    t: 'A higher place. A peak. The place we aim to take you and your business.' },
+  { k: 'What we do',
+    t: 'A UI/UX design studio that helps tech companies solve problems and take ideas from zero to one.' },
+  { k: 'How we work',
+    t: 'We listen first and shape the process around the client, rather than arriving with one and fitting you into it.' },
+];
+
+const ringHits = [0, 1, 2].map(i => $('#ring-hit-' + i));
+const ringNote = $('#ring-note');
+let ringOn = -1;
+
+ringHits.forEach((el, i) => {
+  const enter = () => setRing(i);
+  const leave = () => setRing(-1);
+  el.addEventListener('pointerenter', enter);
+  el.addEventListener('focus', enter);
+  el.addEventListener('pointerleave', leave);
+  el.addEventListener('blur', leave);
+  el.setAttribute('aria-label', RINGS[i].k + ' — ' + RINGS[i].t);
+});
+
+function setRing(i) {
+  if (i === ringOn) return;
+  ringOn = i;
+  heroScene.setRingHover(i);
+  if (i < 0) { ringNote.classList.remove('on'); return; }
+  ringNote.innerHTML = `<b>${RINGS[i].k}</b>${RINGS[i].t}`;
+  ringNote.classList.add('on');
+}
+
+/* Tracking runs off the same rAF the scene does. It is cheap — three
+   projections and a style write — and it only runs while the hero is the
+   thing on screen. */
+function trackRings() {
+  requestAnimationFrame(trackRings);
+
+  /* The rings belong to the peak as line-work, so they are worth pointing at
+     only once the redraw has actually produced them, and only while the hero
+     is what is on screen. Outside that the targets are not merely hidden,
+     they are not in the hit-test at all. */
+  const live = heroVisible && heroInk > 0.55;
+  if (!live) {
+    if (ringHits[0].classList.contains('on')) {
+      ringHits.forEach(el => el.classList.remove('on'));
+      setRing(-1);
+    }
+    return;
+  }
+
+  const rs = heroScene.ringScreen();
+  rs.forEach((r, i) => {
+    const el = ringHits[i];
+    if (!r || r.behind || r.r < 4) { el.classList.remove('on'); return; }
+    el.classList.add('on');
+    /* a little larger than the ring, so the target is reachable without
+       demanding pixel accuracy on a contour a couple of pixels wide */
+    const d = Math.max(34, r.r * 2 + 22);
+    el.style.left = r.x + 'px';
+    el.style.top = r.y + 'px';
+    el.style.width = d + 'px';
+    el.style.height = (d * 0.42) + 'px';   // rings project as flat ellipses
+  });
+
+  if (ringOn >= 0 && rs[ringOn] && !rs[ringOn].behind) {
+    ringNote.style.left = (rs[ringOn].x + 26) + 'px';
+    ringNote.style.top = (rs[ringOn].y - 12) + 'px';
+  }
+}
+requestAnimationFrame(trackRings);
+
+/* ══════════════════════════════════════════════════════════════════════════
    BRANDS
    ─────────────────────────────────────────────────────────────────────────
-   Names on the left, one display plate on the right. Hovering a name swaps the
-   plate and draws its underline in from the left.
+   The names run as one wrapped line; hovering one underlines it and brings
+   that client's mark up at the cursor.
 
-   The plate is driven by pointerenter and by focus, so it is reachable from
-   the keyboard — a hover-only interaction would make the whole right-hand
-   column invisible to anyone not using a mouse.
+   The mark is positioned on pointermove rather than once on enter, so it
+   tracks rather than sits — and it is `position: fixed` against the viewport,
+   which is why it can be written straight from clientX/clientY with no
+   offsetParent arithmetic in between.
+
+   Marks are the clients' own artwork and are not in this repo. Each is a
+   labelled plate in the client's colour until they arrive; the plate is the
+   right size and in the right place, so dropping an <img> in is a one-line
+   change here and nothing in the CSS.
    ═════════════════════════════════════════════════════════════════════════ */
 {
   const list = $('#brand-list');
-  const plate = $('#brand-plate');
-  const mark = $('#bp-mark'), meta = $('#bp-meta'), rule = $('#bp-rule');
-  let shown = -1, swapT = null;
+  const mark = $('#brand-mark');
+  let raf = 0, mx = 0, my = 0;
 
-  BRANDS.forEach((b, i) => {
+  BRANDS.forEach(b => {
     const li = document.createElement('li');
-    const btn = document.createElement(b.file ? 'a' : 'button');
-    if (b.file) { btn.href = b.file; } else { btn.type = 'button'; }
-    btn.className = 'brand-name';
-    btn.innerHTML = `<span class="n">${b.name}</span><span class="y">${b.since}</span>`;
-    btn.addEventListener('pointerenter', () => show(i));
-    btn.addEventListener('focus', () => show(i));
-    li.appendChild(btn);
+    const el = document.createElement(b.file ? 'a' : 'button');
+    if (b.file) el.href = b.file; else el.type = 'button';
+    el.className = 'brand-name';
+    el.textContent = b.name;
+
+    el.addEventListener('pointerenter', () => {
+      mark.textContent = b.name;
+      mark.style.setProperty('--mark-bg', b.colour || '#E8433C');
+      mark.classList.add('on');
+    });
+    el.addEventListener('pointerleave', () => mark.classList.remove('on'));
+    /* keyboard users get the mark too, parked on the name they are on */
+    el.addEventListener('focus', () => {
+      const r = el.getBoundingClientRect();
+      mx = r.left + r.width / 2; my = r.top - 26;
+      place();
+      mark.textContent = b.name;
+      mark.style.setProperty('--mark-bg', b.colour || '#E8433C');
+      mark.classList.add('on');
+    });
+    el.addEventListener('blur', () => mark.classList.remove('on'));
+
+    li.appendChild(el);
     list.appendChild(li);
-    b._el = btn;
   });
 
-  function show(i) {
-    if (i === shown) return;
-    shown = i;
-    const b = BRANDS[i];
-    BRANDS.forEach(x => x._el.classList.toggle('is-on', x === b));
+  function place() { mark.style.left = mx + 'px'; mark.style.top = my + 'px'; raf = 0; }
 
-    /* The swap is two steps with the plate blanked between them, rather than a
-       cross-fade: two wordmarks dissolving through each other is unreadable
-       for the whole of the transition. */
-    plate.classList.add('is-swapping');
-    clearTimeout(swapT);
-    swapT = setTimeout(() => {
-      mark.textContent = b.name;
-      meta.textContent = b.meta;
-      rule.style.background = b.colour || 'var(--accent)';
-      rule.style.width = b.colour ? '52px' : '34px';
-      plate.classList.remove('is-swapping');
-      /* the wordmark is type, so it arrives the way all type on this site
-         arrives */
-      if (window.Odometer) window.Odometer.roll(mark, { duration: .5, stagger: .022 });
-    }, 190);
-  }
-
-  show(0);
+  /* One listener on the list rather than one per name, and the write is
+     deferred to an animation frame — pointermove fires far more often than
+     the screen refreshes, and writing a style on every one of them is layout
+     work nobody sees. */
+  list.addEventListener('pointermove', e => {
+    mx = e.clientX; my = e.clientY - 26;
+    if (!raf) raf = requestAnimationFrame(place);
+  }, { passive: true });
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   SERVICES
+   TESTIMONIALS
    ─────────────────────────────────────────────────────────────────────────
-   Two levels of selection: the stage across the top, and the service down the
-   side. Changing the stage rebuilds the service list and lands on its first
-   entry, because a service from the previous stage may not exist in this one.
+   Three cards on a snapping rail. The counter and the rule under it are read
+   off the rail's own scrollLeft rather than driven by a pager: the rail can be
+   moved by a swipe, a shift-wheel, a drag or the keyboard, and a pager that
+   owns the position has to intercept all four. Reading it means every one of
+   them works and none of them are handled.
+
+   The third is written rather than collected — it is marked as such below so
+   nobody ships it by accident.
    ═════════════════════════════════════════════════════════════════════════ */
+const TESTIMONIALS = [
+  {
+    quote: 'Working with Rahul and team has been an absolute pleasure! The website they\u2019ve designed not only captures the essence of our brand but also resonates with our target audience, resulting in increased engagement and satisfaction.',
+    logo: 'Firstpost', name: 'Milan Sachdeva',
+    role: 'Senior General Manager, Firstpost', file: 'case-firstpost.html',
+  },
+  {
+    quote: 'Collaborating with the Tibba Design Studio team on our critical design sprint was transformative for Breathe ESG.',
+    logo: 'Breathe ESG', name: 'Shaayak Chaterjee',
+    role: 'Founder, Breathe ESG', file: 'case-breathe-esg.html',
+  },
+  /* PLACEHOLDER — invented, not a real client quote. Replace before launch. */
+  {
+    quote: 'They asked the questions our own team had been avoiding, and then answered them with something we could ship. Six weeks in we had a product our sales team wanted to demo rather than apologise for.',
+    logo: 'Apnaklub', name: 'Devika Rao',
+    role: 'VP Product, Apnaklub', file: 'case-groww.html', placeholder: true,
+  },
+];
+
 {
-  const tabs = $('#svc-tabs'), blurb = $('#svc-blurb');
-  const list = $('#svc-list'), panel = $('#svc-panel');
-  let stage = 0, svc = 0, swapT = null;
+  const rail = $('#testi-rail');
+  const num = $('#testi-count b');
+  const bar = $('#testi-bar i');
 
-  STAGES.forEach((s, i) => {
-    const b = document.createElement('button');
-    b.className = 'svc-tab';
-    b.type = 'button';
-    b.role = 'tab';
-    b.textContent = s.label;
-    b.addEventListener('click', () => setStage(i));
-    tabs.appendChild(b);
-  });
+  rail.innerHTML = TESTIMONIALS.map(t => `
+    <article class="quote">
+      <div class="card">
+        <blockquote>\u201C${t.quote}\u201D</blockquote>
+        <footer>
+          <span class="logo">${t.logo}</span>
+          <a class="cta" href="${t.file}" data-odo-hover><span data-odo>View case study</span></a>
+        </footer>
+      </div>
+      <div class="who">
+        <span class="pic">Photo</span>
+        <span><span class="n">${t.name}</span><span class="r">${t.role}</span></span>
+      </div>
+    </article>`).join('');
 
-  function setStage(i) {
-    stage = i; svc = 0;
-    [...tabs.children].forEach((b, k) => b.setAttribute('aria-selected', String(k === i)));
-    blurb.textContent = STAGES[i].blurb;
+  /* the name and role are two blocks inside one inline span, so they stack */
+  rail.querySelectorAll('.who .n, .who .r').forEach(el => { el.style.display = 'block'; });
 
-    list.innerHTML = '';
-    STAGES[i].services.forEach((s, k) => {
-      const li = document.createElement('li');
-      const b = document.createElement('button');
-      b.className = 'svc-item';
-      b.type = 'button';
-      b.role = 'tab';
-      b.textContent = s.name;
-      b.addEventListener('click', () => setService(k));
-      b.addEventListener('pointerenter', () => setService(k));
-      li.appendChild(b);
-      list.appendChild(li);
-    });
-    setService(0, true);
+  const n = TESTIMONIALS.length;
+  $('#testi-count').innerHTML =
+    `<b>01</b>&thinsp;/&thinsp;${String(n).padStart(2, '0')}`;
+
+  function sync() {
+    const max = rail.scrollWidth - rail.clientWidth;
+    const p = max > 0 ? rail.scrollLeft / max : 0;
+    /* round to the nearest card rather than flooring: at the end of the rail
+       the last card is fully shown but its left edge is never reached, so a
+       floor would stop the counter one short of the end every time */
+    const i = Math.min(n - 1, Math.round(p * (n - 1)));
+    num.textContent = String(i + 1).padStart(2, '0');
+    bar.style.width = (100 / n) + '%';
+    bar.style.transform = `translateX(${i * 100}%)`;
   }
+  rail.addEventListener('scroll', sync, { passive: true });
+  addEventListener('resize', sync);
+  sync();
 
-  function setService(k, instant) {
-    svc = k;
-    [...list.querySelectorAll('.svc-item')]
-      .forEach((b, j) => b.setAttribute('aria-selected', String(j === k)));
-
-    const s = STAGES[stage].services[k];
-    const paint = () => {
-      panel.innerHTML = `<h3>${s.name}</h3><ul>` +
-        s.points.map(p => `<li>${p}</li>`).join('') + '</ul>';
-      panel.classList.remove('is-swapping');
-      if (window.Odometer) window.Odometer.roll(panel.querySelector('h3'), { duration: .5 });
-    };
-
-    clearTimeout(swapT);
-    if (instant) { paint(); return; }
-    panel.classList.add('is-swapping');
-    swapT = setTimeout(paint, 170);
-  }
-
-  setStage(0);
+  if (window.Odometer) window.Odometer.arm(rail);
 }
 
 /* Anything built by this file was not in the document when odometer.js armed

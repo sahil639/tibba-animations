@@ -275,6 +275,13 @@
     : null;
 
   function fire(el) {
+    /* switched off for this block, from the tuning panel — it still builds as
+       reels so the layout is identical, it simply never rolls */
+    if (el.dataset.odoOff === '1') {
+      const cells = build(el);
+      cells.forEach(c => { c._strip.style.transform = travel(c._travel); });
+      return;
+    }
     const delay = parseFloat(el.dataset.odoDelay || '0') || 0;
     if (el.hasAttribute('data-odo-count')) count(el, { delay });
     else roll(el, { delay });

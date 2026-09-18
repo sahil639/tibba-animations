@@ -88,47 +88,52 @@
   }
 
   function footerHTML() {
-    const caseLinks = CASES.map(c =>
-      `<li><a href="${c.file}" data-odo-hover><span data-odo>${c.name}</span></a></li>`).join('');
+    const col = (head, items) =>
+      `<div class="footer-col"><ul>${items.map(([label, href]) =>
+        `<li><a href="${href}" data-odo-hover><span data-odo>${label}</span></a></li>`
+      ).join('')}</ul></div>`;
 
     return `
+      <canvas class="footer-range" id="footer-range" aria-hidden="true"></canvas>
+
       <div class="wrap">
-        <div class="footer-top">
-          <div class="footer-call">
-            <h2 data-odo style="--odo-h:1.08em">Let's get to know you and your idea!</h2>
-            <a class="footer-send" href="mailto:hello@tibba.design?subject=Project%20enquiry"
-               data-odo-hover><span data-odo>Send request</span></a>
-            <p class="footer-mail">Drop us a line at
-              <a href="mailto:hello@tibba.design">hello@tibba.design</a></p>
+        <!-- A real form, posting nowhere: there is no back end in this repo.
+             It opens a mail draft with the fields filled in, which is what the
+             address below does anyway — so the form is a nicer door to the
+             same room rather than a promise the site cannot keep. -->
+        <form class="footer-form" id="footer-form">
+          <h2 data-odo style="--odo-h:1.1em">Let's get to know you and your idea!</h2>
+          <input class="field" name="name" type="text" placeholder="Name" autocomplete="name" required>
+          <input class="field" name="email" type="email" placeholder="Email" autocomplete="email" required>
+          <textarea class="field" name="message" placeholder="Message" required></textarea>
+          <button class="footer-send" type="submit" data-odo-hover><span data-odo>Send request</span></button>
+        </form>
+
+        <p class="footer-mail">Drop us a line at
+          <a href="mailto:hello@tibba.design">hello@tibba.design</a></p>
+
+        <div class="footer-base">
+          <div>
+            <div class="footer-word">
+              <span class="mark">${MARK}</span>
+              <span class="name">Tibba<br>Design<br>Studio</span>
+            </div>
+            <p class="footer-copy">© Tibba Design Studio ${new Date().getFullYear()}</p>
           </div>
 
           <div class="footer-cols">
-            <div class="footer-col">
-              <h3>Studio</h3>
-              <ul>
-                <li><a href="final-website.html#services" data-odo-hover><span data-odo>Services</span></a></li>
-                <li><a href="final-website.html#testimonials" data-odo-hover><span data-odo>Testimonials</span></a></li>
-                <li><a href="about.html" data-odo-hover><span data-odo>About us</span></a></li>
-              </ul>
-            </div>
-            <div class="footer-col">
-              <h3>Case studies</h3>
-              <ul>${caseLinks}</ul>
-            </div>
-            <div class="footer-col">
-              <h3>Elsewhere</h3>
-              <ul>
-                <li><a href="https://medium.com/@tibbadesignstudio" rel="noopener" data-odo-hover><span data-odo>Medium</span></a></li>
-                <li><a href="https://www.instagram.com/tibba.design/" rel="noopener" data-odo-hover><span data-odo>Instagram</span></a></li>
-                <li><a href="https://www.linkedin.com/company/tibba-design-studio/" rel="noopener" data-odo-hover><span data-odo>LinkedIn</span></a></li>
-              </ul>
-            </div>
+            ${col('studio', [
+              ['Services', 'final-website.html#services'],
+              ['Case study', 'final-website.html#range'],
+              ['Testimonial', 'final-website.html#testimonials'],
+              ['About us', 'about.html'],
+            ])}
+            ${col('elsewhere', [
+              ['Medium', 'https://medium.com/@tibbadesignstudio'],
+              ['Instagram', 'https://www.instagram.com/tibba.design/'],
+              ['Linkedin', 'https://www.linkedin.com/company/tibba-design-studio/'],
+            ])}
           </div>
-        </div>
-
-        <div class="footer-base">
-          <p class="footer-word">Tibba<br>Design<br>Studio</p>
-          <p class="footer-copy">© Tibba Design Studio ${new Date().getFullYear()}</p>
         </div>
       </div>`;
   }
@@ -159,14 +164,108 @@
     }
 
     const foot = document.querySelector('[data-site-footer]');
-    if (foot) { foot.className = 'site-footer'; foot.innerHTML = footerHTML(); }
+    if (foot) {
+      foot.className = 'site-footer';
+      foot.innerHTML = footerHTML();
+
+      if (global.mountFooterRange) global.mountFooterRange(foot.querySelector('#footer-range'));
+
+      /* The form hands off to mail rather than pretending to post. Built here
+         so the fields are read at submit time and nothing is stored. */
+      const form = foot.querySelector('#footer-form');
+      if (form) form.addEventListener('submit', e => {
+        e.preventDefault();
+        const d = new FormData(form);
+        const body = `${d.get('message') || ''}\n\n— ${d.get('name') || ''} (${d.get('email') || ''})`;
+        location.href = 'mailto:hello@tibba.design'
+          + '?subject=' + encodeURIComponent('Project enquiry from ' + (d.get('name') || 'the website'))
+          + '&body=' + encodeURIComponent(body);
+      });
+    }
+
+    mountPanel();
 
     /* chrome is injected after odometer.js has already armed the document, so
        it arms its own */
     if (global.Odometer) global.Odometer.arm(document);
   }
 
-  global.SiteChrome = { mount, CASES, NAV };
+  /* ── the services panel ────────────────────────────────────────────────
+     Built once, on every page, and filled the first time it is opened rather
+     than at mount: it is a whole services section, and most visits never open
+     it. Nothing is rendered until somebody asks. */
+  function mountPanel() {
+    if (document.querySelector('.panel-tab')) return;
+
+    const tab = document.createElement('button');
+    tab.type = 'button';
+    tab.className = 'panel-tab';
+    tab.setAttribute('aria-expanded', 'false');
+    tab.innerHTML = '<i></i>Our services';
+
+    const veil = document.createElement('div');
+    veil.className = 'panel-veil';
+
+    const panel = document.createElement('aside');
+    panel.className = 'panel';
+    panel.setAttribute('role', 'dialog');
+    panel.setAttribute('aria-modal', 'true');
+    panel.setAttribute('aria-label', 'Our services');
+    panel.hidden = true;
+    panel.innerHTML = `
+      <div class="panel-head">
+        <div>
+          <h2>Our services</h2>
+          <p>Select the scale at which your business operates to see how we can help you.</p>
+        </div>
+        <button class="panel-close" type="button" aria-label="Close">&#10005;</button>
+      </div>
+      <div class="panel-body"><div class="panel-services"></div></div>`;
+
+    document.body.append(tab, veil, panel);
+
+    let open = false, filled = false, lastFocus = null;
+
+    function setOpen(next) {
+      if (next === open) return;
+      open = next;
+      tab.setAttribute('aria-expanded', String(open));
+
+      if (open) {
+        lastFocus = document.activeElement;
+        panel.hidden = false;
+        if (!filled && global.mountServices) {
+          global.mountServices(panel.querySelector('.panel-services'));
+          filled = true;
+        }
+        /* the panel has to be in the document and un-hidden for a frame before
+           the transform will animate off its start value */
+        requestAnimationFrame(() => {
+          veil.classList.add('on');
+          panel.classList.add('on');
+        });
+        document.body.style.overflow = 'hidden';
+        panel.querySelector('.panel-close').focus();
+      } else {
+        veil.classList.remove('on');
+        panel.classList.remove('on');
+        document.body.style.overflow = '';
+        /* kept in the DOM until it has finished leaving, then taken out of the
+           tab order — a panel off screen is still focusable otherwise */
+        setTimeout(() => { if (!open) panel.hidden = true; }, 480);
+        if (lastFocus) lastFocus.focus();
+      }
+    }
+
+    tab.addEventListener('click', () => setOpen(true));
+    veil.addEventListener('click', () => setOpen(false));
+    panel.querySelector('.panel-close').addEventListener('click', () => setOpen(false));
+    addEventListener('keydown', e => { if (e.key === 'Escape' && open) setOpen(false); });
+
+    global.SiteChrome.togglePanel = setOpen;
+  }
+
+  global.SiteChrome = { mount, mountPanel, CASES, NAV };
 
   if (document.readyState === 'loading')
     document.addEventListener('DOMContentLoaded', mount);

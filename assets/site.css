@@ -213,77 +213,253 @@ a { color: inherit; }
 
 /* ══════════════════════════════════════════════════════════════════════════
    Footer — the same on every page
+   ─────────────────────────────────────────────────────────────────────────
+   The one place the site inverts. Everything above it is ink on a dark ground;
+   the footer is the paper, with the ridge printed across the top of it in
+   black and the contact form sitting on it as the one dark object. Coming out
+   of five sections of night, that reads as arriving somewhere rather than as
+   the page running out.
    ═════════════════════════════════════════════════════════════════════════ */
 .site-footer {
   position: relative;
-  background: var(--bg-deep);
-  border-top: 1px solid var(--line-soft);
-  padding-top: clamp(56px, 8vw, 110px);
-  padding-bottom: 34px;
-  margin-top: 0;
+  background: #FFFFFF;
+  color: #101010;
+  padding-bottom: 30px;
+  overflow: hidden;
 }
-.footer-top {
-  display: grid;
-  grid-template-columns: 1.1fr 1fr;
-  gap: clamp(32px, 6vw, 90px);
-  align-items: start;
+
+/* the generated skyline, drawn by assets/footer-range.js */
+.footer-range {
+  display: block; width: 100%;
+  height: clamp(150px, 22vw, 300px);
+  --ridge: #161617;
+  cursor: crosshair;
 }
-.footer-call h2 {
-  font-size: clamp(28px, 3.6vw, 54px);
-  font-weight: 400; line-height: 1.12; letter-spacing: -.02em;
-  color: var(--ink);
+
+/* The form overlaps the ridge, so it is the thing in front of the mountains
+   rather than a panel below them. */
+.footer-form {
+  position: relative; z-index: 2;
+  width: min(420px, 100%);
+  margin: clamp(-170px, -16vw, -110px) auto 0;
+  background: #1C1C1D; color: var(--ink-warm);
+  padding: clamp(24px, 2.6vw, 38px);
 }
+.footer-form h2 {
+  font-size: clamp(19px, 1.9vw, 26px); font-weight: 400;
+  line-height: 1.2; letter-spacing: -.02em; text-align: center; color: #fff;
+}
+.footer-form .field {
+  width: 100%; display: block; margin-top: 12px;
+  background: #2C2C2E; border: 1px solid transparent; color: var(--ink-warm);
+  font: inherit; font-size: 14px; padding: 13px 14px;
+  transition: border-color .2s var(--ease), background .2s var(--ease);
+}
+.footer-form .field::placeholder { color: rgba(232,227,220,.42); }
+.footer-form .field:focus { outline: none; border-color: var(--accent); background: #333335; }
+.footer-form textarea.field { min-height: 140px; resize: vertical; }
 .footer-send {
-  margin-top: 28px;
-  display: inline-flex; align-items: center; gap: 10px;
+  width: 100%; margin-top: 16px;
+  display: inline-flex; align-items: center; justify-content: center;
   font: inherit; font-size: 11px; font-weight: 500; letter-spacing: .14em;
   text-transform: uppercase; text-decoration: none;
-  color: #101010; background: var(--ink-warm);
-  border: 0; border-radius: 2px; padding: 13px 22px; cursor: pointer;
-  transition: background .25s var(--ease), transform .25s var(--ease);
+  color: #101010; background: #FFFFFF;
+  border: 0; padding: 14px 20px; cursor: pointer;
+  transition: background .25s var(--ease);
 }
-.footer-send:hover { background: #fff; transform: translateY(-1px); }
+.footer-send:hover { background: var(--ink-warm); }
+
 .footer-mail {
-  margin-top: 22px; font-size: 14px; color: var(--ink-mute);
+  margin-top: clamp(24px, 3vw, 40px);
+  text-align: center; font-size: 14px; color: #5A5A5C;
 }
-.footer-mail a { color: var(--ink-warm); text-decoration: none; border-bottom: 1px solid var(--line); }
+.footer-mail a { color: #101010; text-decoration: none; border-bottom: 1px solid rgba(16,16,16,.2); }
 .footer-mail a:hover { border-bottom-color: var(--accent); color: var(--accent); }
 
+/* ── the base: wordmark left, links right ────────────────────────────── */
+.footer-base {
+  position: relative; z-index: 2;
+  margin-top: clamp(-40px, -3vw, -10px);
+  display: grid; grid-template-columns: 1fr auto;
+  gap: 30px; align-items: end;
+}
+.footer-word { display: flex; flex-direction: column; gap: 14px; }
+.footer-word .mark { width: 44px; color: #101010; }
+.footer-word .mark svg { width: 100%; height: auto; display: block; }
+.footer-word .name {
+  font-size: clamp(26px, 3.4vw, 46px); font-weight: 400;
+  line-height: 1.05; letter-spacing: -.02em; color: #101010;
+}
+.footer-copy { margin-top: 16px; font-size: 12px; color: #6B6B6D; }
+
 .footer-cols {
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 28px 40px;
-  padding-top: 8px;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px clamp(28px, 4vw, 64px);
 }
-@media (max-width: 1100px) { .footer-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 520px)  { .footer-cols { grid-template-columns: 1fr; } }
-.footer-col h3 {
-  font-size: 10px; font-weight: 500; letter-spacing: .18em; text-transform: uppercase;
-  color: var(--ink-faint); margin-bottom: 14px;
-}
-.footer-col ul { list-style: none; display: grid; gap: 9px; }
+.footer-col ul { list-style: none; display: grid; gap: 10px; }
 .footer-col a {
-  text-decoration: none; font-size: 14px; color: var(--ink-mute);
+  text-decoration: none; font-size: 13.5px; color: #5A5A5C;
   transition: color .2s var(--ease);
 }
-.footer-col a:hover { color: var(--ink); }
+.footer-col a:hover { color: #101010; }
 
-.footer-base {
-  margin-top: clamp(48px, 7vw, 92px);
-  padding-top: 22px;
-  border-top: 1px solid var(--line-soft);
-  display: flex; flex-wrap: wrap; gap: 14px 28px;
-  align-items: flex-end; justify-content: space-between;
+@media (max-width: 760px) {
+  .footer-base { grid-template-columns: 1fr; align-items: start; }
+  .footer-form { margin-top: clamp(-90px, -18vw, -60px); }
 }
-/* the wordmark, set large and low-contrast the way the reference sets it */
-.footer-word {
-  font-size: clamp(30px, 5.2vw, 76px);
-  font-weight: 500; line-height: .95; letter-spacing: -.03em;
-  color: rgba(232, 227, 220, .12);
-}
-.footer-copy { font-size: 12px; color: var(--ink-faint); }
 
-@media (max-width: 860px) {
-  .footer-top { grid-template-columns: 1fr; }
+/* ══════════════════════════════════════════════════════════════════════════
+   Services
+   ─────────────────────────────────────────────────────────────────────────
+   Shared, not page-specific: the section on the home page and the slide-over
+   panel are the same markup from assets/services.js, so their styling has to
+   live where both can reach it. It started in the home page's own <style>,
+   which is why the panel opened unstyled on every other page.
+   ─────────────────────────────────────────────────────────────────────────
+   Stages down the left, the services for that stage as cards on the right.
+   The layout the Framer component described, in this site's language: square
+   accent bullets rather than round, hairline rules rather than filled panels,
+   and the type scale from assets/site.css rather than font props. */
+.svc { display: grid; grid-template-columns: minmax(200px, .34fr) 1fr;
+       gap: clamp(22px, 3vw, 56px); align-items: start;
+       margin-top: clamp(30px, 4vw, 54px); }
+
+.svc-stages { display: grid; gap: 1px; background: var(--line-soft);
+              border: 1px solid var(--line-soft); }
+.svc-stage {
+  display: flex; align-items: baseline; gap: 12px;
+  background: var(--bg); border: 0; cursor: pointer;
+  font: inherit; text-align: left; color: var(--ink-mute);
+  padding: 15px clamp(12px, 1.4vw, 20px);
+  transition: background .25s var(--ease), color .25s var(--ease);
+}
+.svc-stage .n { font-size: 10px; letter-spacing: .14em; color: var(--ink-faint); }
+.svc-stage .l { font-size: 13px; letter-spacing: .04em; text-transform: uppercase; }
+.svc-stage:hover { color: var(--ink); }
+.svc-stage[aria-selected='true'] { color: var(--ink); background: var(--bg-raise); }
+.svc-stage[aria-selected='true'] .n { color: var(--accent); }
+
+.svc-blurb { color: var(--ink-mute); font-size: clamp(14px, 1.05vw, 16px); max-width: 62ch; }
+
+.svc-grid {
+  margin-top: clamp(20px, 2.6vw, 34px);
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px; background: var(--line-soft);
+  border: 1px solid var(--line-soft);
+  transition: opacity .22s var(--ease);
+}
+.svc-grid.is-swapping { opacity: 0; }
+
+.svc-card { background: var(--bg); padding: clamp(18px, 2vw, 28px); }
+.svc-card h3 {
+  display: flex; align-items: center; gap: 10px;
+  font-size: clamp(14px, 1.15vw, 17px); font-weight: 400;
+  letter-spacing: .02em; text-transform: uppercase; color: var(--ink);
+  padding-bottom: 12px; border-bottom: 1px solid var(--line-soft);
+}
+/* square, not round — the reference marks every heading with a small solid
+   accent block and it is the one place the palette shows up in this section */
+.svc-card h3 i { width: 8px; height: 8px; background: var(--accent); flex: none; }
+.svc-card ul { list-style: none; margin-top: 14px; display: grid; gap: 9px; }
+.svc-card li {
+  position: relative; padding-left: 14px;
+  font-size: 13.5px; line-height: 1.55; color: var(--ink-mute);
+}
+.svc-card li::before {
+  content: ''; position: absolute; left: 0; top: .62em;
+  width: 4px; height: 1px; background: var(--ink-faint);
+}
+
+@media (max-width: 980px) {
+  .svc { grid-template-columns: 1fr; }
+  .svc-stages { grid-auto-flow: column; }
+}
+@media (max-width: 640px) {
+  .svc-grid { grid-template-columns: 1fr; }
+  .svc-stages { grid-auto-flow: row; }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   The services panel
+   ─────────────────────────────────────────────────────────────────────────
+   A tab welded to the right edge of the window, and the panel it opens. The
+   services are the one thing on this site somebody might want to read from
+   anywhere in it — halfway down a case study, at the foot of the about page —
+   and scrolling back to a section to find them is the thing the tab removes.
+
+   It slides rather than appears, from the edge it is attached to, so where it
+   came from is never in question.
+   ═════════════════════════════════════════════════════════════════════════ */
+.panel-tab {
+  position: fixed; right: 0; top: 50%;
+  transform: translateY(-50%);
+  z-index: 260;
+  display: flex; align-items: center; gap: 9px;
+  font: inherit; font-size: 11px; font-weight: 500;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: #101010; background: var(--ink-warm);
+  border: 0; padding: 16px 11px; cursor: pointer;
+  /* written down the edge it is stuck to */
+  writing-mode: vertical-rl;
+  transition: background .25s var(--ease), padding .25s var(--ease);
+}
+.panel-tab:hover { background: #fff; padding-right: 15px; }
+.panel-tab i {
+  width: 6px; height: 6px; background: var(--accent); flex: none;
+}
+
+/* the ground behind the panel, which is also the click-outside target */
+.panel-veil {
+  position: fixed; inset: 0; z-index: 270;
+  background: rgba(8, 8, 9, .62);
+  backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+  opacity: 0; pointer-events: none;
+  transition: opacity .35s var(--ease);
+}
+.panel-veil.on { opacity: 1; pointer-events: auto; }
+
+.panel {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 280;
+  width: min(1180px, 94vw);
+  background: var(--bg);
+  border-left: 1px solid var(--line);
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform .46s var(--ease);
+  overflow: hidden;
+}
+.panel.on { transform: none; }
+
+.panel-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 20px;
+  padding: clamp(20px, 2.4vw, 34px) clamp(20px, 2.6vw, 44px) 0;
+}
+.panel-head h2 {
+  font-size: clamp(20px, 2.2vw, 30px); font-weight: 400;
+  letter-spacing: -.02em; color: var(--ink);
+}
+.panel-head p { margin-top: 10px; color: var(--ink-mute); font-size: 14px; max-width: 58ch; }
+.panel-close {
+  flex: none; width: 38px; height: 38px;
+  background: transparent; border: 1px solid var(--line);
+  color: var(--ink); font-size: 17px; line-height: 1; cursor: pointer;
+  transition: background .2s var(--ease), color .2s var(--ease);
+}
+.panel-close:hover { background: var(--ink); color: #101010; }
+
+.panel-body {
+  flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  padding: 0 clamp(20px, 2.6vw, 44px) clamp(24px, 3vw, 48px);
+}
+/* the panel is its own column, so the services grid inside it starts at the
+   top rather than carrying the section's margin */
+.panel-body .svc { margin-top: clamp(18px, 2vw, 28px); }
+
+@media (max-width: 760px) {
+  .panel { width: 100vw; border-left: 0; }
+  .panel-tab { font-size: 10px; padding: 13px 9px; }
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -365,3 +541,21 @@ a { color: inherit; }
    width — a 1 must not make the reel narrower than a 0, or the whole row of
    metrics shuffles sideways as it counts. */
 .odo-count { font-variant-numeric: tabular-nums; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Tuning panel extras — preview only, adopted by the dock
+   ═════════════════════════════════════════════════════════════════════════ */
+#tune .tune-btn {
+  font: inherit; font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+  background: rgba(255,255,255,.08); color: rgba(255,255,255,.82);
+  border: 1px solid rgba(255,255,255,.14); border-radius: 4px;
+  padding: 5px 9px; cursor: pointer;
+}
+#tune .tune-btn:hover { background: rgba(255,255,255,.16); }
+#tune input[type=color] { width: 100%; height: 22px; background: none; border: 0; padding: 0; }
+#tune #odo-list { max-height: 210px; overflow-y: auto; margin-top: 6px; display: grid; gap: 3px; }
+#tune .odo-row {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 10.5px; color: rgba(255,255,255,.62);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
