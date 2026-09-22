@@ -3,39 +3,58 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Our studio</title>
+<title>Tibba Design Studio — Our studio</title>
+
 <link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/workbench.css">
 <script src="assets/manifest.js"></script>
 <script src="notes.js"></script>
 <script src="assets/workbench.js" defer></script>
-<link rel="stylesheet" href="assets/stub.css">
+<script src="assets/odometer.js" defer></script>
+
+<style>
+/* The section on its own. Its styling is in assets/site.css with everything
+   else the home page and this page both use — this file is the section, not
+   a second copy of how it looks. */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--ink-warm);
+  font-family: 'F37 Analog', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.section { padding-block: clamp(56px, 9vw, 130px); }
+</style>
 </head>
-<body>
 
-<!-- ─────────────────────────────────────────────────────────────────────────
-     Our studio
+<body data-page="studio">
 
-     Nothing has been designed into this page yet. Replace everything between
-     these comments with the section itself; keep the four lines in the head
-     that carry the type and the workbench, and drop assets/stub.css when the
-     placeholder below goes.
+<section class="section" id="studio" aria-labelledby="studio-h">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow" data-odo>[ &nbsp;OUR STUDIO&nbsp; ]</p>
+      <h2 id="studio-h" data-odo data-odo-delay="0.08">A lean team, and the year around it</h2>
+      <p>We are a small studio in India. Between the shipping there are talks, treks
+         and the occasional whole-team offsite — this is the part of the work that
+         does not appear in a case study.</p>
+    </div>
 
-     The dock on the right files its comments against this page's id in
-     assets/manifest.js. Change the label there and notes follow; change the
-     id and they do not.
-     ───────────────────────────────────────────────────────────────────── -->
-
-<main class="stub">
-  <p class="eyebrow">Home — 08</p>
-  <h1>Our studio</h1>
-  <div class="rule"></div>
-  <p>Who we are, as it appears on the home page.</p>
-  <p>Start in <code>studio-section.html</code>. Leave a note in the dock on the right as you
-     go, and commit <code>notes.js</code> with the change.</p>
-</main>
-
-<!-- ─────────────────────────────────────────────────────────────────────── -->
+    <div class="studio-grid">
+      <article class="studio-card">
+        <div class="plate"><span>Photograph</span></div>
+        <p class="cap"><span class="n">Vizchitra</span><span class="y">'25</span></p>
+      </article>
+      <article class="studio-card">
+        <div class="plate"><span>Photograph</span></div>
+        <p class="cap"><span class="n">Team trek</span><span class="y">'25</span></p>
+      </article>
+      <article class="studio-card">
+        <div class="plate"><span>Photograph</span></div>
+        <p class="cap"><span class="n">Team Tibba</span><span class="y">'25</span></p>
+      </article>
+    </div>
+  </div>
+</section>
 
 </body>
 </html>

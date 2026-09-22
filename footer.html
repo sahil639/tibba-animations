@@ -3,39 +3,70 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Footer</title>
+<title>Tibba Design Studio — Footer</title>
+
 <link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/workbench.css">
 <script src="assets/manifest.js"></script>
 <script src="notes.js"></script>
 <script src="assets/workbench.js" defer></script>
-<link rel="stylesheet" href="assets/stub.css">
+<script src="assets/odometer.js" defer></script>
+<script src="assets/services.js" defer></script>
+<script src="assets/footer-range.js" defer></script>
+<script src="assets/site-chrome.js" defer></script>
+
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   The footer, on its own
+   ─────────────────────────────────────────────────────────────────────────
+   The same footer every page carries, from assets/site-chrome.js — not a
+   copy of it. A copy is a second thing to keep in step, and the whole reason
+   the chrome is a script is that there should only ever be one.
+
+   What this page adds is somewhere to look at it. The footer is the last
+   screen of a long dark scroll and it inverts to white when it arrives; seen
+   on its own at the top of a blank page that reversal is invisible, so there
+   is a short run of the dark ground above it to arrive out of. Drag the
+   pointer across the ridge — the pixel ripple is the thing this page is for.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink-warm);
+  font-family: 'F37 Analog', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* the run-up: enough dark to make the inversion read */
+#approach {
+  min-height: 62vh;
+  display: flex; align-items: flex-end;
+  padding-bottom: clamp(40px, 7vh, 90px);
+}
+#approach .eyebrow { color: var(--ink-faint); }
+#approach h1 {
+  margin-top: 14px;
+  font-size: clamp(22px, 2.6vw, 38px); font-weight: 400;
+  line-height: 1.2; letter-spacing: -.02em; color: var(--ink); max-width: 26ch;
+}
+#approach p { margin-top: 16px; max-width: 54ch; color: var(--ink-mute); font-size: 14px; }
+</style>
 </head>
-<body>
 
-<!-- ─────────────────────────────────────────────────────────────────────────
-     Footer
+<body data-page="footer">
 
-     Nothing has been designed into this page yet. Replace everything between
-     these comments with the section itself; keep the four lines in the head
-     that carry the type and the workbench, and drop assets/stub.css when the
-     placeholder below goes.
-
-     The dock on the right files its comments against this page's id in
-     assets/manifest.js. Change the label there and notes follow; change the
-     id and they do not.
-     ───────────────────────────────────────────────────────────────────── -->
-
-<main class="stub">
-  <p class="eyebrow">Home — 09</p>
-  <h1>Footer</h1>
-  <div class="rule"></div>
-  <p>The bottom of every page: the way on, the way back, the small print.</p>
-  <p>Start in <code>footer.html</code>. Leave a note in the dock on the right as you
-     go, and commit <code>notes.js</code> with the change.</p>
+<main id="approach">
+  <div class="wrap">
+    <p class="eyebrow" data-odo>[ &nbsp;FOOTER&nbsp; ]</p>
+    <h1 data-odo data-odo-delay="0.08">The last screen</h1>
+    <p>The shared footer, rendered here on its own so it can be worked on without
+       scrolling a whole page to reach it. The skyline is generated — reload for a
+       different one — and it pixelates in a ring under the pointer.</p>
+  </div>
 </main>
 
-<!-- ─────────────────────────────────────────────────────────────────────── -->
+<footer data-site-footer></footer>
 
 </body>
 </html>

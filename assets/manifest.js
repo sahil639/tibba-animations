@@ -38,6 +38,8 @@ window.TIBBA_SITE = {
           note: 'Scroll-driven Three.js range with case cards', state: 'live' },
         { id: 'hero-peak',    label: 'Peak', file: 'tibba-peak.html',
           note: 'One massif; the summit opens the tibba definition', state: 'live' },
+        { id: 'hero-active',  label: 'Active Peak', file: 'active-peak.html',
+          note: 'The hero animation on its own, with every control — a playground', state: 'live' },
       ] },
 
     { id: 'metrics', label: 'Metrics',
@@ -87,11 +89,13 @@ window.TIBBA_SITE = {
 
     { id: 'studio', label: 'Our studio',
       note: 'Who we are, on the home page.',
-      pages: [ { id: 'studio-01', label: 'Our studio', file: 'studio-section.html', note: '', state: 'stub' } ] },
+      pages: [ { id: 'studio-01', label: 'Our studio', file: 'studio-section.html',
+                 note: 'The section that sits between the testimonials and the footer', state: 'live' } ] },
 
     { id: 'footer', label: 'Footer',
       note: 'The bottom of every page.',
-      pages: [ { id: 'footer-01', label: 'Footer', file: 'footer.html', note: '', state: 'stub' } ] },
+      pages: [ { id: 'footer-01', label: 'Footer', file: 'footer.html',
+                 note: 'The footer on its own, on the ground it is designed for', state: 'live' } ] },
 
     { id: 'about-hero', label: 'About us — hero',
       note: 'The top of the about page.',

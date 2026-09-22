@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tibba Design Studio — Active Peak</title>
+
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="notes.js"></script>
+<script src="assets/workbench.js" defer></script>
+
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Active Peak — a playground
+   ─────────────────────────────────────────────────────────────────────────
+   The hero's WebGL animation on its own, with nothing else on the page: no
+   navbar, no site title, no sections, no footer, no slide-over. What is left
+   is the canvas, the definition, and a full set of controls in the dock.
+
+   Not production. This page exists to get the animation and its scroll
+   behaviour right; the home page takes the numbers once they are settled.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #000;
+  color: var(--ink-warm);
+  font-family: 'F37 Analog', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Two viewports, not four. There is no ink sweep to scroll through on this
+   page — the peak starts drawn — so the scroll is only the move from the wide
+   station in to the summit, and the rings coming live at the end of it. */
+#scope { position: relative; height: 200vh; }
+
+#stage {
+  position: sticky; top: 0;
+  height: 100vh; height: 100svh;
+  overflow: hidden;
+}
+#peak-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* ── the definition ──────────────────────────────────────────────────────
+   One panel, not three. The three boxes this replaces were one per ring, and
+   they said the same thing three times in three places: the eye had to find a
+   different box each time the cursor moved a few pixels up the summit.
+
+   A single upright card, leaned off vertical, holds the whole definition at
+   once. The rings still address it — hovering one brings its line forward and
+   lets the other two fall back — so what changes under the cursor is emphasis
+   inside one object rather than which object exists.
+
+   The lean is 8°, and it is the only rotated thing on the site. It is here
+   because a card at true vertical beside a mountain reads as a UI panel
+   parked on top of the render; off-axis it reads as a label pinned to it.
+   ───────────────────────────────────────────────────────────────────────── */
+#def {
+  position: absolute;
+  right: clamp(24px, 7vw, 120px);
+  top: 50%;
+  transform: translateY(-50%) rotate(8deg);
+  transform-origin: center;
+  width: clamp(230px, 22vw, 290px);
+  border: 1px solid var(--line);
+  background: rgba(10, 10, 11, .72);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  padding: clamp(20px, 2vw, 28px);
+  opacity: 0;
+  transition: opacity .5s var(--ease);
+}
+#def.on { opacity: 1; }
+
+#def .term {
+  font-size: 12px; letter-spacing: .02em; color: var(--ink-mute);
+  padding-bottom: 14px; margin-bottom: 4px;
+  border-bottom: 1px solid var(--line-soft);
+}
+#def .term b { color: var(--accent); font-weight: 400; }
+
+/* the three entries — one per ring, stacked down the card */
+#def .entry {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line-soft);
+  /* they start held back, so bringing one forward is a change in emphasis
+     rather than a change in brightness of the whole card */
+  opacity: .38;
+  transition: opacity .3s var(--ease), transform .3s var(--ease);
+}
+#def .entry:last-child { border-bottom: 0; padding-bottom: 0; }
+#def .entry.on { opacity: 1; transform: translateX(-4px); }
+#def .entry .k {
+  display: block; font-size: 9.5px; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 6px;
+}
+#def .entry .t { font-size: 13px; line-height: 1.5; color: var(--ink-warm); }
+
+/* invisible hover targets, tracking the projected rings */
+.ring-hit {
+  position: absolute; z-index: 24;
+  transform: translate(-50%, -50%);
+  border-radius: 50%; cursor: pointer; display: none;
+  background: none; border: 0; padding: 0;
+}
+.ring-hit.on { display: block; }
+
+#cue {
+  position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  font-size: 10px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--ink-faint);
+  transition: opacity .45s var(--ease);
+}
+#cue i { display: block; width: 1px; height: 26px; background: var(--line); }
+</style>
+</head>
+
+<body>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     Nothing on this page but the animation. The dock on the right carries
+     every control; \ shows and hides it.
+     ───────────────────────────────────────────────────────────────────── -->
+<div id="scope">
+  <div id="stage">
+    <canvas id="peak-canvas"></canvas>
+
+    <button class="ring-hit" id="ring-hit-0" type="button" aria-describedby="def"></button>
+    <button class="ring-hit" id="ring-hit-1" type="button" aria-describedby="def"></button>
+    <button class="ring-hit" id="ring-hit-2" type="button" aria-describedby="def"></button>
+
+    <div id="def" role="note">
+      <p class="term"><b>tibba</b> / t&#618;b-b&#593; / n &nbsp;1. a higher place &bull; 2. a peak</p>
+      <div class="entry" data-ring="0">
+        <span class="k">A higher place</span>
+        <span class="t">Exactly where we aim to take you and your business, with design interventions.</span>
+      </div>
+      <div class="entry" data-ring="1">
+        <span class="k">What we do</span>
+        <span class="t">A UI/UX design studio that helps tech companies solve problems and take ideas from zero to one.</span>
+      </div>
+      <div class="entry" data-ring="2">
+        <span class="k">How we work</span>
+        <span class="t">We listen first and shape the process around the client, rather than arriving with one.</span>
+      </div>
+    </div>
+
+    <div id="cue" aria-hidden="true"><span>Scroll</span><i></i></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js"}}</script>
+<script type="module" src="assets/active-peak.js"></script>
+</body>
+</html>

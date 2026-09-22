@@ -188,17 +188,27 @@ function makeCountry(seed) {
   /* Four bearings, one per quadrant of the far field, jittered inside their
      own arc. Picking four angles at random instead clumps them — three on one
      side and a gap is the single most common draw, and it reads as a mistake
-     rather than as a range. */
+     rather than as a range.
+
+     'behind' pulls the same four in much closer and holds them to a narrower
+     arc directly beyond the massif, which is what reads as depth rather than
+     as a horizon: near enough that the eye has something to measure the peak
+     against, far enough back that they never compete with it. */
+  const near = opts.backdrop === 'behind';
   return [0, 1, 2, 3].map(i => {
-    const ang = (-Math.PI * 0.86) + (i + between(0.18, 0.82)) * (Math.PI * 0.72 / 2);
-    const dist = between(108, 168);
+    const arc = near ? Math.PI * 0.44 : Math.PI * 0.72;
+    const from = near ? -Math.PI * 0.72 : -Math.PI * 0.86;
+    const ang = from + (i + between(0.18, 0.82)) * (arc / 2);
+    const dist = near ? between(62, 126) : between(108, 168);
     const x = Math.cos(ang) * dist;
-    const z = -Math.abs(Math.sin(ang) * dist) - between(24, 60);
+    const z = -Math.abs(Math.sin(ang) * dist) - between(near ? 34 : 24, near ? 72 : 60);
 
     /* Held below the studio's massif on purpose. The hero is about one peak;
        a generated hill that out-tops it steals the skyline, and it would also
        take the top of the shared contour interval with it. */
-    const h = between(11, 23);
+    /* Smaller when they are close, so proximity does not turn into height —
+       a near hill as tall as the massif is a second massif. */
+    const h = near ? between(8, 17) : between(11, 23);
     const spread = between(22, 40);
     const mesa = rnd() < 0.38;              // a bench rather than a horn
     const sd = between(10, 240);
@@ -353,6 +363,51 @@ PEAK_H[0] = MAX_H;      // keep the hero's palette mapping exactly where it was
    not as a smaller mountain. Blending toward the range maximum keeps a shorter
    peak in the greys where it belongs, while peak 0 is unchanged by definition. */
 const PEAK_TONE = PEAK_H.map(h => MAX_H + (h - MAX_H) * 0.78);
+
+/* ── the survey palette ──────────────────────────────────────────────────
+   Two of them. The same GLSL function either way, so the mountain surface and
+   the contour sheet always agree — they read the ramp from one string.
+
+   'range' is this scene's own: a long dark ramp with the whole top of it
+   spent on the cap, which is what makes a peak read as lit from above when
+   the fill is still on it.
+
+   'peak' is tibba-peak.html's, lifted verbatim. It starts three times lighter
+   and tops out lower, over three bands rather than four, with a sqrt rather
+   than a 0.70 curve. On a peak drawn purely as line that is the better of the
+   two, and it is also what fixes the white cap: the range ramp puts its last
+   band between 0.42 and 0.79 brightness, so the summit rings — which are a
+   couple of pixels apart up there — all land in it at once and merge into one
+   blown-out blob. The peak ramp's top band is narrower and darker, so they
+   stay separate strokes. */
+const CT_PALETTES = {
+  range: `
+    t = pow(clamp(t, 0.0, 1.0), 0.70);
+    vec3 c0=vec3(0.048,0.054,0.108);
+    vec3 c1=vec3(0.095,0.115,0.200);
+    vec3 c2=vec3(0.210,0.250,0.380);
+    vec3 c3=vec3(0.420,0.470,0.600);
+    vec3 c4=vec3(0.790,0.820,0.905);
+    if     (t<0.25) return mix(c0,c1,t/0.25);
+    else if(t<0.50) return mix(c1,c2,(t-0.25)/0.25);
+    else if(t<0.75) return mix(c2,c3,(t-0.50)/0.25);
+    return mix(c3,c4,(t-0.75)/0.25);`,
+
+  peak: `
+    t = pow(clamp(t, 0.0, 1.0), 0.50);
+    vec3 c0 = vec3(0.170, 0.180, 0.225);
+    vec3 c1 = vec3(0.400, 0.425, 0.520);
+    vec3 c2 = vec3(0.640, 0.670, 0.775);
+    vec3 c3 = vec3(0.845, 0.870, 0.955);
+    if (t < 0.34) return mix(c0, c1, t / 0.34);
+    if (t < 0.70) return mix(c1, c2, (t - 0.34) / 0.36);
+    return mix(c2, c3, (t - 0.70) / 0.30);`,
+};
+
+const CT_PALETTE_GLSL = `
+  vec3 palette(float t){
+    ${CT_PALETTES[opts.palette] || CT_PALETTES.range}
+  }`;
 
 /* ─── Renderer ───────────────────────────────────────────────── */
 const canvas = opts.canvas;
@@ -554,22 +609,14 @@ const mountainMat = new THREE.ShaderMaterial({
     varying float vH, vCut, vMorph, vFog, vMax, vOn;
     varying vec3 vN;
     uniform float uAlpha, uBand, uMode, uEdgeAmt;
+    ${CT_PALETTE_GLSL}
     void main(){
       /* The ramp is curved, not linear. Read straight off height, an apron a
          quarter of the way up the massif lands in the darkest quarter of the
          palette and disappears into the ground; the reference keeps its whole
          body mid-tone and spends the bright end on the cap alone. */
-      float t=pow(clamp(vH/vMax,0.0,1.0), 0.70);
-      vec3 c0=vec3(0.048,0.054,0.108);
-      vec3 c1=vec3(0.095,0.115,0.200);
-      vec3 c2=vec3(0.210,0.250,0.380);
-      vec3 c3=vec3(0.420,0.470,0.600);
-      vec3 c4=vec3(0.790,0.820,0.905);
-      vec3 col;
-      if     (t<0.25) col=mix(c0,c1,t/0.25);
-      else if(t<0.50) col=mix(c1,c2,(t-0.25)/0.25);
-      else if(t<0.75) col=mix(c2,c3,(t-0.50)/0.25);
-      else            col=mix(c3,c4,(t-0.75)/0.25);
+      float t = clamp(vH/vMax, 0.0, 1.0);
+      vec3 col = palette(t);
       float cl=exp(-abs(sin(vH*1.15))*16.0);
       col=mix(col,col*0.55,cl*0.28);
       vec3 l=normalize(vec3(-0.3,2.8,1.0));
@@ -1098,6 +1145,15 @@ function ctSnap(pts, lev) {
    screen space, so a stroke keeps one pixel width at any depth or DPR — and it
    scales with nothing, which is what stops the lines going heavy as the camera
    pulls back across the range. */
+/* Rebuilt in place, keeping the mesh. Replacing the mesh would lose its
+   position in mountainGroup and its render order, and the material — which
+   holds every uniform the panel has been setting — along with them. */
+function rebuildContours() {
+  const g = buildContourGeometry();
+  contourMesh.geometry.dispose();
+  contourMesh.geometry = g;
+}
+
 /* Where the summit's accent rings sit in the world, filled as the geometry is
    built. The page projects these to find what the cursor is over — the rings
    are the one part of this scene with copy attached to them, and hit-testing
@@ -1264,20 +1320,6 @@ function buildContourGeometry() {
 /* The palette is lifted verbatim from the surface shader. That is the whole
    trick behind the crossfade reading as one object: at the moment the sweep
    crosses a band, the ink under it is the exact colour the shading was. */
-const CT_PALETTE_GLSL = `
-  vec3 palette(float t){
-    t = pow(clamp(t, 0.0, 1.0), 0.70);   // matches the surface ramp exactly
-    vec3 c0=vec3(0.048,0.054,0.108);
-    vec3 c1=vec3(0.095,0.115,0.200);
-    vec3 c2=vec3(0.210,0.250,0.380);
-    vec3 c3=vec3(0.420,0.470,0.600);
-    vec3 c4=vec3(0.790,0.820,0.905);
-    if     (t<0.25) return mix(c0,c1,t/0.25);
-    else if(t<0.50) return mix(c1,c2,(t-0.25)/0.25);
-    else if(t<0.75) return mix(c2,c3,(t-0.50)/0.25);
-    return mix(c3,c4,(t-0.75)/0.25);
-  }`;
-
 const contourMat = new THREE.ShaderMaterial({
   transparent: true,
   depthWrite: false,
@@ -1617,11 +1659,16 @@ function stepMorph(dt) {
   /* Aerial perspective is off in the hero — the original framing has no haze on
      it anywhere — and closes in as the range appears, so neighbouring summits
      recede with distance instead of stacking up at equal strength. */
+  /* The fade normally tracks the redraw — off in the hero, closing in as the
+     range appears. Once a caller has set it by hand that stops: a control that
+     is overwritten sixty times a second is not a control. */
   const fw = peakMorph[0];
   const fn = 210 + (130 - 210) * fw;
   const ff = 430 + (310 - 430) * fw;
-  mountainMat.uniforms.uFogNear.value = fn; mountainMat.uniforms.uFogFar.value = ff;
-  contourMat.uniforms.uFogNear.value  = fn; contourMat.uniforms.uFogFar.value  = ff;
+  if (depthLock < 0) {
+    mountainMat.uniforms.uFogNear.value = fn; mountainMat.uniforms.uFogFar.value = ff;
+    contourMat.uniforms.uFogNear.value  = fn; contourMat.uniforms.uFogFar.value  = ff;
+  }
 
   let fastest = 0;
   for (let i = 0; i < NPK; i++) {
@@ -1647,8 +1694,10 @@ function stepMorph(dt) {
      the saddle between a lit peak and a drained one and reads as a light leak. */
   const tp = trailMat.uniforms.uProgress.value;
   for (let i = 0; i < NTR; i++) tp[i] = trailProgress[i];
-  trailMat.uniforms.uFogNear.value = fn;
-  trailMat.uniforms.uFogFar.value  = ff;
+  if (depthLock < 0) {
+    trailMat.uniforms.uFogNear.value = fn;
+    trailMat.uniforms.uFogFar.value  = ff;
+  }
 
   const want = Math.min(1, fastest * 7);
   edgeAmt += (want - edgeAmt) * Math.min(1, dt * (want > edgeAmt ? 16 : 5));
@@ -1900,6 +1949,11 @@ addEventListener('resize', resize);
 let _lastT = performance.now();
 let dotClock = 0;
 let ringHover = -1;
+/* a snap view is holding the camera; the scroll does not get it back until
+   something asks for the hero station again */
+let viewLock = false;
+/* set by setDepth, so stepMorph knows to stop writing the fade itself */
+let depthLock = -1;
 let rafId = 0, running = true;
 /* Scheduled rather than entered. The loop used to run its first frame the
    instant it was defined, which was fine when it was the last thing on the
@@ -2081,7 +2135,12 @@ let zoom = 0, zoomT = 0;
 const _zp = new THREE.Vector3(), _zt = new THREE.Vector3();
 
 function applyZoom() {
-  if (MODE_RANGE || camTweening) return;
+  /* viewLock is a snap view holding the camera. Without it a survey view
+     lasts exactly as long as its flight: applyZoom runs every frame off the
+     scroll position, so the moment the tween releases camTweening the camera
+     is put straight back on the scroll's own station. A view you cannot hold
+     still is not a view. */
+  if (MODE_RANGE || camTweening || viewLock) return;
   const e = zoom * zoom * (3 - 2 * zoom);
   _zp.lerpVectors(HERO_WIDE.pos, HERO_TIGHT.pos, e);
   _zt.lerpVectors(HERO_WIDE.tgt, HERO_TIGHT.tgt, e);
@@ -2160,10 +2219,18 @@ if (MODE_RANGE) {
   peakMorph[0] = peakTarget[0] = 1;
   rangeReveal = 1;
 } else {
-  applyZoom();
   trailMesh.visible = false;             // the hero has no routes on it either
   baseDot.visible = false;
-  MORPH.scrub = 0;
+  /* `ink: false` starts the peak where the redraw would have left it — fully
+     drawn out as contour line, with the summit's accent rings already on. The
+     sweep is the hero's opening move and costs a viewport of scroll; a page
+     that only wants the finished drawing should not have to scroll past it to
+     get there. */
+  MORPH.scrub = opts.ink === false ? 1 : 0;
+  peakMorph[0] = peakTarget[0] = MORPH.scrub;
+  rangeReveal = 0;
+  stepMorph(0.016);
+  applyZoom();
 }
 stepMorph(0.016);
 
@@ -2175,7 +2242,9 @@ return {
 
   /** 0 = the peak as lit surface, 1 = fully redrawn as contour line. */
   setHeroMorph(t) {
-    if (MODE_RANGE) return;
+    /* held at 1 when the scene was built without the ink — there is no state
+       for a caller to scrub to */
+    if (MODE_RANGE || opts.ink === false) return;
     MORPH.scrub = Math.min(1, Math.max(0, t));
   },
 
@@ -2294,6 +2363,59 @@ return {
     applyZoom();                  // and put the camera on the new station now
   },
 
+  /** The current hero station, so a panel can show what it is editing. */
+  heroCam() { return { ...HERO_CAM }; },
+
+  /* ── depth ────────────────────────────────────────────────────────────
+     How hard the aerial fade bites. It is the one control that decides
+     whether this reads as a flat survey sheet or as a landscape with air in
+     it, and it is two uniforms rather than one: the distance the fade starts
+     and the distance it finishes. Driven from a single 0..1 so the two cannot
+     be set into a state where the far plane is nearer than the near one. */
+  setDepth(t) {
+    const d = Math.min(1, Math.max(0, t));
+    /* at 0 the fade is pushed so far back that nothing reaches it; at 1 it
+       closes to arm's length and the country dissolves a few peaks out */
+    const near = 340 - 250 * d;
+    const far  = near + 420 - 260 * d;
+    for (const m of [mountainMat, contourMat, trailMat]) {
+      m.uniforms.uFogNear.value = near;
+      m.uniforms.uFogFar.value = far;
+    }
+    depthLock = d;
+  },
+
+  /* ── the survey views ─────────────────────────────────────────────────
+     Straight down and straight on. Both are readings rather than shots: a
+     plan and an elevation, which is how you actually check a contour sheet —
+     the plan shows whether the rings are concentric and evenly spaced, the
+     elevation shows whether the interval is constant up the slope. Neither is
+     reachable by dragging a camera that is clamped to stop you going over the
+     pole or under the ground, which is why they are buttons. */
+  snapView(which, dur) {
+    if (MODE_RANGE) return;
+    /* 'hero' is the way back: it hands the camera to the scroll again. The
+       two survey views keep it. */
+    viewLock = which === 'top' || which === 'side';
+    const top = PEAK_TOP[0] || { x: PEAKS[0].x, z: PEAKS[0].z };
+    const h = PEAK_H[0] || MAX_H;
+    const tgt = new THREE.Vector3(top.x, h * 0.35, top.z);
+    let pos;
+
+    if (which === 'top') {
+      /* not exactly overhead: a camera on the axis has no up vector it can
+         agree with, and the scene flips as it crosses. Two degrees off is
+         indistinguishable and well defined. */
+      pos = new THREE.Vector3(top.x + 4, h + 190, top.z + 0.1);
+    } else if (which === 'side') {
+      pos = new THREE.Vector3(top.x + 0.1, h * 0.45, top.z + 175);
+    } else {
+      applyHeroCam(false);
+      pos = H_POS.clone(); tgt.copy(H_TGT);
+    }
+    moveCam(pos, tgt, dur == null ? 1.1 : dur);
+  },
+
   setDots(next) {
     const u = contourMat.uniforms;
     if (next.period != null) u.uDotPeriod.value = next.period;
@@ -2301,14 +2423,11 @@ return {
     if (next.flow != null) u.uDotFlow.value = next.flow;
   },
 
-  /* Which rings are dotted is a per-vertex flag, so this is the one control
-     that costs a rebuild rather than a uniform write. */
-  setDottedLevels(n) {
-    CT.DOTTED_LEVELS = Math.max(0, n | 0);
-    const g = buildContourGeometry();
-    contourMesh.geometry.dispose();
-    contourMesh.geometry = g;
-  },
+  /* Which rings are dotted, and how many wear the accent, are both per-vertex
+     flags — so these are the two controls that cost a geometry rebuild rather
+     than a uniform write. Both go through the same path. */
+  setDottedLevels(n) { CT.DOTTED_LEVELS = Math.max(0, n | 0); rebuildContours(); },
+  setAccentTop(n)    { CT.ACCENT_TOP = Math.max(1, n | 0);    rebuildContours(); },
 
   /** Put the camera on a summit with no flight and no climb. */
   openOn,

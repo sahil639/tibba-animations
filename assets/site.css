@@ -381,6 +381,50 @@ a { color: inherit; }
 
 
 /* ══════════════════════════════════════════════════════════════════════════
+   Our studio
+   ─────────────────────────────────────────────────────────────────────────
+   The last section before the footer: what the studio is like, rather than
+   what it does. Three plates on a row, each one an outing with a year on it.
+
+   The photography is the studio's own and is not in this repo, so each is a
+   labelled plate at the right size in the right place — the same treatment
+   the case studies and the team portraits get, so the whole site is honest
+   about the same thing in the same way.
+   ═════════════════════════════════════════════════════════════════════════ */
+.studio-grid {
+  margin-top: clamp(30px, 4vw, 56px);
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(14px, 1.8vw, 26px);
+}
+.studio-card { display: flex; flex-direction: column; gap: 14px; }
+.studio-card .plate {
+  aspect-ratio: 4 / 5;
+  border: 1px solid var(--line);
+  background:
+    repeating-linear-gradient(135deg,
+      rgba(255,255,255,.014) 0 12px, transparent 12px 24px),
+    var(--bg-raise);
+  display: grid; place-items: center;
+  transition: background .35s var(--ease), border-color .35s var(--ease);
+}
+.studio-card:hover .plate { border-color: rgba(255,255,255,.22); background: var(--bg-raise-2); }
+.studio-card .plate span {
+  font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--ink-faint);
+  border: 1px solid var(--line); padding: 7px 13px;
+}
+.studio-card .cap {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+}
+.studio-card .cap .n {
+  font-size: clamp(14px, 1.3vw, 18px); letter-spacing: .06em;
+  text-transform: uppercase; color: var(--ink);
+}
+.studio-card .cap .y { font-size: 12px; color: var(--ink-faint); }
+
+@media (max-width: 760px) { .studio-grid { grid-template-columns: 1fr; } }
+
+/* ══════════════════════════════════════════════════════════════════════════
    The services panel
    ─────────────────────────────────────────────────────────────────────────
    A tab welded to the right edge of the window, and the panel it opens. The
