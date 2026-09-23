@@ -254,8 +254,17 @@
       if (n) n.style.display = 'none';
     });
     if (!found.length) {
-      bodyEl.appendChild(el('div', 'wb-empty',
-        'This page has no controls of its own. Notes below are filed against it all the same.'));
+      /* only if the dock has not already said this once — adopt() can be
+         called again later by a page whose panel waits on a module, and a
+         second placeholder under the first helps nobody */
+      if (!bodyEl.querySelector('.wb-empty')) {
+        bodyEl.appendChild(el('div', 'wb-empty',
+          'This page has no controls of its own. Notes below are filed against it all the same.'));
+      }
+    } else {
+      /* and a panel that arrives late clears the note saying there is none */
+      var empty = bodyEl.querySelector('.wb-empty');
+      if (empty) empty.remove();
     }
     return found.length;
   }

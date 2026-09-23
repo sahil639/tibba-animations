@@ -1,0 +1,248 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   The tuning panels
+   ─────────────────────────────────────────────────────────────────────────
+   One design for every control panel in the repo. The pages each grew their
+   own — nine of them, all slightly different — because each panel was written
+   beside the animation it drives. This is that styling pulled out to one
+   place; the markup stays where it is.
+
+   ── how it overrides ──────────────────────────────────────────────────────
+   Every rule is written `body #tune ...` rather than `#tune ...`. The pages
+   declare their panel styling in a <style> block in their own head, and a
+   stylesheet with equal specificity loses to a later block no matter which
+   file it is in. One extra element selector wins it without having to go and
+   unpick nine bespoke <style> blocks, each of which is doing other things
+   too. Linked last in the head so the cascade is unambiguous either way.
+
+   ── the design ────────────────────────────────────────────────────────────
+   A control is a label, its value, and a track: name on the left, number
+   right-aligned and quiet, and the track full width on its own line beneath
+   them. Nothing is boxed, nothing has a border except where two groups meet.
+   The panel is furniture sitting over an animation, and the animation is what
+   is being looked at — so the panel's job is to be legible and then to stop
+   asking for attention.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+body #tune,
+body #ui {
+  --t-ink:    #E8E3DC;
+  --t-mute:   #8C8C90;
+  --t-faint:  #5E5E62;
+  --t-line:   rgba(255, 255, 255, .09);
+  --t-track:  rgba(255, 255, 255, .14);
+  --t-knob:   #9A9A9E;
+  --t-accent: #E85D3D;
+
+  font-family: 'F37 Analog', system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--t-ink);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  /* The dock's body has no padding of its own — every panel it adopts has
+     always brought its own, and zeroing it here is what pushed the value
+     readouts hard against the right edge and clipped them. */
+  padding: 16px 18px 24px;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+/* Adopted into the dock, the panel is a column in someone else's box, so it
+   gives up every bit of chrome it had when it floated. */
+body #tune.wb-adopted,
+body #ui.wb-adopted {
+  width: 100%; max-width: 100%;
+  max-height: none; border-radius: 0;
+  position: static; inset: auto;
+}
+
+/* ── heads and separators ───────────────────────────────────────────────── */
+body #tune #tune-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 0 0 14px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--t-line);
+}
+body #tune #tune-head b {
+  font-size: 15px; font-weight: 500; letter-spacing: -.01em; color: var(--t-ink);
+}
+
+body #tune .tune-sub,
+body #tune .sep,
+body #tune .tune-sep,
+body #ui .sep {
+  margin: 22px 0 2px;
+  padding-top: 14px;
+  border-top: 1px solid var(--t-line);
+  font-size: 9.5px; font-weight: 500;
+  letter-spacing: .2em; text-transform: uppercase;
+  color: var(--t-faint);
+}
+/* the first group in a panel has nothing above it to be separated from */
+body #tune #tune-head + .tune-sub,
+body #tune .tune-sub:first-child,
+body #ui .sep:first-child { margin-top: 6px; padding-top: 0; border-top: 0; }
+
+body #tune .grp, body #ui .grp { display: block; margin: 0; }
+
+/* ── a control ──────────────────────────────────────────────────────────── */
+body #tune .row,
+body #ui .row {
+  display: block;
+  margin: 0;
+  padding: 13px 0 15px;
+  border-bottom: 1px solid var(--t-line);
+}
+body #tune .row:last-child,
+body #ui .row:last-child { border-bottom: 0; }
+
+/* label and value share the first line; the track gets the second */
+body #tune .row label,
+body #ui .row label {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 14px;
+  font-size: 13px; font-weight: 400; letter-spacing: 0;
+  text-transform: none;
+  color: var(--t-ink);
+  margin-bottom: 11px;
+  cursor: default;
+}
+body #tune .row label i,
+body #ui .row label i {
+  font-style: normal;
+  font-size: 12.5px;
+  color: var(--t-mute);
+  /* tabular, so a readout does not shuffle sideways as a slider moves */
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+/* a row the page has marked as live — driven by something other than its own
+   control — says so by going quiet rather than by changing shape */
+body #tune .row.live label i { color: var(--t-faint); font-style: italic; }
+
+/* ── the track ──────────────────────────────────────────────────────────── */
+body #tune input[type=range],
+body #ui input[type=range] {
+  -webkit-appearance: none; appearance: none;
+  display: block; width: 100%; height: 14px;
+  margin: 0; padding: 0;
+  background: transparent; cursor: pointer;
+}
+body #tune input[type=range]::-webkit-slider-runnable-track,
+body #ui input[type=range]::-webkit-slider-runnable-track {
+  height: 1px; background: var(--t-track); border-radius: 0;
+}
+body #tune input[type=range]::-moz-range-track,
+body #ui input[type=range]::-moz-range-track {
+  height: 1px; background: var(--t-track);
+}
+body #tune input[type=range]::-webkit-slider-thumb,
+body #ui input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--t-knob); border: 0;
+  /* the track is 1px and the thumb is 11, so it has to be lifted five of
+     those to sit centred on it rather than hanging below */
+  margin-top: -5px;
+  transition: background .18s ease, transform .18s ease;
+}
+body #tune input[type=range]::-moz-range-thumb,
+body #ui input[type=range]::-moz-range-thumb {
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--t-knob); border: 0;
+}
+body #tune input[type=range]:hover::-webkit-slider-thumb,
+body #ui input[type=range]:hover::-webkit-slider-thumb {
+  background: var(--t-ink); transform: scale(1.12);
+}
+body #tune input[type=range]:focus-visible::-webkit-slider-thumb {
+  background: var(--t-accent); outline: none;
+}
+
+/* ── colour, checkbox, buttons ──────────────────────────────────────────── */
+body #tune input[type=color],
+body #ui input[type=color] {
+  display: block; width: 100%; height: 20px;
+  padding: 0; border: 1px solid var(--t-line); border-radius: 0;
+  background: none; cursor: pointer;
+}
+body #tune input[type=color]::-webkit-color-swatch-wrapper { padding: 0; }
+body #tune input[type=color]::-webkit-color-swatch { border: 0; }
+
+body #tune input[type=checkbox],
+body #ui input[type=checkbox] {
+  -webkit-appearance: none; appearance: none;
+  width: 15px; height: 15px; margin: 0;
+  border: 1px solid var(--t-track); border-radius: 0;
+  background: transparent; cursor: pointer;
+  position: relative; flex: none;
+}
+body #tune input[type=checkbox]:checked,
+body #ui input[type=checkbox]:checked {
+  background: var(--t-ink); border-color: var(--t-ink);
+}
+body #tune input[type=checkbox]:checked::after,
+body #ui input[type=checkbox]:checked::after {
+  content: ''; position: absolute; left: 4px; top: 1px;
+  width: 4px; height: 8px;
+  border: solid #101010; border-width: 0 1.5px 1.5px 0;
+  transform: rotate(42deg);
+}
+
+body #tune .btn, body #tune .tune-btn, body #tune button,
+body #ui .btn, body #ui button {
+  font: inherit; font-size: 10px; font-weight: 500;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--t-mute); background: transparent;
+  border: 1px solid var(--t-line); border-radius: 0;
+  padding: 8px 12px; cursor: pointer;
+  transition: color .2s ease, border-color .2s ease, background .2s ease;
+}
+body #tune .btn:hover, body #tune .tune-btn:hover, body #tune button:hover,
+body #ui .btn:hover, body #ui button:hover {
+  color: var(--t-ink); border-color: var(--t-track);
+}
+
+/* the panel's own hide button is furniture on furniture */
+body #tune #tune-head button {
+  border: 0; padding: 2px 4px; font-size: 15px; letter-spacing: 0;
+}
+
+/* ── segmented choices ──────────────────────────────────────────────────── */
+body #tune .seg, body #ui .seg {
+  display: flex; gap: 0; margin: 4px 0 2px;
+  border: 1px solid var(--t-line);
+}
+body #tune .seg button, body #ui .seg button {
+  flex: 1; border: 0; border-right: 1px solid var(--t-line);
+  padding: 9px 6px; letter-spacing: .1em;
+}
+body #tune .seg button:last-child, body #ui .seg button:last-child { border-right: 0; }
+body #tune .seg button.on, body #ui .seg button.on {
+  background: var(--t-ink); color: #101010;
+}
+
+/* ── notes, readouts, action rows ───────────────────────────────────────── */
+body #tune .why, body #ui .why {
+  font-size: 11px; line-height: 1.5; color: var(--t-faint);
+  margin: -4px 0 12px;
+}
+body #tune #tune-read, body #tune .stat, body #ui .stat {
+  font-size: 10.5px; line-height: 1.6; color: var(--t-faint);
+  font-variant-numeric: tabular-nums;
+  padding-top: 14px; margin-top: 16px;
+  border-top: 1px solid var(--t-line);
+}
+body #tune .tune-acts, body #ui .tune-acts {
+  display: flex; flex-wrap: wrap; gap: 6px; padding: 14px 0 2px;
+}
+
+/* a row whose control is a button or a swatch rather than a track */
+body #tune .row.inline label, body #ui .row.inline label { margin-bottom: 0; }
+body #tune .row.inline {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+}
+body #tune .row.inline label { flex: 1; }
+
+body #tune.hidden, body #ui.hidden { display: none; }

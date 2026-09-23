@@ -94,6 +94,12 @@
   @media (prefers-reduced-motion: reduce){ #ov{transition:none;} }
 </style>
 
+<!-- The shared control-panel design. These pages have no <head> tag at all —
+     the browser builds one implicitly from the leading elements — so the link
+     goes after the page's own <style> to win the cascade. -->
+<link rel="stylesheet" href="assets/tune.css">
+
+
 <div id="stage"><canvas id="c"></canvas></div>
 
 <button id="toggle" title="Show controls (H)" aria-label="Show controls">&#9776;</button>

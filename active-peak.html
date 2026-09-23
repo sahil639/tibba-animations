@@ -36,7 +36,9 @@ body {
 /* Two viewports, not four. There is no ink sweep to scroll through on this
    page — the peak starts drawn — so the scroll is only the move from the wide
    station in to the summit, and the rings coming live at the end of it. */
-#scope { position: relative; height: 200vh; }
+/* Three states need three bands and a beat at each end, so the sentinel is
+   taller than the two-state version it replaces. */
+#scope { position: relative; height: 340vh; }
 
 #stage {
   position: sticky; top: 0;
@@ -45,68 +47,42 @@ body {
 }
 #peak-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 
-/* ── the definition ──────────────────────────────────────────────────────
-   One panel, not three. The three boxes this replaces were one per ring, and
-   they said the same thing three times in three places: the eye had to find a
-   different box each time the cursor moved a few pixels up the summit.
-
-   A single upright card, leaned off vertical, holds the whole definition at
-   once. The rings still address it — hovering one brings its line forward and
-   lets the other two fall back — so what changes under the cursor is emphasis
-   inside one object rather than which object exists.
-
-   The lean is 8°, and it is the only rotated thing on the site. It is here
-   because a card at true vertical beside a mountain reads as a UI panel
-   parked on top of the render; off-axis it reads as a label pinned to it.
+/* ── the space the copy will go in ───────────────────────────────────────
+   Not content — a marker for where content goes. The third scroll state moves
+   the peak left and leaves this half of the frame for it, and without
+   something standing in that space the move reads as the mountain drifting
+   off centre rather than as it making room. Two rules and a line of type are
+   enough to say "a column belongs here".
    ───────────────────────────────────────────────────────────────────────── */
-#def {
+#reserve {
   position: absolute;
-  right: clamp(24px, 7vw, 120px);
-  top: 50%;
-  transform: translateY(-50%) rotate(8deg);
-  transform-origin: center;
-  width: clamp(230px, 22vw, 290px);
-  border: 1px solid var(--line);
-  background: rgba(10, 10, 11, .72);
-  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-  padding: clamp(20px, 2vw, 28px);
-  opacity: 0;
-  transition: opacity .5s var(--ease);
+  right: 0; top: 0; bottom: 0;
+  width: 46%;
+  display: flex; align-items: center;
+  padding-left: clamp(20px, 4vw, 64px);
+  padding-right: var(--gut);
+  opacity: 0; pointer-events: none;
+  transition: opacity .6s var(--ease);
 }
-#def.on { opacity: 1; }
-
-#def .term {
-  font-size: 12px; letter-spacing: .02em; color: var(--ink-mute);
-  padding-bottom: 14px; margin-bottom: 4px;
-  border-bottom: 1px solid var(--line-soft);
+#reserve.on { opacity: 1; }
+#reserve .slot {
+  width: 100%; max-width: 420px;
+  border-left: 1px solid var(--line);
+  padding: clamp(18px, 2.4vw, 30px) 0 clamp(18px, 2.4vw, 30px) clamp(18px, 2vw, 28px);
 }
-#def .term b { color: var(--accent); font-weight: 400; }
-
-/* the three entries — one per ring, stacked down the card */
-#def .entry {
-  padding: 14px 0;
-  border-bottom: 1px solid var(--line-soft);
-  /* they start held back, so bringing one forward is a change in emphasis
-     rather than a change in brightness of the whole card */
-  opacity: .38;
-  transition: opacity .3s var(--ease), transform .3s var(--ease);
-}
-#def .entry:last-child { border-bottom: 0; padding-bottom: 0; }
-#def .entry.on { opacity: 1; transform: translateX(-4px); }
-#def .entry .k {
+#reserve .k {
   display: block; font-size: 9.5px; letter-spacing: .2em;
-  text-transform: uppercase; color: var(--accent); margin-bottom: 6px;
+  text-transform: uppercase; color: var(--accent);
 }
-#def .entry .t { font-size: 13px; line-height: 1.5; color: var(--ink-warm); }
-
-/* invisible hover targets, tracking the projected rings */
-.ring-hit {
-  position: absolute; z-index: 24;
-  transform: translate(-50%, -50%);
-  border-radius: 50%; cursor: pointer; display: none;
-  background: none; border: 0; padding: 0;
+#reserve .t {
+  display: block; margin-top: 14px;
+  font-size: clamp(15px, 1.5vw, 20px); line-height: 1.35;
+  letter-spacing: -.01em; color: var(--ink-warm); max-width: 24ch;
 }
-.ring-hit.on { display: block; }
+#reserve .bars { margin-top: 26px; display: grid; gap: 9px; }
+#reserve .bars i { display: block; height: 1px; background: var(--line); }
+#reserve .bars i:nth-child(2) { width: 82%; }
+#reserve .bars i:nth-child(3) { width: 58%; }
 
 #cue {
   position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%);
@@ -117,6 +93,10 @@ body {
 }
 #cue i { display: block; width: 1px; height: 26px; background: var(--line); }
 </style>
+
+<!-- the shared control-panel design; last in the head so it wins over
+     whatever styling this page declared for its own panel -->
+<link rel="stylesheet" href="assets/tune.css">
 </head>
 
 <body>
@@ -129,23 +109,11 @@ body {
   <div id="stage">
     <canvas id="peak-canvas"></canvas>
 
-    <button class="ring-hit" id="ring-hit-0" type="button" aria-describedby="def"></button>
-    <button class="ring-hit" id="ring-hit-1" type="button" aria-describedby="def"></button>
-    <button class="ring-hit" id="ring-hit-2" type="button" aria-describedby="def"></button>
-
-    <div id="def" role="note">
-      <p class="term"><b>tibba</b> / t&#618;b-b&#593; / n &nbsp;1. a higher place &bull; 2. a peak</p>
-      <div class="entry" data-ring="0">
-        <span class="k">A higher place</span>
-        <span class="t">Exactly where we aim to take you and your business, with design interventions.</span>
-      </div>
-      <div class="entry" data-ring="1">
-        <span class="k">What we do</span>
-        <span class="t">A UI/UX design studio that helps tech companies solve problems and take ideas from zero to one.</span>
-      </div>
-      <div class="entry" data-ring="2">
-        <span class="k">How we work</span>
-        <span class="t">We listen first and shape the process around the client, rather than arriving with one.</span>
+    <div id="reserve" aria-hidden="true">
+      <div class="slot">
+        <span class="k">Reserved</span>
+        <span class="t">Copy and controls sit here once the peak has made room.</span>
+        <div class="bars"><i></i><i></i><i></i></div>
       </div>
     </div>
 

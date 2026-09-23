@@ -2325,7 +2325,15 @@ const LOCK = {
   scale: 0.62,      // final size, as a fraction of the hero's
   shift: 46,        // world units the camera slides, putting the peak left
   drop: 0.16,       // and how far it settles, as a fraction of its height
-  opacity: 0.45,    // what the line fades back to
+  /* What the line fades back to as it moves aside.
+
+     On the home page that is a real fade: the metrics are read against the
+     peak and it has to give way to them. On a page where the massif is still
+     the subject after it has moved — it has only made room, not handed over —
+     the same fade takes it to nothing, because it compounds with the
+     country's own dimming and the haze. So it is a setting rather than a
+     constant, and a caller that wants the peak to stay legible says so. */
+  opacity: opts.lockFade != null ? opts.lockFade : 0.45,
 };
 let lockT = 0;
 
@@ -2646,6 +2654,40 @@ return {
      than a uniform write. Both go through the same path. */
   setDottedLevels(n) { CT.DOTTED_LEVELS = Math.max(0, n | 0); rebuildContours(); },
   setAccentTop(n)    { CT.ACCENT_TOP = Math.max(1, n | 0);    rebuildContours(); },
+
+  /* How many contours the tallest peak carries, which sets the interval for
+     the whole sheet — every other landform is drawn against the same one, so
+     this is the single number that decides how densely the country is
+     surveyed. A rebuild, like the other two. */
+  setLevels(n) { CT.LEVELS = Math.max(6, Math.min(80, n | 0)); rebuildContours(); },
+
+  /* ── the sheet ────────────────────────────────────────────────────────
+     Uniform writes, all of them, so they land on the next frame. */
+  setInk(next) {
+    const u = contourMat.uniforms;
+    if (next.weight != null) u.uWeight.value = next.weight;
+    if (next.opacity != null) u.uOpacity.value = next.opacity;
+    if (next.offPeak != null) u.uOffPeak.value = next.offPeak;
+    /* uFadeA is where the aerial fade starts and uFadeB where it is finished;
+       kept apart by a fixed margin rather than exposed separately, because
+       the only thing that matters is where the sheet begins to go and the two
+       crossing over would make contours brighten with distance. */
+    if (next.fade != null) {
+      u.uFadeA.value = next.fade;
+      u.uFadeB.value = next.fade + 0.26;
+    }
+  },
+
+  ink() {
+    const u = contourMat.uniforms;
+    return {
+      levels: CT.LEVELS,
+      weight: u.uWeight.value,
+      opacity: u.uOpacity.value,
+      offPeak: u.uOffPeak.value,
+      fade: u.uFadeA.value,
+    };
+  },
 
   /** Put the camera on a summit with no flight and no climb. */
   openOn,
