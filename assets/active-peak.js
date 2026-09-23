@@ -124,6 +124,7 @@ requestAnimationFrame(track);
    ═════════════════════════════════════════════════════════════════════════ */
 {
   const cam = scene.heroCam();
+  const dots = scene.dots();
   const el = document.createElement('div');
   el.id = 'tune';
   el.innerHTML = `
@@ -152,14 +153,12 @@ requestAnimationFrame(track);
       <input type="range" id="s-top" min="1" max="8" value="3"></div>
 
     <p class="tune-sub">DOTTED CONTOURS</p>
-    <div class="row"><label>Rings dotted<i id="v-dl">3</i></label>
-      <input type="range" id="s-dl" min="0" max="14" value="3"></div>
-    <div class="row"><label>Spacing<i id="v-dp">0.42</i></label>
-      <input type="range" id="s-dp" min="10" max="160" value="42"></div>
-    <div class="row"><label>Dot length<i id="v-dot">0.16</i></label>
-      <input type="range" id="s-dot" min="2" max="60" value="16"></div>
-    <div class="row"><label>Drift<i id="v-df">0.16</i></label>
-      <input type="range" id="s-df" min="0" max="120" value="16"></div>
+    <div class="row"><label>Spacing<i id="v-dp">${dots.period.toFixed(2)}</i></label>
+      <input type="range" id="s-dp" min="10" max="600" value="${Math.round(dots.period * 100)}"></div>
+    <div class="row"><label>Dot length<i id="v-dot">${dots.on.toFixed(2)}</i></label>
+      <input type="range" id="s-dot" min="2" max="70" value="${Math.round(dots.on * 100)}"></div>
+    <div class="row"><label>Drift<i id="v-df">${dots.flow.toFixed(2)}</i></label>
+      <input type="range" id="s-df" min="0" max="200" value="${Math.round(dots.flow * 100)}"></div>
 
     <p class="tune-sub">TERRAIN</p>
     <div class="row"><label>Seed<i id="v-seed">${scene.info().seed}</i></label>
@@ -215,12 +214,9 @@ requestAnimationFrame(track);
   bind('s-dp',  'v-dp',  n => n / 100, x => x.toFixed(2), x => scene.setDots({ period: x }));
   bind('s-dot', 'v-dot', n => n / 100, x => x.toFixed(2), x => scene.setDots({ on: x }));
   bind('s-df',  'v-df',  n => n / 100, x => x.toFixed(2), x => scene.setDots({ flow: x }));
-  let dlT = null;
-  q('s-dl').addEventListener('input', e => {
-    q('v-dl').textContent = e.target.value;
-    clearTimeout(dlT);
-    dlT = setTimeout(() => scene.setDottedLevels(+e.target.value), 240);
-  });
+  /* No "how many rings are dotted" control here. On this page what is dotted
+     is decided by whether a contour is out on the open ground, not by which
+     level it sits at — a slider counting levels would be wired to nothing. */
 
   q('s-reseed').addEventListener('click', () => {
     const u = new URL(location.href);

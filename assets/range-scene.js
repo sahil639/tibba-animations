@@ -418,10 +418,25 @@ function coneAt(p, x, z){
    summits are where it bunches up. Raising it puts folds, spurs and small
    basins across the ground between the tops, which is most of what reads as
    country rather than as objects on a table. */
-const GROUND_RELIEF = opts.backdrop === 'behind' ? 19.0 : 6.0;
+const GROUND_RELIEF = opts.backdrop === 'behind' ? 16.0 : 6.0;
+
+/* How high the plain sits before any landform is added to it.
+
+   Zero for the range, which wants its country at sea level. For a generated
+   one it is the difference between a sheet and a scattering of islands: the
+   old expression put the plain's mean about one unit up with ten either side,
+   and everything below zero was clamped flat by the max() at the end — so
+   half the open ground was EXACTLY level, carried no contour at all, and read
+   as a hole in the map. Lifting the plain clear of the clamp means the fbm's
+   folds all survive it, and the line work runs edge to edge.
+
+   It raises every elevation including the summits, so the contour interval
+   moves with it. That is fine — the interval is MAX_H/LEVELS and both ends
+   move together — but it is the reason the number is not larger. */
+const GROUND_BASE = opts.backdrop === 'behind' ? 13.0 : 0.0;
 
 function mh(x,z){
-  let v = (fbm(x*.058+1.7,z*.058+2.3)-.45)*GROUND_RELIEF;
+  let v = GROUND_BASE + (fbm(x*.058+1.7,z*.058+2.3)-.45)*GROUND_RELIEF;
   for(let i=0;i<PEAKS.length;i++) v += coneAt(PEAKS[i], x, z);
   return Math.max(0, v);
 }
@@ -1277,9 +1292,29 @@ function rebuildContours() {
 const ACCENT_RINGS = [];
 
 if (opts.backdrop === 'behind') {
-  CT.X0 = -210; CT.X1 = 210;
-  CT.Z0 = -210; CT.Z1 = 210;
-  CT.FADE_R = 300;          // and the aerial fade is measured over more ground
+  /* The window has to be bigger than the fade, not the other way round. The
+     fade is finished at FADE_R — nothing is drawn past it — so as long as the
+     field reaches further, the sheet dissolves into the dark and the edge of
+     the window is never a place where contours simply stop. Reversed, you get
+     a straight line across the map where the data runs out. */
+  CT.X0 = -270; CT.X1 = 270;
+  CT.Z0 = -270; CT.Z1 = 270;
+  CT.FADE_R = 250;
+
+  /* Dots five times longer than the range uses. The period is in WORLD units,
+     and these two scenes look at the world from very different distances: the
+     range's camera is close enough that 0.42 of a unit is several pixels, and
+     from a plan view two hundred units up the same dot is a third of one. It
+     does not read as dotted at that size, it reads as a slightly fainter
+     solid line — the dashes are all still there, aliasing into a hairline.
+
+     Sized to the view instead, the open ground comes out as a row of marks
+     you can actually count, which is what a survey sheet does with ground it
+     is not asserting much about. */
+  CT.DOT_PERIOD = 2.4;
+  CT.DOT_ON = 0.34;
+  CT.DOT_OFF = 0.52;
+  CT.DOT_FLOW = 0.5;
 }
 
 function buildContourGeometry() {
@@ -1331,7 +1366,16 @@ function buildContourGeometry() {
       /* The lowest rings are the ones carrying between the summits, and they
          are the ones that go dotted — counted from CT.START, so moving where
          the sheet begins does not change which rings are dashed. */
-      const dotted = n < CT.START + CT.DOTTED_LEVELS;
+      /* Dotted where there is no landform. On the range that means the lowest
+         rings, which are the ones running between the summits. On generated
+         terrain the same idea is better answered by position than by height:
+         a contour out on the open plain is dotted whatever elevation it
+         happens to be at, and one on the flank of something is drawn solid.
+         `central` is already the proximity blend used to weight the stroke, so
+         the test costs nothing. */
+      const dotted = opts.backdrop === 'behind'
+        ? central < 0.30
+        : n < CT.START + CT.DOTTED_LEVELS;
 
       /* Is this ring one of the studio massif's own? Answered by where it is,
          not by how high it is. Height alone looked like it would do — peak 0
@@ -1471,6 +1515,8 @@ const contourMat = new THREE.ShaderMaterial({
     uBand:     { value: MAX_H * 0.11 },
     uMode:     { value: 0 },
     uOpacity:  { value: CT.OPACITY },
+    /* how far back everything that is not the main massif sits */
+    uOffPeak:  { value: opts.backdrop === 'behind' ? 0.38 : 1.0 },
     /* the dotted rings — uTime is ticked in the render loop below */
     uTime:      { value: 0 },
     uDotPeriod: { value: CT.DOT_PERIOD },
@@ -1504,7 +1550,7 @@ const contourMat = new THREE.ShaderMaterial({
     uniform float uHoverPeak;
     uniform float uRingLift[3];
     varying float vY, vR, vArc, vCut, vMorph, vMax, vReveal, vFog, vOn, vLit, vSame;
-    varying float vArcW, vDot, vRing, vRingHot;
+    varying float vArcW, vDot, vRing, vRingHot, vMain;
     varying vec2  vXZ;
 
     uniform float uRingHot[3];
@@ -1562,6 +1608,7 @@ const contourMat = new THREE.ShaderMaterial({
       /* the same proximity blend the surface uses, so a contour and the fill
          beneath it always agree about which peak they are near */
       float wsum=0.0, c=0.0, m=0.0, hx=0.0, rv=0.0, wmax=0.0, li=0.0, wh=0.0;
+      float w0=0.0;
       for (int i=0;i<NP;i++){
         vec2 dd = position.xz - uPeak[i].xy;
         float q = dot(dd,dd) / (uPeak[i].z * uPeak[i].z);
@@ -1573,10 +1620,12 @@ const contourMat = new THREE.ShaderMaterial({
            same proximity weighting everything else uses, so it hands over
            smoothly across a saddle instead of switching at a hard boundary */
         if (abs(float(i) - uHoverPeak) < 0.5) wh = w;
+        if (i == 0) w0 = w;          // how much of this line is the main peak's
       }
       vCut = c/wsum; vMorph = m/wsum; vMax = hx/wsum; vReveal = rv/wsum;
       vLit = li/wsum; vXZ = position.xz;
       vSame = wh / wsum;
+      vMain = w0 / wsum;
       vOn = smoothstep(0.02, 0.85, wmax);
 
       vec4 mv = modelViewMatrix * vec4(position, 1.0);
@@ -1591,9 +1640,9 @@ const contourMat = new THREE.ShaderMaterial({
   fragmentShader: `
     precision highp float;
     varying float vY, vR, vArc, vCut, vMorph, vMax, vReveal, vFog, vOn, vLit, vSame;
-    varying float vArcW, vDot, vRing, vRingHot;
+    varying float vArcW, vDot, vRing, vRingHot, vMain;
     varying vec2  vXZ;
-    uniform float uBand, uMode, uOpacity, uFadeA, uFadeB, uEdgeAmt;
+    uniform float uBand, uMode, uOpacity, uFadeA, uFadeB, uEdgeAmt, uOffPeak;
     uniform float uTime, uDotPeriod, uDotOn, uDotOff, uDotFlow;
     uniform vec3  uAccent;
     uniform float uAnyLit, uDim;
@@ -1662,6 +1711,15 @@ const contourMat = new THREE.ShaderMaterial({
       col = mix(col, uHoverCol, hov * 0.95);
       col += uHoverCol * hov * 0.55;
       a *= 1.0 + 1.1 * hov;                     // and it comes forward off the sheet
+
+      /* ── the focal point ───────────────────────────────────────────────
+         One peak is the subject and the rest is the country it stands in, so
+         everything that is not the main massif reads back. Keyed off the same
+         proximity blend as everything else, and eased rather than stepped —
+         a hard boundary between "peak" and "not peak" draws a ring around the
+         massif where the two meet, which is the one place a contour sheet
+         must not have a seam. */
+      a *= mix(uOffPeak, 1.0, smoothstep(0.06, 0.52, vMain));
 
       /* ── the summit's rings ────────────────────────────────────────────
          Painted rather than mixed: an accent ring is not ink with a tint on
@@ -2507,6 +2565,17 @@ return {
 
   /** The current hero station, so a panel can show what it is editing. */
   heroCam() { return { ...HERO_CAM }; },
+
+  /** and the dotted-contour settings, for the same reason */
+  dots() {
+    const u = contourMat.uniforms;
+    return {
+      levels: CT.DOTTED_LEVELS,
+      period: u.uDotPeriod.value,
+      on: u.uDotOn.value,
+      flow: u.uDotFlow.value,
+    };
+  },
 
   /* ── depth ────────────────────────────────────────────────────────────
      How hard the aerial fade bites. It is the one control that decides
