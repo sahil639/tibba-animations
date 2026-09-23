@@ -137,13 +137,13 @@ requestAnimationFrame(track);
     </div>
 
     <div class="row"><label>Angle<i id="v-elev">${cam.elev}°</i></label>
-      <input type="range" id="s-elev" min="2" max="88" value="${cam.elev}"></div>
+      <input type="range" id="s-elev" min="2" max="90" value="${cam.elev}"></div>
     <div class="row"><label>Swing<i id="v-azim">${cam.azim}°</i></label>
       <input type="range" id="s-azim" min="-60" max="60" value="${cam.azim}"></div>
     <div class="row"><label>Distance<i id="v-dist">${cam.dist}</i></label>
       <input type="range" id="s-dist" min="40" max="260" value="${cam.dist}"></div>
-    <div class="row"><label>Depth<i id="v-depth">0.50</i></label>
-      <input type="range" id="s-depth" min="0" max="100" value="50"></div>
+    <div class="row"><label>Depth<i id="v-depth">0.22</i></label>
+      <input type="range" id="s-depth" min="0" max="100" value="22"></div>
 
     <p class="tune-sub">SUMMIT RINGS</p>
     <div class="row"><label>Accent<i id="v-acc">${ACCENT}</i></label>
@@ -183,7 +183,10 @@ requestAnimationFrame(track);
   bind('s-azim', 'v-azim', n => n, x => x + '°', x => { scene.setHeroCam({ azim: x }); readout(); });
   bind('s-dist', 'v-dist', n => n, x => String(x),     x => { scene.setHeroCam({ dist: x }); readout(); });
   bind('s-depth', 'v-depth', n => n / 100, x => x.toFixed(2), x => scene.setDepth(x));
-  scene.setDepth(0.5);
+  /* Light by default. The haze is what gives an oblique view its air, and it
+     is what eats a plan view — from overhead every ridge but the nearest is
+     at the far end of the fade, and the sheet goes empty at the edges. */
+  scene.setDepth(0.22);
   readout();
 
   /* The snap views take the camera off the sliders, so the sliders stop

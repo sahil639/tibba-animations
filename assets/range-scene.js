@@ -185,46 +185,124 @@ function makeCountry(seed) {
   };
   const between = (a, b) => a + (b - a) * rnd();
 
-  /* Four bearings, one per quadrant of the far field, jittered inside their
-     own arc. Picking four angles at random instead clumps them — three on one
+  /* ── the country ───────────────────────────────────────────────────────
+     Bearings first, one landform per slot around a ring, each jittered inside
+     its own arc. Picking angles at random instead clumps them — three on one
      side and a gap is the single most common draw, and it reads as a mistake
      rather than as a range.
 
-     'behind' pulls the same four in much closer and holds them to a narrower
-     arc directly beyond the massif, which is what reads as depth rather than
-     as a horizon: near enough that the eye has something to measure the peak
-     against, far enough back that they never compete with it. */
+     'behind' pulls them in close and holds them to a narrower arc beyond the
+     massif: near enough that the eye has something to measure the peak
+     against, far enough back that they never compete with it.
+
+     Three landforms, not one. A field of cones is not a range — what makes a
+     survey sheet look surveyed is that the country is made of different
+     things: summits with a skirt, long ridges running off at an angle, and
+     low flat-topped benches between them. The ridges matter most of the
+     three. They are the same generator with a high anisotropy, which
+     stretches a cone into a spur, and they are what fills the ground between
+     the tops so the contours carry across instead of sitting in islands.
+     ──────────────────────────────────────────────────────────────────────── */
   const near = opts.backdrop === 'behind';
-  return [0, 1, 2, 3].map(i => {
-    const arc = near ? Math.PI * 0.44 : Math.PI * 0.72;
-    const from = near ? -Math.PI * 0.72 : -Math.PI * 0.86;
-    const ang = from + (i + between(0.18, 0.82)) * (arc / 2);
-    const dist = near ? between(62, 126) : between(108, 168);
-    const x = Math.cos(ang) * dist;
-    const z = -Math.abs(Math.sin(ang) * dist) - between(near ? 34 : 24, near ? 72 : 60);
+  /* Twelve, not eight. Eight around a full ring leaves 45° between
+     neighbours, and at the radius they have to sit at to clear the massif
+     that is a gap wide enough to read as empty paper from overhead. */
+  const count = near ? 12 : 4;
 
-    /* Held below the studio's massif on purpose. The hero is about one peak;
-       a generated hill that out-tops it steals the skyline, and it would also
-       take the top of the shared contour interval with it. */
-    /* Smaller when they are close, so proximity does not turn into height —
-       a near hill as tall as the massif is a second massif. */
-    const h = near ? between(8, 17) : between(11, 23);
-    const spread = between(22, 40);
-    const mesa = rnd() < 0.38;              // a bench rather than a horn
-    const sd = between(10, 240);
+  return Array.from({ length: count }, (_, i) => {
+    /* A full ring in 'behind', not an arc. An arc behind the massif is right
+       for the oblique hero shot and wrong for everything else: seen from
+       directly above, country that only exists to the north is a mountain
+       with three islands off one edge and black everywhere else, where the
+       thing this is meant to look like is a page of a survey sheet.
 
-    return {
-      x, z, h, spread, seed: sd,
-      rot: between(-1, 1), aniso: between(1.0, 1.45), warp: between(5, 16),
+       So the landforms go all the way round, and the one direction that has
+       to stay clear is protected explicitly below rather than by leaving a
+       whole hemisphere empty. */
+    const arc = near ? Math.PI * 2 : Math.PI * 0.72;
+    const from = near ? 0 : -Math.PI * 0.86;
+    const ang = from + (i + between(0.2, 0.8)) * (arc / count);
+
+    /* Two rings of them rather than one: alternating slots sit close and far,
+       so the country has a middle distance. All at one radius reads as a
+       fence around the massif. */
+    /* Two rings of them, and the inner one sits just clear of the massif's
+       own skirt rather than well beyond it — the gap between a mountain and
+       its neighbours is where a survey sheet does most of its work, and at
+       the old radius that gap was empty. */
+    const band = i % 2 ? between(0.74, 1.0) : between(1.0, 1.42);
+    const dist = (near ? between(86, 128) : between(108, 168)) * band;
+
+    let x = Math.cos(ang) * dist;
+    let z = near ? Math.sin(ang) * dist
+                 : -Math.abs(Math.sin(ang) * dist) - between(24, 60);
+
+    /* The corridor. The hero camera stands off to the south of the massif and
+       looks north along it, so anything that lands in that lane is between
+       the lens and the subject — and a generated hill in front of the peak is
+       not depth, it is an obstruction. Rather than reject the draw and leave
+       a gap in the ring, the landform is pushed sideways out of the lane,
+       which keeps the count and the spacing intact. */
+    if (near && z > 30 && Math.abs(x) < 62) {
+      x = (x < 0 ? -1 : 1) * (62 + Math.abs(x) * 0.5);
+    }
+
+    /* And off the massif itself. A landform drawn inside peak 0's own skirt
+       does not stand beside it, it is ADDED to it — mh() sums every cone at
+       every point — so a close draw silently makes the main peak wider, and
+       two of them make it taller than it was authored to be. Pushed out to a
+       clear radius rather than rejected, so the ring keeps its spacing. */
+    const clear = PEAKS[0].spread * 1.62;
+    const d0 = Math.hypot(x - PEAKS[0].x, z - PEAKS[0].z);
+    if (near && d0 < clear) {
+      const k = clear / Math.max(1e-3, d0);
+      x = PEAKS[0].x + (x - PEAKS[0].x) * k;
+      z = PEAKS[0].z + (z - PEAKS[0].z) * k;
+    }
+
+    /* what kind of thing this one is */
+    const r = rnd();
+    const kind = r < 0.34 ? 'ridge' : r < 0.62 ? 'bench' : 'summit';
+
+    /* Held below the studio's massif on purpose, and further below the
+       further out it is — the hero is about one peak, and a generated hill
+       that out-tops it steals the skyline and the top of the shared contour
+       interval with it. */
+    const fall = 1 - Math.min(0.38, (dist - 86) / 320);
+    const h = (kind === 'bench' ? between(9, 16) : between(13, 24)) * fall;
+    const spread = kind === 'ridge' ? between(32, 56) : between(22, 40);
+
+    const base = {
+      x, z, h, spread, seed: between(10, 240),
+      rot: between(-Math.PI, Math.PI),
+      aniso: kind === 'ridge' ? between(2.1, 3.4) : between(1.0, 1.45),
+      warp: kind === 'ridge' ? between(9, 20) : between(5, 16),
       spur: between(0.16, 0.42), spurF: between(1.9, 3.2),
       flute: between(0.05, 0.14), fluteF: between(8, 14),
-      parts: mesa
-        ? [ { dx: 0, dz: 0, h: h * 0.42, spread: spread * 0.42, sharp: between(1.4, 1.9), aniso: 1.1 },
-            { dx: 0, dz: 0, h: h * 0.62, spread: spread * 0.8, mesa: between(0.4, 0.6), aniso: 1.25 } ]
-        : [ { dx: 0, dz: 0, h, spread, sharp: between(1.4, 2.4), aniso: between(1.0, 1.3) },
-            { dx: between(-8, 8), dz: between(4, 12), h: h * 0.22,
-              spread: spread * 1.15, mesa: between(0.5, 0.7), aniso: 1.15 } ],
     };
+
+    if (kind === 'ridge') {
+      /* a spur with a high point a third of the way along it, which is what
+         stops a long landform reading as an extruded blob */
+      base.parts = [
+        { dx: 0, dz: 0, h, spread, sharp: between(1.7, 2.3), aniso: base.aniso },
+        { dx: between(-spread * .3, spread * .3), dz: between(-6, 6),
+          h: h * between(.5, .8), spread: spread * .5,
+          sharp: between(1.5, 2.0), aniso: base.aniso * .7 },
+      ];
+    } else if (kind === 'bench') {
+      base.parts = [
+        { dx: 0, dz: 0, h: h * 0.4, spread: spread * 0.4, sharp: between(1.4, 1.9), aniso: 1.1 },
+        { dx: 0, dz: 0, h: h * 0.7, spread: spread * 0.9, mesa: between(0.4, 0.62), aniso: 1.25 },
+      ];
+    } else {
+      base.parts = [
+        { dx: 0, dz: 0, h, spread, sharp: between(1.4, 2.4), aniso: base.aniso },
+        { dx: between(-8, 8), dz: between(4, 12), h: h * 0.22,
+          spread: spread * 1.15, mesa: between(0.5, 0.7), aniso: 1.15 },
+      ];
+    }
+    return base;
   });
 }
 
@@ -327,12 +405,23 @@ function coneAt(p, x, z){
   return hSum + p.h * (p.spur*spur*env + p.flute*flute*env*env + 0.03*env*grain) * flank;
 }
 
+/* How much relief the ground between the summits carries.
+
+   6 is what the range wants: the country used to hold twice that, which is
+   more than the hero's apron stands proud of it, so the shelf read as one
+   more fold in the landscape rather than as the base of a mountain.
+
+   A generated country wants more. At 6 the plain moves through about four
+   contour intervals, which from directly overhead is a handful of stray rings
+   in a lot of empty paper — and the thing a plan view is being asked to look
+   like is a survey sheet, where the line work runs edge to edge and the
+   summits are where it bunches up. Raising it puts folds, spurs and small
+   basins across the ground between the tops, which is most of what reads as
+   country rather than as objects on a table. */
+const GROUND_RELIEF = opts.backdrop === 'behind' ? 19.0 : 6.0;
+
 function mh(x,z){
-  /* The country was carrying ±8 units of its own relief, which is more than the
-     hero's apron stands proud of it — the shelf read as one more fold in the
-     landscape instead of as the base of a mountain. Halved, the massifs are
-     the landform and the ground is the ground. */
-  let v = (fbm(x*.058+1.7,z*.058+2.3)-.45)*6.0;
+  let v = (fbm(x*.058+1.7,z*.058+2.3)-.45)*GROUND_RELIEF;
   for(let i=0;i<PEAKS.length;i++) v += coneAt(PEAKS[i], x, z);
   return Math.max(0, v);
 }
@@ -345,10 +434,18 @@ for(let x=-60;x<=60;x++) for(let z=-60;z<=60;z++) MAX_H=Math.max(MAX_H,mh(x,z));
    in the table — enough that a route aimed at the nominal centre finishes just
    past the peak and hooks back, and a camera aimed there frames it off-centre. */
 const PEAK_TOP = [];
-const PEAK_H = PEAKS.map(p => {
+const PEAK_H = PEAKS.map((p, pi) => {
   let m = 0, bx = p.x, bz = p.z;
-  for(let a=-p.spread*1.3; a<=p.spread*1.3; a+=1.0)
-    for(let b=-p.spread*1.3; b<=p.spread*1.3; b+=1.0){
+  /* Only peak 0's summit has to be found precisely — the accent rings and the
+     camera are both aimed at it. The rest need a height for the palette and
+     nothing more, and this is a square scan whose cost grows with the number
+     of landforms TIMES their area: at a metre a step across nine of them it
+     is the slowest thing in the build by some way. Two metres for the country
+     is four times cheaper and moves a generated top by at most a metre, which
+     nothing reads. */
+  const step = pi === 0 ? 1.0 : 2.0;
+  for(let a=-p.spread*1.3; a<=p.spread*1.3; a+=step)
+    for(let b=-p.spread*1.3; b<=p.spread*1.3; b+=step){
       const h = mh(p.x+a, p.z+b);
       if (h > m) { m = h; bx = p.x+a; bz = p.z+b; }
     }
@@ -442,6 +539,11 @@ const camBase = new THREE.Vector3();
    type behind the mountain, so it takes the full amount. */
 const PARALLAX = { yaw: 0.15, pitch: 0.075, ease: 5.5, heroYaw: 0.6, heroPitch: 0.22 };
 const _up = new THREE.Vector3(0, 1, 0);
+const _fwd = new THREE.Vector3();
+const smoothstep = (a, b, x) => {
+  const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
+  return t * t * (3 - 2 * t);
+};
 const _pv = new THREE.Vector3(), _pr = new THREE.Vector3();
 
 function applyParallax() {
@@ -473,7 +575,10 @@ const HERO_CAM = { elev: 22, dist: 126, azim: 6, tgtX: 2, tgtY: 17, tgtZ: -4 };
 const H_POS = new THREE.Vector3();
 const H_TGT = new THREE.Vector3();
 function applyHeroCam(live) {
-  const e = HERO_CAM.elev * Math.PI / 180, a = HERO_CAM.azim * Math.PI / 180;
+  /* 90 exactly is allowed now — the render loop rolls camera.up out of the
+     way as the view goes vertical. What is still not allowed is going PAST
+     it, which turns the scene upside down halfway through a slider drag. */
+  const e = Math.min(90, HERO_CAM.elev) * Math.PI / 180, a = HERO_CAM.azim * Math.PI / 180;
   const up = HERO_CAM.dist * Math.sin(e), out = HERO_CAM.dist * Math.cos(e);
   H_TGT.set(HERO_CAM.tgtX, HERO_CAM.tgtY, HERO_CAM.tgtZ);
   H_POS.set(H_TGT.x + out * Math.sin(a), H_TGT.y + up, H_TGT.z + out * Math.cos(a));
@@ -925,7 +1030,18 @@ const CT = {
   LIFT: 0.12,        // world units the ribbon floats off the surface
   OPACITY: 0.92,
   STEP: 0.56,        // field spacing — fine enough to resolve the fluting
-  X0: -186, X1: 190, // the field covers the whole range, in one piece
+  /* The window marching squares runs over. It has to contain every landform
+     that is meant to draw, and nothing outside it exists at all — a summit
+     beyond the edge is not faint, it has no contours generated for it.
+
+     The authored range runs north from the hero, so its window is deep in -Z
+     and shallow in +Z. A generated country rings the massif instead, and half
+     of that ring falls in the +Z the range never needed; the window is opened
+     out to a square around the origin for it. Marching squares is O(area), so
+     this is not free — it is about a third more field than the range uses —
+     which is why it follows the terrain rather than always being the larger
+     of the two. */
+  X0: -186, X1: 190,
   Z0: -196, Z1:  58,
   FADE_R: 232,       // radius the aerial fade is measured against
   MIN_LEN: 7,        // world units — anything shorter is a speck, not a contour
@@ -1159,6 +1275,12 @@ function rebuildContours() {
    are the one part of this scene with copy attached to them, and hit-testing
    three small ellipses is a job for the DOM rather than for a ray march. */
 const ACCENT_RINGS = [];
+
+if (opts.backdrop === 'behind') {
+  CT.X0 = -210; CT.X1 = 210;
+  CT.Z0 = -210; CT.Z1 = 210;
+  CT.FADE_R = 300;          // and the aerial fade is measured over more ground
+}
 
 function buildContourGeometry() {
   ACCENT_RINGS.length = 0;
@@ -2013,6 +2135,19 @@ function frame(){
   mSmooth.y += (mouse.y - mSmooth.y) * pe;
   applyParallax();
 
+  /* Straight down is a gimbal. lookAt builds its basis by crossing the view
+     direction with camera.up, and at 90° those are the same line — the cross
+     product collapses, the basis is undefined, and the scene spins or goes
+     black as the camera crosses over. Rolling the up vector onto -Z as the
+     view approaches vertical keeps the two apart, and the blend means the
+     roll happens over the last few degrees rather than as a snap.
+
+     -Z rather than +Z so that north in the plan view is up the screen, which
+     is the convention every contour sheet is read with. */
+  _fwd.copy(camTarget).sub(camera.position);
+  const vert = Math.min(1, Math.abs(_fwd.y) / Math.max(1e-5, _fwd.length()));
+  const roll = smoothstep(0.985, 0.9995, vert);
+  camera.up.set(0, 1 - roll, -roll).normalize();
   camera.lookAt(camTarget);
   updateHover(dt);
   updateMarkers();
@@ -2403,10 +2538,17 @@ return {
     let pos;
 
     if (which === 'top') {
-      /* not exactly overhead: a camera on the axis has no up vector it can
-         agree with, and the scene flips as it crosses. Two degrees off is
-         indistinguishable and well defined. */
-      pos = new THREE.Vector3(top.x + 4, h + 190, top.z + 0.1);
+      /* Exactly overhead — 90°, not the 88 it used to settle for. The gimbal
+         that made that necessary is handled in the render loop now, by
+         rolling camera.up onto -Z as the view goes vertical.
+
+         Framed for the sheet rather than for the summit: high enough that the
+         massif sits in a page of its own country, with the ridges running off
+         it and the neighbouring tops in shot. A plan view cropped to one peak
+         is a picture of a peak; a plan view of the country around it is a
+         map. */
+      tgt.set(top.x * 0.4, 0, top.z + 6);
+      pos = new THREE.Vector3(top.x * 0.4, h + 168, top.z + 6);
     } else if (which === 'side') {
       pos = new THREE.Vector3(top.x + 0.1, h * 0.45, top.z + 175);
     } else {
