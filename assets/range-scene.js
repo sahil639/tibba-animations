@@ -1769,13 +1769,20 @@ function stepMorph(dt) {
   const heroT = heroMorphFromScroll();
   peakTarget[0] = heroT;
 
-  /* In the hero the client range does not exist at all: the brief asks for the
-     main peak on its own up there, so the four summits behind it are not merely
-     faint, they are never revealed. In 'range' mode it is the other way round —
-     the four are the subject and the studio's own massif is the one held back.
-     Either way this is the same single number the original page used to fade
-     the range up on scroll, which is why the two modes look like one scene. */
-  rangeRevealTarget = MODE_RANGE ? 1 : 0;
+  /* Which of the other peaks exist at all.
+
+     In the hero, none of them. The four standing behind the massif are the
+     CLIENT summits, and the brief asks for the studio's own peak on its own up
+     there — so they are not merely faint, they are never revealed. In 'range'
+     it is the other way round: the four are the subject and the massif is the
+     one held back.
+
+     A generated country is neither, and it occupies the same peak slots — so
+     it was caught by the same rule. That is why Active Peak came out pitch
+     black around the massif: every contour of every landform was generated,
+     and drawn, and multiplied by a reveal of zero. Scenery is not a client
+     summit. It gets revealed. */
+  rangeRevealTarget = (MODE_RANGE || opts.backdrop === 'behind') ? 1 : 0;
   rangeReveal += (rangeRevealTarget - rangeReveal) * Math.min(1, dt * 4.5);
 
   /* Aerial perspective is off in the hero — the original framing has no haze on
