@@ -9,35 +9,56 @@
 <script src="assets/manifest.js"></script>
 <script src="notes.js"></script>
 <script src="assets/workbench.js" defer></script>
-<link rel="stylesheet" href="assets/stub.css">
+
+<!-- The header sets in Geist Mono, which is the face the design uses. It is
+     not this site's F37 Analog, and it is not meant to be: the ask was for
+     the navbar exactly as it is. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/ca-nav.css">
 
 <!-- the shared control-panel design; last in the head so it wins over
      whatever styling this page declared for its own panel -->
 <link rel="stylesheet" href="assets/tune.css">
+
+<style>
+  html, body { margin: 0; background: #000; }
+  /* Somewhere for a fixed header to be fixed over. The hero itself is not
+     designed yet — this is the ground it stands on, nothing more. */
+  .hero {
+    min-height: 100vh;
+    background: #000;
+    color: #f1eee7;
+  }
+</style>
 </head>
 <body>
 
 <!-- ─────────────────────────────────────────────────────────────────────────
      About us — hero
 
-     Nothing has been designed into this page yet. Replace everything between
-     these comments with the section itself; keep the four lines in the head
-     that carry the type and the workbench, and drop assets/stub.css when the
-     placeholder below goes.
+     The site header from github.com/sahil639/contentarchitecture-clone,
+     ported out of React in assets/ca-nav.js and assets/ca-nav.css. It is a
+     fixed, pointer-transparent floating pill: the mark, the primary nav, and
+     an announcement marquee along its bottom edge.
+
+     The rest of the hero is still to be designed. Build it inside .hero —
+     the header floats over whatever goes there and needs nothing from it.
 
      The dock on the right files its comments against this page's id in
      assets/manifest.js. Change the label there and notes follow; change the
      id and they do not.
      ───────────────────────────────────────────────────────────────────── -->
 
-<main class="stub">
-  <p class="eyebrow">About — 01</p>
-  <h1>About us — hero</h1>
-  <div class="rule"></div>
-  <p>The top of the about page.</p>
-  <p>Start in <code>about-hero.html</code>. Leave a note in the dock on the right as you
-     go, and commit <code>notes.js</code> with the change.</p>
-</main>
+<header id="ca-header"></header>
+
+<main class="hero"></main>
+
+<script type="module">
+  import { mountCaHeader } from './assets/ca-nav.js';
+  mountCaHeader(document.querySelector('#ca-header'));
+</script>
 
 <!-- ─────────────────────────────────────────────────────────────────────── -->
 
