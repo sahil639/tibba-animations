@@ -82,10 +82,18 @@ const STATES = [
 ];
 
 /* Where each state sits along the scroll, and how much of the travel between
-   them is spent moving rather than holding. A hold at each end is what gives
-   a state time to be read; without it the whole page is one continuous slide
-   and no state is ever actually shown. */
-const MOVE = { hold: 0.13 };
+   them is spent moving rather than holding. The hold is what gives a state
+   time to be read; without it the whole page is one continuous slide and no
+   state is ever actually shown.
+
+   It sits at the END of a leg only. Holding both ends put two of them back to
+   back around the middle state — 0.13 of the leg before it and 0.13 after —
+   which on a 1843px scroll is 257px, a quarter of a viewport, where the wheel
+   turns and the mountain does not move at all. That does not read as a beat,
+   it reads as the page having stalled. Arrival-only means a scroll always
+   moves something on the frame it arrives, and the state still settles before
+   the next leg takes over. */
+const MOVE = { hold: 0.10 };
 
 /* The redraw's own window inside the first leg, and how it is shaped.
    `bias` above 1 holds the fill longer and then drains it quickly; below 1
@@ -106,10 +114,10 @@ function stateAt(t) {
   const leg = Math.min(legs - 1, Math.floor(t / span));
   const raw = (t - leg * span) / span;
 
-  /* the hold: the first and last slice of each leg are spent stationary, so
-     the move happens in the middle and arrives before the next one starts */
+  /* the hold: the move runs from the top of the leg and is finished with the
+     last slice of it to spare, so it has arrived before the next one starts */
   const h = MOVE.hold;
-  const k = ease(clamp01((raw - h) / Math.max(1e-4, 1 - h * 2)));
+  const k = ease(clamp01(raw / Math.max(1e-4, 1 - h)));
 
   const A = STATES[leg], B = STATES[leg + 1];
   return {
