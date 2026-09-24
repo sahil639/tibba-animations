@@ -36,6 +36,11 @@ const scene = createRangeScene({
      — on a lit solid it washes the whole massif out to near white. */
   palette: 'range',
   backdrop: 'behind',
+  /* The country is mesh too, not a contour backdrop behind a lit subject. In
+     the plan view that is the whole difference between a viewport of terrain
+     and one lit massif sitting in a field of bare line. It drains with the
+     massif when the ink runs. */
+  countryFill: true,
   hover: true,          // the ridge highlight; the scroll decides when it is live
   /* The peak makes room in the third state; it does not hand over. Fading it
      the way the home page does would take it to nothing here, because that
@@ -233,6 +238,10 @@ onScroll();
       <input type="range" id="s-dop" min="0" max="100" value="${pc(ink.depthOp)}"></div>
     <div class="row"><label>Country opacity<i id="v-off">${ink.offPeak.toFixed(2)}</i></label>
       <input type="range" id="s-off" min="8" max="100" value="${pc(ink.offPeak)}"></div>
+    <!-- the contour control above works on line; this one works on the lit
+         surface, which is a separate thing once the country fills -->
+    <div class="row"><label>Country light<i id="v-clit">${ink.countryLit.toFixed(2)}</i></label>
+      <input type="range" id="s-clit" min="10" max="100" value="${pc(ink.countryLit)}"></div>
     <div class="row"><label>Fade start<i id="v-fade">${ink.fade.toFixed(2)}</i></label>
       <input type="range" id="s-fade" min="20" max="100" value="${pc(ink.fade)}"></div>
 
@@ -355,6 +364,7 @@ onScroll();
   bind('s-depth', 'v-depth', n => n / 100, two, x => scene.setDepth(x));
   bind('s-dop',   'v-dop',   n => n / 100, two, x => scene.setInk({ depthOp: x }));
   bind('s-off',   'v-off',   n => n / 100, two, x => scene.setInk({ offPeak: x }));
+  bind('s-clit',  'v-clit',  n => n / 100, two, x => scene.setCountryLit(x));
   bind('s-fade',  'v-fade',  n => n / 100, two, x => scene.setInk({ fade: x }));
 
   /* ── the ridge hover ─────────────────────────────────────────────────── */

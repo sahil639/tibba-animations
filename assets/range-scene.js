@@ -175,6 +175,11 @@ const PEAKS = [
    given seed always gives the same one — a landscape you cannot get back to is
    one you cannot tune, and the control panel needs to be able to hold one
    still while the camera is being set against it. */
+/* The shipped country. Chosen rather than arrived at: landforms carried out to
+   all four edges of the plan view, no second summit crowding the massif, and a clear
+   saddle on the right where the third state leaves room for copy. */
+const DEFAULT_TERRAIN_SEED = 2468294527;
+
 function makeCountry(seed) {
   let t = seed >>> 0;
   const rnd = () => {                       // xorshift32, uniform in [0,1)
@@ -307,12 +312,21 @@ function makeCountry(seed) {
 }
 
 if (!MODE_RANGE && opts.terrain !== false) {
-  /* ?seed=… pins the country, which is what makes it tunable: a landscape you
-     cannot get back to is one you cannot set a camera against. */
+  /* The country is pinned by default. It used to reroll on every load, which
+     made the page impossible to work on: you cannot set a camera, a fade or a
+     snow line against a landscape that is different the next time you look at
+     it, and nobody could agree on what they were looking at because no two
+     people ever saw the same thing.
+
+     DEFAULT_TERRAIN_SEED is the one the site ships. ?seed=NNN pins a
+     different one and ?seed=random rolls a fresh one, which is how you go
+     shopping for a better country; opts.terrainSeed beats both, for a page
+     that wants its own. */
   const fromUrl = new URLSearchParams(location.search).get('seed');
   const seed = opts.terrainSeed != null ? opts.terrainSeed
-    : (fromUrl ? (parseInt(fromUrl, 10) >>> 0)
-               : (Math.random() * 0xFFFFFFFF) >>> 0);
+    : (fromUrl === 'random' ? (Math.random() * 0xFFFFFFFF) >>> 0
+       : fromUrl ? (parseInt(fromUrl, 10) >>> 0)
+                 : DEFAULT_TERRAIN_SEED);
   HERO_TERRAIN_SEED = seed;
   makeCountry(seed).forEach((p, i) => { PEAKS[i + 1] = p; });
 }
@@ -715,6 +729,11 @@ const mountainMat = new THREE.ShaderMaterial({
     uEdgeAmt:{ value: 0 },                      // how live the survey line is
     uFogNear:{ value: 200 },
     uFogFar: { value: 520 },
+    /* How brightly the country is lit next to the massif. Once the country
+       fills, everything on screen is mesh and everything on screen competes;
+       the massif has to lead, or the plan view reads as an even field of
+       rubble with no subject in it. 1 is no distinction at all. */
+    uCountryLit: { value: 1 },
   },
   transparent: true,
   depthWrite: true,
@@ -726,7 +745,7 @@ const mountainMat = new THREE.ShaderMaterial({
     uniform float uMorphA[NP];
     uniform float uPeakH[NP];
     uniform float uFogNear, uFogFar;
-    varying float vH, vCut, vMorph, vFog, vMax, vOn;
+    varying float vH, vCut, vMorph, vFog, vMax, vOn, vHome;
     varying vec3 vN;
     void main(){
       vH=position.y; vN=normalize(normalMatrix*normal);
@@ -735,15 +754,20 @@ const mountainMat = new THREE.ShaderMaterial({
          fourth-power weight lets the nearest summit dominate hard while still
          handing over smoothly, so a peak lighting up bleeds into the saddle
          beside it rather than stopping at a hard edge halfway across. */
-      float wsum=0.0, c=0.0, m=0.0, hx=0.0, wmax=0.0;
+      float wsum=0.0, c=0.0, m=0.0, hx=0.0, wmax=0.0, w0=0.0;
       for (int i=0;i<NP;i++){
         vec2 dd = position.xz - uPeak[i].xy;
         float q = dot(dd,dd) / (uPeak[i].z * uPeak[i].z);
         float w = 1.0 / (q*q + 0.02);
+        if (i == 0) w0 = w;
         wsum += w; wmax = max(wmax, w);
         c += uCut[i]*w; m += uMorphA[i]*w; hx += uPeakH[i]*w;
       }
       vCut = c/wsum; vMorph = m/wsum; vMax = hx/wsum;
+      /* This ground's share of the studio's own massif, by the same blend
+         everything else here uses — so the falloff follows the landform
+         rather than a circle drawn over it. */
+      vHome = w0/wsum;
       /* Out in the country between summits the blend sits halfway between a lit
          peak and a drained one, which is honest but puts a travelling sweep line
          across ground that is not transitioning at all. This says how much of a
@@ -756,9 +780,9 @@ const mountainMat = new THREE.ShaderMaterial({
     }`,
   fragmentShader:`
     precision highp float;
-    varying float vH, vCut, vMorph, vFog, vMax, vOn;
+    varying float vH, vCut, vMorph, vFog, vMax, vOn, vHome;
     varying vec3 vN;
-    uniform float uAlpha, uBand, uMode, uEdgeAmt;
+    uniform float uAlpha, uBand, uMode, uEdgeAmt, uCountryLit;
     ${CT_PALETTE_GLSL}
     void main(){
       /* The ramp is curved, not linear. Read straight off height, an apron a
@@ -803,6 +827,12 @@ const mountainMat = new THREE.ShaderMaterial({
 
       float live = uEdgeAmt * vOn;
       col += vec3(0.34,0.40,0.66) * edge * live;
+
+      /* The country steps back so the massif reads as the subject. It is the
+         light that is taken away, not the body — dropping alpha instead would
+         let the page show through the scenery and put a hole where the far
+         ridges are. */
+      col *= mix(uCountryLit, 1.0, smoothstep(0.02, 0.40, vHome));
 
       /* Opacity is now only ever reduced by distance — never by the redraw and
          never by which peak this is near. The terrain is one body. */
@@ -1842,7 +1872,23 @@ const MORPH = {
   scrub: null,        // panel override on the hero peak; null = driven by scroll
 };
 
-const peakMorph  = PEAKS.map((_, i) => (i === 0 ? 0 : 1));  // clients are always line
+/* ── whether the scenery is part of the body or only its outline ───────────
+   The four CLIENT summits are always line: they are a list of names, and a
+   list of names should not be lit like a landscape. A generated country is
+   not a list of names, but it sits in the same peak slots and so inherited
+   the same rule — which is why the plan view rendered one lit massif in the
+   middle of a viewport of bare contour. Nothing else on screen was mesh.
+
+   With countryFill on, the country follows the hero morph exactly as the
+   massif does: filled while the massif is filled, draining to line with it.
+   The whole frame is one surface rather than a subject and a backdrop. */
+const COUNTRY_FILLS = opts.backdrop === 'behind' && opts.countryFill === true;
+
+const peakMorph  = PEAKS.map((_, i) => (i === 0 || COUNTRY_FILLS ? 0 : 1));
+/* Only worth stepping the country back when there IS a lit country to step
+   back. With it drawn as line the dim would take the contours' own ground
+   tone down with it for no gain. */
+if (COUNTRY_FILLS) mountainMat.uniforms.uCountryLit.value = 0.46;
 const peakTarget = peakMorph.slice();
 const peakReveal = PEAKS.map((_, i) => (i === 0 ? 1 : 0));  // and start unrevealed
 let rangeReveal = 0, rangeRevealTarget = 0, edgeAmt = 0;
@@ -1878,6 +1924,10 @@ const SWEEP_SPAN = 0.78;
 function stepMorph(dt) {
   const heroT = heroMorphFromScroll();
   peakTarget[0] = heroT;
+  /* The country drains with the massif rather than sitting drained. One body,
+     one redraw — a backdrop that inks on its own schedule reads as two scenes
+     sharing a frame. */
+  if (COUNTRY_FILLS) for (let i = 1; i < NPK; i++) peakTarget[i] = heroT;
 
   /* Which of the other peaks exist at all.
 
@@ -2783,7 +2833,14 @@ return {
       offPeak: u.uOffPeak.value,
       fade: u.uFadeA.value,
       depthOp: u.uDepthOp.value,
+      countryLit: mountainMat.uniforms.uCountryLit.value,
+      countryFills: COUNTRY_FILLS,
     };
+  },
+
+  /** How brightly the filled country is lit beside the massif. 1 = equally. */
+  setCountryLit(v) {
+    mountainMat.uniforms.uCountryLit.value = Math.min(1, Math.max(0, v));
   },
 
   /** Put the camera on a summit with no flight and no climb. */
