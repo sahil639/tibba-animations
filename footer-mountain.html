@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tibba Design Studio — Snow Peak footer</title>
+
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="notes.js"></script>
+<script src="assets/workbench.js" defer></script>
+<script src="assets/odometer.js" defer></script>
+<script src="assets/services.js" defer></script>
+<script src="assets/site-chrome.js" defer></script>
+
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   The footer, against a lit massif
+   ─────────────────────────────────────────────────────────────────────────
+   A second footer treatment, on its own page so it can be judged beside the
+   generated skyline one without either having to be thrown away. Same shared
+   footer markup from assets/site-chrome.js; what changes is what it stands
+   in front of.
+
+   The canvas is behind the footer rather than above it, and the footer's own
+   white ground is dropped — the mountain IS the ground here, so the type sits
+   on the sky.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #0b1018;
+  color: var(--ink-warm);
+  font-family: 'F37 Analog', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+#approach {
+  min-height: 56vh;
+  display: flex; align-items: flex-end;
+  padding-bottom: clamp(36px, 6vh, 80px);
+}
+#approach h1 {
+  margin-top: 14px;
+  font-size: clamp(22px, 2.6vw, 38px); font-weight: 400;
+  line-height: 1.2; letter-spacing: -.02em; color: var(--ink); max-width: 26ch;
+}
+#approach p { margin-top: 16px; max-width: 54ch; color: var(--ink-mute); font-size: 14px; }
+
+/* ── the stage ───────────────────────────────────────────────────────── */
+#peak-stage { position: relative; }
+#peak-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  display: block;
+}
+
+/* The footer sits over the scene, so it gives up its own paper. Everything
+   in it that assumed a white ground is re-tinted for a sky. */
+#peak-stage .site-footer {
+  position: relative; z-index: 2;
+  background: transparent;
+  color: var(--ink-warm);
+  padding-top: clamp(280px, 38vw, 560px);   /* room for the massif above it */
+}
+#peak-stage .footer-range { display: none; }   /* the generated ridge is not this page's */
+
+#peak-stage .footer-form {
+  margin-top: 0;
+  background: rgba(10, 14, 20, .62);
+  backdrop-filter: blur(14px) saturate(1.1);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  border: 1px solid rgba(255, 255, 255, .12);
+}
+#peak-stage .footer-mail { color: rgba(232, 227, 220, .62); }
+#peak-stage .footer-mail a { color: #fff; border-bottom-color: rgba(255,255,255,.28); }
+#peak-stage .footer-word .name,
+#peak-stage .footer-word .mark { color: #fff; }
+#peak-stage .footer-copy { color: rgba(232, 227, 220, .45); }
+#peak-stage .footer-col a { color: rgba(232, 227, 220, .62); }
+#peak-stage .footer-col a:hover { color: #fff; }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+
+<body data-page="footer">
+
+<main id="approach">
+  <div class="wrap">
+    <p class="eyebrow" data-odo>[ &nbsp;FOOTER · SNOW PEAK&nbsp; ]</p>
+    <h1 data-odo data-odo-delay="0.08">The last screen, against a real massif</h1>
+    <p>A second treatment for the footer: the shared footer markup standing in
+       front of a lit, snow-capped mountain rather than a printed skyline.
+       Built with MengTo's 3D sky, four-seasons snow and texture-density skills.</p>
+  </div>
+</main>
+
+<div id="peak-stage">
+  <canvas id="peak-canvas"></canvas>
+  <footer data-site-footer></footer>
+</div>
+
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js"}}</script>
+<script type="module" src="assets/footer-mountain.js"></script>
+</body>
+</html>

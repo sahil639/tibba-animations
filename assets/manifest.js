@@ -96,8 +96,12 @@ window.TIBBA_SITE = {
 
     { id: 'footer', label: 'Footer',
       note: 'The bottom of every page.',
-      pages: [ { id: 'footer-01', label: 'Footer', file: 'footer.html',
-                 note: 'The footer on its own, on the ground it is designed for', state: 'live' } ] },
+      pages: [
+        { id: 'footer-01', label: 'Footer — skyline', file: 'footer.html',
+          note: 'The footer on the generated paper skyline', state: 'live' },
+        { id: 'footer-peak', label: 'Footer — snow peak', file: 'footer-mountain.html',
+          note: 'The same footer against a lit, snow-capped massif', state: 'live' },
+      ] },
 
     { id: 'about-hero', label: 'About us — hero',
       note: 'The top of the about page.',
