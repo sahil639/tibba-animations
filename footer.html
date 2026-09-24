@@ -72,5 +72,64 @@ body {
 
 <footer data-site-footer></footer>
 
+<script>
+/* ══════════════════════════════════════════════════════════════════════════
+   The footer's own controls — preview only, adopted by the dock
+   ─────────────────────────────────────────────────────────────────────────
+   The skyline is the thing being worked on here and the form sits right on
+   top of it, so the first control is the one that gets the form out of the
+   way. Everything else on this page is the shared footer and is not this
+   page's to change.
+   ═════════════════════════════════════════════════════════════════════════ */
+addEventListener('DOMContentLoaded', function () {
+  var el = document.createElement('div');
+  el.id = 'tune';
+  el.innerHTML =
+    '<div id="tune-head"><b>Footer</b><button id="tune-hide" title="Hide (H)">–</button></div>' +
+    '<p class="tune-sub">Contents</p>' +
+    '<div class="row inline"><label>Request form<i></i></label>' +
+      '<input type="checkbox" id="s-form" checked></div>' +
+    '<div class="row inline"><label>Email line<i></i></label>' +
+      '<input type="checkbox" id="s-mail" checked></div>' +
+    '<div class="row inline"><label>Wordmark &amp; links<i></i></label>' +
+      '<input type="checkbox" id="s-base" checked></div>' +
+    '<p class="tune-sub">Skyline</p>' +
+    '<div class="row"><label>Height<i id="v-h">100</i></label>' +
+      '<input type="range" id="s-h" min="40" max="320" value="100"></div>' +
+    '<div class="row inline"><label>Redraw<i></i></label>' +
+      '<button id="s-new" class="tune-btn">New ridge</button></div>';
+  document.body.appendChild(el);
+
+  var q = function (id) { return el.querySelector('#' + id); };
+  /* Hidden with visibility rather than display, so the layout does not
+     collapse under the skyline as things are switched off — the form is what
+     holds the footer's height, and losing it would move the ridge as well as
+     reveal it. */
+  var bindHide = function (id, sel) {
+    q(id).addEventListener('change', function (e) {
+      document.querySelectorAll(sel).forEach(function (n) {
+        n.style.visibility = e.target.checked ? '' : 'hidden';
+      });
+    });
+  };
+  bindHide('s-form', '.footer-form');
+  bindHide('s-mail', '.footer-mail');
+  bindHide('s-base', '.footer-base');
+
+  var canvas = document.getElementById('footer-range');
+  q('s-h').addEventListener('input', function (e) {
+    q('v-h').textContent = e.target.value;
+    canvas.style.height = e.target.value + 'px';
+  });
+  q('s-new').addEventListener('click', function () {
+    /* the ridge is generated per mount, so a fresh one is a fresh mount */
+    if (window.mountFooterRange) window.mountFooterRange(canvas).regenerate();
+  });
+
+  q('tune-hide').addEventListener('click', function () { el.classList.toggle('hidden'); });
+  if (window.wb && window.wb.adopt) window.wb.adopt();
+});
+</script>
+
 </body>
 </html>

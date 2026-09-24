@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tibba Design Studio — Topo Lines</title>
+
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="notes.js"></script>
+<script src="assets/workbench.js" defer></script>
+
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Topo Lines — fullscreen
+   ─────────────────────────────────────────────────────────────────────────
+   Nothing but the animation. The canvas is the viewport: no chrome, no copy,
+   no scroll. Its controls live in the dock, which is the only thing over the
+   top of it and which \ hides.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  background: #232324;
+  font-family: 'F37 Analog', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+/* Fixed rather than a sized block: the script measures innerWidth/innerHeight
+   and paints at that size, so the element it paints into has to be exactly
+   the viewport and stay there. */
+#topo { position: fixed; inset: 0; display: block; width: 100%; height: 100%; }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+
+<body>
+
+<canvas id="topo"></canvas>
+
+<script src="assets/topo-lines.js" defer></script>
+</body>
+</html>

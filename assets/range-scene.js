@@ -435,10 +435,31 @@ const GROUND_RELIEF = opts.backdrop === 'behind' ? 16.0 : 6.0;
    move together — but it is the reason the number is not larger. */
 const GROUND_BASE = opts.backdrop === 'behind' ? 13.0 : 0.0;
 
+/* How far the low country is pressed toward the ground.
+
+   Everything below LOWLAND is squashed toward the base by this much, and the
+   squash releases as the terrain climbs out of it — so the plain and the
+   skirts of the small hills flatten while the massif keeps its full height.
+   It is what separates "a landscape with a mountain in it" from "a field of
+   mounds": real low ground is nearly flat, and the contours crossing it
+   should be far apart and lazy rather than a second set of summits. */
+let LOWLAND = opts.backdrop === 'behind' ? 26.0 : 0.0;
+let LOWFLAT = opts.backdrop === 'behind' ? 0.52 : 0.0;
+
 function mh(x,z){
   let v = GROUND_BASE + (fbm(x*.058+1.7,z*.058+2.3)-.45)*GROUND_RELIEF;
   for(let i=0;i<PEAKS.length;i++) v += coneAt(PEAKS[i], x, z);
-  return Math.max(0, v);
+  v = Math.max(0, v);
+
+  /* Press the low ground down. Applied after the cones are summed rather than
+     to the noise alone, so a hill's own skirt flattens with the plain it sits
+     on instead of standing proud of a flattened plain — which is what leaves
+     every landform looking like it was cut out and placed. */
+  if (LOWFLAT > 0 && v < LOWLAND) {
+    const u = v / LOWLAND;                 // 0 at the ground, 1 at the line
+    v *= 1 - LOWFLAT * (1 - u) * (1 - u);  // full squash low down, none at it
+  }
+  return v;
 }
 
 let MAX_H=0;
@@ -644,14 +665,23 @@ const pos = geo.attributes.position;
    mesh wherever that happens, and stay at its own level everywhere else. */
 const MRES = RES + 1, MCELL = TERRAIN / RES, MHALF = TERRAIN / 2;
 const MESHY = new Float32Array(MRES * MRES);
-for(let i=0;i<pos.count;i++){
-  const x = pos.getX(i), z = pos.getZ(i), y = mh(x, z);
-  pos.setY(i, y);
-  const ii = Math.round((x + MHALF) / MCELL), jj = Math.round((z + MHALF) / MCELL);
-  if (ii >= 0 && ii < MRES && jj >= 0 && jj < MRES) MESHY[jj * MRES + ii] = y;
+
+/* Displace the plane from the heightfield and cache what it ended up at. A
+   function rather than a loop because the heightfield is tunable now — change
+   how hard the low ground is pressed down and the surface, the cache and the
+   contour sheet all have to be taken from the new field together, or the
+   lines end up floating off a surface that no longer matches them. */
+function buildSurface() {
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i), z = pos.getZ(i), y = mh(x, z);
+    pos.setY(i, y);
+    const ii = Math.round((x + MHALF) / MCELL), jj = Math.round((z + MHALF) / MCELL);
+    if (ii >= 0 && ii < MRES && jj >= 0 && jj < MRES) MESHY[jj * MRES + ii] = y;
+  }
+  pos.needsUpdate = true;
+  geo.computeVertexNormals();
 }
-pos.needsUpdate = true;
-geo.computeVertexNormals();
+buildSurface();
 
 function meshYAt(x, z) {
   const gx = (x + MHALF) / MCELL, gz = (z + MHALF) / MCELL;
@@ -1279,6 +1309,15 @@ function ctSnap(pts, lev) {
 /* Rebuilt in place, keeping the mesh. Replacing the mesh would lose its
    position in mountainGroup and its render order, and the material — which
    holds every uniform the panel has been setting — along with them. */
+/* Everything that is read from mh(): the displaced surface, the height cache
+   the pointer ray marches against, and the contour sheet. Changing the
+   heightfield and rebuilding only the contours leaves the lines floating off
+   a surface that no longer matches them. */
+function rebuildTerrain() {
+  buildSurface();
+  rebuildContours();
+}
+
 function rebuildContours() {
   const g = buildContourGeometry();
   contourMesh.geometry.dispose();
@@ -1517,6 +1556,8 @@ const contourMat = new THREE.ShaderMaterial({
     uOpacity:  { value: CT.OPACITY },
     /* how far back everything that is not the main massif sits */
     uOffPeak:  { value: opts.backdrop === 'behind' ? 0.38 : 1.0 },
+    /* how much of the country's opacity is decided by how far away it is */
+    uDepthOp:  { value: opts.backdrop === 'behind' ? 0.65 : 0.0 },
     /* the dotted rings — uTime is ticked in the render loop below */
     uTime:      { value: 0 },
     uDotPeriod: { value: CT.DOT_PERIOD },
@@ -1645,6 +1686,7 @@ const contourMat = new THREE.ShaderMaterial({
     uniform float uBand, uMode, uOpacity, uFadeA, uFadeB, uEdgeAmt, uOffPeak;
     uniform float uTime, uDotPeriod, uDotOn, uDotOff, uDotFlow;
     uniform vec3  uAccent;
+    uniform float uDepthOp;
     uniform float uAnyLit, uDim;
     uniform float uHoverY, uHoverAmt, uHoverBand, uHoverR, uPulse;
     uniform vec2  uHoverXZ;
@@ -1720,6 +1762,16 @@ const contourMat = new THREE.ShaderMaterial({
          massif where the two meet, which is the one place a contour sheet
          must not have a seam. */
       a *= mix(uOffPeak, 1.0, smoothstep(0.06, 0.52, vMain));
+
+      /* ── depth ─────────────────────────────────────────────────────────
+         Distance-graded transparency, and a different thing from the haze
+         above it. The haze is atmosphere: it applies to everything and it is
+         what gives the scene air. This is hierarchy — it leaves the main
+         massif alone at any distance and takes only the country back, harder
+         the further away it is, so the sheet recedes without the subject
+         receding with it. vFog is already the view-space depth the haze is
+         computed from, so the two agree about what "far" means. */
+      a *= mix(1.0, mix(vFog, 1.0, smoothstep(0.06, 0.52, vMain)), uDepthOp);
 
       /* ── the summit's rings ────────────────────────────────────────────
          Painted rather than mixed: an accent ring is not ink with a tint on
@@ -2026,7 +2078,7 @@ addEventListener('mousemove', e => {
    sweep of every triangle. Marching the ray against mh() instead costs about a
    hundred samples: coarse steps that lengthen with distance, then a short
    bisection once the ray has passed under the surface. */
-const HOVER = { band: 2.8, radius: 60, pulse: 2.2, strength: 1 };
+const HOVER = { band: 2.8, radius: 60, pulse: 2.2, strength: 1, ease: 9 };
 const _hr = new THREE.Vector3(), _ho = new THREE.Vector3();
 let hoverAmt = 0, hoverHit = false, hoverPeak = -1;
 const hoverPt = { x: 0, y: -1e4, z: 0 };
@@ -2074,7 +2126,9 @@ function updateHover(dt) {
      ground under the pointer is still filled */
   const canHover = hoverEnabled && pointerInside && contourMesh.visible;
   hoverHit = canHover ? pickTerrain() : false;
-  hoverAmt += ((hoverHit ? HOVER.strength : 0) - hoverAmt) * Math.min(1, dt * 9);
+  /* Chased, not switched. The rate is tunable because "smooth" is a
+     judgement about this scene at this scale, not a constant. */
+  hoverAmt += ((hoverHit ? HOVER.strength : 0) - hoverAmt) * Math.min(1, dt * HOVER.ease);
 
   const c = caseUnderPointer();
   canvas.style.cursor = (c >= 0 && opts.onPeakClick) ? 'pointer' : '';
@@ -2429,6 +2483,20 @@ if (MODE_RANGE) {
 } else {
   trailMesh.visible = false;             // the hero has no routes on it either
   baseDot.visible = false;
+
+  /* Settle the scene into its resting state. The hero's opening move —
+     playIntro() — is what used to do this, lifting the terrain into frame and
+     fading the surface up as the loader cleared. A page that never calls it
+     was inheriting the state the intro STARTS from: the group seven units
+     underground and the lit surface at zero alpha.
+
+     That went unnoticed while the only such page drew contours, because the
+     contour material does not read uAlpha and a uniform offset applied to
+     everything is invisible. Put a page in front of it that opens on the lit
+     surface and the massif is a black hole. playIntro still overrides both of
+     these when it is used, so nothing about the home page changes. */
+  mountainGroup.position.y = 0;
+  mountainMat.uniforms.uAlpha.value = 1;
   /* `ink: false` starts the peak where the redraw would have left it — fully
      drawn out as contour line, with the summit's accent rings already on. The
      sweep is the hero's opening move and costs a viewport of scroll; a page
@@ -2574,6 +2642,33 @@ return {
   /** The current hero station, so a panel can show what it is editing. */
   heroCam() { return { ...HERO_CAM }; },
 
+  /* ── the ridge hover ──────────────────────────────────────────────────
+     The band of contour that lights up around the elevation under the
+     pointer. `ease` is how fast it chases — it is a rate, not a duration, so
+     the highlight has no fixed length and a cursor that keeps moving is
+     followed rather than queued behind the last move it made. Low values are
+     what stop the transition being harsh. */
+  setHoverStyle(next) {
+    if (next.radius != null) HOVER.radius = next.radius;
+    if (next.band != null) HOVER.band = next.band;
+    if (next.strength != null) HOVER.strength = next.strength;
+    if (next.ease != null) HOVER.ease = next.ease;
+  },
+
+  hoverStyle() { return { ...HOVER }; },
+
+  /* ── the low ground ───────────────────────────────────────────────────
+     How hard everything below a given elevation is pressed toward the base.
+     A geometry change, so it rebuilds — the heightfield, the surface and the
+     contour sheet are all read from mh(). */
+  setLowland(next) {
+    if (next.flat != null) LOWFLAT = Math.max(0, Math.min(0.95, next.flat));
+    if (next.upTo != null) LOWLAND = Math.max(1, next.upTo);
+    rebuildTerrain();
+  },
+
+  lowland() { return { flat: LOWFLAT, upTo: LOWLAND }; },
+
   /** and the dotted-contour settings, for the same reason */
   dots() {
     const u = contourMat.uniforms;
@@ -2676,6 +2771,7 @@ return {
       u.uFadeA.value = next.fade;
       u.uFadeB.value = next.fade + 0.26;
     }
+    if (next.depthOp != null) u.uDepthOp.value = next.depthOp;
   },
 
   ink() {
@@ -2686,6 +2782,7 @@ return {
       opacity: u.uOpacity.value,
       offPeak: u.uOffPeak.value,
       fade: u.uFadeA.value,
+      depthOp: u.uDepthOp.value,
     };
   },
 

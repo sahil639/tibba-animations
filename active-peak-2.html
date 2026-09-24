@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tibba Design Studio — Active Peak 2</title>
+
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="notes.js"></script>
+<script src="assets/workbench.js" defer></script>
+
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Active Peak — a playground
+   ─────────────────────────────────────────────────────────────────────────
+   The hero's WebGL animation on its own, with nothing else on the page: no
+   navbar, no site title, no sections, no footer, no slide-over. What is left
+   is the canvas, the definition, and a full set of controls in the dock.
+
+   Not production. This page exists to get the animation and its scroll
+   behaviour right; the home page takes the numbers once they are settled.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #000;
+  color: var(--ink-warm);
+  font-family: 'F37 Analog', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Two viewports, not four. There is no ink sweep to scroll through on this
+   page — the peak starts drawn — so the scroll is only the move from the wide
+   station in to the summit, and the rings coming live at the end of it. */
+/* Three states need three bands and a beat at each end, so the sentinel is
+   taller than the two-state version it replaces. */
+#scope { position: relative; height: 340vh; }
+
+#stage {
+  position: sticky; top: 0;
+  height: 100vh; height: 100svh;
+  overflow: hidden;
+}
+#peak-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* ── the space the copy will go in ───────────────────────────────────────
+   Not content — a marker for where content goes. The third scroll state moves
+   the peak left and leaves this half of the frame for it, and without
+   something standing in that space the move reads as the mountain drifting
+   off centre rather than as it making room. Two rules and a line of type are
+   enough to say "a column belongs here".
+   ───────────────────────────────────────────────────────────────────────── */
+#reserve {
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 46%;
+  display: flex; align-items: center;
+  padding-left: clamp(20px, 4vw, 64px);
+  padding-right: var(--gut);
+  opacity: 0; pointer-events: none;
+  transition: opacity .6s var(--ease);
+}
+#reserve.on { opacity: 1; }
+#reserve .slot {
+  width: 100%; max-width: 420px;
+  border-left: 1px solid var(--line);
+  padding: clamp(18px, 2.4vw, 30px) 0 clamp(18px, 2.4vw, 30px) clamp(18px, 2vw, 28px);
+}
+#reserve .k {
+  display: block; font-size: 9.5px; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--accent);
+}
+#reserve .t {
+  display: block; margin-top: 14px;
+  font-size: clamp(15px, 1.5vw, 20px); line-height: 1.35;
+  letter-spacing: -.01em; color: var(--ink-warm); max-width: 24ch;
+}
+#reserve .bars { margin-top: 26px; display: grid; gap: 9px; }
+#reserve .bars i { display: block; height: 1px; background: var(--line); }
+#reserve .bars i:nth-child(2) { width: 82%; }
+#reserve .bars i:nth-child(3) { width: 58%; }
+
+#cue {
+  position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  font-size: 10px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--ink-faint);
+  transition: opacity .45s var(--ease);
+}
+#cue i { display: block; width: 1px; height: 26px; background: var(--line); }
+</style>
+
+<!-- the shared control-panel design; last in the head so it wins over
+     whatever styling this page declared for its own panel -->
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+
+<body>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     Nothing on this page but the animation. The dock on the right carries
+     every control; \ shows and hides it.
+     ───────────────────────────────────────────────────────────────────── -->
+<div id="scope">
+  <div id="stage">
+    <canvas id="peak-canvas"></canvas>
+
+    <div id="reserve" aria-hidden="true">
+      <div class="slot">
+        <span class="k">Reserved</span>
+        <span class="t">Copy and controls sit here once the peak has made room.</span>
+        <div class="bars"><i></i><i></i><i></i></div>
+      </div>
+    </div>
+
+    <div id="cue" aria-hidden="true"><span>Scroll</span><i></i></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js"}}</script>
+<script type="module" src="assets/active-peak-2.js"></script>
+</body>
+</html>

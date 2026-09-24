@@ -1,16 +1,23 @@
 /* ══════════════════════════════════════════════════════════════════════════
-   Active Peak — the playground's behaviour
+   Active Peak 2 — the same scene, with the ink
    ─────────────────────────────────────────────────────────────────────────
-   The hero's scene with the opening move taken off the front of it. Options,
-   not a fork: this is the same assets/range-scene.js the home page runs, and
-   anything settled here is a flag away from being settled there too. A copy
-   of two thousand lines would have drifted from the original inside a week.
+   Active Peak with the redraw put back on the front of it. The first state is
+   the peak as a lit, shaded surface — the blue gradient mesh the hero opened
+   on before the ink was taken out — and it is redrawn into contour line as
+   the scroll descends from the plan into the working perspective. By the time
+   the massif moves aside in the third state it is the same drawing the other
+   page starts at.
 
-     ink: false        start drawn, not filled — saves a viewport of scroll
-     palette: 'peak'   tibba-peak.html's ramp, which is also what stops the
-                       summit rings merging into one white cap
-     backdrop:'behind' the generated hills pulled in close, behind the massif
-     accent            tibba-peak.html's orange rather than the site's
+   Everything else is shared with Active Peak: one scene module, one panel
+   design, the same three-station camera table. What this page adds is the
+   morph and the controls for it.
+
+   ── why the ink rides the descent rather than sitting between states ──────
+   The redraw is a plane travelling down through the mountain. Running it
+   while the camera is also descending means the two moves resolve together
+   and the peak arrives at the perspective already drawn; running it as its
+   own scroll band would spend a viewport on a transition that is more
+   interesting when something else is happening at the same time.
    ═════════════════════════════════════════════════════════════════════════ */
 import { createRangeScene } from './range-scene.js';
 
@@ -22,8 +29,12 @@ const ACCENT = '#FF4B1F';          // Page 05's accent, not the site's #E85D3D
 const scene = createRangeScene({
   canvas: $('#peak-canvas'),
   mode: 'hero',
-  ink: false,
-  palette: 'peak',
+  /* the redraw is the point of this page */
+  ink: true,
+  /* The range's own ramp, not tibba-peak's. This page shows the SURFACE for
+     the whole of its first state, and the peak ramp was chosen for line work
+     — on a lit solid it washes the whole massif out to near white. */
+  palette: 'range',
   backdrop: 'behind',
   hover: true,          // the ridge highlight; the scroll decides when it is live
   /* The peak makes room in the third state; it does not hand over. Fading it
@@ -76,6 +87,11 @@ const STATES = [
    and no state is ever actually shown. */
 const MOVE = { hold: 0.13 };
 
+/* The redraw's own window inside the first leg, and how it is shaped.
+   `bias` above 1 holds the fill longer and then drains it quickly; below 1
+   starts draining at once and eases into the finish. */
+const INK = { start: 0.10, end: 0.86, ease: 'smooth', bias: 1.0 };
+
 /* The third state also turns and shrinks the massif, which the camera cannot
    do — that is lockTo() on the scene. It runs across the last leg. */
 const LOCK_FROM = 1;
@@ -114,6 +130,17 @@ function onScroll() {
 
   const st = stateAt(t);
   scene.setHeroCam(st.cam);
+
+  /* ── the ink ──────────────────────────────────────────────────────────
+     Across the first leg — plan into perspective — with its own window
+     inside it, so the redraw can start after the camera has begun moving and
+     finish before it lands. INK.start and INK.end are fractions of that leg,
+     which is what makes them meaningful to drag: 0 to 1 is "the whole
+     descent", 0.3 to 0.8 is "begin once it is underway, be done before it
+     settles". */
+  const legK = st.leg === 0 ? st.k : 1;
+  const raw = clamp01((legK - INK.start) / Math.max(1e-4, INK.end - INK.start));
+  scene.setHeroMorph(INK.ease === 'linear' ? raw : ease(raw) ** INK.bias);
 
   /* the turn and the scale, only on the last leg */
   const lock = st.leg >= LOCK_FROM ? st.k : 0;
@@ -157,7 +184,7 @@ onScroll();
   const el = document.createElement('div');
   el.id = 'tune';
   el.innerHTML = `
-    <div id="tune-head"><b>Active Peak</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <div id="tune-head"><b>Active Peak 2</b><button id="tune-hide" title="Hide (H)">–</button></div>
 
     <p class="tune-sub">Scroll state</p>
     <div class="seg" id="v-state">
@@ -175,6 +202,21 @@ onScroll();
       <input type="range" id="s-ty" min="-10" max="70"></div>
     <div class="row"><label>Hold<i id="v-hold">${MOVE.hold.toFixed(2)}</i></label>
       <input type="range" id="s-hold" min="0" max="40" value="${pc(MOVE.hold)}"></div>
+
+    <p class="tune-sub">Ink transition</p>
+    <div class="row"><label>Starts at<i id="v-is">${INK.start.toFixed(2)}</i></label>
+      <input type="range" id="s-is" min="0" max="90" value="${pc(INK.start)}"></div>
+    <div class="row"><label>Done by<i id="v-ie">${INK.end.toFixed(2)}</i></label>
+      <input type="range" id="s-ie" min="10" max="100" value="${pc(INK.end)}"></div>
+    <div class="row"><label>Bias<i id="v-ib">${INK.bias.toFixed(2)}</i></label>
+      <input type="range" id="s-ib" min="30" max="300" value="${pc(INK.bias)}"></div>
+    <div class="seg" id="v-ink">
+      <button data-m="0" class="on">Sweep</button>
+      <button data-m="1">Ink</button>
+      <button data-m="2">Fade</button>
+    </div>
+    <div class="row"><label>Easing<i id="v-iz"></i></label>
+      <input type="range" id="s-iz" min="0" max="1" value="1"></div>
 
     <p class="tune-sub">Depth</p>
     <div class="row"><label>Haze<i id="v-depth">0.22</i></label>
@@ -282,6 +324,24 @@ onScroll();
   loadState();
 
   bind('s-hold', 'v-hold', n => n / 100, two, x => { MOVE.hold = x; onScroll(); });
+
+  /* ── the ink ─────────────────────────────────────────────────────────
+     start and end are clamped against each other: a window whose end is
+     before its start divides by a negative and the redraw runs backwards. */
+  bind('s-is', 'v-is', n => n / 100, two, x => { INK.start = Math.min(x, INK.end - 0.05); onScroll(); });
+  bind('s-ie', 'v-ie', n => n / 100, two, x => { INK.end = Math.max(x, INK.start + 0.05); onScroll(); });
+  bind('s-ib', 'v-ib', n => n / 100, two, x => { INK.bias = x; onScroll(); });
+  q('s-iz').addEventListener('input', e => {
+    INK.ease = e.target.value === '1' ? 'smooth' : 'linear';
+    q('v-iz').textContent = INK.ease;
+    onScroll();
+  });
+  q('v-iz').textContent = INK.ease;
+  q('v-ink').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    [...q('v-ink').children].forEach(c => c.classList.toggle('on', c === b));
+    scene.setInkMode(+b.dataset.m);
+  });
 
   /* ── depth ───────────────────────────────────────────────────────────── */
   bind('s-depth', 'v-depth', n => n / 100, two, x => scene.setDepth(x));
