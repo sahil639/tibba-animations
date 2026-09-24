@@ -126,14 +126,25 @@ export async function mountSylvaLivingWorld(host, opts = {}) {
   const media = matchMedia('(prefers-reduced-motion: reduce)');
   let reducedMotion = media.matches;
   let hostVisible = true;
-  let documentVisible = !document.hidden;
+  /* ── one gate, not two ─────────────────────────────────────────────────
+     The original also refuses to mount while document.hidden is true. That
+     is right in a normal browser tab, but the pages in this repo are read
+     inside preview panes that report document.hidden as TRUE the whole time
+     they are on screen. Measured here: the scene mounted, the pane fired a
+     visibilitychange, and the gate tore it straight back down — so the page
+     showed its background colour and nothing else, permanently.
+
+     So the on-screen test is the only gate: IntersectionObserver, which
+     answers the question that actually matters. Browsers already throttle
+     requestAnimationFrame to a crawl in a genuinely hidden tab, so most of
+     what the second gate was buying comes free. */
   let frame = null;
   /* What the mounted iframe was built for, so a state change that does not
      actually alter the document does not tear a running scene down. */
   let builtFor = null;
 
   function render() {
-    const mounted = hostVisible && documentVisible;
+    const mounted = hostVisible;
     const key = mounted ? (reducedMotion ? 'reduced' : 'motion') : null;
     if (key === builtFor) return;
     builtFor = key;
@@ -155,18 +166,13 @@ export async function mountSylvaLivingWorld(host, opts = {}) {
     host.appendChild(frame);
   }
 
-  /* The scene is expensive and there is no reason to run it where nobody is
-     looking — the original watches all three of these. */
+  /* The scene is expensive and there is no reason to run it off screen. */
   if (typeof IntersectionObserver !== 'undefined') {
     new IntersectionObserver(([entry]) => {
       hostVisible = entry ? entry.isIntersecting : true;
       render();
     }).observe(host);
   }
-  document.addEventListener('visibilitychange', () => {
-    documentVisible = !document.hidden;
-    render();
-  });
   media.addEventListener('change', () => {
     reducedMotion = media.matches;
     render();
