@@ -143,6 +143,8 @@ window.TIBBA_SITE = {
           note: 'Contours re-extracted every frame from a moving noise field', state: 'live' },
         { id: 'misc-dither', label: 'Dither Lab', file: 'dither-lab.html',
           note: 'A separate experiment in the same folder', state: 'live' },
+        { id: 'misc-sylva', label: 'Sylva Living World', file: 'misc-sylva-living-world.html',
+          note: "ThreeUI's moss-root world, living-green, from its registered source", state: 'live' },
       ] },
   ],
 };

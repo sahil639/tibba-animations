@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sylva Living World</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="notes.js"></script>
+<script src="assets/workbench.js" defer></script>
+
+<!-- ThreeUI's shared stylesheet, vendored verbatim from the source bundle.
+     It is what .threeui-background is defined in. -->
+<link rel="stylesheet" href="assets/sylva/threeui.css">
+
+<!-- the shared control-panel design; last in the head so it wins over
+     whatever styling this page declared for its own panel -->
+<link rel="stylesheet" href="assets/tune.css">
+
+<style>
+  html, body { margin: 0; height: 100%; background: #4a4d44; }
+
+  /* The frame the configured usage wraps the scene in. ThreeUI's own
+     .threeui-background is width/height 100% of whatever contains it, so the
+     container is what decides the size — here, the viewport. */
+  .shader-frame {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     Sylva Living World — ThreeUI, variant "living-green"
+
+     The configured usage is
+
+       <SylvaLivingWorldScene variant="living-green" />
+
+     inside a .shader-frame. Every shader and every system in the scene is the
+     authored source, vendored untouched in assets/sylva/ and checked against
+     the SHA-256s the bundle declares. assets/sylva-living-world.js does what
+     the React component does — assemble the document and mount the sandboxed
+     iframe — because the .tsx itself needs a bundler this repo does not have.
+
+     The dock on the right files its comments against this page's id in
+     assets/manifest.js. Change the label there and notes follow; change the
+     id and they do not.
+     ───────────────────────────────────────────────────────────────────── -->
+
+<div class="shader-frame">
+  <div id="sylva"></div>
+</div>
+
+<script type="module">
+  import { mountSylvaLivingWorld } from './assets/sylva-living-world.js';
+  mountSylvaLivingWorld(document.querySelector('#sylva'));
+</script>
+
+<!-- ─────────────────────────────────────────────────────────────────────── -->
+
+</body>
+</html>
