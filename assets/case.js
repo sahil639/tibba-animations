@@ -74,13 +74,24 @@
             <p class="role">${esc(b.role)}</p>
           </section>`;
 
-      default: return '';
+      default: {
+        /* anything else is one of the bespoke kinds in case-sections.js */
+        const K = window.TIBBA_CASE_KINDS && window.TIBBA_CASE_KINDS[b.k];
+        return K ? K.html(b) : '';
+      }
     }
   }
 
   const body = document.querySelector('[data-case-body]');
   body.className = 'case-body';
   body.innerHTML = `<div class="wrap">${C.blocks.map(block).join('')}</div>`;
+
+  /* the bespoke kinds mount after the markup exists, in page order */
+  const bespoke = C.blocks.filter(b => window.TIBBA_CASE_KINDS && window.TIBBA_CASE_KINDS[b.k]);
+  body.querySelectorAll('[data-cs]').forEach((el, i) => {
+    const b = bespoke[i];
+    if (b) window.TIBBA_CASE_KINDS[b.k].mount(el, b);
+  });
 
   /* ── the other three ─────────────────────────────────────────────────── */
   /* The data key and the file name are not the same word for every case —

@@ -156,9 +156,32 @@ window.TIBBA_CASES = {
         'They aim to simplify the complexities of ESG, making sustainability both accessible and actionable for everyone in an organisation.',
       ] },
 
-      { k: 'text', h: 'The challenge: redesign the platform in 8 weeks', p: [
+      /* The challenge, as the Matcha Cartel Origin Log cards (case-sections.js):
+         the title sits on top, the five cards spring in below it. */
+      { k: 'origin', kicker: 'The challenge', h: 'Redesign the platform in 8 weeks', p: [
         'They had an existing platform, but it felt old and outdated, and that translated into declining confidence from their clients. It was functional without being optimised for the people actually using it.',
         'That is where we stepped in, taking on the challenge of redesigning the platform inside eight weeks by leveraging design sprints.',
+      ], cards: [
+        { id: '01', era: 'Where it stood', title: 'An ageing\nplatform', subtitle: 'The existing product',
+          body: ['Functional, but old and outdated.', 'Built around the data, not around the people using it.'],
+          fig: 'FIG. 01', figLabel: 'Legacy\ndashboard', landscape: true,
+          w: 650, h: 475, bg: '#4CAF70', ink: '#0B1A11', fill: '#1E3A2A', z: 5 },
+        { id: '02', era: 'The signal', title: 'Confidence\nslipping', subtitle: 'What clients felt',
+          body: ['An outdated platform read as an outdated company.', 'Client confidence had started to decline.'],
+          fig: 'FIG. 02', figLabel: 'Client\nfeedback',
+          w: 445, h: 600, bg: '#1E3A2A', ink: '#E8E3DC', fill: '#8FD19E', z: 3 },
+        { id: '03', era: 'The constraint', title: 'Eight\nweeks', subtitle: 'The window we had',
+          body: ['A full redesign, start to handoff, in eight weeks.', 'No room for a long discovery phase.'],
+          fig: 'FIG. 03', figLabel: 'Project\ntimeline',
+          w: 488, h: 528, bg: '#E8E3DC', ink: '#111111', fill: '#4CAF70', z: 2 },
+        { id: '04', era: 'The method', title: 'Design\nsprints', subtitle: 'How we fit it in',
+          body: ['Five sprints, each with a fixed structure.', 'Solutions validated with Breathe ESG as we went.'],
+          fig: 'FIG. 04', figLabel: 'Sprint\ncadence', landscape: true,
+          w: 775, h: 425, bg: '#8796A1', ink: '#0D0D0D', fill: '#E8E3DC', z: 1 },
+        { id: '05', era: 'The foundation', title: 'One\nsystem', subtitle: 'What made it possible',
+          body: ['Components set up on day one.', 'Every sprint built on the one before it.'],
+          fig: 'FIG. 05', figLabel: 'Design\nsystem',
+          w: 475, h: 650, bg: '#A9D8B8', ink: '#0B1A11', fill: '#2F7D4C', z: 5 },
       ] },
 
       { k: 'stats', h: 'The market they are in', items: [
@@ -170,32 +193,78 @@ window.TIBBA_CASES = {
       { k: 'quote', q: 'Sustainability is the hottest topic in every large corporation today.',
         who: 'Karantaj Singh & Shaayak Chaterjee', role: 'Founders, Breathe ESG' },
 
-      { k: 'text', h: 'Getting started', p: [
+      { k: 'globe', h: 'Getting started', p: [
         'To get at the heart of what made the existing platform hard to use, we started by understanding how ESG reporting works as a whole. That told us the real complexity of each feature and informed how we broke the sprints up.',
         'It also let us understand the reporting requirements of different industries, and how differently the various user types in a single organisation actually use the system.',
-      ] },
+      ], legend: [
+        'Reporting requirements differ by industry',
+        'Every user type sees the system differently',
+        'Many organisations, one platform',
+      ], caption: 'Organisations reporting into one platform' },
 
-      { k: 'points', h: 'Structuring our design sprints',
-        p: 'To leverage sprints properly we settled a fixed structure for each one. That gave us quick turnarounds, got solutions validated by the stakeholders at Breathe ESG as we went, and left enough time to iterate and prepare for handoff.',
+      /* The five sprints, as the Matcha Cartel Hyperfixation reader
+         (case-sections.js). Colour blocks stand in for the sprint work; the
+         palette is the site's own — the four client colours and the accent. */
+      { k: 'hyper', seed: 11, pin: 7,
+        kicker: 'Structuring our design sprints',
+        title: 'Five design\nsprints.',
+        note: 'Colour blocks stand in for the sprint work.\nEight weeks, five sprints.',
+        palette: ['#4CAF70', '#E85D3D', '#7B8FF5', '#4DD9C0', '#E0B25A', '#C46BAE', '#5E6B78', '#E05555'],
+        archive: { h: 'Sprint\nlog.',
+          p: 'To leverage sprints properly we settled a fixed structure for each one. That gave us quick turnarounds, got solutions validated by the stakeholders at Breathe ESG as we went, and left enough time to iterate and prepare for handoff.' },
         items: [
-          'Sprint 1 — visual design, onboarding and data entry · 2 weeks',
-          'Sprint 2 — materiality, supplier assessment and settings · 1 week',
-          'Sprint 3 — targeting, reporting and template creation · 2 weeks',
-          'Sprint 4 — analytics and dashboard · 2 weeks',
-          'Sprint 5 — visual enhancements · 1 week',
+          { line: 'Weeks 01 — 02', title: 'Visual design, onboarding & data entry',
+            meta: [['Sprint', '01 of 05'], ['Duration', '2 weeks'], ['Focus', 'The front door']],
+            p: 'The first sprint set the visual language and the two places every user starts: onboarding, and entering their ESG data. Getting these right first gave every later sprint a settled look and a working front door to build on.' },
+          { line: 'Week 03', title: 'Materiality, supplier assessment & settings',
+            meta: [['Sprint', '02 of 05'], ['Duration', '1 week'], ['Focus', 'What matters, and to whom']],
+            p: 'Materiality decides which ESG topics matter to an organisation; supplier assessment carries the same questions down its supply chain. One week, because both could reuse the patterns the first sprint had just settled.' },
+          { line: 'Weeks 04 — 05', title: 'Targeting, reporting & template creation',
+            meta: [['Sprint', '03 of 05'], ['Duration', '2 weeks'], ['Focus', 'The reports themselves']],
+            p: 'Where the platform earns its keep: setting targets, producing reports, and letting teams build their own templates. The densest sprint of the five, and the one the stakeholders tested hardest.' },
+          { line: 'Weeks 06 — 07', title: 'Analytics & dashboard',
+            meta: [['Sprint', '04 of 05'], ['Duration', '2 weeks'], ['Focus', 'Insight for leadership']],
+            p: 'Turning raw data into insight for upper management — KPIs, tables and visualisations that answer a question rather than decorate one.' },
+          { line: 'Week 08', title: 'Visual enhancements',
+            meta: [['Sprint', '05 of 05'], ['Duration', '1 week'], ['Focus', 'Polish and handoff']],
+            p: 'A final pass across everything built so far: consistency, polish, and the edge cases that only show up once the whole platform is in one place — then handoff.' },
         ] },
 
-      { k: 'text', h: 'A design system from day one', p: [
-        'Setting the components up at the very onset of the project let us iterate faster as we went. It paid off over the engagement: turnarounds accelerated, and the system had time to evolve and grow rather than being retro-fitted at the end.',
-      ] },
-      { k: 'figure', label: 'Wireframe to high fidelity', ratio: '16 / 9',
-        caption: 'The drag-to-compare: wireframe on the left, mockup on the right' },
 
       { k: 'text', h: 'Designing for data density', p: [
         'The platform turns raw data into actionable insight for upper management. That meant making dense data consumable — as tables, as KPIs, and as data visualisations that answer a question rather than decorate one.',
       ] },
       { k: 'figure', label: 'Supplier assessment', ratio: '16 / 9',
         caption: 'Assessment tables, filters and the KPI header' },
+
+      /* The same reader again, for the design system. Its colour blocks are
+         drawn from Breathe ESG's own greens rather than the site palette. */
+      { k: 'hyper', seed: 29, pin: 7,
+        kicker: 'A design system from day one',
+        title: 'Design system\nfrom day 1.',
+        note: 'Colour blocks stand in for the system.\nSet up before the first screen.',
+        palette: ['#4CAF70', '#2F7D4C', '#8FD19E', '#1E4A31', '#A9C8B3', '#6E8B74', '#3E5C48', '#CFE3D5'],
+        archive: { h: 'System\nlayers.',
+          p: 'Setting the components up at the very onset of the project let us iterate faster as we went. It paid off over the engagement: turnarounds accelerated, and the system had time to evolve and grow rather than being retro-fitted at the end.' },
+        items: [
+          { line: 'Layer 01 · Foundations', title: 'Colour, type & spacing',
+            meta: [['Set up', 'Sprint 01'], ['Used by', 'Every screen']],
+            p: 'The tokens everything else is built from, fixed before the first screen was drawn — so a change to one travels everywhere instead of being made by hand a hundred times.' },
+          { line: 'Layer 02 · Components', title: 'Inputs, tables & controls',
+            meta: [['Set up', 'Sprint 01'], ['Used by', 'Entry, assessment, reporting']],
+            p: 'The pieces the platform is made of. Data entry, assessment and reporting all draw on one set, which is what let the later sprints move at a week each.' },
+          { line: 'Layer 03 · Data', title: 'KPIs, charts & dense tables',
+            meta: [['Set up', 'Sprints 03 — 04'], ['Used by', 'Dashboards, reports']],
+            p: 'Patterns for making dense data consumable: how a KPI sits above its table, and how a chart answers the question the table raises.' },
+          { line: 'Layer 04 · Guidance', title: 'Tooltips, toasts & filters',
+            meta: [['Set up', 'Throughout'], ['Used by', 'Everyone, at the point of need']],
+            p: 'Help at the point of confusion rather than in a manual — the platform\u2019s terminology explained exactly where it is used.' },
+          { line: 'Layer 05 · Roles', title: 'Views by permission',
+            meta: [['Set up', 'Sprint 04'], ['Used by', 'Entry, approval, leadership']],
+            p: 'The same system seen three ways: the person entering data, the one approving it, and the one reading the result.' },
+        ] },
+      { k: 'figure', label: 'Wireframe to high fidelity', ratio: '16 / 9',
+        caption: 'The drag-to-compare: wireframe on the left, mockup on the right' },
 
       { k: 'text', h: 'Contextual hand-holding', p: [
         'The platform carries its own share of complexity, from domain-specific terminology to system-specific responses. To make it easier to comprehend we introduced tooltips, toasts and straightforward filters on the tables — help at the point of confusion rather than in a manual.',

@@ -1,0 +1,252 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Case study — the bespoke section types (assets/case-sections.js)
+   ─────────────────────────────────────────────────────────────────────────
+   Set in the case template's own terms: F37 Analog, the page ground, the
+   hairline rules, and --client for every accent. The Matcha Cartel source
+   was lime-on-black in a mono face; none of that survives here, only the
+   structure and the motion.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+/* The full-bleed breakouts (100vw) rely on site.css's body { overflow-x:
+   hidden } to stop a sideways scroll. Do NOT set overflow on <html> here:
+   once <html> is anything but visible, the browser stops treating the
+   body's overflow as the window's, the body becomes its own scroll box, and
+   every position: sticky on the page silently stops pinning. */
+
+.cs-kicker {
+  font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--client);
+}
+.cs-hint { font-size: 11px; letter-spacing: .16em; color: var(--ink-faint); }
+.cs-grow { flex: 1; }
+
+/* a colour block standing in for an image */
+.cs-block {
+  width: 100%; height: 100%; border-radius: 4px;
+  background:
+    linear-gradient(160deg, rgba(255,255,255,.14), rgba(0,0,0,.18) 70%),
+    var(--c);
+  display: flex; align-items: flex-end; padding: 14px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+}
+.cs-block span {
+  font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
+  color: rgba(255,255,255,.78); mix-blend-mode: difference;
+}
+
+/* ══ HYPER ═══════════════════════════════════════════════════════════════ */
+.cs-hyper {
+  /* the section is --pin screens taller than the stage it pins */
+  height: calc((var(--pin) + 1) * 100vh);
+  width: 100vw; margin-left: calc(50% - 50vw);
+  position: relative;
+  background: var(--bg-deep);
+  border-block: 1px solid var(--line-soft);
+}
+.case-block.cs-hyper { max-width: none; }
+.cs-hyper-stage {
+  position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden;
+}
+
+.cs-burst {
+  position: absolute; left: 50%; top: 50%;
+  width: var(--w); height: var(--h);
+  opacity: 0; z-index: 20; will-change: transform, opacity;
+}
+
+.cs-hyper-title {
+  position: absolute; inset: 0; z-index: 30; pointer-events: none;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 22px; text-align: center; padding: 0 var(--gut);
+}
+.cs-hyper-title h2 {
+  font-size: clamp(44px, 7.4vw, 124px); font-weight: 400;
+  line-height: .98; letter-spacing: -.035em; color: var(--ink);
+  max-width: 14ch;
+}
+.cs-hyper-title .cs-hint { margin-top: 18px; }
+
+.cs-hyper-note {
+  position: absolute; left: var(--gut); bottom: 26px; z-index: 35; pointer-events: none;
+  font-size: 11px; line-height: 1.6; color: var(--ink-faint); max-width: 36ch;
+}
+
+/* ── the reader ───────────────────────────────────────────────────────── */
+.cs-reader {
+  position: absolute; inset: 0; z-index: 40; opacity: 0;
+  display: grid; grid-template-columns: 1fr 1.05fr 1fr;
+  background: var(--bg-deep); transform-origin: 50% 50%;
+}
+.cs-left, .cs-right {
+  display: flex; flex-direction: column;
+  padding: calc(var(--nav-h) + 26px) clamp(20px, 2.4vw, 40px) 30px;
+}
+.cs-left  { border-right: 1px solid var(--line-soft); }
+.cs-right { border-left: 1px solid var(--line-soft); }
+
+.cs-left-head { display: grid; grid-template-columns: auto 1fr; gap: 26px; align-items: start;
+  padding-left: 18px; border-left: 1px solid var(--client); }
+.cs-left-head h3 {
+  font-size: clamp(24px, 2.6vw, 40px); font-weight: 400; line-height: 1.04;
+  letter-spacing: -.02em; color: var(--ink);
+}
+.cs-left-head p { font-size: 13px; line-height: 1.65; color: var(--ink-mute); max-width: 34ch; }
+
+.cs-thumbs { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+.cs-thumb {
+  width: 38px; aspect-ratio: 9 / 16; border-radius: 3px;
+  background: var(--c); filter: grayscale(1) brightness(.55);
+  outline: 1px solid rgba(255,255,255,.10); outline-offset: 2px;
+  transition: filter .4s var(--ease), outline-color .4s var(--ease);
+}
+.cs-thumb.on { filter: none; outline-color: var(--client); }
+
+.cs-centre { position: relative; overflow: hidden; }
+.cs-column { display: flex; flex-direction: column; height: 100%; will-change: transform; }
+.cs-slide {
+  flex: 0 0 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  padding: calc(var(--nav-h) + 12px) 10px 22px;
+}
+.cs-screen { max-width: 100%; aspect-ratio: 9 / 16; height: 100%; width: auto; }
+
+.cs-right-head { padding-right: 18px; border-right: 1px solid var(--client); text-align: right; }
+.cs-counter { font-size: 15px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.cs-line {
+  margin-top: 8px; font-size: 13px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--client); min-height: 1.3em;
+}
+.cs-line span { display: inline-block; }
+.cs-right-body h4 {
+  font-size: clamp(20px, 1.8vw, 28px); font-weight: 400; line-height: 1.18;
+  letter-spacing: -.015em; color: var(--ink); margin-bottom: 18px;
+}
+.cs-meta { display: grid; gap: 1px; background: var(--line-soft); border-block: 1px solid var(--line-soft); }
+.cs-meta div { display: flex; gap: 12px; justify-content: space-between; background: var(--bg-deep); padding: 9px 0; }
+.cs-meta dt { font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); }
+.cs-meta dd { font-size: 12.5px; color: var(--ink-warm); text-align: right; }
+.cs-desc { margin-top: 20px; font-size: 13.5px; line-height: 1.7; color: var(--ink-mute); max-width: 44ch; }
+.cs-right-body.in h4, .cs-right-body.in .cs-meta, .cs-right-body.in .cs-desc {
+  animation: cs-rise .6s var(--ease) both;
+}
+.cs-right-body.in .cs-meta { animation-delay: .05s; }
+.cs-right-body.in .cs-desc { animation-delay: .1s; }
+@keyframes cs-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 860px) {
+  .cs-reader { grid-template-columns: 1fr; }
+  .cs-left { display: none; }
+  .cs-right {
+    position: absolute; left: 0; right: 0; bottom: 0; padding: 22px var(--gut) 26px;
+    border: 0; border-top: 1px solid var(--line-soft);
+    background: linear-gradient(transparent, var(--bg-deep) 28%);
+  }
+  .cs-right .cs-grow { display: none; }
+  .cs-desc { display: none; }
+  .cs-slide { padding-bottom: 38%; }
+}
+
+/* ══ ORIGIN ══════════════════════════════════════════════════════════════ */
+.cs-origin { max-width: none; }
+.cs-origin-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px clamp(24px, 5vw, 80px); align-items: end; }
+.cs-origin-head .cs-kicker { grid-column: 1 / -1; }
+.cs-origin-head h2 {
+  font-size: clamp(26px, 3.4vw, 52px); font-weight: 400; line-height: 1.06;
+  letter-spacing: -.028em; color: var(--ink); max-width: 16ch;
+}
+.cs-origin-copy p { margin-top: 0; }
+.cs-origin-copy p + p { margin-top: 14px; }
+@media (max-width: 860px) { .cs-origin-head { grid-template-columns: 1fr; } }
+
+.cs-canvas {
+  --k: 1;
+  position: relative; margin-top: clamp(26px, 3.6vw, 48px);
+  height: clamp(560px, 82vh, 860px);
+  width: 100vw; margin-left: calc(50% - 50vw);
+  background:
+    radial-gradient(circle at 1px 1px, rgba(255,255,255,.06) 1px, transparent 1.4px) 0 0 / 22px 22px,
+    var(--bg-deep);
+  border-block: 1px solid var(--line-soft);
+  overflow: hidden; touch-action: none;
+}
+.cs-drag {
+  position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+  z-index: 300; pointer-events: none; white-space: nowrap;
+  font-size: 11px; letter-spacing: .16em; color: var(--client);
+}
+
+.cs-card {
+  position: absolute; top: 0; left: 0;
+  width: calc(var(--w) * var(--k)); height: calc(var(--h) * var(--k));
+  background: var(--card-bg); color: var(--card-ink);
+  padding: calc(22px * var(--k));
+  display: grid; grid-template-rows: auto auto auto 1fr auto; gap: calc(10px * var(--k));
+  font-size: calc(14px * var(--k));
+  user-select: none; cursor: grab; will-change: transform;
+  box-shadow: 0 24px 60px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.06);
+  border-radius: calc(6px * var(--k));
+}
+.cs-card.grab { cursor: grabbing; }
+.cs-card header {
+  display: flex; justify-content: space-between;
+  font-size: calc(10.5px * var(--k)); letter-spacing: .18em; text-transform: uppercase;
+  color: var(--card-ink); opacity: .6;
+}
+.cs-card h3 {
+  font-size: calc(34px * var(--k)); font-weight: 400; line-height: 1;
+  letter-spacing: -.02em; text-transform: uppercase; color: var(--card-ink);
+}
+.cs-card .sub { font-size: calc(13px * var(--k)); color: var(--card-ink); opacity: .7; margin: 0; max-width: none; }
+.cs-card ul { list-style: none; display: grid; gap: calc(6px * var(--k)); align-content: start; }
+.cs-card li { font-size: calc(13.5px * var(--k)); line-height: 1.45; color: var(--card-ink); opacity: .86; }
+.cs-card figure { margin: 0; display: grid; grid-template-columns: 1fr auto; gap: calc(14px * var(--k)); align-items: end; }
+.cs-card .cs-fig { height: calc(var(--h) * var(--k) * .28); }
+.cs-card figcaption {
+  font-size: calc(10px * var(--k)); letter-spacing: .16em; text-transform: uppercase;
+  color: var(--card-ink); opacity: .7; text-align: right; line-height: 1.5;
+}
+.cs-card figcaption b { display: block; font-weight: 400; opacity: .6; margin-bottom: 4px; }
+.cs-card.is-wide { grid-template-columns: 1.1fr 1fr; grid-template-rows: auto auto auto 1fr; column-gap: calc(24px * var(--k)); }
+.cs-card.is-wide header, .cs-card.is-wide h3, .cs-card.is-wide .sub, .cs-card.is-wide ul { grid-column: 1; }
+/* on a wide card the figure takes the whole right-hand column: the block
+   grows to fill it and the caption sits under it */
+.cs-card.is-wide figure {
+  grid-column: 2; grid-row: 1 / -1; min-height: 0;
+  display: flex; flex-direction: column; gap: calc(12px * var(--k));
+}
+.cs-card.is-wide .cs-fig { flex: 1; height: auto; min-height: 0; }
+.cs-card.is-wide figcaption { text-align: left; }
+
+.cs-eras {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 200;
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  background: var(--bg-deep); border-top: 1px solid var(--line-soft);
+}
+.cs-eras div { padding: 18px clamp(12px, 1.4vw, 22px); font-size: 13px; line-height: 1.5; color: var(--ink-mute); }
+.cs-eras div + div { border-left: 1px solid var(--line-soft); }
+.cs-eras b { display: block; font-weight: 400; color: var(--client); }
+.cs-eras span { display: block; min-height: 1.5em; }
+@media (max-width: 700px) { .cs-eras div:nth-child(n+4) { display: none; } .cs-eras { grid-template-columns: repeat(3, 1fr); } }
+
+/* ══ GLOBE ═══════════════════════════════════════════════════════════════ */
+.cs-globe-block {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: clamp(24px, 5vw, 90px); align-items: center;
+}
+.cs-globe-shell {
+  position: relative; aspect-ratio: 1 / 1; width: 100%; max-width: 680px; justify-self: end;
+  background: radial-gradient(closest-side, rgba(76,175,112,.10), transparent 72%);
+}
+.cs-globe-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.cs-globe-cap {
+  position: absolute; left: 0; right: 0; bottom: 2%; text-align: center; margin: 0; max-width: none;
+  font-size: 11px !important; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint) !important;
+}
+.cs-globe-legend { list-style: none; margin-top: 26px; display: grid; gap: 10px; }
+.cs-globe-legend li { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--ink-mute); }
+.cs-globe-legend i { width: 7px; height: 7px; border-radius: 50%; background: var(--client);
+  box-shadow: 0 0 0 4px rgba(76,175,112,.16); }
+@media (max-width: 860px) {
+  .cs-globe-block { grid-template-columns: 1fr; }
+  .cs-globe-shell { justify-self: center; max-width: 520px; }
+}
