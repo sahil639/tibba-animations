@@ -93,11 +93,32 @@ addEventListener('DOMContentLoaded', function () {
       '<input type="checkbox" id="s-mail" checked></div>' +
     '<div class="row inline"><label>Wordmark &amp; links<i></i></label>' +
       '<input type="checkbox" id="s-base" checked></div>' +
-    '<p class="tune-sub">Skyline</p>' +
+    '<p class="tune-sub">Backdrop</p>' +
+    '<div class="seg" id="s-back">' +
+      '<button data-b="peak" class="on">Massif</button>' +
+      '<button data-b="sky">Skyline</button>' +
+    '</div>' +
     '<div class="row"><label>Height<i id="v-h">100</i></label>' +
       '<input type="range" id="s-h" min="40" max="320" value="100"></div>' +
     '<div class="row inline"><label>Redraw<i></i></label>' +
-      '<button id="s-new" class="tune-btn">New ridge</button></div>';
+      '<button id="s-new" class="tune-btn">New ridge</button></div>' +
+    '<p class="tune-sub">Scan reveal</p>' +
+    '<div class="row inline"><label>Play it again<i></i></label>' +
+      '<button id="s-replay" class="tune-btn">Replay</button></div>' +
+    /* These three are fractions of how far the wave travels, not pixels, so
+       they mean the same thing whatever size the strip is. Shown per mille
+       because the useful range is a few percent. */
+    '<div class="row"><label>Solid lag<i id="v-lag">115</i></label>' +
+      '<input type="range" id="s-lag" min="0" max="320" value="115"></div>' +
+    '<div class="row"><label>Rim width<i id="v-rim">30</i></label>' +
+      '<input type="range" id="s-rim" min="5" max="120" value="30"></div>' +
+    '<div class="row"><label>Wire trail<i id="v-tr">209</i></label>' +
+      '<input type="range" id="s-tr" min="30" max="600" value="209"></div>' +
+    '<p class="tune-sub">Massif</p>' +
+    '<div class="row"><label>Snow line<i id="v-snow">0.60</i></label>' +
+      '<input type="range" id="s-snow" min="20" max="95" value="60"></div>' +
+    '<div class="row inline"><label>New mountain<i></i></label>' +
+      '<button id="s-peaknew" class="tune-btn">Reshape</button></div>';
   document.body.appendChild(el);
 
   var q = function (id) { return el.querySelector('#' + id); };
@@ -126,9 +147,73 @@ addEventListener('DOMContentLoaded', function () {
     if (window.mountFooterRange) window.mountFooterRange(canvas).regenerate();
   });
 
+  /* ── the massif ───────────────────────────────────────────────────────
+     The 3D peak is this page's backdrop; the generated skyline is kept on a
+     switch beside it rather than deleted, because it is still what the rest
+     of the site's footer draws. */
+  var peakCanvas = document.getElementById('footer-peak');
+  var peak = window.tibbaFooterPeak || null;
+  q('s-back').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    var wantPeak = b.dataset.b === 'peak';
+    el.querySelectorAll('#s-back button').forEach(function (n) { n.classList.toggle('on', n === b); });
+    peakCanvas.style.display = wantPeak ? '' : 'none';
+    canvas.style.display = wantPeak ? 'none' : '';
+  });
+
+  var bindPeak = function (id, vid, map, fmt, apply) {
+    q(id).addEventListener('input', function (e) {
+      var x = map(+e.target.value);
+      if (vid) q(vid).textContent = fmt(x);
+      if (window.tibbaFooterPeak) apply(x, window.tibbaFooterPeak);
+    });
+  };
+  var per = function (n) { return n / 1000; };
+  var asPerMille = function (x) { return String(Math.round(x * 1000)); };
+  bindPeak('s-lag',  'v-lag',  per, asPerMille,
+    function (x, pk) { pk.P.solidLag = x; pk.sync(); });
+  bindPeak('s-rim',  'v-rim',  per, asPerMille,
+    function (x, pk) { pk.P.rimWidth = x; pk.sync(); });
+  bindPeak('s-tr',   'v-tr',   per, asPerMille,
+    function (x, pk) { pk.P.wireTrail = x; pk.sync(); });
+  bindPeak('s-snow', 'v-snow', function (n) { return n / 100; },
+    function (x) { return x.toFixed(2); },
+    function (x, pk) { pk.P.snowLine = x; pk.sync(); });
+
+  q('s-replay').addEventListener('click', function () {
+    if (window.tibbaFooterPeak) window.tibbaFooterPeak.replay();
+  });
+  q('s-peaknew').addEventListener('click', function () {
+    if (window.tibbaFooterPeak) { window.tibbaFooterPeak.regenerate(); window.tibbaFooterPeak.replay(); }
+  });
+
   q('tune-hide').addEventListener('click', function () { el.classList.toggle('hidden'); });
   if (window.wb && window.wb.adopt) window.wb.adopt();
 });
+</script>
+
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js"}}</script>
+<script type="module">
+  /* The massif goes where the generated skyline goes — the strip across the
+     top of the footer, with the request form sitting on it. The skyline is
+     left in the DOM behind a switch in the panel rather than removed: it is
+     still what every other page's footer draws. */
+  import { mountFooterPeak } from './assets/footer-peak-scan.js';
+
+  function boot() {
+    const sky = document.querySelector('#footer-range');
+    if (!sky) return requestAnimationFrame(boot);   // the footer is injected
+
+    const peak = document.createElement('canvas');
+    peak.id = 'footer-peak';
+    peak.className = 'footer-range';
+    peak.setAttribute('aria-hidden', 'true');
+    sky.after(peak);
+    sky.style.display = 'none';
+
+    window.tibbaFooterPeak = mountFooterPeak(peak);
+  }
+  boot();
 </script>
 
 </body>
