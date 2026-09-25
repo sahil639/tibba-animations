@@ -1598,6 +1598,16 @@ const contourMat = new THREE.ShaderMaterial({
     uAccent:    { value: srgbVec(0xE85D3D) },
     uRingLift:  { value: [0, 0, 0] },
     uRingHot:   { value: [0, 0, 0] },
+    /* ── the loader's fill ───────────────────────────────────────────────
+       An elevation that rises from the valley floor to the summit. Every
+       contour below it is drawn at full strength, everything above waits as
+       a faint ghost, and a bright band rides the front. Off by default: only
+       the loader page turns it on. */
+    uFillOn:    { value: 0 },
+    uFillY:     { value: -1e4 },
+    uFillBand:  { value: 3.0 },
+    uFillGhost: { value: 0.10 },
+    uFillGlow:  { value: 0.55 },
     uEdgeAmt:  { value: 0 },
     uFadeA:    { value: 0.74 },                 // aerial fade, in units of the range's reach
     uFadeB:    { value: 1.0 },
@@ -1721,6 +1731,7 @@ const contourMat = new THREE.ShaderMaterial({
     uniform float uHoverY, uHoverAmt, uHoverBand, uHoverR, uPulse;
     uniform vec2  uHoverXZ;
     uniform vec3 uInk, uEdge, uHoverCol;
+    uniform float uFillOn, uFillY, uFillBand, uFillGhost, uFillGlow;
     ${CT_PALETTE_GLSL}
     void main(){
       float t = clamp(vY / vMax, 0.0, 1.0);
@@ -1821,6 +1832,20 @@ const contourMat = new THREE.ShaderMaterial({
       if (vDot > 0.5 && uDotPeriod > 0.0) {
         float d = fract((vArcW + uTime * uDotFlow) / uDotPeriod);
         a *= 1.0 - smoothstep(uDotOn, uDotOff, d);
+      }
+
+      /* ── the loader's fill ───────────────────────────────────────────────
+         Applied after everything else, including the accent rings, so the
+         orange at the summit waits its turn like every other line and is the
+         last thing to come up. Keyed on the contour's own elevation: rising
+         through the heights is what walks the fill inward across the plan
+         view toward the summit, which is the whole picture of the loader. */
+      if (uFillOn > 0.5) {
+        float filled = 1.0 - smoothstep(uFillY - uFillBand, uFillY + uFillBand * 0.25, vY);
+        float front  = exp(-pow((vY - uFillY) / max(0.001, uFillBand), 2.0));
+        a *= mix(uFillGhost, 1.0, filled);
+        col = mix(col, vec3(1.0), front * uFillGlow);
+        a = max(a, front * uFillGlow * uOpacity * aer);
       }
 
       if (a < 0.004) discard;
@@ -2736,6 +2761,22 @@ return {
      it, and it is two uniforms rather than one: the distance the fade starts
      and the distance it finishes. Driven from a single 0..1 so the two cannot
      be set into a state where the far plane is nearer than the near one. */
+  /** The loader's fill: t 0..1 rises from the valley floor to the summit.
+      Pass null to switch it off. */
+  setFill(t, o = {}) {
+    const u = contourMat.uniforms;
+    if (t == null) { u.uFillOn.value = 0; return; }
+    u.uFillOn.value = 1;
+    if (o.band  != null) u.uFillBand.value  = o.band;
+    if (o.ghost != null) u.uFillGhost.value = o.ghost;
+    if (o.glow  != null) u.uFillGlow.value  = o.glow;
+    /* past the top by a full band, so at 1 the summit rings are completely
+       drawn rather than half-way through the front */
+    const lo = GROUND_BASE - u.uFillBand.value;
+    const hi = MAX_H + u.uFillBand.value * 1.5;
+    u.uFillY.value = lo + (hi - lo) * Math.min(1, Math.max(0, t));
+  },
+
   setDepth(t) {
     const d = Math.min(1, Math.max(0, t));
     /* at 0 the fade is pushed so far back that nothing reaches it; at 1 it

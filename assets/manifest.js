@@ -25,6 +25,13 @@ window.TIBBA_SITE = {
   },
 
   sections: [
+    { id: 'loader', label: 'Loader',
+      note: 'The first screen, before the hero',
+      pages: [
+        { id: 'loader-01', label: 'Loader', file: 'loader.html',
+          note: 'The Active Peak plan view filling from the valley floor to the orange summit, 0 to 100', state: 'live' },
+      ] },
+
     { id: 'hero', label: 'Hero section',
       note: 'The animations built for the top of the page. Named for what each one\n             actually is: the landform first, then what distinguishes it.',
       pages: [

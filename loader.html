@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loader</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="notes.js"></script>
+<script src="assets/workbench.js" defer></script>
+
+<style>
+html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0b0c; }
+body {
+  color: var(--ink-warm);
+  font-family: 'F37 Analog', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  --accent: #FF4B1F;
+}
+#loader-canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+
+/* ── the counter, top left ──────────────────────────────────────────────── */
+.ld-top {
+  /* clear of the workbench chip that sits in this corner while reviewing */
+  position: fixed; top: clamp(72px, 9vh, 96px); left: clamp(18px, 3vw, 40px); z-index: 5;
+  pointer-events: none;
+}
+.ld-top .k { font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+.ld-top .n {
+  margin-top: 8px; display: flex; align-items: baseline; gap: 4px;
+  font-size: clamp(40px, 5.2vw, 76px); font-weight: 300; line-height: .9;
+  letter-spacing: -.03em; color: var(--ink); font-variant-numeric: tabular-nums;
+}
+.ld-top .n small { font-size: .32em; color: var(--ink-mute); letter-spacing: 0; }
+#ld-bar { margin-top: 14px; width: clamp(150px, 16vw, 230px); height: 1px; background: rgba(255,255,255,.12); }
+#ld-bar i { display: block; height: 100%; background: var(--accent); transform-origin: 0 50%; transform: scaleX(0); }
+#ld-stage { margin-top: 10px; font-size: 12px; color: var(--ink-mute); }
+.ld-done #ld-stage { color: var(--accent); }
+
+/* ── the facts, extreme bottom left ─────────────────────────────────────── */
+#ld-fact {
+  position: fixed; left: clamp(18px, 3vw, 40px); bottom: clamp(18px, 3vw, 36px); z-index: 5;
+  width: min(300px, 76vw);
+  padding: 14px 16px 15px;
+  background: rgba(14,14,15,.72);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 4px;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+#ld-fact .h { display: flex; justify-content: space-between; align-items: baseline;
+  font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-faint); }
+#ld-fact .no { font-style: normal; font-variant-numeric: tabular-nums; white-space: nowrap; }
+#ld-fact .name { display: block; margin-top: 10px; font-weight: 400; font-size: 15px; color: var(--ink); }
+#ld-fact .text { display: block; margin-top: 5px; font-size: 12.5px; line-height: 1.5; color: var(--ink-mute); }
+#ld-fact.in .name, #ld-fact.in .text { animation: ld-rise .55s var(--ease) both; }
+#ld-fact.in .text { animation-delay: .06s; }
+@keyframes ld-rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ── the coordinates, bottom right ──────────────────────────────────────── */
+#ld-coords {
+  position: fixed; right: clamp(18px, 3vw, 40px); bottom: clamp(18px, 3vw, 36px); z-index: 5;
+  list-style: none; margin: 0; padding: 0; text-align: right; pointer-events: none;
+  font-size: 11px; letter-spacing: .06em; font-variant-numeric: tabular-nums;
+  color: var(--ink-mute);
+}
+#ld-coords li {
+  display: flex; align-items: center; justify-content: flex-end; gap: 9px;
+  padding: 3px 0; white-space: nowrap;
+  animation: ld-rise .45s var(--ease) both;
+}
+#ld-coords li:nth-child(2) { opacity: .62; }
+#ld-coords li:nth-child(3) { opacity: .38; }
+#ld-coords li:nth-child(4) { opacity: .18; }
+#ld-coords li i { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex: 0 0 auto; }
+#ld-coords li span { color: var(--ink-faint); }
+
+@media (max-width: 640px) {
+  #ld-coords { display: none; }
+}
+</style>
+
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     Loader
+
+     The Active Peak's first view — straight down on the contour sheet —
+     filling from the valley floor up to the summit as the count runs 0 to
+     100. The orange rings at the top are the last lines to come in.
+     Behaviour: assets/loader.js. The fill is setFill() in range-scene.js.
+     ───────────────────────────────────────────────────────────────────── -->
+
+<canvas id="loader-canvas" aria-hidden="true"></canvas>
+
+<div class="ld-top" role="status" aria-live="polite">
+  <p class="k">Loading</p>
+  <p class="n"><span id="ld-count">000</span><small>%</small></p>
+  <div id="ld-bar"><i></i></div>
+  <p id="ld-stage">Surveying the valley floor</p>
+</div>
+
+<aside id="ld-fact" aria-live="off">
+  <p class="h"><span class="lbl">Field notes</span><em class="no"></em></p>
+  <b class="name"></b><span class="text"></span>
+</aside>
+
+<ul id="ld-coords" aria-hidden="true"></ul>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js"}}</script>
+<script type="module">
+  import { loader, L } from './assets/loader.js';
+
+  const el = document.createElement('div');
+  el.id = 'tune';
+  el.innerHTML =
+    '<div id="tune-head"><b>Loader</b><button id="tune-hide" title="Hide (H)">–</button></div>' +
+    '<p class="tune-sub">Run</p>' +
+    '<div class="row inline"><label>Play again<i></i></label><button class="tune-btn" id="s-restart">Restart</button></div>' +
+    '<div class="row inline"><label>Loop<i></i></label><input type="checkbox" id="s-loop" checked></div>' +
+    '<div class="row"><label>Duration<i id="v-dur">6.5s</i></label><input type="range" id="s-dur" min="20" max="200" value="65"></div>' +
+    '<div class="row"><label>Stutter<i id="v-stu">0.35</i></label><input type="range" id="s-stu" min="0" max="100" value="35"></div>' +
+    '<div class="row"><label>Scrub (holds it)<i id="v-scr">auto</i></label><input type="range" id="s-scr" min="0" max="100" value="0"></div>' +
+    '<div class="row inline"><label>Back to auto<i></i></label><button class="tune-btn" id="s-auto">Auto</button></div>' +
+    '<p class="tune-sub">Fill</p>' +
+    '<div class="row"><label>Front width<i id="v-band">3.0</i></label><input type="range" id="s-band" min="5" max="120" value="30"></div>' +
+    '<div class="row"><label>Front glow<i id="v-glow">0.55</i></label><input type="range" id="s-glow" min="0" max="100" value="55"></div>' +
+    '<div class="row"><label>Unfilled lines<i id="v-ghost">0.10</i></label><input type="range" id="s-ghost" min="0" max="60" value="10"></div>';
+  document.body.appendChild(el);
+  const q = s => el.querySelector(s);
+
+  q('#s-restart').addEventListener('click', () => loader.restart());
+  q('#s-loop').addEventListener('change', e => { L.loop = e.target.checked; loader.restart(); });
+  const bind = (id, vid, map, fmt, apply) => q(id).addEventListener('input', e => {
+    const v = map(+e.target.value); q(vid).textContent = fmt(v); apply(v);
+  });
+  bind('#s-dur', '#v-dur', n => n / 10, v => v.toFixed(1) + 's', v => { L.duration = v; });
+  bind('#s-stu', '#v-stu', n => n / 100, v => v.toFixed(2), v => { L.stutter = v; });
+  bind('#s-scr', '#v-scr', n => n / 100, v => Math.round(v * 100) + '%', v => loader.scrub(v));
+  q('#s-auto').addEventListener('click', () => { loader.scrub(null); q('#v-scr').textContent = 'auto'; loader.restart(); });
+  bind('#s-band', '#v-band', n => n / 10, v => v.toFixed(1), v => { L.band = v; });
+  bind('#s-glow', '#v-glow', n => n / 100, v => v.toFixed(2), v => { L.glow = v; });
+  bind('#s-ghost', '#v-ghost', n => n / 100, v => v.toFixed(2), v => { L.ghost = v; });
+
+  q('#tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+  if (window.wb && window.wb.adopt) window.wb.adopt();
+</script>
+</body>
+</html>
