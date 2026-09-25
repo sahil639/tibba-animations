@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Work Reel — scroll</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="notes.js"></script>
+<script src="assets/workbench.js" defer></script>
+
+<!-- the shared control-panel design; last in the head so it wins over
+     whatever styling this page declared for its own panel -->
+<link rel="stylesheet" href="assets/tune.css">
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper: #F4F2EC;
+  --ink:   #14110E;
+  --ghost: #C9C4B8;
+}
+
+html { scroll-behavior: auto; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'F37 Analog', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── the scroll sentinel ──────────────────────────────────────────────────
+   One viewport of height per handover plus one to arrive on, so every step
+   gets a full screen of scroll to happen in. Nine items is eight handovers. */
+.reel-scope { position: relative; height: 900vh; }
+
+.reel-stage {
+  position: sticky; top: 0;
+  height: 100vh; height: 100svh;
+  overflow: hidden;
+}
+
+/* The row is anchored to the BOTTOM of the viewport: the labels sit on the
+   floor of the screen and the images stand up off them. */
+.reel-strip {
+  position: absolute;
+  left: 0; bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  will-change: transform;
+}
+
+.reel-item { display: flex; align-items: flex-end; flex: 0 0 auto; }
+
+/* ── the labels ───────────────────────────────────────────────────────────
+   Rotated a quarter turn and reading bottom-to-top. writing-mode gives the
+   rotation without taking the text out of flow the way a transform would —
+   the slot still reserves the width the layout is built on. */
+.reel-label {
+  --near: 0;
+  flex: 0 0 var(--reel-label-w, 207px);
+  width: var(--reel-label-w, 207px);
+  display: flex; align-items: flex-end;
+  padding-bottom: 22px;
+  font-size: clamp(18px, 1.6vw, 30px);
+  letter-spacing: -0.01em;
+  line-height: 1;
+  white-space: nowrap;
+  /* pale when it is waiting its turn, ink when it is the subject */
+  color: color-mix(in srgb, var(--ink) calc(var(--near) * 100%), var(--ghost));
+  transition: none;
+}
+.reel-label span {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+/* ── the plate ────────────────────────────────────────────────────────────
+   A window whose WIDTH is animated, with the picture at its full size
+   inside it. Animating the image itself would squash it. */
+.reel-shot {
+  flex: 0 0 auto;
+  /* The plate runs to the very bottom edge, as in the reference — the
+     labels sit on the same floor rather than under a shelf. */
+  height: min(92vh, 940px);
+  overflow: hidden;
+  border-radius: 10px 10px 0 0;
+  align-self: flex-end;
+}
+.reel-shot img {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  max-width: none;
+  border-radius: 10px 10px 0 0;
+}
+
+/* ── what comes after ─────────────────────────────────────────────────── */
+.after {
+  min-height: 100vh;
+  display: flex; align-items: center;
+  padding: 0 clamp(24px, 6vw, 120px);
+  border-top: 1px solid rgba(20,17,14,.10);
+}
+.after p { font-size: clamp(20px, 3vw, 44px); max-width: 20ch; line-height: 1.15; }
+.after span { color: var(--ghost); display: block; font-size: 13px;
+  letter-spacing: .16em; text-transform: uppercase; margin-bottom: 18px; }
+
+.reel-live {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
+</style>
+</head>
+
+<body>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     Work Reel — the scroll-driven client run
+
+     Nine labels in one row along the bottom of the screen, each turned a
+     quarter turn. Scrolling opens one image at a time BETWEEN a label and
+     the one after it, which pushes the rest of the row right while the row
+     itself drifts left — that combination is what walks the active label
+     across the screen.
+
+     The curve on every handover is a real cubic-bezier, solved in script
+     because a scroll-driven value has no CSS transition to hand it to. The
+     four handles are on the panel.
+
+     The nine plates in assets/reel/ are placeholders, and the names are
+     stand-ins rather than the reference's own client list. Swap both.
+     ───────────────────────────────────────────────────────────────────── -->
+
+<section class="reel-scope">
+  <div class="reel-stage" id="reel">
+    <div class="reel-strip"></div>
+    <p class="reel-live" role="status" aria-live="polite"></p>
+  </div>
+</section>
+
+<section class="after">
+  <p><span>Next</span>An empty section, so the page keeps going after the last plate.</p>
+</section>
+
+<script type="module">
+  import { mountWorkReel, P, ITEMS } from './assets/work-reel.js';
+  const reel = mountWorkReel(document.querySelector('#reel'));
+  window.tibbaReel = reel;
+
+  /* ── the panel ────────────────────────────────────────────────────────
+     The bezier is the control this page exists to expose, so it gets four
+     handles AND a drawn curve — four numbers on their own are not something
+     anyone can read a motion out of. */
+  const el = document.createElement('div');
+  el.id = 'tune';
+  el.innerHTML =
+    '<div id="tune-head"><b>Work reel</b><button id="tune-hide" title="Hide (H)">–</button></div>' +
+    '<p class="tune-sub">Easing</p>' +
+    '<div class="row"><label>Curve<i id="v-bez"></i></label></div>' +
+    '<canvas id="bez" width="240" height="240" ' +
+      'style="width:100%;aspect-ratio:1;display:block;border:1px solid rgba(255,255,255,.10);' +
+      'border-radius:6px;margin:2px 0 12px"></canvas>' +
+    '<div class="row"><label>x1<i id="v-x1">0.65</i></label>' +
+      '<input type="range" id="s-x1" min="0" max="100" value="65"></div>' +
+    '<div class="row"><label>y1<i id="v-y1">0.00</i></label>' +
+      '<input type="range" id="s-y1" min="-50" max="150" value="0"></div>' +
+    '<div class="row"><label>x2<i id="v-x2">0.35</i></label>' +
+      '<input type="range" id="s-x2" min="0" max="100" value="35"></div>' +
+    '<div class="row"><label>y2<i id="v-y2">1.00</i></label>' +
+      '<input type="range" id="s-y2" min="-50" max="150" value="100"></div>' +
+    '<div class="seg" id="s-preset">' +
+      '<button data-b="0.65,0,0.35,1" class="on">Ease</button>' +
+      '<button data-b="0.83,0,0.17,1">Strong</button>' +
+      '<button data-b="0.45,0,0.55,1">Soft</button>' +
+      '<button data-b="0,0,1,1">Linear</button>' +
+    '</div>' +
+    '<p class="tune-sub">Layout</p>' +
+    '<div class="row inline"><label>Fit to window<i></i></label>' +
+      '<input type="checkbox" id="s-auto" checked></div>' +
+    '<div class="row"><label>Label slot<i id="v-lw">207</i></label>' +
+      '<input type="range" id="s-lw" min="120" max="340" value="207"></div>' +
+    '<div class="row"><label>Image width<i id="v-iw">670</i></label>' +
+      '<input type="range" id="s-iw" min="300" max="1100" value="670"></div>' +
+    '<div class="row"><label>Row drift<i id="v-dr">45</i></label>' +
+      '<input type="range" id="s-dr" min="0" max="200" value="45"></div>' +
+    '<div class="row"><label>Dwell<i id="v-dw">0.00</i></label>' +
+      '<input type="range" id="s-dw" min="0" max="45" value="0"></div>';
+  document.body.appendChild(el);
+  const q = id => el.querySelector('#' + id);
+
+  /* the curve, drawn */
+  const cv = q('bez'), ctx = cv.getContext('2d');
+  function drawCurve() {
+    const [x1, y1, x2, y2] = P.bezier, s = 240, pad = 22, k = s - pad * 2;
+    const X = u => pad + u * k, Y = v => s - pad - v * k;
+    ctx.clearRect(0, 0, s, s);
+    ctx.strokeStyle = 'rgba(255,255,255,.10)'; ctx.lineWidth = 1;
+    ctx.strokeRect(pad, pad, k, k);
+    ctx.strokeStyle = 'rgba(255,255,255,.22)';
+    ctx.beginPath(); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(1), Y(1)); ctx.stroke();
+    /* handles */
+    ctx.strokeStyle = 'rgba(232,93,61,.45)';
+    ctx.beginPath(); ctx.moveTo(X(0), Y(0)); ctx.lineTo(X(x1), Y(y1)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X(1), Y(1)); ctx.lineTo(X(x2), Y(y2)); ctx.stroke();
+    ctx.fillStyle = '#E85D3D';
+    for (const [hx, hy] of [[x1, y1], [x2, y2]]) {
+      ctx.beginPath(); ctx.arc(X(hx), Y(hy), 4, 0, 7); ctx.fill();
+    }
+    /* the curve itself */
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.beginPath();
+    ctx.moveTo(X(0), Y(0));
+    for (let i = 1; i <= 64; i++) {
+      const t = i / 64, u = 1 - t;
+      const bx = 3 * u * u * t * x1 + 3 * u * t * t * x2 + t * t * t;
+      const by = 3 * u * u * t * y1 + 3 * u * t * t * y2 + t * t * t;
+      ctx.lineTo(X(bx), Y(by));
+    }
+    ctx.stroke();
+    q('v-bez').textContent = 'cubic-bezier(' + P.bezier.map(n => n.toFixed(2)).join(', ') + ')';
+  }
+
+  function pushBezier() {
+    reel.setBezier(P.bezier);
+    drawCurve();
+  }
+  const bez = (id, vid, idx) => {
+    q(id).addEventListener('input', e => {
+      const v = +e.target.value / 100;
+      q(vid).textContent = v.toFixed(2);
+      P.bezier[idx] = v;
+      el.querySelectorAll('#s-preset button').forEach(b => b.classList.remove('on'));
+      pushBezier();
+    });
+  };
+  bez('s-x1', 'v-x1', 0); bez('s-y1', 'v-y1', 1);
+  bez('s-x2', 'v-x2', 2); bez('s-y2', 'v-y2', 3);
+
+  q('s-preset').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    el.querySelectorAll('#s-preset button').forEach(n => n.classList.toggle('on', n === b));
+    const v = b.dataset.b.split(',').map(Number);
+    P.bezier = v;
+    q('s-x1').value = v[0] * 100; q('v-x1').textContent = v[0].toFixed(2);
+    q('s-y1').value = v[1] * 100; q('v-y1').textContent = v[1].toFixed(2);
+    q('s-x2').value = v[2] * 100; q('v-x2').textContent = v[2].toFixed(2);
+    q('s-y2').value = v[3] * 100; q('v-y2').textContent = v[3].toFixed(2);
+    pushBezier();
+  });
+
+  const lay = (id, vid, key, fmt) => {
+    q(id).addEventListener('input', e => {
+      const v = +e.target.value;
+      P[key] = key === 'dwell' ? v / 100 : v;
+      q(vid).textContent = fmt(P[key]);
+      reel.refresh();
+    });
+  };
+  lay('s-lw', 'v-lw', 'labelW', String);
+  lay('s-iw', 'v-iw', 'imageW', String);
+  lay('s-dr', 'v-dr', 'drift',  String);
+  lay('s-dw', 'v-dw', 'dwell',  v => v.toFixed(2));
+
+  /* Touching any of the three lengths by hand turns the automatic fit off —
+     otherwise the next resize would quietly overwrite whatever was set. */
+  q('s-auto').addEventListener('change', e => {
+    P.auto = e.target.checked;
+    reel.fit();
+    syncLayoutRows();
+  });
+  function offAuto() {
+    if (!P.auto) return;
+    P.auto = false;
+    q('s-auto').checked = false;
+  }
+  function syncLayoutRows() {
+    q('s-lw').value = P.labelW; q('v-lw').textContent = String(P.labelW);
+    q('s-iw').value = P.imageW; q('v-iw').textContent = String(P.imageW);
+    q('s-dr').value = P.drift;  q('v-dr').textContent = String(P.drift);
+  }
+  ['s-lw','s-iw','s-dr'].forEach(id => q(id).addEventListener('input', offAuto));
+  syncLayoutRows();
+  addEventListener('resize', () => { if (P.auto) syncLayoutRows(); });
+
+  drawCurve();
+  q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+  if (window.wb && window.wb.adopt) window.wb.adopt();
+</script>
+
+</body>
+</html>
