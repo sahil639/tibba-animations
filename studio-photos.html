@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Studio — photographs</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="notes.js"></script>
+<script src="assets/workbench.js" defer></script>
+
+<style>
+body { background: var(--bg); color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased; }
+
+.sp-lead, .sp-after { min-height: 34vh; display: flex; align-items: flex-end;
+  max-width: var(--max); margin: 0 auto; padding: 0 var(--gut) 40px; }
+.sp-lead p, .sp-after p { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-faint); }
+.sp-after { align-items: flex-start; padding-top: 60px; }
+
+/* ── the spread ─────────────────────────────────────────────────────────
+   The field is the photos' coordinate space: every slot is a percentage of
+   it, so the arrangement holds its proportions at any width. Its aspect
+   rather than its height is fixed — a 3:2 spread — because the slots were
+   composed on one, and letting it go taller spreads the photos apart and
+   opens holes the title cannot fill. */
+.sp {
+  --tx: 0px; --ty: 0px;
+  position: relative;
+  max-width: var(--max); margin: 0 auto; padding: 0 var(--gut);
+}
+.sp-field { position: relative; aspect-ratio: 3 / 2; max-height: 118vh; margin: 0 auto; }
+
+.sp-photo {
+  --px: 0px; --py: 0px; --delay: 0s;
+  position: absolute; margin: 0;
+  transform: translate3d(var(--px), var(--py), 0);
+  will-change: transform;
+  z-index: 1;
+}
+.sp-frame {
+  position: relative; overflow: hidden; border-radius: 3px;
+  aspect-ratio: var(--r);
+  background: var(--bg-raise);
+  /* the entrance: the photo is uncovered from the bottom, and the picture
+     inside settles from slightly large — a print being laid down, not a
+     tile fading in */
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 1.25s var(--ease) var(--delay), box-shadow .5s var(--ease);
+}
+.sp-frame img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block;
+  transform: scale(1.14);
+  transition: transform 1.6s var(--ease) var(--delay), filter .6s var(--ease);
+  filter: saturate(.9);
+}
+.sp-in .sp-frame { clip-path: inset(0 0 0 0); }
+/* a hairline edge: these are landscapes, and their dark foregrounds would
+   otherwise run straight into the page */
+.sp-frame::after { content: ''; position: absolute; inset: 0; border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); pointer-events: none; }
+.sp-in .sp-frame img { transform: scale(1); }
+
+.sp-photo figcaption {
+  display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap;
+  margin-top: 10px; font-size: 11.5px; color: var(--ink-mute);
+  opacity: 0; transform: translateY(6px);
+  transition: opacity .5s var(--ease), transform .5s var(--ease);
+}
+.sp-photo figcaption span { color: var(--accent); font-size: 10px; letter-spacing: .14em; }
+.sp-photo figcaption em { font-style: normal; color: var(--ink-faint); font-size: 10.5px; letter-spacing: .06em; }
+
+/* hover: the photo comes forward and says where it was taken */
+.sp-photo:hover { z-index: 5; }
+.sp-photo:hover .sp-frame { box-shadow: 0 28px 70px rgba(0,0,0,.55); }
+.sp-photo:hover .sp-frame img { transform: scale(1.04); filter: saturate(1.05); transition-delay: 0s; }
+.sp-photo:hover figcaption { opacity: 1; transform: none; }
+
+/* ── the title ────────────────────────────────────────────────────────── */
+.sp-title {
+  position: absolute; left: 50%; top: 50%; z-index: 3;
+  transform: translate(-50%, -50%) translate3d(var(--tx), var(--ty), 0);
+  text-align: center; width: min(40%, 620px); pointer-events: none;
+}
+.sp-title .k { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.sp-title h1 {
+  margin-top: 16px;
+  font-size: clamp(40px, 6.2vw, 104px); font-weight: 400;
+  line-height: .95; letter-spacing: -.035em; color: var(--ink);
+}
+.sp-title p {
+  margin: 20px auto 0; max-width: 34ch;
+  font-size: clamp(14px, 1.1vw, 17px); line-height: 1.5; color: var(--ink-mute);
+}
+.sp-title .w { display: inline-block; overflow: hidden; vertical-align: bottom;
+  /* room for descenders inside the mask — the g of "begins" was being cut */
+  padding-bottom: .14em; margin-bottom: -.14em; }
+.sp-title .w > i { display: inline-block; font-style: normal; transform: translateY(105%);
+  transition: transform 1.1s var(--ease); transition-delay: var(--wd, 0s); }
+.sp-in .sp-title .w > i { transform: none; }
+.sp-title .k, .sp-title p { opacity: 0; transition: opacity 1s var(--ease) .5s; }
+.sp-in .sp-title .k, .sp-in .sp-title p { opacity: 1; }
+
+/* ── narrow screens ───────────────────────────────────────────────────────
+   Seven absolutely placed photos do not survive a phone: they either shrink
+   to stamps or collide with the title. Below 760px the title comes first
+   and the photos fall into a staggered two-column run beneath it. */
+@media (max-width: 760px) {
+  .sp-field { aspect-ratio: auto; max-height: none; display: grid;
+    grid-template-columns: 1fr 1fr; gap: 16px 14px; padding-top: 250px; }
+  .sp-photo { position: relative; left: auto !important; top: auto !important; width: auto !important; }
+  .sp-photo:nth-child(even) { margin-top: 44px; }
+  .sp-title { top: 0; transform: translate(-50%, 0); width: 100%; }
+  .sp-photo figcaption { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sp-frame, .sp-frame img, .sp-title .w > i, .sp-title .k, .sp-title p { transition: none; }
+}
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     Our Studio — photographs
+
+     Seven photographs around a centred title and subheading. They look
+     scattered; the slots are authored (assets/studio-photos.js) so the
+     spread stays balanced. Each moves at its own depth with the scroll and
+     the pointer. The plates in assets/studio/ are placeholders — upload the
+     real photographs from the panel.
+     ───────────────────────────────────────────────────────────────────── -->
+
+<div class="sp-lead"><p>Our studio</p></div>
+
+<section class="sp" id="sp">
+  <div class="sp-field"></div>
+  <div class="sp-title">
+    <p class="k">Our studio</p>
+    <h1 id="sp-h"><span class="w"><i>Where</i></span> <span class="w"><i>the</i></span> <span class="w"><i>work</i></span><br><span class="w"><i>begins</i></span></h1>
+    <p>Seven places we go to think — the ridges, valleys and quiet early hours that end up in everything we make.</p>
+  </div>
+</section>
+
+<div class="sp-after"><p>Next section</p></div>
+
+<script type="module">
+  import { mountStudioPhotos, P } from './assets/studio-photos.js';
+  const root = document.querySelector('#sp');
+  root.querySelectorAll('.sp-title .w > i').forEach((w, k) => w.style.setProperty('--wd', (0.25 + k * 0.08) + 's'));
+  const S = mountStudioPhotos(root);
+  window.tibbaStudioPhotos = S;
+
+  const el = document.createElement('div');
+  el.id = 'tune';
+  el.innerHTML =
+    '<div id="tune-head"><b>Our Studio</b><button id="tune-hide" title="Hide (H)">–</button></div>' +
+    '<p class="tune-sub">Photographs</p>' +
+    '<p style="font-size:11.5px;line-height:1.55;color:rgba(255,255,255,.6);margin:2px 0 10px">' +
+      'Choose up to seven images; they fill the slots in order (1 top-left, round to 7). ' +
+      'Each slot crops to its own shape, so any size works — 2000px on the long side is plenty. ' +
+      'They are kept in this browser until you reset.</p>' +
+    '<div class="row inline"><label>Upload photos<i></i></label>' +
+      '<label class="tune-btn" style="cursor:pointer">Choose files<input type="file" id="s-files" accept="image/*" multiple style="display:none"></label></div>' +
+    '<div class="row inline"><label>Back to placeholders<i></i></label><button class="tune-btn" id="s-reset">Reset</button></div>' +
+    '<p class="tune-sub">Arrangement</p>' +
+    '<div class="row"><label>Loosen layout<i id="v-shuf">0.00</i></label><input type="range" id="s-shuf" min="0" max="100" value="0"></div>' +
+    '<div class="row inline"><label>New variation<i></i></label><button class="tune-btn" id="s-seed">Reshuffle</button></div>' +
+    '<p class="tune-sub">Motion</p>' +
+    '<div class="row"><label>Scroll depth<i id="v-scr">1.00</i></label><input type="range" id="s-scr" min="0" max="200" value="100"></div>' +
+    '<div class="row"><label>Pointer drift<i id="v-ptr">1.00</i></label><input type="range" id="s-ptr" min="0" max="200" value="100"></div>' +
+    '<div class="row inline"><label>Entrance<i></i></label><button class="tune-btn" id="s-replay">Replay</button></div>';
+  document.body.appendChild(el);
+  const q = s => el.querySelector(s);
+  q('#s-files').addEventListener('change', e => { S.fill(e.target.files); e.target.value = ''; });
+  q('#s-reset').addEventListener('click', () => S.reset());
+  q('#s-shuf').addEventListener('input', e => { P.shuffle = e.target.value / 100; q('#v-shuf').textContent = P.shuffle.toFixed(2); S.place(); });
+  q('#s-seed').addEventListener('click', () => { P.seed++; if (!P.shuffle) { P.shuffle = .5; q('#s-shuf').value = 50; q('#v-shuf').textContent = '0.50'; } S.place(); });
+  q('#s-scr').addEventListener('input', e => { P.scroll = e.target.value / 100; q('#v-scr').textContent = P.scroll.toFixed(2); });
+  q('#s-ptr').addEventListener('input', e => { P.pointer = e.target.value / 100; q('#v-ptr').textContent = P.pointer.toFixed(2); });
+  q('#s-replay').addEventListener('click', () => S.reveal());
+  q('#tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+  if (window.wb && window.wb.adopt) window.wb.adopt();
+</script>
+</body>
+</html>

@@ -99,7 +99,9 @@ window.TIBBA_SITE = {
     { id: 'studio', label: 'Our studio',
       note: 'Who we are, on the home page.',
       pages: [ { id: 'studio-01', label: 'Our studio', file: 'studio-section.html',
-                 note: 'The section that sits between the testimonials and the footer', state: 'live' } ] },
+                 note: 'The section that sits between the testimonials and the footer', state: 'live' },
+               { id: 'studio-photos', label: 'Photographs', file: 'studio-photos.html',
+                 note: 'Seven photographs staggered around a centred title', state: 'live' } ] },
 
     { id: 'footer', label: 'Footer',
       note: 'The bottom of every page.',
