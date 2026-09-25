@@ -2590,6 +2590,25 @@ stepMorph(0.016);
    ═════════════════════════════════════════════════════════════════════════ */
 return {
   canvas, camera, renderer, scene,
+  /* The group the terrain lives in. Anything that should stand ON the
+     mountain — a flag on the summit — goes in here, so it rides every
+     transform the terrain gets (the intro lift, lockTo's turn and scale). */
+  group: mountainGroup,
+
+  /** The highest point of the studio's own massif, in the group's space.
+      Read off the surface itself rather than the peak's nominal centre: the
+      ridged noise moves the true top a few units away from it. */
+  summit() {
+    const P0 = PEAKS[0], r = P0.spread * 0.8;
+    let best = -1e9, bx = P0.x, bz = P0.z;
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i), z = pos.getZ(i);
+      if (Math.abs(x - P0.x) > r || Math.abs(z - P0.z) > r) continue;
+      const y = pos.getY(i);
+      if (y > best) { best = y; bx = x; bz = z; }
+    }
+    return { x: bx, y: best, z: bz };
+  },
 
   /** 0 = the peak as lit surface, 1 = fully redrawn as contour line. */
   setHeroMorph(t) {

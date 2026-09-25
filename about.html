@@ -16,6 +16,9 @@
 <script src="assets/services.js" defer></script>
 <script src="assets/footer-range.js" defer></script>
 <script src="assets/site-chrome.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js"}}</script>
+<script type="module" src="assets/about-peak.js"></script>
 
 <style>
 /* ══════════════════════════════════════════════════════════════════════════
@@ -31,8 +34,25 @@
    with the dictionary entry. The definition is the one piece of type on the
    site that is allowed to be the whole of a screen. */
 #about-hero {
-  padding-top: calc(var(--nav-h) + clamp(56px, 10vw, 140px));
+  position: relative; overflow: hidden;
+  min-height: 100vh; min-height: 100svh;
+  display: flex; align-items: center;
+  padding-top: calc(var(--nav-h) + clamp(40px, 6vw, 90px));
   padding-bottom: clamp(48px, 8vw, 120px);
+}
+/* The summit, close up, with the flag on it (assets/about-peak.js). The
+   type sits on a scrim down the left so it never has to compete with a
+   contour line running under it. */
+#about-peak { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; }
+#about-hero::before {
+  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(90deg, var(--bg) 0%, rgba(22,22,23,.86) 30%, rgba(22,22,23,0) 58%),
+              linear-gradient(0deg, var(--bg) 0%, rgba(22,22,23,0) 22%);
+}
+#about-hero .wrap { position: relative; z-index: 2; width: 100%; }
+@media (max-width: 760px) {
+  #about-hero::before { background: linear-gradient(0deg, var(--bg) 18%, rgba(22,22,23,.55) 60%, rgba(22,22,23,.2)); }
+  #about-hero { align-items: flex-end; }
 }
 #about-hero h1 {
   font-size: clamp(34px, 5.4vw, 86px);
@@ -146,6 +166,7 @@
      Hero — the question, and the definition that answers it
      ═══════════════════════════════════════════════════════════════════════ -->
 <section id="about-hero">
+  <canvas id="about-peak" aria-hidden="true"></canvas>
   <div class="wrap">
     <h1 data-odo>What does Tibba mean?</h1>
     <p class="definition"><b>tibba</b> / tɪb-bɑ / n &nbsp;1. a higher place &nbsp;•&nbsp; 2. a peak</p>
