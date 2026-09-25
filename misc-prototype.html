@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prototype</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="notes.js"></script>
+<script src="assets/workbench.js" defer></script>
+
+<style>
+body {
+  background: var(--bg);
+  color: var(--ink-warm);
+  font-family: 'F37 Analog', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+.proto-head {
+  max-width: var(--max); margin: 0 auto;
+  padding: clamp(64px, 8vh, 110px) var(--gut) 0;
+}
+.proto-head .eyebrow {
+  font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-faint);
+}
+.proto-head h1 {
+  margin-top: 12px; font-size: clamp(26px, 3.2vw, 46px); font-weight: 400;
+  letter-spacing: -.02em; color: var(--ink);
+}
+.proto-head p { margin-top: 12px; max-width: 60ch; color: var(--ink-mute); font-size: 14px; }
+
+/* ── the stage ────────────────────────────────────────────────────────────
+   Phone and laptop side by side at a common screen HEIGHT rather than a
+   common width — the way they are photographed together on a desk. */
+.proto-stage {
+  max-width: var(--max); margin: 0 auto;
+  padding: clamp(36px, 6vh, 64px) var(--gut) 90px;
+  display: flex; align-items: flex-end; justify-content: center;
+  gap: clamp(28px, 4vw, 72px);
+}
+.proto-device { position: relative; margin: 0; }
+.proto-phone   { height: min(68vh, 780px); }
+.proto-desktop { height: min(50vh, 600px); }
+.proto-device[style*="display: none"] + .proto-device { margin: 0 auto; }
+
+.proto-frame {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none;             /* scrolling reaches the screen beneath */
+  user-select: none; z-index: 3;
+}
+.proto-screen {
+  position: absolute; overflow: hidden; z-index: 1;
+  background: #0d0d0e;
+  isolation: isolate;
+}
+.proto-scroll {
+  position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden;
+  scrollbar-width: none; overscroll-behavior: contain;
+}
+.proto-scroll::-webkit-scrollbar { display: none; }
+.proto-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+/* Before and after share ONE scroll container, stacked in the same grid
+   cell, so a tall pair scrolls together and the comparison stays lined up. */
+.proto-stack { display: grid; min-height: 100%; }
+.proto-layer { grid-area: 1 / 1; min-height: 100%; }
+.proto-layer img { display: block; width: 100%; height: auto; }
+.proto-after { z-index: 1; }
+
+.proto-glow {
+  position: absolute; top: -20%; left: 0; width: 3px; height: 140%;
+  background: var(--accent);
+  box-shadow: 0 0 18px 6px rgba(232,93,61,.55), 0 0 60px 18px rgba(232,93,61,.25);
+  opacity: 0; pointer-events: none; z-index: 2; transform-origin: 50% 50%;
+}
+
+.proto-empty {
+  min-height: 100%; height: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px; text-align: center; padding: 10%;
+  background:
+    repeating-linear-gradient(135deg, rgba(255,255,255,.025) 0 12px, transparent 12px 24px),
+    #1a1a1b;
+  color: var(--ink-faint);
+}
+.proto-empty.after {
+  background:
+    repeating-radial-gradient(circle at 50% 60%, rgba(232,93,61,.10) 0 1px, transparent 1px 14px),
+    #1f1c1b;
+}
+.proto-empty b { font-weight: 400; font-size: clamp(14px, 1.6vw, 22px); color: var(--ink-warm); }
+.proto-empty span { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; }
+.proto-empty em { font-style: normal; font-size: 11px; opacity: .7; }
+
+.proto-device figcaption {
+  position: absolute; left: 0; right: 0; bottom: -34px; text-align: center;
+  font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint);
+}
+.proto-device figcaption span { margin-left: 8px; color: var(--ink-mute); letter-spacing: .06em; }
+
+@media (max-width: 860px) {
+  .proto-stage { flex-direction: column; align-items: center; gap: 70px; }
+  .proto-phone { height: 70vh; }
+  .proto-desktop { height: auto; width: 100%; }
+}
+
+/* ── panel extras ─────────────────────────────────────────────────────── */
+body #tune .proto-help {
+  font-size: 11.5px; line-height: 1.55; color: rgba(255,255,255,.62);
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07);
+  border-radius: 6px; padding: 10px 12px; margin: 4px 0 12px;
+}
+body #tune .proto-help b { color: #fff; font-weight: 500; }
+body #tune .proto-file { display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,.06); font-size: 12px; }
+body #tune .proto-file input[type=file] { display: none; }
+body #tune .proto-file .dot { width: 7px; height: 7px; border-radius: 50%;
+  background: rgba(255,255,255,.18); flex: 0 0 auto; }
+body #tune .proto-file .dot.on { background: var(--accent); }
+body #tune .proto-file .grow { flex: 1; color: rgba(255,255,255,.8); }
+body #tune .proto-log { font-size: 11px; line-height: 1.5; color: rgba(255,255,255,.55);
+  white-space: pre-wrap; margin: 6px 0 10px; }
+</style>
+
+<!-- the shared control-panel design; last in the head so it wins -->
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     Prototype — screens shown inside device frames
+
+     The iPhone and MacBook frames are assets/mockups/*.png. Their screen
+     openings are transparent, so each screen sits UNDER its frame and the
+     Dynamic Island and notch stay in front of it.
+
+     Upload screens from the panel on the right. Sizes, the auto-sorting
+     rule and the before/after mode are all explained there.
+     ───────────────────────────────────────────────────────────────────── -->
+
+<header class="proto-head">
+  <p class="eyebrow">Prototype</p>
+  <h1>Screens, in their devices</h1>
+  <p>Drop screens in from the panel. Anything taller than the screen scrolls inside it —
+     wheel or swipe over the device.</p>
+</header>
+
+<main class="proto-stage" id="proto"></main>
+
+<script type="module">
+  import { mountPrototype, FRAMES } from './assets/prototype.js';
+
+  const el = document.createElement('div');
+  el.id = 'tune';
+
+  const fileRow = (key, label) => `
+    <label class="proto-file">
+      <i class="dot" data-dot="${key}"></i>
+      <span class="grow">${label}</span>
+      <input type="file" accept="image/*" data-slot="${key}">
+      <span class="tune-btn">Choose</span>
+    </label>`;
+
+  el.innerHTML = `
+    <div id="tune-head"><b>Prototype</b><button id="tune-hide" title="Hide (H)">–</button></div>
+
+    <p class="tune-sub">How to add screens</p>
+    <div class="proto-help">
+      <b>iPhone</b> — upload at <b>${FRAMES.phone.recommend}px</b> (any iPhone
+      screenshot works). Width must be a phone width; height can be anything —
+      a taller image scrolls inside the phone.<br><br>
+      <b>MacBook</b> — upload at <b>${FRAMES.desktop.recommend}px</b>, or
+      1440 × 936 at 1x. Taller full-page captures scroll.<br><br>
+      <b>Auto-sort</b> — drop several files into “Add screens” and each goes
+      to the right device by its width: phone widths (390, 393, 430 … and
+      their 2x/3x, like 1179 or 1290) go to the iPhone, everything else to
+      the MacBook. The first screen a device gets is <b>After</b>, the second
+      is <b>Before</b>. Use the slots below to place one by hand.
+    </div>
+
+    <div class="row inline"><label>Add screens<i></i></label>
+      <label class="tune-btn" style="cursor:pointer">Choose files
+        <input type="file" id="s-multi" accept="image/*" multiple style="display:none">
+      </label></div>
+    <pre class="proto-log" id="v-log"></pre>
+
+    <p class="tune-sub">iPhone</p>
+    ${fileRow('phone:after', 'After (shown by default)')}
+    ${fileRow('phone:before', 'Before')}
+
+    <p class="tune-sub">MacBook</p>
+    ${fileRow('desktop:after', 'After (shown by default)')}
+    ${fileRow('desktop:before', 'Before')}
+
+    <p class="tune-sub">Before / after</p>
+    <div class="row inline"><label>Before/after mode<i></i></label>
+      <input type="checkbox" id="s-compare"></div>
+    <div class="seg" id="s-style">
+      <button data-v="contour" class="on">Contour</button>
+      <button data-v="ink">Ink</button>
+      <button data-v="glow">Glow</button>
+    </div>
+    <div class="row inline"><label>Transition<i></i></label>
+      <button class="tune-btn" id="s-toggle">Before ⇄ After</button></div>
+    <div class="row"><label>Scrub<i id="v-t">1.00</i></label>
+      <input type="range" id="s-t" min="0" max="100" value="100"></div>
+    <div class="row"><label>Duration<i id="v-dur">1.6s</i></label>
+      <input type="range" id="s-dur" min="4" max="40" value="16"></div>
+
+    <p class="tune-sub">Frames</p>
+    <div class="seg" id="s-frames">
+      <button data-v="both" class="on">Both</button>
+      <button data-v="phone">iPhone</button>
+      <button data-v="desktop">MacBook</button>
+    </div>
+    <div class="row inline"><label>Remove all screens<i></i></label>
+      <button class="tune-btn" id="s-clear">Clear</button></div>`;
+  document.body.appendChild(el);
+  const q = s => el.querySelector(s);
+
+  const P = mountPrototype(document.querySelector('#proto'), {
+    onT: t => { q('#s-t').value = Math.round(t * 100); q('#v-t').textContent = t.toFixed(2); },
+    onSlots: st => {
+      for (const k in st) { const d = q(`[data-dot="${k}"]`); if (d) d.classList.toggle('on', st[k]); }
+    },
+  });
+  window.tibbaPrototype = P;
+
+  el.querySelectorAll('input[data-slot]').forEach(inp => inp.addEventListener('change', e => {
+    const f = e.target.files[0]; if (!f) return;
+    const [kind, which] = e.target.dataset.slot.split(':');
+    P.setSlot(kind, which, f);
+    e.target.value = '';
+  }));
+
+  q('#s-multi').addEventListener('change', async e => {
+    const report = await P.autoPlace([...e.target.files]);
+    q('#v-log').textContent = report.join('\n');
+    e.target.value = '';
+  });
+
+  q('#s-compare').addEventListener('change', e => P.setMode(e.target.checked ? 'compare' : 'single'));
+  q('#s-toggle').addEventListener('click', () => {
+    if (P.S.mode !== 'compare') { q('#s-compare').checked = true; P.setMode('compare'); }
+    P.toggle();
+  });
+  q('#s-t').addEventListener('input', e => {
+    if (P.S.mode !== 'compare') { q('#s-compare').checked = true; P.setMode('compare'); }
+    const t = +e.target.value / 100; q('#v-t').textContent = t.toFixed(2); P.setT(t);
+  });
+  q('#s-dur').addEventListener('input', e => {
+    P.S.duration = +e.target.value / 10; q('#v-dur').textContent = P.S.duration.toFixed(1) + 's';
+  });
+
+  const seg = (id, fn) => q(id).addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    q(id).querySelectorAll('button').forEach(n => n.classList.toggle('on', n === b));
+    fn(b.dataset.v);
+  });
+  seg('#s-style', v => P.setStyle(v));
+  seg('#s-frames', v => P.setFrames(v));
+  q('#s-clear').addEventListener('click', () => { P.clear(); q('#v-log').textContent = ''; });
+
+  q('#tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+  if (window.wb && window.wb.adopt) window.wb.adopt();
+</script>
+
+</body>
+</html>

@@ -143,6 +143,8 @@ window.TIBBA_SITE = {
           note: 'Contours re-extracted every frame from a moving noise field', state: 'live' },
         { id: 'misc-dither', label: 'Dither Lab', file: 'dither-lab.html',
           note: 'A separate experiment in the same folder', state: 'live' },
+        { id: 'misc-prototype', label: 'Prototype', file: 'misc-prototype.html',
+          note: 'Screens inside the iPhone and MacBook frames, with a before/after mode', state: 'live' },
         { id: 'misc-reel', label: 'Work Reel', file: 'misc-work-reel.html',
           note: 'Nine turned labels along the floor; scroll opens one plate at a time', state: 'live' },
         { id: 'misc-sylva', label: 'Sylva Living World', file: 'misc-sylva-living-world.html',
