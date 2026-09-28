@@ -5,41 +5,273 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Brands</title>
 <link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/workbench.css">
 <script src="assets/manifest.js"></script>
 <script src="notes.js"></script>
 <script src="assets/workbench.js" defer></script>
-<link rel="stylesheet" href="assets/stub.css">
+<script src="assets/odometer.js" defer></script>
 
-<!-- the shared control-panel design; last in the head so it wins over
-     whatever styling this page declared for its own panel -->
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Brands — the logo wall as a mosaic
+   ─────────────────────────────────────────────────────────────────────────
+   Every client in its own tile, and the tiles fill the viewport: five
+   columns by four rows at desktop, split by the same hairline the rest of
+   the site draws its frames with. The title takes a 2×2 block in the top
+   left and the way in takes a 2×1 at the bottom right, so the fourteen
+   brands make up the rest of the twenty cells exactly.
+
+   The marks are typographic for now — each set in the studio face with its
+   own weight, case and tracking so the wall reads as fourteen different
+   names rather than one list. A brand with real artwork gets a `logo` path
+   in BRANDS below and the tile shows that instead; nothing else changes.
+
+   The tiles come in on a diagonal wave from the title, the first time the
+   wall is on screen. On hover a tile lifts, its survey rings draw in behind
+   the mark, and the sector and year slide up; the four with a summit on the
+   range carry their route colour and link to their case study.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #000; color: var(--ink-warm);
+  font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+
+#brands {
+  height: 100vh; height: 100svh; min-height: 560px;
+  display: grid; gap: 1px; background: rgba(255,255,255,.09);
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  border-top: 1px solid rgba(255,255,255,.09); border-bottom: 1px solid rgba(255,255,255,.09);
+  overflow: hidden;
+}
+
+/* ── the tiles ─────────────────────────────────────────────────────────── */
+.tile {
+  --c: var(--accent);
+  position: relative; overflow: hidden; background: #050506;
+  display: grid; place-items: center;
+  padding: clamp(14px, 1.4vw, 22px);
+  transition: background .5s var(--ease);
+  isolation: isolate;
+}
+.tile .n, .tile .yr {
+  position: absolute; top: clamp(12px, 1.2vw, 18px);
+  font-size: 9.5px; letter-spacing: .18em; color: rgba(255,255,255,.26);
+  transition: color .3s;
+}
+.tile .n { left: clamp(14px, 1.4vw, 22px); }
+.tile .yr { right: clamp(14px, 1.4vw, 22px); }
+.tile .meta {
+  position: absolute; left: clamp(14px, 1.4vw, 22px); right: clamp(14px, 1.4vw, 22px); bottom: clamp(12px, 1.2vw, 18px);
+  display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+  font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-mute);
+  opacity: 0; transform: translateY(10px);
+  transition: opacity .35s var(--ease), transform .5s var(--ease);
+}
+.tile .meta .go { color: #fff; white-space: nowrap; display: inline-flex; gap: 8px; align-items: center; }
+.tile .meta .go i { display: block; width: 16px; height: 1px; background: var(--c); }
+
+/* the mark */
+.tile .mark {
+  position: relative; z-index: 1; text-align: center; color: #fff;
+  font-size: clamp(16px, 1.7vw, 26px); line-height: 1.05;
+  transition: transform .6s var(--ease), color .3s;
+}
+.tile .mark img { display: block; max-width: 70%; max-height: 38px; margin: 0 auto; filter: brightness(0) invert(1); }
+
+/* survey rings behind the mark, drawn in on hover */
+.tile::before {
+  content: ''; position: absolute; inset: -30%; z-index: -1;
+  background: repeating-radial-gradient(ellipse 50% 42% at var(--rx, 50%) var(--ry, 58%),
+    transparent 0 13px, color-mix(in srgb, var(--c) 34%, transparent) 13px 14px);
+  -webkit-mask-image: radial-gradient(closest-side, #000 20%, transparent 100%);
+          mask-image: radial-gradient(closest-side, #000 20%, transparent 100%);
+  opacity: 0; transform: scale(.7);
+  transition: opacity .6s var(--ease), transform 1.1s var(--ease);
+}
+/* the orange square, top right */
+.tile::after {
+  content: ''; position: absolute; right: 0; top: 0; width: 8px; height: 8px; background: var(--c);
+  transform: scale(0); transform-origin: top right; transition: transform .45s cubic-bezier(.34,1.56,.64,1);
+}
+.tile:hover, .tile:focus-visible { background: #0d0d0f; outline: none; }
+.tile:hover::before, .tile:focus-visible::before { opacity: 1; transform: none; }
+.tile:hover::after, .tile:focus-visible::after { transform: scale(1); }
+.tile:hover .mark, .tile:focus-visible .mark { transform: translateY(-8px) scale(1.04); }
+.tile:hover .meta, .tile:focus-visible .meta { opacity: 1; transform: none; }
+.tile:hover .n, .tile:hover .yr { color: rgba(255,255,255,.6); }
+.tile[data-case] .n { color: var(--c); }
+.tile[data-case]::after { transform: scale(.6); }
+.tile[data-case]:hover::after { transform: scale(1); }
+
+/* ── the title tile ────────────────────────────────────────────────────── */
+.tile.title {
+  grid-column: 1 / span 2; grid-row: 1 / span 2;
+  place-items: stretch; align-content: space-between; display: grid; background: #000;
+  padding: clamp(20px, 2.4vw, 40px);
+}
+.tile.title::before, .tile.title::after { display: none; }
+.tile.title .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.tile.title h2 {
+  margin-top: 16px; max-width: 13ch; color: #fff; font-weight: 400;
+  font-size: clamp(28px, 3.3vw, 54px); line-height: 1.02; letter-spacing: -.035em;
+}
+.tile.title p { max-width: 40ch; color: var(--ink-mute); font-size: clamp(12.5px, .95vw, 14px); line-height: 1.7; }
+.tile.title .count { display: flex; gap: 22px; margin-top: 18px; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); }
+.tile.title .count b { display: block; font-size: 22px; letter-spacing: -.02em; color: #fff; font-weight: 400; margin-bottom: 4px; }
+
+/* ── the way in ────────────────────────────────────────────────────────── */
+.tile.cta { grid-column: 4 / span 2; grid-row: 4; background: #0a0a0b; place-items: center start; padding-left: clamp(20px, 2.4vw, 40px); }
+.tile.cta::before { --rx: 88%; --ry: 50%; }
+.tile.cta .q { font-size: clamp(18px, 1.8vw, 28px); letter-spacing: -.02em; color: #fff; line-height: 1.15; }
+.tile.cta .q em { font-style: normal; color: var(--accent); }
+.tile.cta .go {
+  margin-top: 14px; display: inline-flex; align-items: center; gap: 10px;
+  font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: #fff;
+}
+.tile.cta .go i { width: 22px; height: 1px; background: var(--accent); display: block; transition: width .3s var(--ease); }
+.tile.cta:hover .go i { width: 46px; }
+.tile.cta:hover .q, .tile.cta:hover .mark { transform: none; }
+
+/* ── the wave ──────────────────────────────────────────────────────────── */
+.tile { --d: 0s; }
+#brands:not(.on) .tile { clip-path: inset(100% 0 0 0); }
+#brands:not(.on) .tile .mark, #brands:not(.on) .tile.title > *, #brands:not(.on) .tile.cta > * { opacity: 0; transform: translateY(24px); }
+#brands.on .tile { animation: b-open .9s var(--d) cubic-bezier(.65,0,.35,1) both; }
+#brands.on .tile .mark, #brands.on .tile.title > *, #brands.on .tile.cta > * { animation: b-rise .9s calc(var(--d) + .28s) var(--ease) both; }
+@keyframes b-open { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes b-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+/* once the wave has passed, hover owns the mark's transform again */
+#brands.settled .tile .mark, #brands.settled .tile.title > *, #brands.settled .tile.cta > *, #brands.settled .tile { animation: none; clip-path: none; }
+
+@media (max-width: 860px) {
+  #brands { height: auto; grid-template-columns: repeat(2, 1fr); grid-template-rows: none; grid-auto-rows: 34vw; }
+  .tile.title { grid-column: 1 / -1; grid-row: auto; min-height: 70vw; }
+  .tile.cta { grid-column: 1 / -1; grid-row: auto; }
+  .tile .meta { opacity: 1; transform: none; font-size: 8.5px; }
+  .tile .meta span:first-child { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #brands .tile, #brands .tile * { animation: none !important; clip-path: none !important; opacity: 1 !important; }
+}
+</style>
 <link rel="stylesheet" href="assets/tune.css">
 </head>
 <body>
 
-<!-- ─────────────────────────────────────────────────────────────────────────
-     Brands
+<section id="brands" aria-label="Brands we have worked with">
+  <div class="tile title">
+    <div>
+      <p class="eyebrow">[ &nbsp;Brands&nbsp; ]</p>
+      <h2>We've worked with start ups and market leaders</h2>
+    </div>
+    <div>
+      <p>Over the past decade we've helped companies deliver food, perform services,
+         insure health, provide financial services, publish news and sell products.</p>
+      <div class="count"><span><b>14</b>Brands</span><span><b>06</b>Sectors</span><span><b>04</b>Summits</span></div>
+    </div>
+  </div>
+  <!-- the fourteen tiles go here, from BRANDS -->
+  <a class="tile cta" href="contact.html" id="cta">
+    <div>
+      <p class="q">Your summit <em>next?</em></p>
+      <span class="go">Start a project<i></i></span>
+    </div>
+  </a>
+</section>
 
-     Nothing has been designed into this page yet. Replace everything between
-     these comments with the section itself; keep the four lines in the head
-     that carry the type and the workbench, and drop assets/stub.css when the
-     placeholder below goes.
+<script>
+/* The wall, in the order the reference sets it. `type` is how the name is set
+   as a wordmark until real artwork arrives: weight, case and tracking. Give a
+   brand `logo: 'assets/logos/zomato.svg'` and the tile uses the file. */
+const BRANDS = [
+  { name: 'Zomato',               meta: 'Foodtech',        since: '2015', type: [700, 'lower', -.04] },
+  { name: 'Paytm',                meta: 'Fintech',         since: '2017', type: [700, 'lower', -.03] },
+  { name: 'Groww',                meta: 'Fintech',         since: '2024', type: [600, 'none', -.02], colour: '#4DD9C0', file: 'case-groww.html' },
+  { name: 'Firstpost',            meta: 'News & media',    since: '2023', type: [700, 'upper', .02], colour: '#E05555', file: 'case-firstpost.html' },
+  { name: 'Breathe ESG',          meta: 'SaaS · ESG',      since: '2023', type: [500, 'none', -.01], colour: '#4CAF70', file: 'case-breathe-esg.html' },
+  { name: 'Urban Company',        meta: 'Urban services',  since: '2016', type: [500, 'none', -.02] },
+  { name: 'HDFC Bank',            meta: 'Rewards',         since: '2019', type: [700, 'upper', .04] },
+  { name: 'The Times of India',   meta: 'News & media',    since: '2018', type: [400, 'upper', .14], small: true },
+  { name: 'Policybazaar',         meta: 'Insurtech',       since: '2019', type: [600, 'lower', -.02] },
+  { name: 'The Indian Express',   meta: 'News & media',    since: '2021', type: [300, 'upper', .16], small: true },
+  { name: 'Shyft & Mindhouse',    meta: 'Health',          since: '2023', type: [400, 'none', -.01], colour: '#7B8FF5', file: 'case-shyft-mindhouse.html' },
+  { name: 'Apnaklub',             meta: 'B2B wholesale',   since: '2022', type: [700, 'none', -.03] },
+  { name: 'simsim',               meta: 'Social commerce', since: '2020', type: [600, 'lower', -.02] },
+  { name: 'Bombay Shirt Company', meta: 'Ecommerce',       since: '2018', type: [300, 'upper', .12], small: true },
+];
 
-     The dock on the right files its comments against this page's id in
-     assets/manifest.js. Change the label there and notes follow; change the
-     id and they do not.
-     ───────────────────────────────────────────────────────────────────── -->
+(function () {
+  const wall = document.getElementById('brands');
+  const cta = document.getElementById('cta');
+  const esc = s => s.replace(/&/g, '&amp;');
 
-<main class="stub">
-  <p class="eyebrow">Home — 03</p>
-  <h1>Brands</h1>
-  <div class="rule"></div>
-  <p>The logo wall: who the studio has worked with.</p>
-  <p>Start in <code>brands.html</code>. Leave a note in the dock on the right as you
-     go, and commit <code>notes.js</code> with the change.</p>
-</main>
+  BRANDS.forEach((b, i) => {
+    const el = document.createElement(b.file ? 'a' : 'div');
+    el.className = 'tile';
+    if (b.file) { el.href = b.file; el.dataset.case = ''; el.style.setProperty('--c', b.colour); }
+    else el.tabIndex = 0;
+    /* each tile's rings sit a little differently, so the wall is not
+       fourteen copies of the same drawing */
+    el.style.setProperty('--rx', (40 + (i * 37) % 24) + '%');
+    el.style.setProperty('--ry', (48 + (i * 53) % 22) + '%');
+    const [w, c, ls] = b.type;
+    const mark = b.logo
+      ? `<img src="${b.logo}" alt="${esc(b.name)}">`
+      : `<span style="font-weight:${w};text-transform:${c === 'upper' ? 'uppercase' : c === 'lower' ? 'lowercase' : 'none'};letter-spacing:${ls}em;${b.small ? 'font-size:.72em;max-width:12ch;display:inline-block' : ''}">${esc(b.name)}</span>`;
+    el.innerHTML = `
+      <span class="n">${String(i + 1).padStart(2, '0')}</span>
+      <span class="yr">${b.since}</span>
+      <span class="mark">${mark}</span>
+      <span class="meta"><span>${esc(b.meta)}</span>${b.file ? '<span class="go">Case study<i></i></span>' : ''}</span>`;
+    el.setAttribute('aria-label', `${b.name} — ${b.meta}, since ${b.since}`);
+    wall.insertBefore(el, cta);
+  });
 
-<!-- ─────────────────────────────────────────────────────────────────────── -->
+  /* The wave: each tile's delay is its distance from the title's corner, in
+     cells, so the wall opens outward from where the reading starts. Measured
+     from the laid-out grid rather than computed from an index, so it stays
+     right at the two-column breakpoint too. */
+  function stagger() {
+    const tiles = [...wall.children];
+    const r0 = wall.getBoundingClientRect();
+    const cw = r0.width / 5, ch = r0.height / 4;
+    tiles.forEach(t => {
+      const r = t.getBoundingClientRect();
+      const cx = (r.left - r0.left) / cw, cy = (r.top - r0.top) / ch;
+      t.style.setProperty('--d', ((cx + cy) * 0.075).toFixed(3) + 's');
+    });
+  }
+  stagger();
 
+  const io = new IntersectionObserver(([e]) => {
+    if (!e.isIntersecting) return;
+    io.disconnect();
+    stagger();
+    wall.classList.add('on');
+    setTimeout(() => wall.classList.add('settled'), 2200);
+  }, { threshold: 0.35 });
+  io.observe(wall);
+
+  /* the panel: replay the wave */
+  const el = document.createElement('div');
+  el.id = 'tune';
+  el.innerHTML = `
+    <div id="tune-head"><b>Brands</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <p class="tune-sub">Load-in</p>
+    <div class="row inline"><label>Wave<i></i></label><button class="tune-btn" id="b-replay">Replay</button></div>`;
+  document.body.appendChild(el);
+  el.querySelector('#b-replay').addEventListener('click', () => {
+    wall.classList.remove('on', 'settled'); void wall.offsetWidth;
+    stagger(); wall.classList.add('on');
+    setTimeout(() => wall.classList.add('settled'), 2200);
+  });
+  el.querySelector('#tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+  addEventListener('DOMContentLoaded', () => { if (window.wb && window.wb.adopt) window.wb.adopt(); });
+})();
+</script>
 </body>
 </html>

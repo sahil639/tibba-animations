@@ -5,41 +5,297 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Our services</title>
 <link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/workbench.css">
 <script src="assets/manifest.js"></script>
 <script src="notes.js"></script>
 <script src="assets/workbench.js" defer></script>
-<link rel="stylesheet" href="assets/stub.css">
+<script src="assets/odometer.js" defer></script>
+<script src="assets/services.js"></script>
 
-<!-- the shared control-panel design; last in the head so it wins over
-     whatever styling this page declared for its own panel -->
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Our services — on www.tibba.design's structure
+   ─────────────────────────────────────────────────────────────────────────
+   The live site's section, part for part, in this site's language:
+
+     heading    the bracketed section title and one line of intro
+     stages     three tabs — early, mid, established — the selected one
+                filled with the accent
+     blurb      the outcome that stage is chasing
+     grid       the services for that stage as a three-column grid of
+                tiles, each with the orange square in front of its name;
+                the selected tile takes the accent on its border
+     detail     beside the grid, the selected service and the three things
+                it delivers
+     recent     "[ Our recent work with an early stage startup ]" and a
+                band for the case study that fits the stage
+
+   The data is assets/services.js — the same three stages and the same
+   services the slide-over panel reads — so there is still one copy of it.
+
+   What is ours rather than the reference's: the black ground and the
+   Active Peak orange, the studio face instead of a monospace, the
+   odometer on the heading, a staggered rise when the grid changes, the
+   detail swapping on a mask, and the recent-work band drawn over live
+   contour rings in the client's colour.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --accent: #FF4B1F; }
+body {
+  background: #000; color: var(--ink-warm);
+  font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; }
+
+#services { padding: clamp(96px, 16vh, 180px) var(--gut) clamp(80px, 12vh, 140px); max-width: 1600px; margin: 0 auto; }
+
+/* ── heading ───────────────────────────────────────────────────────────── */
+.sv-head h2 {
+  display: flex; align-items: baseline; gap: .5em; color: #fff; font-weight: 400;
+  font-size: clamp(30px, 3.6vw, 56px); line-height: 1; letter-spacing: -.02em; text-transform: uppercase;
+}
+.sv-head h2 .br { color: rgba(255,255,255,.4); font-weight: 300; }
+.sv-head p { margin-top: 16px; max-width: 64ch; color: var(--ink-mute); font-size: clamp(13px, 1vw, 15px); line-height: 1.7; }
+
+/* ── stages ────────────────────────────────────────────────────────────── */
+.sv-stages { margin-top: clamp(36px, 5vh, 56px); display: flex; flex-wrap: wrap; gap: 8px; }
+.sv-stage {
+  position: relative; overflow: hidden; cursor: pointer;
+  padding: 11px 16px; border: 1px solid rgba(255,255,255,.1); border-radius: 2px; background: #0b0b0c;
+  font-size: 12px; letter-spacing: .06em; color: var(--ink-mute);
+  transition: color .3s, border-color .3s;
+}
+.sv-stage::before {                       /* the fill, wiping in from the left */
+  content: ''; position: absolute; inset: 0; background: var(--accent); z-index: 0;
+  transform: scaleX(0); transform-origin: left; transition: transform .5s cubic-bezier(.65,0,.35,1);
+}
+.sv-stage span { position: relative; z-index: 1; }
+.sv-stage .n { margin-right: 10px; font-size: 9.5px; letter-spacing: .16em; opacity: .6; }
+.sv-stage:hover { color: #fff; border-color: rgba(255,255,255,.26); }
+.sv-stage[aria-selected="true"] { color: #fff; border-color: var(--accent); }
+.sv-stage[aria-selected="true"]::before { transform: scaleX(1); }
+.sv-stage:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
+
+.sv-blurb { margin-top: 22px; color: var(--ink-warm); font-size: clamp(13px, 1vw, 15px); min-height: 1.7em; }
+.sv-blurb span { display: inline-block; }
+.sv-blurb.swap span { animation: sv-fade .6s var(--ease) both; }
+
+/* ── grid + detail ─────────────────────────────────────────────────────── */
+.sv-main {
+  margin-top: 22px; display: grid; gap: 12px;
+  grid-template-columns: minmax(0, 1.72fr) minmax(280px, 1fr); align-items: start;
+}
+.sv-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.sv-tile {
+  position: relative; text-align: left; cursor: pointer; min-height: 104px;
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 18px 18px 20px; background: #111113; border: 1px solid transparent; border-radius: 2px;
+  font-size: clamp(13.5px, 1.05vw, 16px); line-height: 1.35; color: var(--ink-warm);
+  transition: background .3s, border-color .3s, color .3s, transform .45s var(--ease);
+}
+.sv-tile i { flex: none; width: 8px; height: 8px; margin-top: .42em; background: var(--accent); transition: transform .45s cubic-bezier(.34,1.56,.64,1); }
+.sv-tile .ix { position: absolute; right: 14px; bottom: 12px; font-size: 9.5px; letter-spacing: .16em; color: rgba(255,255,255,.2); transition: color .3s; }
+.sv-tile:hover { background: #17171a; color: #fff; }
+.sv-tile:hover i { transform: rotate(45deg); }
+.sv-tile[aria-selected="true"] { border-color: var(--accent); background: #141416; color: #fff; }
+.sv-tile[aria-selected="true"] .ix { color: var(--accent); }
+.sv-tile:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
+.sv-grid.swap .sv-tile { animation: sv-rise .7s calc(var(--k) * 45ms) var(--ease) both; }
+@keyframes sv-rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes sv-fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+.sv-detail {
+  position: sticky; top: 24px;
+  background: #111113; border-radius: 2px; padding: 22px 22px 24px; min-height: 220px; overflow: hidden;
+}
+.sv-detail::before {                      /* a rule that fills as the service changes */
+  content: ''; position: absolute; left: 0; top: 0; height: 1px; width: 100%; background: var(--accent);
+  transform: scaleX(0); transform-origin: left;
+}
+.sv-detail.swap::before { animation: sv-rule .9s cubic-bezier(.65,0,.35,1) both; }
+@keyframes sv-rule { 0% { transform: scaleX(0); } 60% { transform: scaleX(1); transform-origin: left; } 61% { transform-origin: right; } 100% { transform: scaleX(0); transform-origin: right; } }
+.sv-detail .k { display: flex; justify-content: space-between; font-size: 9.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+.sv-detail .k b { color: var(--accent); font-weight: 400; }
+.sv-detail h3 { margin-top: 16px; font-weight: 400; color: #fff; font-size: clamp(18px, 1.5vw, 24px); line-height: 1.2; letter-spacing: -.01em; }
+.sv-detail .mask { display: block; overflow: hidden; padding-bottom: .1em; margin-bottom: -.1em; }
+.sv-detail .mask > span { display: block; }
+.sv-detail.swap .mask > span { animation: sv-mask .8s var(--ease) both; }
+@keyframes sv-mask { from { transform: translateY(105%); } to { transform: none; } }
+.sv-detail ul { list-style: none; margin-top: 18px; display: grid; gap: 12px; }
+.sv-detail li { position: relative; padding-left: 18px; font-size: 13.5px; line-height: 1.6; color: var(--ink-mute); }
+.sv-detail li::before { content: ''; position: absolute; left: 0; top: .62em; width: 5px; height: 5px; background: var(--accent); }
+.sv-detail.swap li { animation: sv-fade .6s calc(.12s + var(--k) * 70ms) var(--ease) both; }
+
+/* ── recent work ───────────────────────────────────────────────────────── */
+.sv-recent { margin-top: clamp(64px, 10vh, 110px); }
+.sv-recent h3 {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: .45em; color: #fff; font-weight: 400;
+  font-size: clamp(20px, 2.1vw, 34px); line-height: 1.1; letter-spacing: -.01em; text-transform: uppercase;
+}
+.sv-recent h3 .br { color: rgba(255,255,255,.4); font-weight: 300; }
+.sv-recent h3 .stg { color: var(--accent); }
+.sv-band {
+  --c: var(--accent);
+  position: relative; overflow: hidden; margin-top: 22px; display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  min-height: clamp(150px, 22vh, 220px); padding: clamp(22px, 3vw, 40px); border-radius: 2px;
+  background: color-mix(in srgb, var(--c) 9%, #0a0a0b);
+  transition: background .6s var(--ease);
+}
+.sv-band svg.rings { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.sv-band svg.rings path { fill: none; stroke: var(--c); stroke-opacity: .22; stroke-width: 1; }
+.sv-band .t { position: relative; max-width: 30ch; color: #fff; font-size: clamp(18px, 1.9vw, 30px); line-height: 1.28; letter-spacing: -.01em; }
+.sv-band .t .hi { color: var(--c); }
+.sv-band .go {
+  position: relative; flex: none; display: inline-flex; align-items: center; gap: 10px;
+  padding: 11px 14px; border: 1px solid color-mix(in srgb, var(--c) 55%, transparent); border-radius: 2px;
+  background: rgba(0,0,0,.35); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--c);
+  transition: background .3s, color .3s;
+}
+.sv-band .go:hover { background: var(--c); color: #000; }
+.sv-band .go svg { width: 14px; height: 14px; }
+.sv-band.swap .t, .sv-band.swap .go { animation: sv-fade .7s var(--ease) both; }
+.sv-band.swap .go { animation-delay: .1s; }
+
+@media (max-width: 1100px) { .sv-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 760px) {
+  .sv-main { grid-template-columns: 1fr; }
+  .sv-detail { position: relative; top: 0; order: -1; }
+  .sv-band { flex-direction: column; align-items: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .swap *, .swap::before, .sv-grid.swap .sv-tile { animation: none !important; }
+}
+</style>
 <link rel="stylesheet" href="assets/tune.css">
 </head>
 <body>
 
-<!-- ─────────────────────────────────────────────────────────────────────────
-     Our services
+<section id="services" aria-labelledby="sv-title">
+  <header class="sv-head">
+    <h2 id="sv-title"><span class="br">[</span><span data-odo>Our services</span><span class="br">]</span></h2>
+    <p>At Tibba, we offer a variety of services. Select the scale at which your business
+       operates to see how we can help you.</p>
+  </header>
 
-     Nothing has been designed into this page yet. Replace everything between
-     these comments with the section itself; keep the four lines in the head
-     that carry the type and the workbench, and drop assets/stub.css when the
-     placeholder below goes.
+  <div class="sv-stages" role="tablist" aria-label="Company stage"></div>
+  <p class="sv-blurb" aria-live="polite"><span></span></p>
 
-     The dock on the right files its comments against this page's id in
-     assets/manifest.js. Change the label there and notes follow; change the
-     id and they do not.
-     ───────────────────────────────────────────────────────────────────── -->
+  <div class="sv-main">
+    <div class="sv-grid" role="listbox" aria-label="Services"></div>
+    <aside class="sv-detail" aria-live="polite">
+      <span class="k"><b id="sv-ix"></b><span id="sv-stage-lbl"></span></span>
+      <h3><span class="mask"><span id="sv-name"></span></span></h3>
+      <ul id="sv-points"></ul>
+    </aside>
+  </div>
 
-<main class="stub">
-  <p class="eyebrow">Home — 06</p>
-  <h1>Our services</h1>
-  <div class="rule"></div>
-  <p>What the studio sells, at section length.</p>
-  <p>Start in <code>services-section.html</code>. Leave a note in the dock on the right as you
-     go, and commit <code>notes.js</code> with the change.</p>
-</main>
+  <div class="sv-recent">
+    <h3><span class="br">[</span><span>Our recent work with <span id="sv-art">an</span> <span class="stg" id="sv-stg">early stage startup</span></span><span class="br">]</span></h3>
+    <a class="sv-band" id="sv-band" href="#">
+      <svg class="rings" aria-hidden="true"></svg>
+      <p class="t" id="sv-band-t"></p>
+      <span class="go">View project
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="8" cy="8" r="6.5"/><path d="M5.8 10.2l4.4-4.4M6.6 5.8h3.6v3.6"/></svg></span>
+    </a>
+  </div>
+</section>
 
-<!-- ─────────────────────────────────────────────────────────────────────── -->
+<script>
+(function () {
+  const S = window.TIBBA_SERVICES;
+  /* The case study each stage points at, as the live site pairs them. */
+  const RECENT = {
+    early:       { art: 'an', colour: '#4CAF70', file: 'case-breathe-esg.html',
+                   t: 'How we helped Breathe ESG <span class="hi">accelerate sales</span>, streamline releases and <span class="hi">elevate customer experience</span>' },
+    mid:         { art: 'a',  colour: '#7B8FF5', file: 'case-shyft-mindhouse.html',
+                   t: 'How we helped Shyft &amp; Mindhouse <span class="hi">grow their business</span> and supercharge <span class="hi">product led growth</span>' },
+    established: { art: 'an', colour: '#4DD9C0', file: 'case-groww.html',
+                   t: 'How we helped Groww <span class="hi">boost engagement</span> on their app' },
+  };
+  const $ = s => document.querySelector(s);
+  const stages = $('.sv-stages'), blurb = $('.sv-blurb'), grid = $('.sv-grid'),
+        detail = $('.sv-detail'), band = $('#sv-band');
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+  const pad = n => String(n).padStart(2, '0');
+  let stage = 0, svc = 0;
 
+  S.forEach((st, i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'sv-stage'; b.setAttribute('role', 'tab');
+    b.innerHTML = `<span class="n">${st.n}</span><span>${st.label.replace(/\b\w/g, c => c.toUpperCase())}</span>`;
+    b.addEventListener('click', () => pickStage(i));
+    stages.appendChild(b);
+  });
+
+  const replay = (el, cls = 'swap') => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
+
+  function pickStage(i) {
+    stage = i; svc = 0;
+    const st = S[i];
+    [...stages.children].forEach((b, k) => b.setAttribute('aria-selected', String(k === i)));
+    blurb.firstElementChild.textContent = st.blurb; replay(blurb);
+
+    grid.innerHTML = st.services.map((sv, k) => `
+      <button type="button" class="sv-tile" role="option" data-k="${k}" style="--k:${k}">
+        <i></i><span>${cap(sv.name)}</span><span class="ix">${pad(k + 1)}</span>
+      </button>`).join('');
+    replay(grid);
+    pickService(0, true);
+
+    const r = RECENT[st.id];
+    $('#sv-art').textContent = r.art;
+    $('#sv-stg').textContent = st.label.toLowerCase();
+    band.href = r.file;
+    band.style.setProperty('--c', r.colour);
+    $('#sv-band-t').innerHTML = r.t;
+    drawRings(i);
+    replay(band);
+  }
+
+  function pickService(k, quiet) {
+    if (k === svc && !quiet) return;
+    svc = k;
+    const st = S[stage], sv = st.services[k];
+    [...grid.children].forEach((b, j) => b.setAttribute('aria-selected', String(j === k)));
+    $('#sv-ix').textContent = `S—${pad(k + 1)} / ${pad(st.services.length)}`;
+    $('#sv-stage-lbl').textContent = st.label;
+    $('#sv-name').textContent = cap(sv.name);
+    $('#sv-points').innerHTML = sv.points.map((p, j) => `<li style="--k:${j}">${p}</li>`).join('');
+    replay(detail);
+  }
+
+  /* Hover previews on a pointer that can hover; a tap or a click selects. */
+  const canHover = matchMedia('(hover: hover)').matches;
+  grid.addEventListener('click', e => { const t = e.target.closest('.sv-tile'); if (t) pickService(+t.dataset.k); });
+  if (canHover) grid.addEventListener('pointerover', e => { const t = e.target.closest('.sv-tile'); if (t) pickService(+t.dataset.k); });
+  grid.addEventListener('focusin', e => { const t = e.target.closest('.sv-tile'); if (t) pickService(+t.dataset.k); });
+
+  /* The band's rings: a few closed contours around a summit placed off to
+     the right, each a wobbled ellipse so they read as survey line rather
+     than as targets. Seeded by the stage, so each stage has its own hill. */
+  function drawRings(seed) {
+    const svg = band.querySelector('svg.rings');
+    const w = band.clientWidth || 1200, h = band.clientHeight || 200;
+    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    const cx = w * (0.64 + seed * 0.08), cy = h * (0.42 + seed * 0.1);
+    let d = '';
+    for (let r = 0; r < 16; r++) {
+      const R = 26 + r * 30, pts = [];
+      for (let a = 0; a <= 64; a++) {
+        const th = a / 64 * Math.PI * 2;
+        const wob = 1 + 0.08 * Math.sin(th * 3 + r * 0.6 + seed) + 0.05 * Math.sin(th * 7 - r * 0.9);
+        pts.push([(cx + Math.cos(th) * R * 1.6 * wob).toFixed(1), (cy + Math.sin(th) * R * 0.62 * wob).toFixed(1)]);
+      }
+      d += 'M' + pts.map(p => p.join(' ')).join('L') + 'Z';
+    }
+    svg.innerHTML = `<path d="${d}"/>`;
+  }
+  addEventListener('resize', () => drawRings(stage));
+
+  pickStage(0);
+})();
+</script>
 </body>
 </html>

@@ -53,11 +53,13 @@ window.TIBBA_SITE = {
 
     { id: 'metrics', label: 'Metrics',
       note: 'Years, products shipped, revenue unlocked.',
-      pages: [ { id: 'metrics-01', label: 'Metrics', file: 'metrics.html', note: '', state: 'stub' } ] },
+      pages: [ { id: 'metrics-01', label: 'Metrics', file: 'metrics.html',
+                 note: "Active Peak's third scroll state; four boxes land in the room the peak leaves", state: 'live' } ] },
 
     { id: 'brands', label: 'Brands section',
       note: 'The logo wall.',
-      pages: [ { id: 'brands-01', label: 'Brands', file: 'brands.html', note: '', state: 'stub' } ] },
+      pages: [ { id: 'brands-01', label: 'Brands', file: 'brands.html',
+                 note: 'Fourteen tiles and a title filling the viewport, opened on a diagonal wave', state: 'live' } ] },
 
     { id: 'summits', label: 'Our summits',
       note: 'The case-study range. Working copies of the two animations that fit it.',
@@ -65,7 +67,9 @@ window.TIBBA_SITE = {
         { id: 'summits-peaks', label: 'Three summits', file: 'summits-peaks.html',
           note: 'Copy of the hero page, free to diverge', state: 'live' },
         { id: 'summits-range', label: 'Range', file: 'summits-range.html',
-          note: 'Copy of the hero page, free to diverge', state: 'live' },
+          note: 'Active Peak, station for station, with the four cases in its aside column and a trail to the summit', state: 'live' },
+        { id: 'summits-range-l2', label: 'Range – L2', file: 'summits-range-l2.html',
+          note: 'The same climb, the cases in four containers up the right flank, each with its own entrance', state: 'live' },
       ] },
 
     { id: 'case-studies', label: 'Extra case studies',
@@ -90,7 +94,8 @@ window.TIBBA_SITE = {
 
     { id: 'services', label: 'Our services',
       note: 'What the studio sells, as a section.',
-      pages: [ { id: 'services-01', label: 'Our services', file: 'services-section.html', note: '', state: 'stub' } ] },
+      pages: [ { id: 'services-01', label: 'Our services', file: 'services-section.html',
+                 note: "tibba.design's layout: stage tabs, a service grid, the detail beside it, recent work", state: 'live' } ] },
 
     { id: 'testimonials', label: 'Our testimonials',
       note: 'What clients say.',
@@ -109,7 +114,7 @@ window.TIBBA_SITE = {
         { id: 'footer-01', label: 'Footer — skyline', file: 'footer.html',
           note: 'The footer on the generated paper skyline', state: 'live' },
         { id: 'footer-peak', label: 'Footer — snow peak', file: 'footer-mountain.html',
-          note: 'The same footer against a lit, snow-capped massif', state: 'live' },
+          note: 'Granite spires in cloud; the camera climbs out and first light runs down the summit', state: 'live' },
       ] },
 
     { id: 'about-hero', label: 'About us — hero',

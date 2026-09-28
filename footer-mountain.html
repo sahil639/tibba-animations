@@ -80,6 +80,29 @@ body {
 #peak-stage .footer-copy { color: rgba(232, 227, 220, .45); }
 #peak-stage .footer-col a { color: rgba(232, 227, 220, .62); }
 #peak-stage .footer-col a:hover { color: #fff; }
+
+/* The approach's ground and the sky meet on a fade, not a seam. */
+#peak-stage::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 0; height: 18vh; z-index: 1; pointer-events: none;
+  background: linear-gradient(#0b1018, rgba(11, 16, 24, 0));
+}
+
+/* ── the load-in ─────────────────────────────────────────────────────────
+   The footer's own content follows the mountain in: it waits until the
+   cloud has settled and the light is most of the way down the faces, then
+   comes up in reading order — the form, the line under it, the base. */
+#peak-stage .footer-form,
+#peak-stage .footer-mail,
+#peak-stage .footer-base {
+  opacity: 0; transform: translate3d(0, 34px, 0);
+  transition: opacity 1s cubic-bezier(.22, 1, .36, 1), transform 1.2s cubic-bezier(.22, 1, .36, 1);
+}
+#peak-stage.revealed .footer-form { opacity: 1; transform: none; transition-delay: 2.2s; }
+#peak-stage.revealed .footer-mail { opacity: 1; transform: none; transition-delay: 2.55s; }
+#peak-stage.revealed .footer-base { opacity: 1; transform: none; transition-delay: 2.8s; }
+@media (prefers-reduced-motion: reduce) {
+  #peak-stage .footer-form, #peak-stage .footer-mail, #peak-stage .footer-base { opacity: 1; transform: none; transition: none; }
+}
 </style>
 <link rel="stylesheet" href="assets/tune.css">
 </head>
@@ -92,7 +115,8 @@ body {
     <h1 data-odo data-odo-delay="0.08">The last screen, against a real massif</h1>
     <p>A second treatment for the footer: the shared footer markup standing in
        front of a lit, snow-capped mountain rather than a printed skyline.
-       Built with MengTo's 3D sky, four-seasons snow and texture-density skills.</p>
+       Granite spires in cloud, lit low from the right; when it comes into view
+       the camera climbs out of the cloud and first light runs down from the summit.</p>
   </div>
 </main>
 

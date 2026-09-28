@@ -24,6 +24,34 @@ new ResizeObserver(() => {
 new IntersectionObserver(([e]) => peak.setRunning(e.isIntersecting),
   { rootMargin: '25% 0px' }).observe(stage);
 
+/* ── the load-in ─────────────────────────────────────────────────────────
+   The massif waits in its pre-dawn state — camera down in the cloud, the
+   banks lifted over it, the rock unlit — until a good part of the footer is
+   actually on screen, then plays once: the camera climbs out, the cloud
+   sinks layer by layer and first light runs down from the summit. The
+   footer's own content follows the mountain in, on the stage's class. */
+peak.resetIntro();
+let played = false;
+function play() {
+  played = true;
+  peak.playIntro(4.4);
+  stage.classList.remove('revealed'); void stage.offsetWidth;
+  stage.classList.add('revealed');
+}
+new IntersectionObserver(([e]) => {
+  if (e.isIntersecting && !played) play();
+}, { threshold: 0.32 }).observe(stage);
+
+/* the parallax: the camera's look point rides the scroll through the stage,
+   so the massif settles as the page comes to rest on it */
+function onScroll() {
+  const r = stage.getBoundingClientRect();
+  const span = r.height + innerHeight;
+  peak.setScroll(1 - Math.min(1, Math.max(0, (r.bottom) / span)));
+}
+addEventListener('scroll', onScroll, { passive: true });
+onScroll();
+
 /* ══════════════════════════════════════════════════════════════════════════
    CONTROLS
    ═════════════════════════════════════════════════════════════════════════ */
@@ -57,6 +85,12 @@ new IntersectionObserver(([e]) => peak.setRunning(e.isIntersecting),
     <p class="tune-sub">Air</p>
     <div class="row"><label>Haze<i id="v-hz">${P.haze.toFixed(2)}</i></label>
       <input type="range" id="s-hz" min="0" max="200" value="${pc(P.haze)}"></div>
+    <div class="row"><label>Cloud<i id="v-cl">${P.clouds.toFixed(2)}</i></label>
+      <input type="range" id="s-cl" min="0" max="180" value="${pc(P.clouds)}"></div>
+
+    <p class="tune-sub">Load-in</p>
+    <div class="row inline"><label>First light<i></i></label>
+      <button id="s-intro" class="tune-btn">Replay</button></div>
 
     <p class="tune-sub">Land</p>
     <div class="row"><label>Relief<i id="v-rl">${P.relief.toFixed(2)}</i></label>
@@ -68,21 +102,21 @@ new IntersectionObserver(([e]) => peak.setRunning(e.isIntersecting),
 
     <p class="tune-sub">Camera</p>
     <div class="row"><label>Height<i id="v-ce">${C.elev}°</i></label>
-      <input type="range" id="s-ce" min="-4" max="60" value="${C.elev}"></div>
+      <input type="range" id="s-ce" min="-4" max="40" value="${C.elev}"></div>
     <div class="row"><label>Distance<i id="v-cd">${C.dist}</i></label>
-      <input type="range" id="s-cd" min="150" max="700" value="${C.dist}"></div>
+      <input type="range" id="s-cd" min="200" max="800" value="${C.dist}"></div>
     <div class="row"><label>Look height<i id="v-ct">${C.tgtY}</i></label>
       <input type="range" id="s-ct" min="-20" max="140" value="${C.tgtY}"></div>
 
     <p class="tune-sub">Colour</p>
     <div class="row"><label>Zenith<i></i></label>
-      <input type="color" id="c-zen" value="#2f5590"></div>
+      <input type="color" id="c-zen" value="#1e3f74"></div>
     <div class="row"><label>Horizon<i></i></label>
-      <input type="color" id="c-hor" value="#dfe6ee"></div>
+      <input type="color" id="c-hor" value="#dfe7f0"></div>
     <div class="row"><label>Snow<i></i></label>
-      <input type="color" id="c-snow" value="#f4f7fb"></div>
+      <input type="color" id="c-snow" value="#f3f6fb"></div>
     <div class="row"><label>Rock<i></i></label>
-      <input type="color" id="c-rock" value="#6d6a66"></div>
+      <input type="color" id="c-rock" value="#7b7771"></div>
 
     <p class="tune-sub">Footer</p>
     <div class="row inline"><label>Request form<i></i></label>
@@ -126,6 +160,8 @@ new IntersectionObserver(([e]) => peak.setRunning(e.isIntersecting),
      it settles rather than firing on every slider tick. */
   bindSlow('s-sm', 'v-sm', n => n, x => x + ' cells', x => { P.snowSmooth = x; peak.rebuild(); });
   bind('s-hz', 'v-hz', n => n / 100, two, x => { P.haze = x; peak.sync(); });
+  bind('s-cl', 'v-cl', n => n / 100, two, x => { P.clouds = x; peak.sync(); });
+  q('s-intro').addEventListener('click', play);
 
   bindSlow('s-rl', 'v-rl', n => n / 100, two, x => { P.relief = x; peak.rebuild(); });
   bindSlow('s-rg', 'v-rg', n => n / 100, two, x => { P.ridged = x; peak.rebuild(); });
@@ -145,8 +181,7 @@ new IntersectionObserver(([e]) => peak.setRunning(e.isIntersecting),
   const paint = (id, ...names) => {
     q(id).addEventListener('input', e => {
       for (const n of names) {
-        const u = peak.colorUniform(n);
-        if (u) u.value.set(e.target.value).convertSRGBToLinear();
+        for (const u of peak.colorUniforms(n)) u.value.set(e.target.value).convertSRGBToLinear();
       }
     });
   };
