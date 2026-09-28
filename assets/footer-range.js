@@ -115,7 +115,9 @@
       for (const rp of ripples) {
         ctx.save();
         ctx.beginPath();
-        ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI * 2);
+        /* a ripple's radius starts a hair below zero on its first frame, and
+           arc() throws on a negative radius — which stopped the whole frame */
+        ctx.arc(rp.x, rp.y, Math.max(0, rp.r), 0, Math.PI * 2);
         ctx.arc(rp.x, rp.y, Math.max(0, rp.r - BAND), 0, Math.PI * 2, true);
         ctx.clip('evenodd');
         ctx.globalAlpha = rp.a;

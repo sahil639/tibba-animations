@@ -127,7 +127,9 @@ window.TIBBA_SITE = {
     { id: 'about', label: 'About us',
       note: 'The whole about page, its sections assembled.',
       pages: [ { id: 'about-01', label: 'About us', file: 'about.html',
-                 note: 'The definition, the studio in prose, the foundation and the team', state: 'live' } ] },
+                 note: 'The definition, the studio in prose, the foundation and the team', state: 'live' },
+               { id: 'about-campfire-contour', label: 'Campfire — contour', file: 'about-campfire-contour.html',
+                 note: 'The campfire again, drawn in the hero\'s contour lines', state: 'live' } ] },
 
     { id: 'about-foundations', label: 'About us — foundations',
       note: 'What the studio is built on.',

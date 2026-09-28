@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campfire — contour</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="notes.js"></script>
+<script src="assets/workbench.js" defer></script>
+<style>
+body { background: var(--bg); color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+.lead { min-height: 40vh; display: flex; align-items: flex-end; max-width: var(--max); margin: 0 auto; padding: 0 var(--gut) 40px; }
+.lead p { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-faint); }
+
+/* the section is built to drop into about.html unchanged — same id pattern,
+   same fades, same copy block as the lit campfire */
+#campfire-contour {
+  position: relative; height: 100vh; height: 100svh; min-height: 560px;
+  border-top: 1px solid var(--line-soft); overflow: hidden; cursor: crosshair;
+}
+#campfire-contour canvas {
+  position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+  opacity: 0; transition: opacity 1.6s var(--ease);
+}
+#campfire-contour.is-lit canvas { opacity: 1; }
+#campfire-contour::before, #campfire-contour::after {
+  content: ''; position: absolute; left: 0; right: 0; height: 22%; z-index: 1; pointer-events: none;
+}
+#campfire-contour::before { top: 0; background: linear-gradient(var(--bg), rgba(22,22,23,0)); }
+#campfire-contour::after  { bottom: 0; background: linear-gradient(rgba(22,22,23,0), var(--bg)); }
+#campfire-contour .cf-copy { position: absolute; z-index: 2; left: 0; right: 0; top: clamp(70px, 12vh, 130px); text-align: center; pointer-events: none; }
+#campfire-contour .cf-copy .eyebrow { color: var(--ink-faint); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; }
+#campfire-contour .cf-copy h2 { margin-top: 14px; font-size: clamp(24px, 3vw, 44px); font-weight: 400; letter-spacing: -.025em; color: var(--ink); }
+#campfire-contour .cf-hint { position: absolute; z-index: 2; left: 0; right: 0; bottom: clamp(40px, 7vh, 70px); text-align: center;
+  font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-faint); pointer-events: none; transition: opacity .8s var(--ease); }
+#campfire-contour.touched .cf-hint { opacity: 0; }
+.after { height: 30vh; }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     Campfire — contour
+
+     The About page's campfire, drawn in the hero's language: contour rings
+     for the stones and logs, live contour lines for the fire, dotted ground
+     and smoke, orange embers. Behaviour: assets/campfire-contour.js.
+     ───────────────────────────────────────────────────────────────────── -->
+
+<div class="lead"><p>About us — campfire, contour version</p></div>
+
+<section id="campfire-contour" aria-label="An animated campfire, drawn in contour lines">
+  <canvas aria-hidden="true"></canvas>
+  <div class="cf-copy">
+    <p class="eyebrow">[ &nbsp;Around the fire&nbsp; ]</p>
+    <h2>Where every climb ends</h2>
+  </div>
+  <p class="cf-hint">Move your cursor near the flames</p>
+</section>
+
+<div class="after"></div>
+
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.165.0/examples/jsm/"}}</script>
+<script type="module">
+  import { mountContourFire, K } from './assets/campfire-contour.js';
+  const sec = document.querySelector('#campfire-contour');
+  const fire = mountContourFire(sec, sec.querySelector('canvas'));
+  window.tibbaContourFire = fire;
+  sec.addEventListener('pointermove', () => sec.classList.add('touched'), { once: true });
+
+  const el = document.createElement('div');
+  el.id = 'tune';
+  el.innerHTML =
+    '<div id="tune-head"><b>Campfire — contour</b><button id="tune-hide" title="Hide (H)">–</button></div>' +
+    '<p class="tune-sub">Fire</p>' +
+    '<div class="row"><label>Size<i id="v-size">1.00</i></label><input type="range" id="s-size" min="50" max="150" value="100"></div>' +
+    '<div class="row"><label>Flame lines<i id="v-lev">7</i></label><input type="range" id="s-lev" min="2" max="7" value="7"></div>' +
+    '<div class="row"><label>Line weight<i id="v-wt">1.00</i></label><input type="range" id="s-wt" min="40" max="250" value="100"></div>' +
+    '<div class="row"><label>Embers<i id="v-emb">1.00</i></label><input type="range" id="s-emb" min="0" max="100" value="100"></div>' +
+    '<div class="row"><label>Smoke<i id="v-smk">1.00</i></label><input type="range" id="s-smk" min="0" max="200" value="100"></div>' +
+    '<p class="tune-sub">Cursor</p>' +
+    '<div class="row"><label>Push away<i id="v-push">1.00</i></label><input type="range" id="s-push" min="0" max="250" value="100"></div>' +
+    '<div class="row"><label>Wind from movement<i id="v-wind">1.00</i></label><input type="range" id="s-wind" min="0" max="250" value="100"></div>' +
+    '<div class="row inline"><label>Light it again<i></i></label><button class="tune-btn" id="s-relight">Relight</button></div>';
+  document.body.appendChild(el);
+  const q = s => el.querySelector(s);
+  const bind = (id, vid, key, div = 100, fmt = v => v.toFixed(2)) => q(id).addEventListener('input', e => {
+    K[key] = e.target.value / div; q(vid).textContent = fmt(K[key]);
+  });
+  bind('#s-size', '#v-size', 'size'); bind('#s-lev', '#v-lev', 'levels', 1, v => String(v));
+  bind('#s-wt', '#v-wt', 'weight'); bind('#s-emb', '#v-emb', 'embers'); bind('#s-smk', '#v-smk', 'smoke');
+  bind('#s-push', '#v-push', 'push'); bind('#s-wind', '#v-wind', 'wind');
+  q('#s-relight').addEventListener('click', () => fire.relight());
+  q('#tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+  if (window.wb && window.wb.adopt) window.wb.adopt();
+</script>
+</body>
+</html>
