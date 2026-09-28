@@ -72,30 +72,109 @@ body { background: var(--bg); color: var(--ink-warm); font-family: 'F37 Analog',
   window.tibbaContourFire = fire;
   sec.addEventListener('pointermove', () => sec.classList.add('touched'), { once: true });
 
+  /* ── the panel ────────────────────────────────────────────────────────
+     One group per animation, each led by its own on/off switch, then the
+     dials that only matter while it is on. Built from a table so every
+     control is a real, labelled input — keyboard and screen reader get the
+     same panel the mouse does. */
+  const toggle = (key, label) => ({ t: 'toggle', key, label });
+  const range = (key, label, min, max, step = 0.01, fmt = v => v.toFixed(2)) => ({ t: 'range', key, label, min, max, step, fmt });
+  const GROUPS = [
+    ['All animation', [
+      toggle('paused', 'Pause everything'),
+      range('speed', 'Overall speed', 0, 2),
+    ]],
+    ['Fire', [
+      toggle('fireOn', 'Fire'),
+      range('size', 'Size', 0.5, 1.5),
+      range('fireSpeed', 'Speed', 0, 2),
+      range('levels', 'Flame lines', 2, 7, 1, v => String(v)),
+      toggle('flicker', 'Flicker'),
+    ]],
+    ['Embers', [
+      toggle('embersOn', 'Embers'),
+      range('embers', 'Amount', 0, 1),
+      range('emberSpeed', 'Speed', 0, 2),
+    ]],
+    ['Smoke', [
+      toggle('smokeOn', 'Smoke'),
+      range('smoke', 'Amount', 0, 1.5),
+      range('smokeOpacity', 'Opacity', 0, 2),
+      range('smokeSpeed', 'Rise speed', 0, 2),
+      toggle('wisps', 'Contour wisps'),
+    ]],
+    ['Ground', [
+      toggle('flowOn', 'Flowing lines'),
+      range('flowSpeed', 'Flow speed', 0, 3),
+    ]],
+    ['Rocks', [
+      { t: 'seg', key: 'randomness', label: 'Randomness', options: [['Low', 0.12], ['Medium', 0.5], ['High', 0.9]] },
+      range('randomness', 'Randomness (fine)', 0, 1),
+      range('rocks', 'Rocks', 6, 14, 1, v => String(v)),
+      { t: 'button', label: 'New arrangement', text: 'Reshuffle', run: () => fire.reshuffle() },
+    ]],
+    ['Cursor', [
+      toggle('cursorOn', 'React to cursor'),
+      range('push', 'Push away', 0, 2),
+      range('wind', 'Wind from movement', 0, 2),
+      range('ease', 'Smoothness', 0.1, 1.2, 0.01, v => v.toFixed(2) + 's'),
+    ]],
+    ['Lines', [
+      range('weight', 'Line weight', 0.4, 2.5),
+      { t: 'button', label: 'Light it again', text: 'Relight', run: () => fire.relight() },
+    ]],
+  ];
+
+  /* which settings need the rocks rebuilt (slicing is not free, so it waits
+     for the slider to settle) */
+  const REBUILD = new Set(['randomness', 'rocks']);
+  let rebuildTimer = 0;
+  const changed = key => {
+    if (!REBUILD.has(key)) return;
+    clearTimeout(rebuildTimer); rebuildTimer = setTimeout(() => fire.rebuildRocks(), 160);
+  };
+
   const el = document.createElement('div');
   el.id = 'tune';
-  el.innerHTML =
-    '<div id="tune-head"><b>Campfire — contour</b><button id="tune-hide" title="Hide (H)">–</button></div>' +
-    '<p class="tune-sub">Fire</p>' +
-    '<div class="row"><label>Size<i id="v-size">1.00</i></label><input type="range" id="s-size" min="50" max="150" value="100"></div>' +
-    '<div class="row"><label>Flame lines<i id="v-lev">7</i></label><input type="range" id="s-lev" min="2" max="7" value="7"></div>' +
-    '<div class="row"><label>Line weight<i id="v-wt">1.00</i></label><input type="range" id="s-wt" min="40" max="250" value="100"></div>' +
-    '<div class="row"><label>Embers<i id="v-emb">1.00</i></label><input type="range" id="s-emb" min="0" max="100" value="100"></div>' +
-    '<div class="row"><label>Smoke<i id="v-smk">1.00</i></label><input type="range" id="s-smk" min="0" max="200" value="100"></div>' +
-    '<p class="tune-sub">Cursor</p>' +
-    '<div class="row"><label>Push away<i id="v-push">1.00</i></label><input type="range" id="s-push" min="0" max="250" value="100"></div>' +
-    '<div class="row"><label>Wind from movement<i id="v-wind">1.00</i></label><input type="range" id="s-wind" min="0" max="250" value="100"></div>' +
-    '<div class="row inline"><label>Light it again<i></i></label><button class="tune-btn" id="s-relight">Relight</button></div>';
+  let html = '<div id="tune-head"><b>Campfire — contour</b><button id="tune-hide" title="Hide (H)">–</button></div>';
+  let uid = 0;
+  for (const [title, rows] of GROUPS) {
+    html += `<p class="tune-sub">${title}</p>`;
+    for (const r of rows) {
+      const id = 'c' + (uid++);
+      if (r.t === 'toggle') html += `<div class="row inline"><label for="${id}">${r.label}<i></i></label><input type="checkbox" id="${id}" data-k="${r.key}" data-t="toggle" ${K[r.key] ? 'checked' : ''}></div>`;
+      if (r.t === 'range') html += `<div class="row"><label for="${id}">${r.label}<i data-v="${r.key}">${r.fmt(K[r.key])}</i></label><input type="range" id="${id}" data-k="${r.key}" data-t="range" min="${r.min}" max="${r.max}" step="${r.step}" value="${K[r.key]}"></div>`;
+      if (r.t === 'seg') html += `<div class="seg" role="group" aria-label="${r.label}" data-seg="${r.key}">${r.options.map(([l, v]) => `<button type="button" data-val="${v}" class="${Math.abs(K[r.key] - v) < .05 ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+      if (r.t === 'button') html += `<div class="row inline"><label>${r.label}<i></i></label><button type="button" class="tune-btn" data-btn="${id}">${r.text}</button></div>`;
+      r.id = id;
+    }
+  }
+  el.innerHTML = html;
   document.body.appendChild(el);
-  const q = s => el.querySelector(s);
-  const bind = (id, vid, key, div = 100, fmt = v => v.toFixed(2)) => q(id).addEventListener('input', e => {
-    K[key] = e.target.value / div; q(vid).textContent = fmt(K[key]);
+
+  const fmtOf = {}; GROUPS.forEach(([, rows]) => rows.forEach(r => { if (r.t === 'range') fmtOf[r.key] = r.fmt; }));
+  const sync = key => {
+    el.querySelectorAll(`[data-v="${key}"]`).forEach(n => n.textContent = fmtOf[key](K[key]));
+    el.querySelectorAll(`input[data-k="${key}"]`).forEach(n => { if (n.type === 'range') n.value = K[key]; });
+    el.querySelectorAll(`[data-seg="${key}"] button`).forEach(b => b.classList.toggle('on', Math.abs(K[key] - +b.dataset.val) < .05));
+  };
+  el.addEventListener('input', e => {
+    const n = e.target, key = n.dataset.k; if (!key) return;
+    K[key] = n.dataset.t === 'toggle' ? n.checked : +n.value;
+    if (n.dataset.t === 'range') sync(key);
+    changed(key);
   });
-  bind('#s-size', '#v-size', 'size'); bind('#s-lev', '#v-lev', 'levels', 1, v => String(v));
-  bind('#s-wt', '#v-wt', 'weight'); bind('#s-emb', '#v-emb', 'embers'); bind('#s-smk', '#v-smk', 'smoke');
-  bind('#s-push', '#v-push', 'push'); bind('#s-wind', '#v-wind', 'wind');
-  q('#s-relight').addEventListener('click', () => fire.relight());
-  q('#tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+  el.addEventListener('change', e => {
+    const n = e.target; if (n.dataset.t === 'toggle') K[n.dataset.k] = n.checked;
+  });
+  el.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    const seg = b.closest('[data-seg]');
+    if (seg) { const key = seg.dataset.seg; K[key] = +b.dataset.val; sync(key); changed(key); return; }
+    if (b.dataset.btn) GROUPS.forEach(([, rows]) => rows.forEach(r => { if (r.id === b.dataset.btn) r.run(); }));
+  });
+
+  el.querySelector('#tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
   if (window.wb && window.wb.adopt) window.wb.adopt();
 </script>
 </body>

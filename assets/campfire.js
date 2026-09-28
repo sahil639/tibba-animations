@@ -511,7 +511,12 @@ export function mountCampfire(section, canvas) {
 
   function frame(now) {
     raf = visible ? requestAnimationFrame(frame) : 0;
-    const dt = Math.min(0.05, (now - prev) / 1000); prev = now;
+    /* Never negative. A frame's timestamp is when the frame STARTED, and can
+       land a hair before a performance.now() taken just earlier (on
+       becoming visible, say). A negative dt turns every eased follower
+       below into one that runs backwards and overshoots — values that grow
+       instead of settling. */
+    const dt = Math.max(0, Math.min(0.05, (now - prev) / 1000)); prev = Math.max(prev, now);
     const t = reduced ? 3.0 : (now - t0) / 1000;
     U.uTime.value = t;
 

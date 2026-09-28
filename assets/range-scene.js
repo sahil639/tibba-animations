@@ -2610,6 +2610,11 @@ return {
     return { x: bx, y: best, z: bz };
   },
 
+  /** The terrain's height at (x, z), in the group's space — the same field
+      the surface and the contours are both built from, so anything draped on
+      it (the summit trail) lies on the line-work rather than near it. */
+  heightAt(x, z) { return mh(x, z); },
+
   /** 0 = the peak as lit surface, 1 = fully redrawn as contour line. */
   setHeroMorph(t) {
     /* held at 1 when the scene was built without the ink — there is no state
