@@ -41,6 +41,12 @@
     seed: 7,
   };
 
+  /* A page that reuses the field as a background can set window.TOPO_LINES
+     before this script runs: any of the dials above, plus `panel: false` to
+     leave the controls out. Nothing set means the Topo Lines page as it was. */
+  const HOST = window.TOPO_LINES || {};
+  for (const k in HOST) if (k in P) P[k] = HOST[k];
+
   let rebuild = function () {};
 
 function makeNoise(seed) {
@@ -504,6 +510,8 @@ function sampleField(pattern, n, x, y, t, w, h) {
 
 
 
+
+  if (HOST.panel === false) return;
 
   /* ── the panel ────────────────────────────────────────────────────────
      The Framer property controls, in this repo's own furniture: same names,

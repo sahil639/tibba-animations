@@ -2,44 +2,222 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>About us — description</title>
 <link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/workbench.css">
 <script src="assets/manifest.js"></script>
 <script src="notes.js"></script>
 <script src="assets/workbench.js" defer></script>
-<link rel="stylesheet" href="assets/stub.css">
 
-<!-- the shared control-panel design; last in the head so it wins over
-     whatever styling this page declared for its own panel -->
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   About us — description, revealed on one scroll
+   ─────────────────────────────────────────────────────────────────────────
+   The studio in prose (the same three paragraphs as about.html), pinned for
+   the length of one scroll, and brought up out of the dark as that scroll
+   passes — word by word, line by line or paragraph by paragraph.
+
+   Every unit has its own window of the scroll: it starts at its index times
+   the stagger and runs for "window" of the scroll, eased on the curve the
+   panel sets. It is a scrub, not a trigger, so scrolling back returns the
+   text to the dark in reverse. Nothing reflows: only opacity, a hair of
+   blur and a few pixels of rise are animated, so the paragraph is laid out
+   once and stays put.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+
+.lead { min-height: 60vh; display: flex; align-items: flex-end; padding: 0 var(--gut) 8vh; }
+.lead p { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+
+#reveal-scope { position: relative; height: 320vh; }
+#reveal-stage {
+  position: sticky; top: 0; height: 100vh; height: 100svh;
+  display: grid; grid-template-columns: minmax(180px, .32fr) 1fr; gap: clamp(24px, 5vw, 96px);
+  align-content: center; padding: 0 var(--gut);
+}
+.side .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.side h2 { margin-top: 16px; color: #fff; font-weight: 400; font-size: clamp(20px, 1.8vw, 28px); line-height: 1.15; letter-spacing: -.02em; max-width: 14ch; }
+.side .meter { margin-top: 28px; display: flex; align-items: center; gap: 12px; font-size: 10px; letter-spacing: .18em; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+.side .meter i { position: relative; display: block; width: 120px; height: 1px; background: rgba(255,255,255,.12); }
+.side .meter i::after { content: ''; position: absolute; inset: 0; background: var(--accent); transform-origin: left; transform: scaleX(var(--p, 0)); }
+
+#copy { max-width: 60ch; }
+#copy p {
+  color: #fff; font-size: clamp(19px, 2.05vw, 33px); line-height: 1.34; letter-spacing: -.015em; font-weight: 300;
+}
+#copy p + p { margin-top: .9em; }
+#copy .u { --q: 0; opacity: calc(var(--dim) + (1 - var(--dim)) * var(--q));
+  filter: blur(calc((1 - var(--q)) * var(--blur) * 1px));
+  display: inline-block; transform: translateY(calc((1 - var(--q)) * var(--rise) * 1px)); will-change: opacity, transform; }
+#copy .hl { color: var(--accent); }
+.after { height: 60vh; }
+
+@media (max-width: 860px) {
+  #reveal-stage { grid-template-columns: 1fr; align-content: center; gap: 28px; }
+}
+</style>
 <link rel="stylesheet" href="assets/tune.css">
 </head>
 <body>
 
-<!-- ─────────────────────────────────────────────────────────────────────────
-     About us — description
+<div class="lead"><p>About us — description · scroll to reveal</p></div>
 
-     Nothing has been designed into this page yet. Replace everything between
-     these comments with the section itself; keep the four lines in the head
-     that carry the type and the workbench, and drop assets/stub.css when the
-     placeholder below goes.
+<section id="reveal-scope" aria-labelledby="who-h">
+  <div id="reveal-stage">
+    <div class="side">
+      <p class="eyebrow">[ &nbsp;Who we are&nbsp; ]</p>
+      <h2 id="who-h">A lean design team, based out of India</h2>
+      <p class="meter"><i></i><span id="pct">000</span></p>
+    </div>
+    <div id="copy">
+      <p>We are Tibba, a lean design team based out of India. Tibba is a young studio
+         founded in 2023, but it comes with over a decade of experience. Our team has
+         shipped <span class="hl">over 25 products</span> and generated <span class="hl">over $400 million</span> in revenue, for
+         start-ups and established businesses alike.</p>
+      <p>Design, for us, is the ability to solve real problems. We enjoy working closely
+         with stakeholders to understand and execute their vision. We love using research
+         to better understand our clients' audiences and to impact their bottom line.</p>
+      <p>Our approach to every client we work with is unique. We believe in actively
+         listening to a client's needs and modifying our processes accordingly — rather
+         than arriving with a process and fitting the client into it.</p>
+    </div>
+  </div>
+</section>
+<div class="after"></div>
 
-     The dock on the right files its comments against this page's id in
-     assets/manifest.js. Change the label there and notes follow; change the
-     id and they do not.
-     ───────────────────────────────────────────────────────────────────── -->
+<script>
+(function () {
+  /* ── the dials ─────────────────────────────────────────────────────── */
+  const R = {
+    unit: 'word',          // word · line · para
+    speed: 1,              // how much of the scroll the reveal uses; >1 finishes sooner
+    window: 0.14,          // how long one unit takes, as a share of the scroll
+    stagger: 0.8,          // 0 = everything at once, 1 = strictly one after another
+    ease: [0.65, 0, 0.35, 1],
+    dim: 0.12, blur: 3, rise: 6,
+  };
+  const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-<main class="stub">
-  <p class="eyebrow">About — 02</p>
-  <h1>About us — description</h1>
-  <div class="rule"></div>
-  <p>The studio in prose.</p>
-  <p>Start in <code>about-description.html</code>. Leave a note in the dock on the right as you
-     go, and commit <code>notes.js</code> with the change.</p>
-</main>
+  function bezier(x1, y1, x2, y2) {
+    const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+    const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+    const X = t => ((ax * t + bx) * t + cx) * t, Y = t => ((ay * t + by) * t + cy) * t;
+    return x => {
+      if (x <= 0) return 0; if (x >= 1) return 1;
+      let lo = 0, hi = 1, t = x;
+      for (let i = 0; i < 22; i++) { const v = X(t); if (Math.abs(v - x) < 1e-5) break; if (v < x) lo = t; else hi = t; t = (lo + hi) / 2; }
+      return Y(t);
+    };
+  }
+  let ease = bezier(...R.ease);
 
-<!-- ─────────────────────────────────────────────────────────────────────── -->
+  /* ── split into words, keeping the highlights ──────────────────────── */
+  const copy = document.getElementById('copy');
+  const words = [];
+  copy.querySelectorAll('p').forEach((p, pi) => {
+    const walk = node => {
+      [...node.childNodes].forEach(n => {
+        if (n.nodeType === 3) {
+          const frag = document.createDocumentFragment();
+          n.textContent.split(/(\s+)/).forEach(tok => {
+            if (!tok) return;
+            if (/^\s+$/.test(tok)) { frag.appendChild(document.createTextNode(' ')); return; }
+            const s = document.createElement('span'); s.className = 'u'; s.textContent = tok; s.dataset.p = pi;
+            frag.appendChild(s); words.push(s);
+          });
+          n.replaceWith(frag);
+        } else if (n.nodeType === 1) walk(n);
+      });
+    };
+    walk(p);
+  });
 
+  /* ── the units: words as they are, or grouped into lines / paragraphs.
+     Lines are read off the laid-out page, so they follow the real wrap. */
+  let groups = [];
+  function group() {
+    if (R.unit === 'word') groups = words.map(w => [w]);
+    else if (R.unit === 'para') {
+      const m = new Map(); words.forEach(w => { const k = w.dataset.p; if (!m.has(k)) m.set(k, []); m.get(k).push(w); });
+      groups = [...m.values()];
+    } else {
+      groups = []; let top = null, cur = null;
+      words.forEach(w => {
+        const t = Math.round(w.offsetTop);
+        if (t !== top) { cur = []; groups.push(cur); top = t; }
+        cur.push(w);
+      });
+    }
+  }
+
+  const scope = document.getElementById('reveal-scope');
+  const pct = document.getElementById('pct');
+  const meter = document.querySelector('.side .meter i');
+  function apply() {
+    copy.style.setProperty('--dim', R.dim);
+    copy.style.setProperty('--blur', R.blur);
+    copy.style.setProperty('--rise', R.rise);
+    const travel = scope.offsetHeight - innerHeight;
+    const raw = travel > 0 ? Math.min(1, Math.max(0, -scope.getBoundingClientRect().top / travel)) : 0;
+    const t = Math.min(1, raw * R.speed);
+    const n = groups.length;
+    /* where each unit starts: spread across whatever the window leaves */
+    const span = Math.max(0, 1 - R.window);
+    groups.forEach((g, i) => {
+      const start = n > 1 ? (i / (n - 1)) * span * R.stagger : 0;
+      const q = REDUCED ? 1 : ease(Math.min(1, Math.max(0, (t - start) / Math.max(1e-4, R.window + (1 - R.stagger) * span))));
+      for (const w of g) w.style.setProperty('--q', q.toFixed(4));
+    });
+    meter.style.setProperty('--p', t.toFixed(3));
+    pct.textContent = String(Math.round(t * 100)).padStart(3, '0');
+  }
+  addEventListener('scroll', apply, { passive: true });
+  addEventListener('resize', () => { group(); apply(); });
+  document.fonts && document.fonts.ready.then(() => { group(); apply(); });
+  group(); apply();
+
+  /* ── the panel ─────────────────────────────────────────────────────── */
+  const el = document.createElement('div');
+  el.id = 'tune';
+  el.innerHTML = `
+    <div id="tune-head"><b>Text reveal</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <p class="tune-sub">Unit</p>
+    <div class="seg" id="r-unit"><button data-u="word" class="on">Word</button><button data-u="line">Line</button><button data-u="para">Paragraph</button></div>
+    <p class="tune-sub">Timing</p>
+    <div class="row"><label>Reveal speed<i id="v-sp">1.00×</i></label><input type="range" id="r-sp" min="50" max="250" value="100"></div>
+    <div class="row"><label>Unit duration<i id="v-wn">0.14</i></label><input type="range" id="r-wn" min="2" max="60" value="14"></div>
+    <div class="row"><label>Stagger<i id="v-st">0.80</i></label><input type="range" id="r-st" min="0" max="100" value="80"></div>
+    <p class="tune-sub">Easing</p>
+    <div class="seg" id="r-ease">
+      <button data-b="0.65,0,0.35,1" class="on">In-out</button><button data-b="0.22,1,0.36,1">Out</button>
+      <button data-b="0.55,0,1,0.45">In</button><button data-b="0,0,1,1">Linear</button></div>
+    <p class="tune-sub">Look</p>
+    <div class="row"><label>Resting opacity<i id="v-dm">0.12</i></label><input type="range" id="r-dm" min="0" max="60" value="12"></div>
+    <div class="row"><label>Blur<i id="v-bl">3px</i></label><input type="range" id="r-bl" min="0" max="12" value="3"></div>
+    <div class="row"><label>Rise<i id="v-rs">6px</i></label><input type="range" id="r-rs" min="0" max="30" value="6"></div>`;
+  document.body.appendChild(el);
+  const q = id => el.querySelector('#' + id);
+  const seg = (id, fn) => q(id).addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    [...q(id).children].forEach(c => c.classList.toggle('on', c === b)); fn(b);
+  });
+  seg('r-unit', b => { R.unit = b.dataset.u; group(); apply(); });
+  seg('r-ease', b => { R.ease = b.dataset.b.split(',').map(Number); ease = bezier(...R.ease); apply(); });
+  const bind = (sid, vid, map, fmt, key) => q(sid).addEventListener('input', e => {
+    const v = map(+e.target.value); R[key] = v; q(vid).textContent = fmt(v); apply();
+  });
+  bind('r-sp', 'v-sp', n => n / 100, v => v.toFixed(2) + '×', 'speed');
+  bind('r-wn', 'v-wn', n => n / 100, v => v.toFixed(2), 'window');
+  bind('r-st', 'v-st', n => n / 100, v => v.toFixed(2), 'stagger');
+  bind('r-dm', 'v-dm', n => n / 100, v => v.toFixed(2), 'dim');
+  bind('r-bl', 'v-bl', n => n, v => v + 'px', 'blur');
+  bind('r-rs', 'v-rs', n => n, v => v + 'px', 'rise');
+  q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+})();
+</script>
 </body>
 </html>

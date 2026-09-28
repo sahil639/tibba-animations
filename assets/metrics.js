@@ -54,14 +54,14 @@ let fireAt = FIRE_AT;          // the panel can move it
 const host = $('#metrics');
 host.innerHTML = METRICS.map((m, i) => `
   <article class="mbox" data-i="${i}">
-    <span class="plate"></span><span class="scan"></span>
+    <span class="plate"></span><span class="hl"></span>
+    <span class="seg"><i></i><i></i><i></i><i></i></span>
     <span class="cn tl"></span><span class="cn tr"></span><span class="cn bl"></span><span class="cn br"></span>
     <span class="pin"></span>
     <div class="in">
       <span class="k"><b>M—${String(i + 1).padStart(2, '0')}</b><span>${m.k}</span></span>
       <span class="v" data-v="${m.v}">${m.v}</span>
       <span class="l">${m.l}</span>
-      <span class="ticks">${'<i></i>'.repeat(16)}</span>
     </div>
   </article>`).join('');
 const boxes = [...host.querySelectorAll('.mbox')];
@@ -79,16 +79,9 @@ function fire() {
     const v = el.querySelector('.v'), l = el.querySelector('.l');
     v.textContent = v.dataset.v; v.dataset.odoText = v.dataset.v;
     if (O) {
-      O.count(v, { delay: delay + 0.72, duration: 1.5 });
-      O.roll(l, { delay: delay + 0.8, duration: .6, stagger: .02 });
+      O.count(v, { delay: delay + 0.86, duration: 1.2 });
+      O.roll(l, { delay: delay + 0.9, duration: .5, stagger: .018 });
     }
-    /* the ticks fill across the count, one after another */
-    const ticks = [...el.querySelectorAll('.ticks i')];
-    ticks.forEach(t => t.classList.remove('on'));
-    const lit = [12, 30, 8, 16][bi];                 // how many of the 16 light
-    ticks.slice(0, Math.min(16, Math.round(lit / 30 * 16) + 3)).forEach((t, k) => {
-      timers.push(setTimeout(() => t.classList.add('on'), (delay + 0.8 + k * 0.07) * 1000));
-    });
   });
 }
 function rearm() {
@@ -96,7 +89,6 @@ function rearm() {
   timers.forEach(clearTimeout); timers = [];
   boxes.forEach(el => {
     el.classList.remove('in-view');
-    el.querySelectorAll('.ticks i').forEach(t => t.classList.remove('on'));
   });
 }
 

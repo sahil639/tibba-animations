@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our summits — Four Summits</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="notes.js"></script>
+<script src="assets/workbench.js" defer></script>
+<!-- ══════════════════════════════════════════════════════════════════════════
+     Our summits — Four Summits
+     The final website's Our Summits section, on its own page and in the
+     hero's colours and type: the four client summits in one wide frame,
+     centred to the right, an orange square on each top, a Bézier trail up
+     each in its client's colour, and Range – L2's cards bottom-left. The
+     card entrances are summits-range.css's; the behaviour is
+     assets/four-summits.js.
+     ═════════════════════════════════════════════════════════════════════ -->
+<link rel="stylesheet" href="assets/summits-range.css">
+<style>
+#scope { height: 520vh; }
+#stage::after { opacity: 1;
+  background: linear-gradient(90deg, rgba(0,0,0,.86) 0%, rgba(0,0,0,.55) 26%, rgba(0,0,0,0) 44%),
+              linear-gradient(0deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,0) 30%); }
+
+.fs-head-copy { position: absolute; z-index: 3; left: var(--gut); top: clamp(76px, 11vh, 120px); max-width: 440px; }
+.fs-head-copy .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.fs-head-copy h1 { margin-top: 14px; color: #fff; font-weight: 400; font-size: clamp(28px, 3vw, 48px); line-height: 1.02; letter-spacing: -.03em; }
+.fs-head-copy .meta { margin-top: 18px; display: flex; gap: 20px; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+.fs-head-copy .meta b { color: #fff; font-weight: 400; }
+
+/* the cards: bottom-left, first at the foot, stacked upward */
+body[data-layout="summits"] #cases {
+  left: var(--gut); bottom: clamp(22px, 4vh, 40px); width: min(400px, 34vw); top: auto;
+  display: flex; flex-direction: column-reverse; gap: 10px; pointer-events: none;
+}
+body[data-layout="summits"] .card { position: relative; right: auto; bottom: auto; width: 100%;
+  margin-left: calc(var(--i-x) * .12vw); }
+
+/* past cards fold down to their index line, so the stack stays a corner
+   rather than a column: the live case is the only full card */
+body[data-layout="summits"] .card.past { padding-top: 10px; padding-bottom: 10px; }
+body[data-layout="summits"] .card.past .t, body[data-layout="summits"] .card.past .tags { display: none; }
+
+/* the orange squares and the walkers */
+.fs-layer { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.fs-layer > span { position: absolute; left: 0; top: 0; will-change: transform; }
+.fs-peak i { position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; background: var(--accent);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.6); transform: scale(.55); opacity: .6; transition: transform .45s cubic-bezier(.65,0,.35,1), opacity .45s linear; }
+.fs-peak.arrived i { transform: scale(1); opacity: 1; }
+.fs-peak em { position: absolute; left: 12px; top: -20px; font: 400 9.5px/1 'F37 Analog', system-ui, sans-serif; font-style: normal;
+  letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.45); white-space: nowrap; transition: color .4s linear; }
+.fs-peak.on em { color: #fff; }
+.fs-peak.on i::after { content: ''; position: absolute; inset: -1px; border: 1px solid var(--accent); animation: fs-ping 2.2s cubic-bezier(.16,.62,.36,1) infinite; }
+@keyframes fs-ping { 0% { opacity: .9; transform: scale(1); } 100% { opacity: 0; transform: scale(3.4); } }
+.fs-head::before { content: ''; position: absolute; left: -3.5px; top: -3.5px; width: 7px; height: 7px; border-radius: 50%;
+  background: #fff; box-shadow: 0 0 0 2px var(--c), 0 0 14px 3px var(--c); }
+
+@media (max-width: 820px) {
+  body[data-layout="summits"] #cases { width: auto; right: 16px; left: 16px; }
+  .fs-head-copy .meta { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .fs-peak.on i::after { animation: none; } }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+
+<body data-layout="summits">
+<div id="scope">
+  <div id="stage">
+    <canvas id="peak-canvas"></canvas>
+    <div class="fs-head-copy">
+      <p class="eyebrow">[ &nbsp;Our summits&nbsp; ]</p>
+      <h1>Four climbs, and what they were for</h1>
+      <p class="meta"><span>Summit <b id="fs-count">01&thinsp;/&thinsp;04</b></span><span>Scroll to walk the range</span></p>
+    </div>
+    <section id="cases" aria-label="Case studies"></section>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js"}}</script>
+<script type="module">
+  import { mountFourSummits } from './assets/four-summits.js';
+  const fs = mountFourSummits();
+  window.tibba = fs;
+  const { T, EASES, VIEW } = fs;
+
+  /* ── the panel: every timing dial the trails have ──────────────────── */
+  const el = document.createElement('div');
+  el.id = 'tune';
+  const R = (id, label, min, max, val, fmt) => `<div class="row"><label>${label}<i id="v-${id}">${fmt(val)}</i></label><input type="range" id="s-${id}" min="${min}" max="${max}" value="${val}"></div>`;
+  el.innerHTML = `
+    <div id="tune-head"><b>Four Summits</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <p class="tune-sub">Trail timing</p>
+    ${R('du', 'Duration', 5, 100, 32, v => (v / 10).toFixed(1) + 's')}
+    ${R('sp', 'Speed', 20, 300, 100, v => (v / 100).toFixed(2) + '×')}
+    ${R('dl', 'Delay between', 0, 30, 5, v => (v / 10).toFixed(1) + 's')}
+    ${R('st', 'Start delay', 0, 30, 4, v => (v / 10).toFixed(1) + 's')}
+    <p class="tune-sub">Easing</p>
+    <div class="seg" id="s-ease">${Object.keys(EASES).map((k, i) => `<button data-e="${k}"${i ? '' : ' class="on"'}>${k.replace(/ \(.*\)/, '')}<small style="opacity:.5"> ${(k.match(/\((.*)\)/) || ['', ''])[1]}</small></button>`).join('')}</div>
+    <p class="tune-sub">Loop</p>
+    <div class="row inline"><label>Redraw forever<i></i></label><input type="checkbox" id="s-lp"></div>
+    ${R('ho', 'Hold before redraw', 0, 80, 24, v => (v / 10).toFixed(1) + 's')}
+    <p class="tune-sub">Shape</p>
+    ${R('cv', 'Bézier bend', 0, 200, 100, v => (v / 100).toFixed(2))}
+    ${R('wd', 'Trail width', 10, 60, 22, v => (v / 10).toFixed(1) + 'px')}
+    ${R('dm', 'Inactive trails', 0, 100, 35, v => (v / 100).toFixed(2))}
+    <div class="row inline"><label>Trails<i></i></label><button class="tune-btn" id="s-rp">Replay</button></div>
+    <p class="tune-sub">Frame</p>
+    ${R('ev', 'Camera angle', 12, 60, VIEW.elev, v => v + '°')}
+    ${R('ds', 'Distance', 140, 460, VIEW.dist, v => v)}
+    ${R('az', 'Camera turn', -60, 60, VIEW.azim, v => v + '°')}
+    ${R('sx', 'Range offset', -120, 40, VIEW.shiftX, v => v)}`;
+  document.body.appendChild(el);
+  const q = id => el.querySelector('#' + id);
+  const bind = (id, fmt, fn) => q('s-' + id).addEventListener('input', e => { const v = +e.target.value; q('v-' + id).textContent = fmt(v); fn(v); });
+  bind('du', v => (v / 10).toFixed(1) + 's', v => { T.duration = v / 10; });
+  bind('sp', v => (v / 100).toFixed(2) + '×', v => { T.speed = v / 100; });
+  bind('dl', v => (v / 10).toFixed(1) + 's', v => { T.delay = v / 10; });
+  bind('st', v => (v / 10).toFixed(1) + 's', v => { T.start = v / 10; });
+  bind('ho', v => (v / 10).toFixed(1) + 's', v => { T.hold = v / 10; });
+  bind('cv', v => (v / 100).toFixed(2), v => fs.setCurve(v / 100));
+  bind('wd', v => (v / 10).toFixed(1) + 'px', v => { T.width = v / 10; });
+  bind('dm', v => (v / 100).toFixed(2), v => { T.dim = v / 100; fs.trails.forEach(t => { if (t.alphaT < 1) t.alphaT = T.dim; }); });
+  bind('ev', v => v + '°', v => { VIEW.elev = v; fs.station(0); });
+  bind('ds', v => v, v => { VIEW.dist = v; fs.station(0); });
+  bind('sx', v => v, v => { VIEW.shiftX = v; fs.station(0); });
+  bind('az', v => v + '°', v => { VIEW.azim = v; fs.station(0); });
+  q('s-lp').addEventListener('change', e => { T.loop = e.target.checked; fs.replay(); });
+  q('s-rp').addEventListener('click', () => fs.replay());
+  q('s-ease').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    [...q('s-ease').children].forEach(c => c.classList.toggle('on', c === b));
+    fs.setEase(b.dataset.e); fs.replay();
+  });
+  q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+  if (window.wb && window.wb.adopt) window.wb.adopt();
+</script>
+</body>
+</html>

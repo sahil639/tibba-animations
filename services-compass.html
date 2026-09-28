@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our services — Compass</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="notes.js"></script>
+<script src="assets/workbench.js" defer></script>
+<script src="assets/services.js"></script>
+<script src="assets/services-split.js"></script>
+<link rel="stylesheet" href="assets/services-split.css">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Our services — Compass
+   ─────────────────────────────────────────────────────────────────────────
+   A navigation instrument in the middle of the page, after a HUD compass:
+   a bearing ring labelled every 22.5°, the eight points, a track carrying
+   the three company stages as arcs, spokes, an inner ring, and a pointer.
+
+   The stage is a heading. Click an arc, click a tab below, use the arrow
+   keys, or grab the dial and turn it — on release the pointer settles on
+   the middle of the nearest stage's arc. Every move is a critically damped
+   follow: it arrives smoothly and never overshoots or bounces. The page
+   opens on Early-stage startup.
+
+   Drawn as SVG, built in script, in the site's own colours: ink for the
+   ring, the orange accent for the pointer and the live arc, and one cool
+   lavender for the inner instrument ring.
+   ═════════════════════════════════════════════════════════════════════════ */
+:root { --accent: #FF4B1F; --cool: #9aa6f0; }
+.ss-center { grid-column: 2; grid-row: 2; display: grid; place-items: center; min-height: 0; }
+#compass { width: min(100%, 64vh, 620px); aspect-ratio: 1; display: block; overflow: visible; touch-action: none; cursor: grab; user-select: none; }
+#compass.dragging { cursor: grabbing; }
+#compass text { font-family: 'F37 Analog', system-ui, sans-serif; }
+#compass .deg { fill: rgba(233,236,242,.78); font-size: 13px; letter-spacing: .06em; }
+#compass .pt { fill: var(--accent); font-size: 12px; letter-spacing: .12em; }
+#compass .dot { fill: rgba(233,236,242,.55); }
+#compass .dot.o { fill: var(--accent); opacity: .65; }
+#compass .ring { fill: none; stroke: rgba(233,236,242,.16); stroke-width: 1; }
+#compass .spoke { stroke: rgba(233,236,242,.18); stroke-width: 1.2; transition: stroke .5s linear; }
+#compass .spoke.on { stroke: var(--accent); }
+#compass .arc { fill: none; stroke: rgba(233,236,242,.14); stroke-width: 10; cursor: pointer; transition: stroke .45s linear; }
+#compass .arc:hover { stroke: rgba(233,236,242,.3); }
+#compass .arc.on { stroke: rgba(255,75,31,.9); }
+#compass .arclbl { fill: rgba(233,236,242,.5); font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; pointer-events: none; transition: fill .45s linear; }
+#compass .arclbl.on { fill: #fff; }
+#compass .inner line { stroke: var(--cool); stroke-width: 1.4; }
+#compass .inner circle { fill: none; stroke: var(--cool); stroke-opacity: .35; }
+#compass .ptr { fill: rgba(255,75,31,.14); stroke: var(--accent); stroke-width: 1.6; stroke-linejoin: round; }
+#compass .hub { fill: #000; stroke: var(--accent); stroke-width: 1.4; }
+#compass .brk { fill: none; stroke: rgba(233,236,242,.7); stroke-width: 1.4; }
+#compass .chev { fill: none; stroke: rgba(233,236,242,.7); stroke-width: 1.4; }
+#compass .north { fill: var(--accent); }
+.hud { display: flex; gap: 28px; justify-content: center; margin-top: 4px; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+.hud b { color: #fff; font-weight: 400; }
+.hud .acc { color: var(--accent); }
+.ss-center .wrapc { display: grid; justify-items: center; gap: 10px; width: 100%; }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+
+<main class="ss-page">
+  <header class="ss-title">
+    <div>
+      <p class="eyebrow">[ &nbsp;Our services&nbsp; ]</p>
+      <h1>Set a heading for your stage</h1>
+    </div>
+    <p class="ss-read"><span>Heading</span><b id="rd-hdg">060.00°</b><span>Segment</span><b id="rd-seg">01 / 03</b></p>
+  </header>
+
+  <section class="ss-col left" aria-label="Research and strategy services"></section>
+  <div class="ss-center">
+    <div class="wrapc">
+      <svg id="compass" viewBox="-340 -340 680 680" role="img" aria-label="Compass: drag or click a stage to set the heading"></svg>
+      <p class="hud"><span>Vector elapsed <b id="hud-t">0.00</b></span><span>Δ <b class="acc" id="hud-d">+000.0°</b></span><span>Drag to turn</span></p>
+    </div>
+  </div>
+  <section class="ss-col right" aria-label="Design and delivery services"></section>
+
+  <footer class="ss-foot">
+    <div class="ss-stages" role="tablist" aria-label="Company stage"></div>
+    <p class="ss-blurb" aria-live="polite"></p>
+  </footer>
+</main>
+
+<script>
+(function () {
+  const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.getElementById('compass');
+  const el = (tag, attrs, parent = svg) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); parent.appendChild(n); return n; };
+  const rad = d => (d - 90) * Math.PI / 180;           // 0° at the top, clockwise
+  const P = (r, d) => [Math.cos(rad(d)) * r, Math.sin(rad(d)) * r];
+  const pad = (n, w = 2) => String(n).padStart(w, '0');
+
+  /* the three stages: 120° each, centred on 060, 180 and 300 */
+  const SEG = [0, 1, 2].map(i => ({ from: i * 120 + 6, to: i * 120 + 114, mid: i * 120 + 60 }));
+  const LBL = ['Early-stage startup', 'Mid-size company', 'Established company'];
+  const C = { stiffness: 42, drift: 1 };                 // follow rate, ambient
+
+  /* ── the static instrument ─────────────────────────────────────────── */
+  const R = { deg: 292, dots: 262, pts: 232, track: 196, spokeA: 112, spokeB: 162, inner: 70 };
+  el('circle', { class: 'ring', r: R.dots });
+  el('circle', { class: 'ring', r: R.track - 14 });
+  for (let i = 0; i < 16; i++) {
+    const d = i * 22.5, [x, y] = P(R.deg, d);
+    const t = el('text', { class: 'deg', x, y, 'text-anchor': 'middle', 'dominant-baseline': 'middle',
+      transform: `rotate(${d > 90 && d < 270 ? d + 180 : d} ${x} ${y})` });
+    t.textContent = d % 1 ? d.toFixed(1).padStart(5, '0') : pad(d, 3);
+  }
+  for (let i = 0; i < 32; i++) { const [x, y] = P(R.dots, i * 11.25); el('circle', { class: 'dot' + (i % 2 ? ' o' : ''), cx: x, cy: y, r: i % 2 ? 1.6 : 2.4 }); }
+  ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'].forEach((p, i) => {
+    const d = i * 45 + 22.5 * 0, [x, y] = P(R.pts, d + 11.25);
+    const t = el('text', { class: 'pt', x, y, 'text-anchor': 'middle', 'dominant-baseline': 'middle', transform: `rotate(${d + 11.25} ${x} ${y})` });
+    t.textContent = p;
+  });
+  /* the north mark and the four chevrons outside the ring */
+  el('path', { class: 'north', d: 'M0 -205 l7 16 l-7 -5 l-7 5 z' });
+  [0, 90, 180, 270].forEach(d => {
+    const [x, y] = P(322, d);
+    el('path', { class: 'chev', d: 'M-7 3 L0 -4 L7 3', transform: `translate(${x} ${y}) rotate(${d})` });
+  });
+  /* corner brackets */
+  [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([sx, sy]) => {
+    const x = sx * 300, y = sy * 300;
+    el('path', { class: 'brk', d: `M${x} ${y - sy * 22} L${x} ${y} L${x - sx * 22} ${y}` });
+  });
+
+  /* the stage track: three arcs, each with its name set along it */
+  const defs = el('defs', {});
+  const arcPath = (r, a0, a1) => { const [x0, y0] = P(r, a0), [x1, y1] = P(r, a1); return `M${x0} ${y0} A${r} ${r} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${x1} ${y1}`; };
+  const arcs = SEG.map((s, i) => {
+    const a = el('path', { class: 'arc', d: arcPath(R.track, s.from, s.to), 'data-i': i });
+    /* labels ride just inside the track; the lower arc's runs the other way
+       so it is never upside down */
+    const flip = s.mid > 90 && s.mid < 270;
+    el('path', { id: 'lp' + i, d: flip ? arcPath(R.track - 26, s.to, s.from).replace(' 0 1 ', ' 0 0 ') : arcPath(R.track - 26, s.from, s.to) }, defs);
+    const t = el('text', { class: 'arclbl', dy: flip ? 4 : 0 });
+    const tp = el('textPath', { href: '#lp' + i, startOffset: '50%', 'text-anchor': 'middle' }, t);
+    tp.textContent = `${pad(i + 1)} · ${LBL[i]}`;
+    a.addEventListener('click', () => split.pick(i));
+    return { a, t };
+  });
+
+  /* spokes: sixteen, lit orange inside the live arc */
+  const spokes = [];
+  for (let i = 0; i < 24; i++) {
+    const d = i * 15 + 7.5, [x0, y0] = P(R.spokeA, d), [x1, y1] = P(R.spokeB - (i % 2) * 18, d);
+    spokes.push({ d, n: el('line', { class: 'spoke', x1: x0, y1: y0, x2: x1, y2: y1 }) });
+  }
+
+  /* the inner instrument ring — turns slowly on its own, the one ambient move */
+  const inner = el('g', { class: 'inner' });
+  el('circle', { r: R.inner }, inner);
+  for (let i = 0; i < 24; i++) {
+    const d = i * 15, [x0, y0] = P(R.inner - 6, d), [x1, y1] = P(R.inner + (i % 3 ? 6 : 14), d);
+    el('line', { x1: x0, y1: y0, x2: x1, y2: y1, 'stroke-opacity': i % 3 ? .45 : .9 }, inner);
+  }
+
+  /* the pointer: a long thin triangle off the hub, like a bearing vector */
+  const ptr = el('g', {});
+  el('path', { class: 'ptr', d: 'M0 -152 L18 24 L-8 11 Z' }, ptr);
+  el('circle', { class: 'hub', r: 7 });
+  el('circle', { r: 2.2, fill: '#FF4B1F' });
+
+  /* ── the heading: followed, critically damped ──────────────────────── */
+  let heading = SEG[0].mid, target = heading, vel = 0, active = 0, dragging = false, t0 = performance.now(), moveStart = t0;
+  const hdg = document.getElementById('rd-hdg'), seg = document.getElementById('rd-seg');
+  const hudT = document.getElementById('hud-t'), hudD = document.getElementById('hud-d');
+  const norm = d => ((d % 360) + 360) % 360;
+  const segOf = d => Math.min(2, Math.floor(norm(d) / 120));
+
+  function paint() {
+    ptr.setAttribute('transform', `rotate(${heading.toFixed(3)})`);
+    const live = segOf(heading);
+    arcs.forEach((o, i) => { o.a.classList.toggle('on', i === live); o.t.classList.toggle('on', i === live); });
+    spokes.forEach(s => s.n.classList.toggle('on', segOf(s.d) === live));
+    hdg.textContent = norm(heading).toFixed(2).padStart(6, '0') + '°';
+    seg.textContent = `${pad(live + 1)} / 03`;
+    const dd = target - heading;
+    hudD.textContent = (dd >= 0 ? '+' : '−') + Math.abs(dd).toFixed(1).padStart(5, '0') + '°';
+  }
+
+  let last = performance.now();
+  function loop(now) {
+    requestAnimationFrame(loop);
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (!dragging) {
+      if (REDUCED) { heading = target; vel = 0; }
+      else {
+        /* critically damped spring: ω² pull, 2ω damping — no overshoot */
+        const w = Math.sqrt(C.stiffness);
+        const acc = w * w * (target - heading) - 2 * w * vel;
+        vel += acc * dt; heading += vel * dt;
+        if (Math.abs(target - heading) < 0.01 && Math.abs(vel) < 0.01) { heading = target; vel = 0; }
+      }
+    }
+    if (!REDUCED) inner.setAttribute('transform', `rotate(${((now - t0) / 1000 * 6 * C.drift) % 360})`);
+    hudT.textContent = ((now - moveStart) / 1000).toFixed(2);
+    paint();
+  }
+
+  /* shortest way round to a stage's middle */
+  function aim(i) {
+    let m = SEG[i].mid;
+    while (m - heading > 180) m -= 360;
+    while (heading - m > 180) m += 360;
+    target = m; moveStart = performance.now();
+  }
+
+  /* ── dragging the dial ─────────────────────────────────────────────── */
+  const angleAt = e => {
+    const r = svg.getBoundingClientRect();
+    const x = e.clientX - (r.left + r.width / 2), y = e.clientY - (r.top + r.height / 2);
+    return Math.atan2(y, x) * 180 / Math.PI + 90;
+  };
+  let grabOff = 0;
+  svg.addEventListener('pointerdown', e => {
+    if (e.target.classList.contains('arc')) return;          // arcs are clicks
+    dragging = true; svg.classList.add('dragging'); svg.setPointerCapture(e.pointerId);
+    grabOff = heading - angleAt(e); vel = 0;
+  });
+  svg.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    let a = angleAt(e) + grabOff;
+    while (a - heading > 180) a -= 360;
+    while (heading - a > 180) a += 360;
+    heading = a; target = a;
+  });
+  const release = () => {
+    if (!dragging) return;
+    dragging = false; svg.classList.remove('dragging');
+    split.pick(segOf(heading));
+    aim(segOf(heading));
+  };
+  svg.addEventListener('pointerup', release);
+  svg.addEventListener('pointercancel', release);
+
+  /* ── services either side ──────────────────────────────────────────── */
+  const split = mountServicesSplit({
+    left: document.querySelector('.ss-col.left'),
+    right: document.querySelector('.ss-col.right'),
+    stages: document.querySelector('.ss-stages'),
+    blurb: document.querySelector('.ss-blurb'),
+    onStage(i) { active = i; aim(i); },
+  });
+  split.pick(0);
+  paint();
+  requestAnimationFrame(loop);
+  window.tibbaCompass = { C, split };
+
+  /* ── the panel ─────────────────────────────────────────────────────── */
+  const tn = document.createElement('div');
+  tn.id = 'tune';
+  tn.innerHTML = `
+    <div id="tune-head"><b>Compass</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <p class="tune-sub">Motion</p>
+    <div class="row"><label>Settle speed<i id="v-k">42</i></label><input type="range" id="s-k" min="6" max="160" value="42"></div>
+    <div class="row"><label>Inner ring drift<i id="v-dr">1.00</i></label><input type="range" id="s-dr" min="0" max="300" value="100"></div>`;
+  document.body.appendChild(tn);
+  tn.querySelector('#s-k').addEventListener('input', e => { C.stiffness = +e.target.value; tn.querySelector('#v-k').textContent = e.target.value; });
+  tn.querySelector('#s-dr').addEventListener('input', e => { C.drift = e.target.value / 100; tn.querySelector('#v-dr').textContent = C.drift.toFixed(2); });
+  tn.querySelector('#tune-hide').addEventListener('click', () => tn.classList.toggle('hidden'));
+})();
+</script>
+</body>
+</html>

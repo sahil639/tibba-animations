@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Metrics</title>
 <link rel="stylesheet" href="assets/type.css">
@@ -93,16 +94,12 @@ body {
 .mbox[data-i="2"] { --l: 57%;  --t: 53%; --w: clamp(210px, 17vw, 260px); }
 .mbox[data-i="3"] { --l: 75.5%; --t: 61%; --w: clamp(230px, 19.5vw, 300px); }
 
-/* the plate: glass, a hairline, revealed by a scan from the top */
+/* the plate: glass and a hairline, opened from its centre line */
 .mbox .plate {
   position: absolute; inset: 0; border: 1px solid rgba(255,255,255,.1); border-radius: 3px;
   background: rgba(12,12,14,.66);
   backdrop-filter: blur(14px) saturate(1.1); -webkit-backdrop-filter: blur(14px) saturate(1.1);
   clip-path: inset(0 0 100% 0);
-}
-.mbox .scan {
-  position: absolute; left: 0; right: 0; top: 0; height: 1px; background: var(--accent);
-  box-shadow: 0 0 14px 2px rgba(255,75,31,.6); opacity: 0;
 }
 
 /* four corner brackets, which lock on before anything else is there */
@@ -122,54 +119,49 @@ body {
   opacity: 0;
 }
 .mbox .l { display: block; margin-top: 12px; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-mute); }
-.mbox .ticks { margin-top: 16px; display: grid; grid-template-columns: repeat(16, 1fr); gap: 3px; }
-.mbox .ticks i { height: 6px; background: rgba(255,255,255,.1); transform: scaleY(.4); transform-origin: bottom;
-  transition: background .25s, transform .35s cubic-bezier(.34,1.56,.64,1); }
-.mbox .ticks i.on { background: var(--accent); transform: none; }
 .mbox .pin { position: absolute; right: -1px; top: -1px; width: 8px; height: 8px; background: var(--accent); transform: scale(0); }
 
 /* ── the load-in ─────────────────────────────────────────────────────────
-   Four beats per box, staggered across the four:
-     lock    the corner brackets start pulled into the middle and spring out
-             to the corners — a viewfinder finding its frame
-     scan    an orange line runs down the plate and the glass is revealed
-             behind it
-     count   the figure counts up on the odometer's carry reels, and the
-             label rolls in on its ring
-     fill    the ticks light one after another, and the pin lands
-   The box itself arrives from a little off its mark — each has its own
-   offset and tilt — and settles on a soft overshoot. */
+   A HUD panel opening, not a card landing. Every beat is a straight line
+   on a precise curve — nothing tilts, nothing overshoots:
+     line    a hairline draws out from the centre of the box, both ways
+     open    the plate opens up and down from that line
+     frame   the four corner brackets snap onto the corners
+     data    the header row, then the figure counts and the label rolls
+     rule    four segments along the top edge light in sequence, and the
+             orange pin comes on last
+   The box's position never animates; only its contents are revealed. */
 .mbox { opacity: 0; }
 .mbox.in-view { opacity: 1; }
-.mbox.in-view { animation: m-settle 1.3s var(--delay) cubic-bezier(.22,1,.36,1) both; }
-@keyframes m-settle {
-  from { transform: translate3d(calc(var(--x) * 1px + var(--fx)), calc(var(--y) * 1px + var(--fy)), 0) rotate(var(--fr)); }
-  to   { transform: translate3d(calc(var(--x) * 1px), calc(var(--y) * 1px), 0) rotate(0); }
+.mbox .hl {
+  position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--accent);
+  transform: scaleX(0); opacity: 0; pointer-events: none;
 }
-.mbox[data-i="0"] { --fx: -28px; --fy: 22px;  --fr: -2.2deg; }
-.mbox[data-i="1"] { --fx: 26px;  --fy: -18px; --fr: 1.6deg; }
-.mbox[data-i="2"] { --fx: -18px; --fy: 30px;  --fr: 1.2deg; }
-.mbox[data-i="3"] { --fx: 30px;  --fy: 16px;  --fr: -1.8deg; }
+.mbox .seg { position: absolute; left: 20px; right: 20px; top: -1px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.mbox .seg i { height: 1px; background: rgba(255,255,255,.55); transform: scaleX(0); transform-origin: left; }
+.mbox .plate { clip-path: inset(50% 0 50% 0); }
 
-.mbox.in-view .cn { animation: m-lock .7s var(--delay) cubic-bezier(.34,1.56,.64,1) both; }
-/* each bracket starts at the middle of the box and springs out to its corner */
-.mbox .cn.tl { --sx: calc(var(--w) / 2 - 10px);  --sy: 64px; }
-.mbox .cn.tr { --sx: calc(var(--w) / -2 + 10px); --sy: 64px; }
-.mbox .cn.bl { --sx: calc(var(--w) / 2 - 10px);  --sy: -64px; }
-.mbox .cn.br { --sx: calc(var(--w) / -2 + 10px); --sy: -64px; }
-@keyframes m-lock {
-  0%   { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(.6); }
-  30%  { opacity: 1; }
-  100% { opacity: .9; transform: none; }
-}
-.mbox.in-view .plate { animation: m-reveal .8s calc(var(--delay) + .35s) cubic-bezier(.65,0,.35,1) both; }
-@keyframes m-reveal { to { clip-path: inset(0 0 0 0); } }
-.mbox.in-view .scan { animation: m-scan .8s calc(var(--delay) + .35s) cubic-bezier(.65,0,.35,1) both; }
-@keyframes m-scan { 0% { opacity: 1; top: 0; } 90% { opacity: 1; } 100% { opacity: 0; top: 100%; } }
-.mbox.in-view .k { animation: m-fade .6s calc(var(--delay) + .6s) var(--ease) both; }
-.mbox.in-view .v { animation: m-fade .3s calc(var(--delay) + .7s) linear both; }
-.mbox.in-view .pin { animation: m-pin .6s calc(var(--delay) + 1.6s) cubic-bezier(.34,1.56,.64,1) both; }
-@keyframes m-fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.mbox.in-view .hl { animation: m-line .42s var(--delay) cubic-bezier(.65,0,.35,1) both, m-out .3s calc(var(--delay) + .72s) linear both; }
+@keyframes m-line { from { transform: scaleX(0); opacity: 1; } to { transform: scaleX(1); opacity: 1; } }
+@keyframes m-out { from { opacity: 1; } to { opacity: 0; } }
+.mbox.in-view .plate { animation: m-open .5s calc(var(--delay) + .38s) cubic-bezier(.65,0,.35,1) both; }
+@keyframes m-open { from { clip-path: inset(50% 0 50% 0); } to { clip-path: inset(0 0 0 0); } }
+.mbox.in-view .cn { animation: m-lock .34s calc(var(--delay) + .74s) cubic-bezier(.2,0,0,1) both; }
+.mbox .cn.tl { --sx: -6px; --sy: -6px; }
+.mbox .cn.tr { --sx: 6px;  --sy: -6px; }
+.mbox .cn.bl { --sx: -6px; --sy: 6px; }
+.mbox .cn.br { --sx: 6px;  --sy: 6px; }
+@keyframes m-lock { from { opacity: 0; transform: translate(var(--sx), var(--sy)); } to { opacity: .9; transform: none; } }
+.mbox.in-view .k { animation: m-fade .4s calc(var(--delay) + .82s) linear both; }
+.mbox.in-view .v { animation: m-fade .2s calc(var(--delay) + .86s) linear both; }
+.mbox.in-view .seg i { animation: m-seg .22s linear both; }
+.mbox.in-view .seg i:nth-child(1) { animation-delay: calc(var(--delay) + 1.0s); }
+.mbox.in-view .seg i:nth-child(2) { animation-delay: calc(var(--delay) + 1.12s); }
+.mbox.in-view .seg i:nth-child(3) { animation-delay: calc(var(--delay) + 1.24s); }
+.mbox.in-view .seg i:nth-child(4) { animation-delay: calc(var(--delay) + 1.36s); }
+@keyframes m-seg { to { transform: scaleX(1); } }
+.mbox.in-view .pin { animation: m-pin .18s calc(var(--delay) + 1.55s) linear both; }
+@keyframes m-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes m-pin { to { transform: scale(1); } }
 
 @media (max-width: 820px) {
@@ -183,6 +175,7 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   .mbox.in-view, .mbox.in-view * { animation-duration: .01s !important; animation-delay: 0s !important; }
+  .mbox .plate { clip-path: none; }
 }
 </style>
 <link rel="stylesheet" href="assets/tune.css">

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our testimonials — topo</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="notes.js"></script>
+<script src="assets/workbench.js" defer></script>
+<script src="assets/tile-topo.js"></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Our testimonials — an alternate take
+   ─────────────────────────────────────────────────────────────────────────
+   The final website's testimonials (same quotes, same people) as one pinned
+   scene instead of a rail of cards. One quote at a time, large, with a
+   band of scroll each:
+
+     reveal    the quote comes up word by word out of masks, each word rising
+               into its own slot; the attribution follows on a hairline
+     topo      behind it, a live contour field — a different landform for
+               each client (assets/tile-topo.js), crossfaded as the quote
+               changes
+     parallax  the index column, the quote and the big quotation mark move
+               at three rates with the pointer and the scroll, so the scene
+               has depth without anything tilting
+
+   The index down the left is the navigation: the live client is lit and a
+   hairline fills as its band is scrolled through. The third quote is the
+   same placeholder the final website carries, and is labelled as one.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+
+#scope { position: relative; height: 380vh; }
+#stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden;
+  display: grid; grid-template-columns: minmax(200px, .3fr) 1fr; column-gap: clamp(24px, 5vw, 96px);
+  padding: clamp(80px, 12vh, 130px) var(--gut) clamp(32px, 6vh, 64px); }
+.fields { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.field { position: absolute; inset: 0; opacity: 0; transition: opacity 1s linear; }
+.field.on { opacity: .42; }
+.field .tile-topo { position: absolute; inset: 0; width: 100%; height: 100%;
+  -webkit-mask-image: radial-gradient(70% 70% at 68% 50%, #000 20%, transparent 100%); mask-image: radial-gradient(70% 70% at 68% 50%, #000 20%, transparent 100%); }
+
+.idx { position: relative; z-index: 2; align-self: stretch; display: flex; flex-direction: column; justify-content: space-between; will-change: transform; }
+.idx .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.idx h2 { margin-top: 14px; color: #fff; font-weight: 400; font-size: clamp(20px, 1.8vw, 28px); line-height: 1.12; letter-spacing: -.02em; max-width: 13ch; }
+.idx ol { list-style: none; display: grid; gap: 2px; }
+.idx li { position: relative; padding: 12px 0 13px; display: grid; grid-template-columns: 30px 1fr; font-size: 12px; letter-spacing: .04em; color: var(--ink-faint); cursor: pointer; transition: color .3s linear; }
+.idx li .n { font-size: 9.5px; letter-spacing: .16em; padding-top: 2px; }
+.idx li::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: rgba(255,255,255,.1); }
+.idx li i { position: absolute; left: 0; bottom: 0; height: 1px; width: 100%; background: var(--c); transform-origin: left; transform: scaleX(var(--fill, 0)); z-index: 1; }
+.idx li.on { color: #fff; }
+.idx li.on .n { color: var(--c); }
+.idx li:hover { color: #fff; }
+
+.q { position: relative; z-index: 2; align-self: center; width: 100%; max-width: 980px; will-change: transform; }
+.q .mark { position: absolute; left: -.08em; top: -.62em; font-size: clamp(120px, 14vw, 240px); line-height: 1; color: var(--accent); opacity: .16; pointer-events: none; will-change: transform; font-weight: 300; }
+.q blockquote { max-width: 22em; color: #fff; font-weight: 300; font-size: clamp(24px, 2.9vw, 48px); line-height: 1.16; letter-spacing: -.025em; }
+.q .w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .08em; margin-bottom: -.08em; }
+.q .w > span { display: inline-block; transform: translateY(110%); }
+.q.in .w > span { animation: t-rise .8s calc(var(--k) * 28ms) cubic-bezier(.65,0,.35,1) both; }
+.q.out .w > span { animation: t-leave .35s linear both; }
+@keyframes t-rise { from { transform: translateY(110%); } to { transform: none; } }
+@keyframes t-leave { from { transform: none; opacity: 1; } to { transform: translateY(-40%); opacity: 0; } }
+.q .who { margin-top: clamp(24px, 4vh, 40px); display: flex; align-items: center; gap: 14px; max-width: 640px; }
+.q .who .rule, .q .who .sq { flex: none; }
+.q .who .rule { width: 46px; height: 1px; background: var(--c, var(--accent)); transform-origin: left; transform: scaleX(0); }
+.q .who .sq { width: 8px; height: 8px; background: var(--c, var(--accent)); transform: scale(0); }
+.q .who p { font-size: 13px; color: var(--ink-mute); opacity: 0; }
+.q .who p b { color: #fff; font-weight: 400; display: block; font-size: 15px; margin-bottom: 3px; }
+.q .who .go { white-space: nowrap; margin-left: auto; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: #fff; opacity: 0; display: inline-flex; gap: 10px; align-items: center; }
+.q .who .go i { width: 22px; height: 1px; background: var(--c, var(--accent)); display: block; transition: width .3s linear; }
+.q .who .go:hover i { width: 42px; }
+.q .ph[hidden] { display: none; }
+.q .ph { display: inline-block; margin-bottom: 14px; font-size: 9.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); border: 1px solid rgba(255,75,31,.4); padding: 3px 7px; }
+.q.in .who .rule { animation: t-rule .5s .55s cubic-bezier(.65,0,.35,1) both; }
+.q.in .who .sq { animation: t-sq .2s 1s linear both; }
+.q.in .who p, .q.in .who .go { animation: t-fade .4s .9s linear both; }
+@keyframes t-rule { to { transform: scaleX(1); } }
+@keyframes t-sq { to { transform: scale(1); } }
+@keyframes t-fade { to { opacity: 1; } }
+
+.count { position: absolute; z-index: 2; right: var(--gut); bottom: clamp(28px, 5vh, 56px); font-size: 11px; letter-spacing: .14em; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+.count b { color: #fff; font-weight: 400; }
+
+@media (max-width: 860px) {
+  #stage { grid-template-columns: 1fr; grid-template-rows: auto 1fr; row-gap: 20px; }
+  .idx ol { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .q .w > span { transform: none !important; animation: none !important; } .q .who * { animation: none !important; opacity: 1 !important; transform: none !important; } }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+
+<div id="scope">
+  <section id="stage" aria-labelledby="testi-h">
+    <div class="fields" aria-hidden="true"></div>
+    <aside class="idx">
+      <div>
+        <p class="eyebrow">[ &nbsp;Our testimonials&nbsp; ]</p>
+        <h2 id="testi-h">What our clients say about us</h2>
+      </div>
+      <ol></ol>
+    </aside>
+    <figure class="q" aria-live="polite">
+      <span class="mark" aria-hidden="true">“</span>
+      <span class="ph" hidden>Placeholder quote</span>
+      <blockquote></blockquote>
+      <figcaption class="who"><i class="rule"></i><i class="sq"></i><p></p><a class="go" href="#">View case study<i></i></a></figcaption>
+    </figure>
+    <p class="count"><b>01</b>&thinsp;/&thinsp;03</p>
+  </section>
+</div>
+
+<script>
+(function () {
+  /* The final website's three, word for word (assets/home.js). The third is
+     flagged there as invented, and is flagged here too. */
+  const T = [
+    { quote: 'Working with Rahul and team has been an absolute pleasure! The website they’ve designed not only captures the essence of our brand but also resonates with our target audience, resulting in increased engagement and satisfaction.',
+      logo: 'Firstpost', name: 'Milan Sachdeva', role: 'Senior General Manager, Firstpost', file: 'case-firstpost.html', colour: '#E05555', pattern: 'ridge' },
+    { quote: 'Collaborating with the Tibba Design Studio team on our critical design sprint was transformative for Breathe ESG.',
+      logo: 'Breathe ESG', name: 'Shaayak Chaterjee', role: 'Founder, Breathe ESG', file: 'case-breathe-esg.html', colour: '#4CAF70', pattern: 'peak' },
+    { quote: 'They asked the questions our own team had been avoiding, and then answered them with something we could ship. Six weeks in we had a product our sales team wanted to demo rather than apologise for.',
+      logo: 'Apnaklub', name: 'Devika Rao', role: 'VP Product, Apnaklub', file: 'case-groww.html', colour: '#FF4B1F', pattern: 'twin', placeholder: true },
+  ];
+  const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const pad = n => String(n + 1).padStart(2, '0');
+  const $ = s => document.querySelector(s);
+  const stage = $('#stage'), q = $('.q'), bq = q.querySelector('blockquote'), who = q.querySelector('.who p'), go = q.querySelector('.go');
+  const list = $('.idx ol'), fields = $('.fields'), count = $('.count');
+
+  list.innerHTML = T.map((t, i) => `<li data-i="${i}" style="--c:${t.colour}"><span class="n">${pad(i)}</span><span>${t.logo}</span><i></i></li>`).join('');
+  const items = [...list.children];
+  const topo = T.map((t, i) => {
+    const f = document.createElement('div'); f.className = 'field'; fields.appendChild(f);
+    return { f, ctl: window.TileTopo.attach(f, { seed: 31 + i * 17, colour: t.colour, pattern: t.pattern }) };
+  });
+
+  let cur = -1, swapT = 0;
+  function show(i) {
+    if (i === cur) return;
+    const first = cur < 0;
+    if (cur >= 0) { topo[cur].f.classList.remove('on'); topo[cur].ctl.leave(); }
+    cur = i;
+    topo[i].f.classList.add('on'); topo[i].ctl.enter();
+    items.forEach((li, k) => li.classList.toggle('on', k === i));
+    count.innerHTML = `<b>${pad(i)}</b>&thinsp;/&thinsp;${pad(T.length - 1)}`;
+    q.classList.remove('in'); q.classList.add('out');
+    clearTimeout(swapT);
+    swapT = setTimeout(() => {
+      const t = T[i];
+      q.style.setProperty('--c', t.colour);
+      q.querySelector('.ph').hidden = !t.placeholder;
+      bq.innerHTML = t.quote.split(' ').map((w, k) => `<span class="w"><span style="--k:${k}">${w}</span></span>`).join(' ');
+      who.innerHTML = `<b>${t.name}</b>${t.role}`;
+      go.href = t.file;
+      q.classList.remove('out'); void q.offsetWidth; q.classList.add('in');
+    }, first ? 0 : 360);
+  }
+  items.forEach((li, k) => li.addEventListener('click', () => {
+    const scope = $('#scope'), travel = scope.offsetHeight - innerHeight;
+    scrollTo({ top: scope.offsetTop + travel * ((k + 0.5) / T.length), behavior: REDUCED ? 'auto' : 'smooth' });
+  }));
+
+  /* scroll: which quote, and how far through its band */
+  const scope = $('#scope');
+  let scrollT = 0;
+  function onScroll() {
+    const travel = scope.offsetHeight - innerHeight;
+    scrollT = travel > 0 ? Math.min(1, Math.max(0, -scope.getBoundingClientRect().top / travel)) : 0;
+    const band = scrollT * T.length;
+    const i = Math.min(T.length - 1, Math.floor(band));
+    show(i);
+    items.forEach((li, k) => li.style.setProperty('--fill', Math.min(1, Math.max(0, band - k)).toFixed(3)));
+  }
+  addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* parallax: three layers at three rates, pointer and scroll */
+  const P = { depth: 1 };
+  const ptr = { x: 0, y: 0, sx: 0, sy: 0 };
+  addEventListener('pointermove', e => { ptr.x = e.clientX / innerWidth - .5; ptr.y = e.clientY / innerHeight - .5; }, { passive: true });
+  const idx = $('.idx'), mark = q.querySelector('.mark');
+  (function loop() {
+    requestAnimationFrame(loop);
+    if (REDUCED) return;
+    ptr.sx += (ptr.x - ptr.sx) * .06; ptr.sy += (ptr.y - ptr.sy) * .06;
+    const band = (scrollT * T.length) % 1 - .5;
+    idx.style.transform = `translate3d(${(ptr.sx * -6 * P.depth).toFixed(2)}px, ${(ptr.sy * -4 * P.depth).toFixed(2)}px, 0)`;
+    q.style.transform = `translate3d(${(ptr.sx * -12 * P.depth).toFixed(2)}px, ${(ptr.sy * -8 * P.depth - band * 14 * P.depth).toFixed(2)}px, 0)`;
+    mark.style.transform = `translate3d(${(ptr.sx * -30 * P.depth).toFixed(2)}px, ${(ptr.sy * -22 * P.depth - band * 40 * P.depth).toFixed(2)}px, 0)`;
+  })();
+
+  const el = document.createElement('div');
+  el.id = 'tune';
+  el.innerHTML = `<div id="tune-head"><b>Testimonials</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <p class="tune-sub">Depth</p>
+    <div class="row"><label>Parallax<i id="v-pd">1.00</i></label><input type="range" id="s-pd" min="0" max="250" value="100"></div>
+    <div class="row"><label>Topo opacity<i id="v-to">0.42</i></label><input type="range" id="s-to" min="0" max="100" value="42"></div>`;
+  document.body.appendChild(el);
+  el.querySelector('#s-pd').addEventListener('input', e => { P.depth = e.target.value / 100; el.querySelector('#v-pd').textContent = P.depth.toFixed(2); });
+  const st = document.createElement('style'); document.head.appendChild(st);
+  el.querySelector('#s-to').addEventListener('input', e => { const v = e.target.value / 100; el.querySelector('#v-to').textContent = v.toFixed(2); st.textContent = `.field.on { opacity: ${v}; }`; });
+  el.querySelector('#tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+})();
+</script>
+</body>
+</html>

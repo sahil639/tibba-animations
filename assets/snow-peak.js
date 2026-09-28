@@ -407,8 +407,11 @@ export function createSnowPeak(opts) {
   let landMat = null;
   buildLand();
 
-  landMat = new THREE.ShaderMaterial({
-    uniforms: {
+  /* The land's uniforms, held once. Every layer of rock — the massif, the
+     far range, the near ridge — is drawn with the same shader and reads
+     these same objects, so the sun, the snow and the haze move together.
+     Only the edge fade differs per layer (uEdgeA/B). */
+  const LU = {
       uSun:      { value: sun },
       uSunCol:   { value: lin('#ffe4c6') },
       uSkyCol:   { value: lin('#8fb0d8') },
@@ -423,8 +426,11 @@ export function createSnowPeak(opts) {
       uHaze:     { value: P.haze },
       uLight:    { value: -1 },     // the first-light line, as a fraction of height; below it is still in shadow
       uGlow:     { value: lin('#ff9a6a') },
-    },
-    vertexShader: `
+        uContour:  { value: 0.34 },   // the survey lines over the rock
+    uCStep:    { value: 9.0 },    // their interval, world units
+    uAccentC:  { value: lin('#FF4B1F') },
+  };
+  const LAND_VS = `
       attribute vec3 aMacroN;
       attribute float aCav;
       varying vec3 vW; varying vec3 vN; varying vec3 vMN; varying float vH; varying float vCav;
@@ -435,11 +441,12 @@ export function createSnowPeak(opts) {
         vMN = normalize(mat3(modelMatrix) * aMacroN);
         vH = position.y; vCav = aCav;
         gl_Position = projectionMatrix * viewMatrix * w;
-      }`,
-    fragmentShader: `
+      }`;
+  const LAND_FS = `
       varying vec3 vW; varying vec3 vN; varying vec3 vMN; varying float vH; varying float vCav;
       uniform vec3 uSun, uSunCol, uSkyCol, uHorizon, uRockLow, uRockHigh, uSnow, uGlow;
-      uniform float uMaxH, uSnowLine, uSnowBlend, uSnowSlope, uHaze, uLight;
+      uniform float uMaxH, uSnowLine, uSnowBlend, uSnowSlope, uHaze, uLight, uContour, uCStep, uEdgeA, uEdgeB;
+      uniform vec3 uAccentC;
       ${NOISE}
       void main(){
         vec3 N = normalize(vN);
@@ -484,22 +491,80 @@ export function createSnowPeak(opts) {
         vec3 col = albedo * (key * mix(0.85, 1.0, ao) + fill) + sss + uSunCol * spec;
         col += uGlow * glowBand * (0.35 + ndl) * 0.9;
 
+        /* ── the survey lines: contours of the rock's own height, in the
+           topo language the rest of the site is drawn in. Hairlines by
+           screen-space derivative so they hold one pixel at any distance;
+           the top band of the summit is picked out in the accent. */
+        float cs = vH / uCStep;
+        float cd = abs(fract(cs - 0.5) - 0.5) / max(fwidth(cs), 1e-4);
+        float cline = (1.0 - min(cd, 1.0)) * uContour * smoothstep(0.04, 0.12, alt);
+        vec3 lineCol = mix(vec3(0.93, 0.92, 0.9), uAccentC * 1.3, step(0.9, alt));
+        col = mix(col, lineCol * 1.25, cline * mix(0.45, 0.9, step(0.9, alt)));
+
         /* ── aerial perspective, toward the horizon, thicker low down ─── */
         float d = length(cameraPosition - vW);
         float fog = 1.0 - exp(-pow(d * 0.00115 * uHaze, 2.0));
         fog = clamp(fog + (1.0 - smoothstep(0.0, 0.18, alt)) * 0.25 * uHaze, 0.0, 1.0);
         /* and the land's own edge dissolves into the horizon, so the plain
            never draws a line across the sky */
-        fog = max(fog, smoothstep(150.0, 270.0, length(vW.xz)));
+        fog = max(fog, smoothstep(uEdgeA, uEdgeB, length(vW.xz)));
         col = mix(col, uHorizon * 0.92, fog);
 
         gl_FragColor = vec4(col, 1.0);
         ${OUT}
-      }`,
+      }`;
+  const makeLandMat = (edgeA, edgeB) => new THREE.ShaderMaterial({
+    uniforms: { ...LU, uEdgeA: { value: edgeA }, uEdgeB: { value: edgeB } },
+    vertexShader: LAND_VS, fragmentShader: LAND_FS,
   });
+  landMat = makeLandMat(150, 270);
   landMat.uniforms.uMaxH.value = MAXH;
+  /* ── the layers ──────────────────────────────────────────────────────
+     The massif is the middle of three. A far range stands behind it in the
+     haze and a low near ridge crosses the foreground between the cloud
+     banks, each its own mesh in its own group — so the pointer can turn
+     them by different amounts, the Sylva move: the near layer turns most,
+     the far one least, and the frame reads as depth rather than as one
+     picture sliding. */
+  const midG = new THREE.Group(), farG = new THREE.Group(), nearG = new THREE.Group();
+  scene.add(farG, midG, nearG);
   const land = new THREE.Mesh(geo, landMat);
-  scene.add(land);
+  midG.add(land);
+
+  function layer(w, d, sx, sz, hFn, z, mat) {
+    const g = new THREE.PlaneGeometry(w, d, sx, sz);
+    g.rotateX(-Math.PI / 2);
+    const lp = g.attributes.position;
+    for (let i = 0; i < lp.count; i++) lp.setY(i, hFn(lp.getX(i), lp.getZ(i)));
+    g.computeVertexNormals();
+    g.setAttribute('aMacroN', g.attributes.normal.clone());
+    g.setAttribute('aCav', new THREE.BufferAttribute(new Float32Array(lp.count), 1));
+    const m = new THREE.Mesh(g, mat);
+    m.position.z = z;
+    return m;
+  }
+  const ridgeN = (x, z, f) => { const n = 1 - Math.abs(noise(x * f, z * f)); return n * n; };
+  /* the far range: a long saw of peaks, sharp, fading to haze at its ends */
+  const farMat = makeLandMat(1e5, 2e5);
+  const far = layer(1700, 260, 340, 52, (x, z) => {
+    const env = Math.exp(-Math.pow(z / 90, 2)) * (1 - Math.min(1, Math.abs(x) / 850));
+    let h = 0, a = 1, f = 0.006;
+    for (let o = 0; o < 4; o++) { h += a * ridgeN(x + 31, z - 7, f); a *= 0.5; f *= 2.1; }
+    return Math.max(0, h * 78 * env - 8);
+  }, -640, farMat);
+  farG.add(far);
+  /* the near ridge: low in the middle so it never covers the summit, rising
+     at both sides to frame it */
+  const nearMat = makeLandMat(1e5, 2e5);
+  const near = layer(1000, 120, 300, 36, (x, z) => {
+    const side = 0.18 + 0.82 * Math.min(1, Math.pow(Math.abs(x) / 380, 1.6));
+    const env = Math.exp(-Math.pow(z / 40, 2));
+    let h = 0, a = 1, f = 0.02;
+    for (let o = 0; o < 4; o++) { h += a * ridgeN(x - 13, z + 5, f); a *= 0.5; f *= 2.1; }
+    return Math.max(0, h * 70 * env * side - 4);
+  }, 165, nearMat);
+  nearG.add(near);
+  const DEPTH = { near: 0.05, mid: 0.022, far: -0.012, lift: 10 };
 
   /* ══════════════════════════════════════════════════════════════════════
      THE CLOUDS
@@ -623,7 +688,7 @@ export function createSnowPeak(opts) {
   /* ══════════════════════════════════════════════════════════════════════
      THE LOAD-IN
      ══════════════════════════════════════════════════════════════════════ */
-  const intro = { t: REDUCED ? 1 : 0, playing: false, start: 0, dur: 4.2, exposure: 1 };
+  const intro = { t: (REDUCED || opts.intro === false) ? 1 : 0, playing: false, start: 0, dur: 4.2, exposure: 1 };
   const ease = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
 
   function applyIntro(t) {
@@ -660,7 +725,7 @@ export function createSnowPeak(opts) {
     applyIntro(0);
   }
   /** hold the pre-dawn state until the page says go */
-  function resetIntro() { intro.playing = false; intro.t = REDUCED ? 1 : 0; applyIntro(intro.t); }
+  function resetIntro() { intro.playing = false; intro.t = (REDUCED || opts.intro === false) ? 1 : 0; applyIntro(intro.t); }
 
   /* ── the loop ─────────────────────────────────────────────────────────── */
   let running = true, raf = 0, t0 = performance.now(), last = t0;
@@ -684,6 +749,13 @@ export function createSnowPeak(opts) {
     pointer.sx += (pointer.x - pointer.sx) * pe;
     pointer.sy += (pointer.y - pointer.sy) * pe;
     placeCamera();
+    /* depth: each layer turns by its own share of the pointer, and the near
+       ridge rides the scroll a little further than the rest */
+    nearG.rotation.y = -pointer.sx * DEPTH.near;
+    midG.rotation.y  = -pointer.sx * DEPTH.mid;
+    farG.rotation.y  = -pointer.sx * DEPTH.far;
+    nearG.position.y = (0.5 - scrollP) * DEPTH.lift;
+    farG.position.y  = (scrollP - 0.5) * DEPTH.lift * 0.4;
 
     clouds.forEach(c => { c.material.uniforms.uTime.value = time; c.lookAt(camera.position.x, c.position.y, camera.position.z); });
     sky.position.copy(camera.position);
@@ -692,7 +764,7 @@ export function createSnowPeak(opts) {
   raf = requestAnimationFrame(frame);
 
   return {
-    P, camera, renderer, scene, CAM,
+    P, camera, renderer, scene, CAM, DEPTH, LU,
     sync,
     setCamera(next) { Object.assign(CAM, next); if (intro.t >= 1) Object.assign(live, CAM); },
     rebuild(newSeed) {

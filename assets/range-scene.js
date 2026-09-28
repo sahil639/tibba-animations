@@ -460,9 +460,15 @@ const GROUND_BASE = opts.backdrop === 'behind' ? 13.0 : 0.0;
 let LOWLAND = opts.backdrop === 'behind' ? 26.0 : 0.0;
 let LOWFLAT = opts.backdrop === 'behind' ? 0.52 : 0.0;
 
+/* opts.noStudio leaves the studio's own massif out of the land altogether —
+   for a page that is only about the four client summits and looks at them
+   across the place where it would stand. Switched on only AFTER MAX_H has
+   been measured with the massif in, so the contour interval, and so every
+   ring on the client summits, is exactly what it always was. */
+let studioOff = false;
 function mh(x,z){
   let v = GROUND_BASE + (fbm(x*.058+1.7,z*.058+2.3)-.45)*GROUND_RELIEF;
-  for(let i=0;i<PEAKS.length;i++) v += coneAt(PEAKS[i], x, z);
+  for(let i=0;i<PEAKS.length;i++) { if (i === 0 && studioOff) continue; v += coneAt(PEAKS[i], x, z); }
   v = Math.max(0, v);
 
   /* Press the low ground down. Applied after the cones are summed rather than
@@ -478,6 +484,7 @@ function mh(x,z){
 
 let MAX_H=0;
 for(let x=-60;x<=60;x++) for(let z=-60;z<=60;z++) MAX_H=Math.max(MAX_H,mh(x,z));
+studioOff = !!opts.noStudio;
 /** Per-peak summit height — each peak's contour interval is scaled to its own. */
 /* Where each summit actually is, not where its cone was nominally centred. The
    domain warp and the offset parts move a real top several units off the entry
@@ -1471,7 +1478,7 @@ function buildContourGeometry() {
      squares returns nothing for it and counting it leaves two. Picking the
      three highest rings that were actually BUILT takes whatever the field
      gave, and is right whether the summit lands on a level or between two. */
-  const crown = lines.filter(L => L.near0 && L.closed)
+  const crown = lines.filter(L => L.near0 && L.closed && !opts.noStudio)
                      .sort((a, b) => b.level - a.level)
                      .slice(0, CT.ACCENT_TOP);
   crown.forEach((L, i) => {
@@ -2614,6 +2621,28 @@ return {
       the surface and the contours are both built from, so anything draped on
       it (the summit trail) lies on the line-work rather than near it. */
   heightAt(x, z) { return mh(x, z); },
+
+  /** The four client summits' true tops, in PROJECT_PEAKS order, with each
+      one's spread — what a page needs to pin something to a summit or run
+      a route up it without re-scanning the terrain. */
+  clientTops() {
+    return PROJECT_PEAKS.map(pi => ({ x: PEAK_TOP[pi].x, y: PEAK_H[pi], z: PEAK_TOP[pi].z, spread: PEAKS[pi].spread }));
+  },
+
+  /** Put the camera on any station, in either mode — a wide view of the
+      whole range, say. Leaves the case walk: a resize no longer re-seats
+      the camera on a summit afterwards. dur 0 cuts, otherwise it flies. */
+  setView(pos, tgt, dur) {
+    focused = -1;
+    const p = new THREE.Vector3(...pos), t = new THREE.Vector3(...tgt);
+    if (!dur) {
+      if (camAnim) { camAnim.kill(); camTweening = false; }
+      camBase.copy(p); camTarget.copy(t);
+    } else moveCam(p, t, dur);
+  },
+
+  /** Light one client summit (0–3) and let the others recede; -1 for none. */
+  light(i) { lightPeak(i, 0); },
 
   /** 0 = the peak as lit surface, 1 = fully redrawn as contour line. */
   setHeroMorph(t) {

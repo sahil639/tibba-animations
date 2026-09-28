@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Brands</title>
 <link rel="stylesheet" href="assets/type.css">
@@ -11,6 +12,7 @@
 <script src="notes.js"></script>
 <script src="assets/workbench.js" defer></script>
 <script src="assets/odometer.js" defer></script>
+<script src="assets/tile-topo.js"></script>
 
 <style>
 /* ══════════════════════════════════════════════════════════════════════════
@@ -28,8 +30,8 @@
    in BRANDS below and the tile shows that instead; nothing else changes.
 
    The tiles come in on a diagonal wave from the title, the first time the
-   wall is on screen. On hover a tile lifts, its survey rings draw in behind
-   the mark, and the sector and year slide up; the four with a summit on the
+   wall is on screen. On hover a tile lifts, a live contour field of its own
+   (assets/tile-topo.js) runs behind the mark, and the sector and year slide up; the four with a summit on the
    range carry their route colour and link to their case study.
    ═════════════════════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -82,23 +84,21 @@ a { color: inherit; text-decoration: none; }
 }
 .tile .mark img { display: block; max-width: 70%; max-height: 38px; margin: 0 auto; filter: brightness(0) invert(1); }
 
-/* survey rings behind the mark, drawn in on hover */
-.tile::before {
-  content: ''; position: absolute; inset: -30%; z-index: -1;
-  background: repeating-radial-gradient(ellipse 50% 42% at var(--rx, 50%) var(--ry, 58%),
-    transparent 0 13px, color-mix(in srgb, var(--c) 34%, transparent) 13px 14px);
-  -webkit-mask-image: radial-gradient(closest-side, #000 20%, transparent 100%);
-          mask-image: radial-gradient(closest-side, #000 20%, transparent 100%);
-  opacity: 0; transform: scale(.7);
-  transition: opacity .6s var(--ease), transform 1.1s var(--ease);
+/* A live contour field behind the mark, on hover — each tile its own
+   landform and drift (assets/tile-topo.js). Only a hovered tile runs. */
+.tile .tile-topo {
+  position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;
+  opacity: 0; transition: opacity .6s var(--ease);
+  -webkit-mask-image: radial-gradient(120% 100% at 50% 55%, #000 35%, transparent 100%);
+          mask-image: radial-gradient(120% 100% at 50% 55%, #000 35%, transparent 100%);
 }
+.tile.topo-on .tile-topo { opacity: .55; }
 /* the orange square, top right */
 .tile::after {
   content: ''; position: absolute; right: 0; top: 0; width: 8px; height: 8px; background: var(--c);
   transform: scale(0); transform-origin: top right; transition: transform .45s cubic-bezier(.34,1.56,.64,1);
 }
 .tile:hover, .tile:focus-visible { background: #0d0d0f; outline: none; }
-.tile:hover::before, .tile:focus-visible::before { opacity: 1; transform: none; }
 .tile:hover::after, .tile:focus-visible::after { transform: scale(1); }
 .tile:hover .mark, .tile:focus-visible .mark { transform: translateY(-8px) scale(1.04); }
 .tile:hover .meta, .tile:focus-visible .meta { opacity: 1; transform: none; }
@@ -113,7 +113,7 @@ a { color: inherit; text-decoration: none; }
   place-items: stretch; align-content: space-between; display: grid; background: #000;
   padding: clamp(20px, 2.4vw, 40px);
 }
-.tile.title::before, .tile.title::after { display: none; }
+.tile.title::after { display: none; }
 .tile.title .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
 .tile.title h2 {
   margin-top: 16px; max-width: 13ch; color: #fff; font-weight: 400;
@@ -125,7 +125,6 @@ a { color: inherit; text-decoration: none; }
 
 /* ── the way in ────────────────────────────────────────────────────────── */
 .tile.cta { grid-column: 4 / span 2; grid-row: 4; background: #0a0a0b; place-items: center start; padding-left: clamp(20px, 2.4vw, 40px); }
-.tile.cta::before { --rx: 88%; --ry: 50%; }
 .tile.cta .q { font-size: clamp(18px, 1.8vw, 28px); letter-spacing: -.02em; color: #fff; line-height: 1.15; }
 .tile.cta .q em { font-style: normal; color: var(--accent); }
 .tile.cta .go {
@@ -216,8 +215,6 @@ const BRANDS = [
     else el.tabIndex = 0;
     /* each tile's rings sit a little differently, so the wall is not
        fourteen copies of the same drawing */
-    el.style.setProperty('--rx', (40 + (i * 37) % 24) + '%');
-    el.style.setProperty('--ry', (48 + (i * 53) % 22) + '%');
     const [w, c, ls] = b.type;
     const mark = b.logo
       ? `<img src="${b.logo}" alt="${esc(b.name)}">`
@@ -229,7 +226,11 @@ const BRANDS = [
       <span class="meta"><span>${esc(b.meta)}</span>${b.file ? '<span class="go">Case study<i></i></span>' : ''}</span>`;
     el.setAttribute('aria-label', `${b.name} — ${b.meta}, since ${b.since}`);
     wall.insertBefore(el, cta);
+    /* its own contour animation on hover: a different landform per tile */
+    window.TileTopo.attach(el, { seed: i * 7 + 3, colour: b.colour || '#FF4B1F' });
   });
+
+  window.TileTopo.attach(cta, { seed: 97, pattern: 'ridge' });
 
   /* The wave: each tile's delay is its distance from the title's corner, in
      cells, so the wall opens outward from where the reading starts. Measured

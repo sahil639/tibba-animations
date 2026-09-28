@@ -59,7 +59,9 @@ window.TIBBA_SITE = {
     { id: 'brands', label: 'Brands section',
       note: 'The logo wall.',
       pages: [ { id: 'brands-01', label: 'Brands', file: 'brands.html',
-                 note: 'Fourteen tiles and a title filling the viewport, opened on a diagonal wave', state: 'live' } ] },
+                 note: 'Fourteen tiles and a title filling the viewport; each plays its own contour field on hover', state: 'live' },
+               { id: 'brands-mosaic', label: 'Brands — mosaic', file: 'brands-mosaic.html',
+                 note: 'The same brands in boxes of composed, varied sizes on a written six-by-five grid', state: 'live' } ] },
 
     { id: 'summits', label: 'Our summits',
       note: 'The case-study range. Working copies of the two animations that fit it.',
@@ -70,11 +72,15 @@ window.TIBBA_SITE = {
           note: 'Active Peak, station for station, with the four cases in its aside column and a trail to the summit', state: 'live' },
         { id: 'summits-range-l2', label: 'Range – L2', file: 'summits-range-l2.html',
           note: 'The same climb, the cases in four containers up the right flank, each with its own entrance', state: 'live' },
+        { id: 'summits-four', label: 'Four Summits', file: 'summits-four.html',
+          note: "The final site's summits section on its own: four peaks, a Bézier trail up each in its colour, L2's cards bottom-left", state: 'live' },
       ] },
 
     { id: 'case-studies', label: 'Extra case studies',
       note: 'The work that does not get a summit.',
-      pages: [ { id: 'case-studies-01', label: 'Extra case studies', file: 'case-studies.html', note: '', state: 'stub' } ] },
+      pages: [ { id: 'case-studies-01', label: 'Extra case studies', file: 'case-studies.html', note: '', state: 'stub' },
+               { id: 'case-studies-reel', label: 'Case reel', file: 'case-studies-reel.html',
+                 note: 'The six extra cases on the Work Reel, in black, with an altitude tape that slides with the scroll', state: 'live' } ] },
 
     /* The four summits, each at full length. All four are one template and four
        data objects — the layout is assets/case.js and assets/case.css, and the
@@ -95,18 +101,26 @@ window.TIBBA_SITE = {
     { id: 'services', label: 'Our services',
       note: 'What the studio sells, as a section.',
       pages: [ { id: 'services-01', label: 'Our services', file: 'services-section.html',
-                 note: "tibba.design's layout: stage tabs, a service grid, the detail beside it, recent work", state: 'live' } ] },
+                 note: "tibba.design's layout: stage tabs, a service grid, the detail beside it, recent work", state: 'live' },
+               { id: 'services-topo', label: 'Shifting Topo', file: 'services-topo.html',
+                 note: 'A stepped block of land that re-surveys itself per stage, services left and right', state: 'live' },
+               { id: 'services-compass', label: 'Compass', file: 'services-compass.html',
+                 note: 'A HUD compass: click or turn it to a stage, and its services appear either side', state: 'live' } ] },
 
     { id: 'testimonials', label: 'Our testimonials',
       note: 'What clients say.',
-      pages: [ { id: 'testimonials-01', label: 'Our testimonials', file: 'testimonials.html', note: '', state: 'stub' } ] },
+      pages: [ { id: 'testimonials-01', label: 'Our testimonials', file: 'testimonials.html', note: '', state: 'stub' },
+               { id: 'testimonials-topo', label: 'Testimonials — topo', file: 'testimonials-topo.html',
+                 note: "The final site's quotes, one pinned scene: masked word reveals, a live contour field per client, parallax", state: 'live' } ] },
 
     { id: 'studio', label: 'Our studio',
       note: 'Who we are, on the home page.',
       pages: [ { id: 'studio-01', label: 'Our studio', file: 'studio-section.html',
                  note: 'The section that sits between the testimonials and the footer', state: 'live' },
                { id: 'studio-photos', label: 'Photographs', file: 'studio-photos.html',
-                 note: 'Seven photographs staggered around a centred title', state: 'live' } ] },
+                 note: 'Seven photographs staggered around a centred title', state: 'live' },
+               { id: 'studio-polaroids', label: 'Polaroids', file: 'studio-polaroids.html',
+                 note: 'Exploratory: the team and studio life as draggable polaroids round the title', state: 'live' } ] },
 
     { id: 'footer', label: 'Footer',
       note: 'The bottom of every page.',
@@ -114,7 +128,7 @@ window.TIBBA_SITE = {
         { id: 'footer-01', label: 'Footer — skyline', file: 'footer.html',
           note: 'The footer on the generated paper skyline', state: 'live' },
         { id: 'footer-peak', label: 'Footer — snow peak', file: 'footer-mountain.html',
-          note: 'Granite spires in cloud; the camera climbs out and first light runs down the summit', state: 'live' },
+          note: 'Granite spires in three layered depths, survey lines on the rock, the footer laid out around the peak', state: 'live' },
       ] },
 
     { id: 'about-hero', label: 'About us — hero',
@@ -123,7 +137,8 @@ window.TIBBA_SITE = {
 
     { id: 'about-description', label: 'About us — description',
       note: 'The studio in prose.',
-      pages: [ { id: 'about-description-01', label: 'About us — description', file: 'about-description.html', note: '', state: 'stub' } ] },
+      pages: [ { id: 'about-description-01', label: 'About us — description', file: 'about-description.html',
+                 note: 'The studio in prose, revealed out of the dark over one scroll, with its timing on the panel', state: 'live' } ] },
 
     { id: 'about-team', label: 'About us — team',
       note: 'The people.',
@@ -134,7 +149,11 @@ window.TIBBA_SITE = {
       pages: [ { id: 'about-01', label: 'About us', file: 'about.html',
                  note: 'The definition, the studio in prose, the foundation and the team', state: 'live' },
                { id: 'about-campfire-contour', label: 'Campfire — contour', file: 'about-campfire-contour.html',
-                 note: 'The campfire again, drawn in the hero\'s contour lines', state: 'live' } ] },
+                 note: 'The campfire again, drawn in the hero\'s contour lines', state: 'live' },
+               { id: 'about-campfire-lowpoly', label: 'Campfire — low-poly', file: 'about-campfire-lowpoly.html',
+                 note: 'The first campfire re-cut as facets: twenty-faced stones, hex logs, crystal flames', state: 'live' },
+               { id: 'about-campfire-hd', label: 'Campfire — high detail', file: 'about-campfire-hd.html',
+                 note: 'Two flickering lights, coals, streak sparks, heat haze, grade, and a camera you can drag round', state: 'live' } ] },
 
     { id: 'about-foundations', label: 'About us — foundations',
       note: 'What the studio is built on.',
@@ -142,7 +161,8 @@ window.TIBBA_SITE = {
 
     { id: 'contact', label: 'Contact page',
       note: 'The way in.',
-      pages: [ { id: 'contact-01', label: 'Contact page', file: 'contact.html', note: '', state: 'stub' } ] },
+      pages: [ { id: 'contact-01', label: 'Contact page', file: 'contact.html',
+                 note: 'A 3D carabiner drops in on a string and answers a click; the ways in down the right; no footer', state: 'live' } ] },
 
     { id: 'services-page', label: 'Services page',
       note: 'Services at full length, on their own page.',

@@ -8,7 +8,10 @@ import { createSnowPeak } from './snow-peak.js';
 
 const $ = s => document.querySelector(s);
 const stage = $('#peak-stage');
-const peak = createSnowPeak({ canvas: $('#peak-canvas') });
+/* No load-in: the footer opens straight onto the finished scene, and the
+   only motion is ambient — the cloud drifting, a slow swing, the layers
+   answering the pointer. */
+const peak = createSnowPeak({ canvas: $('#peak-canvas'), intro: false });
 window.tibba = { peak };
 
 /* The canvas is as tall as the stage it sits behind, and the stage is as tall
@@ -23,24 +26,6 @@ new ResizeObserver(() => {
    reason for it to run while somebody is reading the top of the page. */
 new IntersectionObserver(([e]) => peak.setRunning(e.isIntersecting),
   { rootMargin: '25% 0px' }).observe(stage);
-
-/* ── the load-in ─────────────────────────────────────────────────────────
-   The massif waits in its pre-dawn state — camera down in the cloud, the
-   banks lifted over it, the rock unlit — until a good part of the footer is
-   actually on screen, then plays once: the camera climbs out, the cloud
-   sinks layer by layer and first light runs down from the summit. The
-   footer's own content follows the mountain in, on the stage's class. */
-peak.resetIntro();
-let played = false;
-function play() {
-  played = true;
-  peak.playIntro(4.4);
-  stage.classList.remove('revealed'); void stage.offsetWidth;
-  stage.classList.add('revealed');
-}
-new IntersectionObserver(([e]) => {
-  if (e.isIntersecting && !played) play();
-}, { threshold: 0.32 }).observe(stage);
 
 /* the parallax: the camera's look point rides the scroll through the stage,
    so the massif settles as the page comes to rest on it */
@@ -88,9 +73,13 @@ onScroll();
     <div class="row"><label>Cloud<i id="v-cl">${P.clouds.toFixed(2)}</i></label>
       <input type="range" id="s-cl" min="0" max="180" value="${pc(P.clouds)}"></div>
 
-    <p class="tune-sub">Load-in</p>
-    <div class="row inline"><label>First light<i></i></label>
-      <button id="s-intro" class="tune-btn">Replay</button></div>
+    <p class="tune-sub">Depth</p>
+    <div class="row"><label>Near layer turn<i id="v-dn">${peak.DEPTH.near.toFixed(3)}</i></label>
+      <input type="range" id="s-dn" min="0" max="150" value="${Math.round(peak.DEPTH.near * 1000)}"></div>
+    <div class="row"><label>Far layer turn<i id="v-df">${peak.DEPTH.far.toFixed(3)}</i></label>
+      <input type="range" id="s-df" min="-60" max="60" value="${Math.round(peak.DEPTH.far * 1000)}"></div>
+    <div class="row"><label>Survey lines<i id="v-ct2">${peak.LU.uContour.value.toFixed(2)}</i></label>
+      <input type="range" id="s-ct2" min="0" max="100" value="${Math.round(peak.LU.uContour.value * 100)}"></div>
 
     <p class="tune-sub">Land</p>
     <div class="row"><label>Relief<i id="v-rl">${P.relief.toFixed(2)}</i></label>
@@ -161,7 +150,9 @@ onScroll();
   bindSlow('s-sm', 'v-sm', n => n, x => x + ' cells', x => { P.snowSmooth = x; peak.rebuild(); });
   bind('s-hz', 'v-hz', n => n / 100, two, x => { P.haze = x; peak.sync(); });
   bind('s-cl', 'v-cl', n => n / 100, two, x => { P.clouds = x; peak.sync(); });
-  q('s-intro').addEventListener('click', play);
+  bind('s-dn', 'v-dn', n => n / 1000, x => x.toFixed(3), x => { peak.DEPTH.near = x; });
+  bind('s-df', 'v-df', n => n / 1000, x => x.toFixed(3), x => { peak.DEPTH.far = x; });
+  bind('s-ct2', 'v-ct2', n => n / 100, two, x => { peak.LU.uContour.value = x; });
 
   bindSlow('s-rl', 'v-rl', n => n / 100, two, x => { P.relief = x; peak.rebuild(); });
   bindSlow('s-rg', 'v-rg', n => n / 100, two, x => { P.ridged = x; peak.rebuild(); });

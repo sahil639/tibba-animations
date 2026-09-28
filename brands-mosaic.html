@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brands — mosaic</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="notes.js"></script>
+<script src="assets/workbench.js" defer></script>
+<script src="assets/tile-topo.js"></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Brands — the mosaic
+   ─────────────────────────────────────────────────────────────────────────
+   The same fourteen clients in boxes of different sizes. It reads as varied
+   but it is composed: a six-by-five grid with every area written out, so the
+   big blocks balance across the frame — the title and Breathe ESG as the
+   two 2×2 anchors on a falling diagonal, tall and wide tiles alternating
+   between them, and the singles filling the gaps. Random placement clumps;
+   a written grid never does.
+
+   Each tile sets its type from its own size (container queries), so a 2×2
+   brand is a headline and a single is a label, with no per-tile rules. The
+   hover is the same live contour field as the Brands page, its own
+   landform per tile. On arrival each tile opens from a hairline — top rule
+   first, then the box — in reading order, geometric and without bounce.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+
+#mosaic {
+  height: 100vh; height: 100svh; min-height: 600px;
+  display: grid; gap: 1px; background: rgba(255,255,255,.1);
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  grid-template-areas:
+    "t  t  zo zo pa gr"
+    "t  t  fp be be gr"
+    "uc hd hd be be sh"
+    "uc ti pb ie ie sh"
+    "ak ss bs bs ct ct";
+}
+.b {
+  --c: var(--accent);
+  position: relative; overflow: hidden; isolation: isolate; background: #050506;
+  container-type: size;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: clamp(12px, 1.3vw, 22px);
+  transition: background .4s linear;
+}
+.b .top, .b .bot { display: flex; justify-content: space-between; gap: 10px; font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.3); }
+.b .bot { color: var(--ink-mute); }
+.b .mark { color: #fff; line-height: 1.02; letter-spacing: -.02em; font-size: clamp(15px, 14.5cqmin, 64px); }
+.b .mark.long { font-size: clamp(13px, 10.5cqmin, 46px); }
+.b[data-case] .top .n { color: var(--c); }
+.b[data-case] .bot .go { color: #fff; display: inline-flex; gap: 8px; align-items: center; }
+.b[data-case] .bot .go i { width: 16px; height: 1px; background: var(--c); display: block; transition: width .3s linear; }
+.b[data-case]:hover .bot .go i { width: 34px; }
+.b .pin { position: absolute; right: 0; top: 0; width: 8px; height: 8px; background: var(--c); transform: scale(0); transition: transform .25s linear; }
+.b:hover, .b:focus-visible { background: #0c0c0e; outline: none; }
+.b:hover .pin, .b:focus-visible .pin, .b[data-case] .pin { transform: scale(1); }
+.b[data-case] .pin { opacity: .6; }
+.b:hover .pin { opacity: 1; }
+.b .tile-topo { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; opacity: 0; transition: opacity .5s linear;
+  -webkit-mask-image: radial-gradient(120% 100% at 50% 55%, #000 35%, transparent 100%); mask-image: radial-gradient(120% 100% at 50% 55%, #000 35%, transparent 100%); }
+.b.topo-on .tile-topo { opacity: .5; }
+/* a small sector readout only big tiles have room for */
+.b .sector { display: none; margin-top: 10px; font-size: 12px; color: var(--ink-mute); max-width: 26ch; }
+@container (min-width: 300px) and (min-height: 260px) { .b .sector { display: block; } }
+
+/* the title and the way in */
+.b.title { grid-area: t; background: #000; }
+.b.title .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.b.title h1 { margin-top: 14px; color: #fff; font-weight: 400; font-size: clamp(26px, 9cqmin, 60px); line-height: 1; letter-spacing: -.035em; max-width: 12ch; }
+.b.title p { color: var(--ink-mute); font-size: clamp(12px, 3.2cqmin, 15px); line-height: 1.6; max-width: 40ch; }
+.b.cta { grid-area: ct; background: #0a0a0b; justify-content: center; }
+.b.cta .q { color: #fff; font-size: clamp(18px, 12cqmin, 32px); letter-spacing: -.02em; }
+.b.cta .q em { font-style: normal; color: var(--accent); }
+.b.cta .go { margin-top: 12px; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; display: inline-flex; gap: 10px; align-items: center; }
+.b.cta .go i { width: 22px; height: 1px; background: var(--accent); display: block; transition: width .3s linear; }
+.b.cta:hover .go i { width: 44px; }
+
+/* ── the arrival: a hairline, then the box ─────────────────────────────── */
+.b::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: var(--c); transform: scaleX(0); transform-origin: left; z-index: 2; }
+#mosaic:not(.on) .b { clip-path: inset(0 0 100% 0); }
+#mosaic.on .b { animation: bm-open .6s calc(var(--d) + .28s) cubic-bezier(.65,0,.35,1) both; }
+#mosaic.on .b::before { animation: bm-rule .32s var(--d) cubic-bezier(.65,0,.35,1) both, bm-fade .4s calc(var(--d) + .9s) linear both; }
+#mosaic.on .b > *:not(.tile-topo):not(.pin) { animation: bm-in .35s calc(var(--d) + .7s) linear both; }
+@keyframes bm-open { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes bm-rule { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes bm-fade { to { opacity: 0; } }
+@keyframes bm-in { from { opacity: 0; } to { opacity: 1; } }
+#mosaic.settled .b, #mosaic.settled .b > * { animation: none !important; clip-path: none; }
+
+@media (max-width: 860px) {
+  #mosaic { height: auto; grid-template-columns: repeat(2, 1fr); grid-template-rows: none; grid-auto-rows: 38vw;
+    grid-template-areas: "t t" "t t" "zo zo" "pa gr" "fp gr" "be be" "be be" "uc hd" "uc ti" "pb sh" "ie sh" "ak ss" "bs bs" "ct ct"; }
+}
+@media (prefers-reduced-motion: reduce) { #mosaic .b, #mosaic .b * { animation: none !important; clip-path: none !important; } }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+
+<section id="mosaic" aria-label="Brands we have worked with">
+  <div class="b title">
+    <div>
+      <p class="eyebrow">[ &nbsp;Brands&nbsp; ]</p>
+      <h1>We've worked with start ups and market leaders</h1>
+    </div>
+    <p>Over the past decade we've helped companies deliver food, perform services,
+       insure health, provide financial services, publish news and sell products.</p>
+  </div>
+  <a class="b cta" href="contact.html">
+    <p class="q">Your summit <em>next?</em></p>
+    <span class="go">Start a project<i></i></span>
+  </a>
+</section>
+
+<script>
+(function () {
+  /* area, name, sector, year — and the four with a summit carry a colour */
+  const BRANDS = [
+    ['zo', 'Zomato', 'Foodtech · App & website', '2015'],
+    ['pa', 'Paytm', 'Fintech · App', '2017'],
+    ['gr', 'Groww', 'Fintech · App & website', '2024', '#4DD9C0', 'case-groww.html'],
+    ['fp', 'Firstpost', 'News & media · App & website', '2023', '#E05555', 'case-firstpost.html'],
+    ['be', 'Breathe ESG', 'SaaS · ESG dashboard', '2023', '#4CAF70', 'case-breathe-esg.html'],
+    ['uc', 'Urban Company', 'Urban services · App', '2016'],
+    ['hd', 'HDFC Bank', 'Fintech · Rewards platform', '2019'],
+    ['ti', 'The Times of India', 'News & media · Website', '2018'],
+    ['pb', 'Policybazaar', 'Insurtech · App', '2019'],
+    ['ie', 'The Indian Express', 'News & media · App & website', '2021'],
+    ['sh', 'Shyft & Mindhouse', 'Fitness & mental health · App', '2023', '#7B8FF5', 'case-shyft-mindhouse.html'],
+    ['ak', 'Apnaklub', 'B2B wholesale · App', '2022'],
+    ['ss', 'simsim', 'Social commerce · App', '2020'],
+    ['bs', 'Bombay Shirt Company', 'Ecommerce · Website', '2018'],
+  ];
+  const wall = document.getElementById('mosaic');
+  const cta = wall.querySelector('.cta');
+  const esc = s => s.replace(/&/g, '&amp;');
+  BRANDS.forEach(([area, name, sector, since, colour, file], i) => {
+    const el = document.createElement(file ? 'a' : 'div');
+    el.className = 'b'; el.style.gridArea = area;
+    if (file) { el.href = file; el.dataset.case = ''; el.style.setProperty('--c', colour); } else el.tabIndex = 0;
+    el.innerHTML = `
+      <span class="top"><span class="n">${String(i + 1).padStart(2, '0')}</span><span>${since}</span></span>
+      <div><span class="mark${name.length > 14 ? ' long' : ''}">${esc(name)}</span><p class="sector">${esc(sector)}</p></div>
+      <span class="bot"><span>${esc(sector.split(' · ')[0])}</span>${file ? '<span class="go">Case study<i></i></span>' : ''}</span>
+      <span class="pin"></span>`;
+    el.setAttribute('aria-label', `${name} — ${sector}, since ${since}`);
+    wall.insertBefore(el, cta);
+    window.TileTopo.attach(el, { seed: i * 13 + 5, colour: colour || '#FF4B1F' });
+  });
+  window.TileTopo.attach(cta, { seed: 71, pattern: 'twin' });
+
+  /* the arrival order: reading order through the grid, measured off the
+     laid-out boxes so it holds at the narrow breakpoint too */
+  function order() {
+    const r0 = wall.getBoundingClientRect();
+    [...wall.children].forEach(b => {
+      const r = b.getBoundingClientRect();
+      const d = ((r.top - r0.top) / r0.height) * 0.9 + ((r.left - r0.left) / r0.width) * 0.45;
+      b.style.setProperty('--d', d.toFixed(3) + 's');
+    });
+  }
+  function play() {
+    wall.classList.remove('on', 'settled'); void wall.offsetWidth; order();
+    wall.classList.add('on'); setTimeout(() => wall.classList.add('settled'), 2600);
+  }
+  const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { io.disconnect(); play(); } }, { threshold: .3 });
+  io.observe(wall);
+
+  const el = document.createElement('div');
+  el.id = 'tune';
+  el.innerHTML = `<div id="tune-head"><b>Brands mosaic</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <p class="tune-sub">Load-in</p><div class="row inline"><label>Arrival<i></i></label><button class="tune-btn" id="b-rp">Replay</button></div>`;
+  document.body.appendChild(el);
+  el.querySelector('#b-rp').addEventListener('click', play);
+  el.querySelector('#tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+})();
+</script>
+</body>
+</html>

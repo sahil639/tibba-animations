@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our studio — polaroids</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&display=swap">
+<script src="assets/manifest.js"></script>
+<script src="notes.js"></script>
+<script src="assets/workbench.js" defer></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Our studio — polaroids (exploratory)
+   ─────────────────────────────────────────────────────────────────────────
+   The team and the studio's life as a table of polaroids, scattered round a
+   title in the middle of the screen. Each is a real polaroid: white frame,
+   the deep margin at the bottom, and a line in handwriting on it.
+
+     scatter  authored slots around the title, each jittered a little and
+              given its own tilt — loose, but never over the title and
+              never stacked more than a corner deep
+     hover    the print lifts off the table and tilts toward the pointer in
+              3D, with its shadow lengthening under it
+     drag     pick any of them up and put it down anywhere; the one you
+              touched comes to the top of the pile and settles at a fresh
+              small angle when dropped
+
+   The four portraits are placeholders — the studio's own photography is not
+   in this repo (about.html says the same); the landscape prints are the
+   studio photographs from assets/studio/.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0c0c0d; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow: hidden; }
+.table { position: relative; width: 100vw; height: 100vh; height: 100svh; overflow: hidden;
+  background: radial-gradient(90% 70% at 50% 45%, #161618 0%, #0c0c0d 70%); }
+.title { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; z-index: 1; }
+.title .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.title h1 { margin-top: 14px; color: #fff; font-weight: 400; font-size: clamp(34px, 5vw, 80px); line-height: .96; letter-spacing: -.04em; }
+.title p { margin: 16px auto 0; max-width: 34ch; color: var(--ink-mute); font-size: 13.5px; line-height: 1.6; }
+.title .hint { margin-top: 18px; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+
+.pol { --r: 0deg; --tx: 0deg; --ty: 0deg; --lift: 0;
+  position: absolute; left: 0; top: 0; width: var(--w, 190px); touch-action: none; cursor: grab; z-index: 2;
+  transform: translate3d(var(--x), var(--y), 0) rotate(var(--r)); will-change: transform; perspective: 900px; }
+.pol.drag { cursor: grabbing; }
+.pol .card { background: #f4f2ec; padding: 9px 9px 0; border-radius: 2px;
+  transform: rotateX(var(--tx)) rotateY(var(--ty)) translateZ(calc(var(--lift) * 24px)) scale(calc(1 + var(--lift) * .03));
+  box-shadow: 0 calc(2px + var(--lift) * 16px) calc(6px + var(--lift) * 30px) rgba(0,0,0,calc(.45 + var(--lift) * .2)), 0 1px 1px rgba(0,0,0,.4);
+  transition: box-shadow .25s ease; transform-style: preserve-3d; }
+.pol .ph { position: relative; aspect-ratio: 1; overflow: hidden; background: #1a1a1c; }
+.pol .ph img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; user-select: none; filter: saturate(.9) contrast(1.03); }
+.pol .ph svg { width: 100%; height: 100%; display: block; }
+.pol .ph::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,.1), rgba(255,255,255,0) 40%); pointer-events: none; }
+.pol .note { height: 58px; display: flex; flex-direction: column; justify-content: center; padding: 0 4px; font-family: 'Caveat', 'Segoe Print', cursive; color: #232220; }
+.pol .note b { font-weight: 500; font-size: 22px; line-height: 1; }
+.pol .note span { font-size: 16px; line-height: 1.05; color: #55524c; }
+.pol .tape { position: absolute; left: 50%; top: -9px; width: 58px; height: 18px; transform: translateX(-50%) rotate(var(--tr, -3deg)); background: rgba(232,227,220,.55); box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+
+.reset { position: absolute; right: var(--gut); bottom: 22px; z-index: 50; padding: 9px 12px; border: 1px solid rgba(255,255,255,.16); background: rgba(0,0,0,.4);
+  color: var(--ink-warm); font: 10.5px/1 'F37 Analog', system-ui, sans-serif; letter-spacing: .16em; text-transform: uppercase; cursor: pointer; }
+.reset:hover { border-color: rgba(255,255,255,.4); }
+@media (max-width: 760px) { .pol { --w: 128px !important; } .pol .note { height: 44px; } .pol .note b { font-size: 17px; } .pol .note span { font-size: 13px; } }
+@media (prefers-reduced-motion: reduce) { .pol .card { transform: none !important; } }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<main class="table" id="table">
+  <div class="title">
+    <p class="eyebrow">[ &nbsp;Our studio&nbsp; ]</p>
+    <h1>Team Tibba</h1>
+    <p>A lean design team based out of India, and the places we go to think.</p>
+    <p class="hint">Drag the photos around</p>
+  </div>
+  <button class="reset" id="reset" type="button">Scatter again</button>
+</main>
+
+<script>
+(function () {
+  const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* A portrait placeholder: a dark plate with contour rings and initials,
+     in place of the studio's own photography. */
+  const portrait = (ini, seed) => {
+    let rings = '';
+    for (let r = 0; r < 12; r++) {
+      const R = 14 + r * 11, pts = [];
+      for (let a = 0; a <= 48; a++) { const t = a / 48 * 6.283; const w = 1 + .1 * Math.sin(t * 3 + r * .6 + seed); pts.push((100 + Math.cos(t) * R * w).toFixed(1) + ' ' + (92 + Math.sin(t) * R * .85 * w).toFixed(1)); }
+      rings += `<path d="M${pts.join('L')}Z" fill="none" stroke="rgba(233,236,242,${r < 2 ? .5 : .14})"/>`;
+    }
+    return `<svg viewBox="0 0 200 200" aria-hidden="true"><rect width="200" height="200" fill="#18181b"/>${rings}
+      <rect x="95" y="87" width="10" height="10" fill="#FF4B1F"/><text x="14" y="186" fill="rgba(233,236,242,.55)" font-family="system-ui" font-size="11" letter-spacing="2">PORTRAIT · ${ini}</text></svg>`;
+  };
+  const PICS = [
+    { name: 'Rahul', note: 'founder, designer', ph: portrait('RB', 1) },
+    { name: 'Neel', note: 'designer', ph: portrait('NL', 2) },
+    { name: 'Riya', note: 'designer', ph: portrait('RP', 3) },
+    { name: 'Sahil', note: 'designer', ph: portrait('SP', 4) },
+    { name: "Team Tibba '25", note: 'offsite, somewhere high', img: 'assets/studio/01-dawn.jpg' },
+    { name: 'Remote friendly', note: 'the view from this week’s desk', img: 'assets/studio/05-lake.jpg' },
+    { name: 'Base camp', note: 'where the sprints get planned', img: 'assets/studio/06-night.jpg' },
+    { name: 'First light', note: 'worth the 4am alarm', img: 'assets/studio/07-summit.jpg' },
+    { name: 'The long ridge', note: 'walk & talk reviews', img: 'assets/studio/03-ridge.jpg' },
+  ];
+  /* slots around the title, as fractions of the table; the middle band
+     (where the title is) is left clear */
+  const SLOTS = [[.07, .08], [.3, .04], [.62, .06], [.84, .1], [.05, .52], [.86, .5], [.16, .74], [.45, .76], [.72, .72]];
+  const table = document.getElementById('table');
+  let z = 10, seed = 1;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+
+  const els = PICS.map((p, i) => {
+    const el = document.createElement('figure');
+    el.className = 'pol';
+    el.innerHTML = `<div class="card"><i class="tape" style="--tr:${(i % 3 - 1) * 4}deg"></i>
+      <div class="ph">${p.img ? `<img src="${p.img}" alt="${p.name}">` : p.ph}</div>
+      <figcaption class="note"><b>${p.name}</b><span>${p.note}</span></figcaption></div>`;
+    table.appendChild(el);
+    return el;
+  });
+
+  function scatter(animate) {
+    const W = table.clientWidth, H = table.clientHeight;
+    els.forEach((el, i) => {
+      /* sized off the table, so nine prints never crowd the title */
+      const w = Math.round(W < 760 ? 128 : Math.min(230, Math.max(120, W * .125 + rnd() * W * .025)));
+      el.style.setProperty('--w', w + 'px');
+      const [sx, sy] = SLOTS[i];
+      const x = Math.min(W - w - 10, Math.max(10, sx * W + (rnd() - .5) * 60));
+      const y = Math.min(H - w * 1.35 - 10, Math.max(10, sy * H + (rnd() - .5) * 50));
+      el.style.transition = animate && !REDUCED ? 'transform .9s cubic-bezier(.22,1,.36,1)' : 'none';
+      el.style.setProperty('--x', x + 'px'); el.style.setProperty('--y', y + 'px');
+      el.style.setProperty('--r', ((rnd() - .5) * 16).toFixed(1) + 'deg');
+      el._x = x; el._y = y;
+    });
+  }
+  scatter(false);
+  document.getElementById('reset').addEventListener('click', () => scatter(true));
+  addEventListener('resize', () => scatter(false));
+
+  /* hover tilt + lift, and dragging */
+  els.forEach(el => {
+    const card = el.querySelector('.card');
+    let lift = 0, liftT = 0, tx = 0, ty = 0, txT = 0, tyT = 0, raf = 0;
+    const tick = () => {
+      lift += (liftT - lift) * .18; tx += (txT - tx) * .18; ty += (tyT - ty) * .18;
+      el.style.setProperty('--lift', lift.toFixed(3)); el.style.setProperty('--tx', tx.toFixed(2) + 'deg'); el.style.setProperty('--ty', ty.toFixed(2) + 'deg');
+      if (Math.abs(liftT - lift) + Math.abs(txT - tx) + Math.abs(tyT - ty) > .01) raf = requestAnimationFrame(tick); else raf = 0;
+    };
+    const kick = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    el.addEventListener('pointermove', e => {
+      if (REDUCED) return;
+      const r = card.getBoundingClientRect();
+      const u = (e.clientX - r.left) / r.width - .5, v = (e.clientY - r.top) / r.height - .5;
+      tyT = u * 16; txT = -v * 14; liftT = drag ? 1.2 : 1; kick();
+    });
+    el.addEventListener('pointerleave', () => { if (drag) return; liftT = 0; txT = 0; tyT = 0; kick(); });
+
+    let drag = false, ox = 0, oy = 0;
+    el.addEventListener('pointerdown', e => {
+      drag = true; el.setPointerCapture(e.pointerId); el.classList.add('drag');
+      el.style.transition = 'none'; el.style.zIndex = ++z;
+      ox = e.clientX - el._x; oy = e.clientY - el._y; liftT = 1.2; kick();
+    });
+    el.addEventListener('pointermove', e => {
+      if (!drag) return;
+      const W = table.clientWidth, H = table.clientHeight, w = el.offsetWidth, h = el.offsetHeight;
+      el._x = Math.min(W - w * .4, Math.max(-w * .6, e.clientX - ox));
+      el._y = Math.min(H - h * .3, Math.max(-h * .5, e.clientY - oy));
+      el.style.setProperty('--x', el._x + 'px'); el.style.setProperty('--y', el._y + 'px');
+    });
+    const drop = () => {
+      if (!drag) return; drag = false; el.classList.remove('drag');
+      /* put down at a fresh small angle, the way a print lands */
+      el.style.transition = REDUCED ? 'none' : 'transform .45s cubic-bezier(.22,1,.36,1)';
+      el.style.setProperty('--r', ((rnd() - .5) * 12).toFixed(1) + 'deg');
+      liftT = 0; txT = 0; tyT = 0; kick();
+      setTimeout(() => { el.style.transition = 'none'; }, 460);
+    };
+    el.addEventListener('pointerup', drop);
+    el.addEventListener('pointercancel', drop);
+  });
+})();
+</script>
+</body>
+</html>

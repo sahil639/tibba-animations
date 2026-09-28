@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campfire — high detail</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="notes.js"></script>
+<script src="assets/workbench.js" defer></script>
+<style>
+body { background: var(--bg); color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+.lead { min-height: 40vh; display: flex; align-items: flex-end; max-width: var(--max); margin: 0 auto; padding: 0 var(--gut) 40px; }
+.lead p { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-faint); }
+/* the same section frame as the lit and contour campfires, so any of the
+   three drops into about.html unchanged */
+#cf { position: relative; height: 100vh; height: 100svh; min-height: 560px; border-top: 1px solid var(--line-soft); overflow: hidden; cursor: crosshair; }
+#cf canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 1.6s var(--ease); }
+#cf.is-lit canvas { opacity: 1; }
+#cf::before, #cf::after { content: ''; position: absolute; left: 0; right: 0; height: 22%; z-index: 1; pointer-events: none; }
+#cf::before { top: 0; background: linear-gradient(var(--bg), rgba(22,22,23,0)); }
+#cf::after  { bottom: 0; background: linear-gradient(rgba(22,22,23,0), var(--bg)); }
+#cf .cf-copy { position: absolute; z-index: 2; left: 0; right: 0; top: clamp(70px, 12vh, 130px); text-align: center; pointer-events: none; }
+#cf .cf-copy .eyebrow { color: var(--ink-faint); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; }
+#cf .cf-copy h2 { margin-top: 14px; font-size: clamp(24px, 3vw, 44px); font-weight: 400; letter-spacing: -.025em; color: var(--ink); }
+#cf .cf-hint { position: absolute; z-index: 2; left: 0; right: 0; bottom: clamp(40px, 7vh, 70px); text-align: center;
+  font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-faint); pointer-events: none; transition: opacity .8s var(--ease); }
+#cf.touched .cf-hint { opacity: 0; }
+.after { height: 30vh; }
+#cf.dragging { cursor: grabbing; }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<!-- ─────────────────────────────────────────────────────────────────────────
+     Campfire — high detail
+     The first campfire (assets/campfire.js) taken as far as it goes: two
+     fire lights flickering out of phase with 2048 shadows, a bed of glowing
+     coals, sparks as streaks, heat shimmer over the flames, a vignette and
+     grain, and a camera you can drag round the ring. The cursor still
+     pushes, fans and blows the fire as in the original.
+     Behaviour: assets/campfire-hd.js.
+     ───────────────────────────────────────────────────────────────────── -->
+<div class="lead"><p>About us — campfire, high-detail version</p></div>
+<section id="cf" aria-label="An animated, high-detail campfire">
+  <canvas aria-hidden="true"></canvas>
+  <div class="cf-copy">
+    <p class="eyebrow">[ &nbsp;Around the fire&nbsp; ]</p>
+    <h2>Where every climb ends</h2>
+  </div>
+  <p class="cf-hint">Move near the flames · drag to walk round the fire</p>
+</section>
+<div class="after"></div>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.165.0/examples/jsm/"}}</script>
+<script type="module">
+  import { mountHDFire, C } from './assets/campfire-hd.js';
+  const sec = document.querySelector('#cf');
+  const fire = mountHDFire(sec, sec.querySelector('canvas'));
+  window.tibbaFire = fire;
+  sec.addEventListener('pointermove', () => sec.classList.add('touched'), { once: true });
+
+  const el = document.createElement('div');
+  el.id = 'tune';
+  const R = (k, label, min, max, step) => `<div class="row"><label>${label}<i id="v-${k}">${C[k].toFixed(2)}</i></label><input type="range" id="s-${k}" min="${min}" max="${max}" step="${step}" value="${C[k]}"></div>`;
+  el.innerHTML = `<div id="tune-head"><b>Campfire — high detail</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <p class="tune-sub">Fire</p>${R('size', 'Size', 0.3, 1.8, 0.01)}${R('glow', 'Glow', 0, 1.5, 0.01)}${R('embers', 'Embers', 0, 1, 0.01)}${R('smoke', 'Smoke', 0, 2, 0.01)}
+    <p class="tune-sub">Air & lens</p>${R('haze', 'Heat haze', 0, 2, 0.01)}${R('grain', 'Grain & vignette', 0, 2, 0.01)}
+    <p class="tune-sub">Cursor & camera</p>${R('wind', 'Wind', 0, 3, 0.01)}${R('push', 'Push', 0, 3, 0.01)}${R('orbit', 'Drag orbit', 0, 1.5, 0.01)}
+    <div class="row inline"><label>Ignition<i></i></label><button class="tune-btn" id="s-re">Relight</button></div>`;
+  document.body.appendChild(el);
+  for (const k of ['size', 'glow', 'embers', 'smoke', 'haze', 'grain', 'wind', 'push', 'orbit'])
+    el.querySelector('#s-' + k).addEventListener('input', e => { C[k] = +e.target.value; el.querySelector('#v-' + k).textContent = C[k].toFixed(2); });
+  el.querySelector('#s-re').addEventListener('click', () => fire.relight());
+  el.querySelector('#tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+  if (window.wb && window.wb.adopt) window.wb.adopt();
+</script>
+</body>
+</html>

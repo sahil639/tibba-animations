@@ -2,44 +2,144 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Contact page</title>
+<title>Contact</title>
 <link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/workbench.css">
 <script src="assets/manifest.js"></script>
 <script src="notes.js"></script>
 <script src="assets/workbench.js" defer></script>
-<link rel="stylesheet" href="assets/stub.css">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Contact
+   ─────────────────────────────────────────────────────────────────────────
+   One screen, no footer. On the left, a carabiner on a string drops into
+   the frame when the page opens and settles with its weight — a stone drawn
+   in contour lines hanging in its basket — and answers a click with a swing,
+   a turn and the gate opening and snapping shut (assets/carabiner.js). On
+   the right, the ways in, set as a structured column: the address, where
+   we are, where else to find us, and a short request form.
 
-<!-- the shared control-panel design; last in the head so it wins over
-     whatever styling this page declared for its own panel -->
+   The form posts nowhere — there is no back end here. Like the footer's, it
+   opens a mail draft with the fields filled in.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --accent: #FF4B1F; }
+body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+button, input, textarea, select { font: inherit; color: inherit; }
+
+.contact { min-height: 100vh; min-height: 100svh; display: grid; grid-template-columns: 1.1fr minmax(360px, .9fr); }
+.scene { position: relative; min-height: 100svh; }
+#biner { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.scene .hint { position: absolute; left: var(--gut); bottom: clamp(24px, 5vh, 48px); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); display: flex; gap: 10px; align-items: center; }
+.scene .hint i { width: 7px; height: 7px; background: var(--accent); display: inline-block; }
+.scene .coords { position: absolute; left: var(--gut); top: clamp(76px, 11vh, 120px); font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-faint); line-height: 1.9; font-variant-numeric: tabular-nums; }
+.scene .coords b { color: #fff; font-weight: 400; }
+
+.info { position: relative; padding: clamp(80px, 12vh, 130px) var(--gut) clamp(32px, 6vh, 56px) clamp(24px, 3vw, 48px);
+  border-left: 1px solid rgba(255,255,255,.1); display: flex; flex-direction: column; gap: clamp(22px, 3.2vh, 36px); }
+.info .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.info h1 { margin-top: 14px; color: #fff; font-weight: 400; font-size: clamp(30px, 3.2vw, 52px); line-height: 1; letter-spacing: -.035em; max-width: 13ch; }
+.rows { display: grid; }
+.row2 { display: grid; grid-template-columns: 110px 1fr; gap: 16px; padding: 14px 0; border-top: 1px solid rgba(255,255,255,.1); align-items: baseline; }
+.row2:last-child { border-bottom: 1px solid rgba(255,255,255,.1); }
+.row2 .k { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-faint); }
+.row2 .v { font-size: 15px; color: #fff; }
+.row2 .v a { border-bottom: 1px solid rgba(255,255,255,.25); transition: border-color .2s linear, color .2s linear; }
+.row2 .v a:hover { color: var(--accent); border-color: var(--accent); }
+.row2 .v .sep { color: var(--ink-faint); margin: 0 10px; }
+form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+form .full { grid-column: 1 / -1; }
+form label { display: grid; gap: 6px; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); }
+form input, form textarea, form select { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.12); padding: 11px 12px; font-size: 14px; color: #fff; letter-spacing: 0; text-transform: none; border-radius: 0; transition: border-color .2s linear; }
+form textarea { min-height: 96px; resize: vertical; }
+form input:focus, form textarea:focus, form select:focus { outline: none; border-color: var(--accent); }
+form button { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #fff; color: #000; border: 0; cursor: pointer;
+  font-size: 11px; letter-spacing: .16em; text-transform: uppercase; transition: background .2s linear; }
+form button i { width: 8px; height: 8px; background: var(--accent); }
+form button:hover { background: var(--ink-warm); }
+
+@media (max-width: 900px) {
+  .contact { grid-template-columns: 1fr; }
+  .scene { min-height: 70vh; }
+  .info { border-left: 0; border-top: 1px solid rgba(255,255,255,.1); padding-top: 40px; }
+}
+</style>
 <link rel="stylesheet" href="assets/tune.css">
 </head>
 <body>
 
-<!-- ─────────────────────────────────────────────────────────────────────────
-     Contact page
+<main class="contact">
+  <section class="scene" aria-label="A carabiner on a string; click it">
+    <canvas id="biner"></canvas>
+    <p class="coords" aria-hidden="true">Anchor <b>fixed</b><br>Load <b id="load-v">settling</b></p>
+    <p class="hint"><i></i>Click the carabiner</p>
+  </section>
 
-     Nothing has been designed into this page yet. Replace everything between
-     these comments with the section itself; keep the four lines in the head
-     that carry the type and the workbench, and drop assets/stub.css when the
-     placeholder below goes.
-
-     The dock on the right files its comments against this page's id in
-     assets/manifest.js. Change the label there and notes follow; change the
-     id and they do not.
-     ───────────────────────────────────────────────────────────────────── -->
-
-<main class="stub">
-  <p class="eyebrow">Contact</p>
-  <h1>Contact page</h1>
-  <div class="rule"></div>
-  <p>The way in. One page, one job.</p>
-  <p>Start in <code>contact.html</code>. Leave a note in the dock on the right as you
-     go, and commit <code>notes.js</code> with the change.</p>
+  <section class="info" aria-labelledby="contact-h">
+    <div>
+      <p class="eyebrow">[ &nbsp;Contact&nbsp; ]</p>
+      <h1 id="contact-h">Let's get to know you and your idea</h1>
+    </div>
+    <div class="rows">
+      <div class="row2"><span class="k">Write</span><span class="v"><a href="mailto:hello@tibba.design">hello@tibba.design</a></span></div>
+      <div class="row2"><span class="k">Based</span><span class="v">India — working with teams anywhere</span></div>
+      <div class="row2"><span class="k">Elsewhere</span><span class="v">
+        <a href="https://medium.com/@tibbadesignstudio">Medium</a><span class="sep">/</span><a href="https://www.instagram.com/tibba.design/">Instagram</a><span class="sep">/</span><a href="https://www.linkedin.com/company/tibba-design-studio/">LinkedIn</a></span></div>
+    </div>
+    <form id="req">
+      <label>Name<input name="name" autocomplete="name" required></label>
+      <label>Email<input name="email" type="email" autocomplete="email" required></label>
+      <label class="full">Stage<select name="stage"><option>Early-stage startup</option><option>Mid-size company</option><option>Established company</option></select></label>
+      <label class="full">Message<textarea name="message" required></textarea></label>
+      <button type="submit"><span>Send request</span><i></i></button>
+    </form>
+  </section>
 </main>
 
-<!-- ─────────────────────────────────────────────────────────────────────── -->
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.165.0/examples/jsm/"}}</script>
+<script type="module">
+  import { mountCarabiner, M } from './assets/carabiner.js';
+  const c = mountCarabiner(document.getElementById('biner'));
+  window.tibbaCarabiner = c;
 
+  /* the readout: settling while it still moves, then at rest */
+  const lv = document.getElementById('load-v');
+  setInterval(() => { lv.textContent = Math.abs(c.S.vL) + Math.abs(c.S.vth) > 0.02 ? 'settling' : 'at rest'; }, 300);
+
+  /* the form opens a mail draft, as the footer's does */
+  document.getElementById('req').addEventListener('submit', e => {
+    e.preventDefault();
+    const f = new FormData(e.target);
+    const body = `${f.get('message')}\n\n— ${f.get('name')} (${f.get('email')})\nStage: ${f.get('stage')}`;
+    location.href = `mailto:hello@tibba.design?subject=${encodeURIComponent('Project request — ' + f.get('name'))}&body=${encodeURIComponent(body)}`;
+  });
+
+  /* the panel */
+  const el = document.createElement('div');
+  el.id = 'tune';
+  el.innerHTML = `<div id="tune-head"><b>Carabiner</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <p class="tune-sub">Motion</p>
+    <div class="row"><label>Intensity<i id="v-in">1.00</i></label><input type="range" id="s-in" min="0" max="200" value="100"></div>
+    <div class="row inline"><label>Reduced motion<i></i></label><input type="checkbox" id="s-rm" ${M.reduced ? 'checked' : ''}></div>
+    <div class="row inline"><label>Gate opens on click<i></i></label><input type="checkbox" id="s-gt" checked></div>
+    <div class="row inline"><label>Contour stone<i></i></label><input type="checkbox" id="s-st" checked></div>
+    <p class="tune-sub">Replay</p>
+    <div class="row inline"><label>Drop again<i></i></label><button class="tune-btn" id="s-dr">Reset</button></div>
+    <div class="row inline"><label>Nudge<i></i></label><button class="tune-btn" id="s-kk">Click</button></div>`;
+  document.body.appendChild(el);
+  const q = id => el.querySelector('#' + id);
+  q('s-in').addEventListener('input', e => { M.intensity = e.target.value / 100; q('v-in').textContent = M.intensity.toFixed(2); });
+  q('s-rm').addEventListener('change', e => { M.reduced = e.target.checked; });
+  q('s-gt').addEventListener('change', e => { M.gateOnClick = e.target.checked; });
+  q('s-st').addEventListener('change', e => { M.stone = e.target.checked; });
+  q('s-dr').addEventListener('click', () => c.drop());
+  q('s-kk').addEventListener('click', () => c.kick(0.4));
+  q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+  if (window.wb && window.wb.adopt) window.wb.adopt();
+</script>
 </body>
 </html>
