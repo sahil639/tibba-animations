@@ -80,103 +80,66 @@ body {
 }
 #head b { color: var(--accent); font-weight: 400; }
 
-/* ── the boxes ─────────────────────────────────────────────────────────── */
+/* ── the boxes ─────────────────────────────────────────────────────────
+   Four panels set as one cluster to the right of the peak, the way the
+   reference sets them: a brick bond, each box sharing an edge with the
+   next, so the four read as a single instrument rather than four cards.
+   Geometry is METRICS_CONFIG.layout in assets/metrics.js — the cluster's
+   frame, and each box's x/y/w/h as fractions of the cluster. */
 #metrics { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
-.mbox {
-  --x: 0; --y: 0;                          /* pointer drift, per box depth */
-  position: absolute; left: var(--l); top: var(--t); width: var(--w);
-  padding: 18px 20px 16px;
+.mcluster {
+  --x: 0; --y: 0;                          /* pointer drift, the cluster as one */
+  position: absolute; left: var(--cl); top: var(--ct); width: var(--cw); aspect-ratio: var(--ca);
   transform: translate3d(calc(var(--x) * 1px), calc(var(--y) * 1px), 0);
-  pointer-events: auto;
 }
-.mbox[data-i="0"] { --l: 52%;  --t: 17%; --w: clamp(220px, 19vw, 290px); }
-.mbox[data-i="1"] { --l: 73%;  --t: 25%; --w: clamp(200px, 16vw, 250px); }
-.mbox[data-i="2"] { --l: 57%;  --t: 53%; --w: clamp(210px, 17vw, 260px); }
-.mbox[data-i="3"] { --l: 75.5%; --t: 61%; --w: clamp(230px, 19.5vw, 300px); }
+.mbox {
+  position: absolute; left: calc(var(--bx) * 100%); top: calc(var(--by) * 100%);
+  width: calc(var(--bw) * 100% + 1px); height: calc(var(--bh) * 100% + 1px);   /* +1px: shared hairlines overlap */
+  padding: clamp(14px, 1.6vw, 26px) clamp(16px, 1.9vw, 30px);
+  display: flex; flex-direction: column; pointer-events: auto;
+}
 
 /* the plate: glass and a hairline, opened from its centre line */
 .mbox .plate {
-  position: absolute; inset: 0; border: 1px solid rgba(255,255,255,.1); border-radius: 3px;
-  background: rgba(12,12,14,.66);
+  position: absolute; inset: 0; border: 1px solid rgba(255,255,255,.16);
+  background: rgba(10,10,12,.78);
   backdrop-filter: blur(14px) saturate(1.1); -webkit-backdrop-filter: blur(14px) saturate(1.1);
-  clip-path: inset(0 0 100% 0);
+  clip-path: inset(50% 0 50% 0);
 }
+.mbox .hl { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--accent); transform: scaleX(0); opacity: 0; pointer-events: none; }
 
-/* four corner brackets, which lock on before anything else is there */
+/* four corner brackets, which lock on once the plate is open */
 .mbox .cn { position: absolute; width: 10px; height: 10px; border-color: #fff; border-style: solid; opacity: 0; }
 .mbox .cn.tl { left: -1px; top: -1px; border-width: 1px 0 0 1px; }
 .mbox .cn.tr { right: -1px; top: -1px; border-width: 1px 1px 0 0; }
 .mbox .cn.bl { left: -1px; bottom: -1px; border-width: 0 0 1px 1px; }
 .mbox .cn.br { right: -1px; bottom: -1px; border-width: 0 1px 1px 0; }
 
-.mbox .in { position: relative; }
+.mbox .in { position: relative; flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-height: 0; }
 .mbox .k { display: flex; justify-content: space-between; font-size: 9.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); opacity: 0; }
 .mbox .k b { color: var(--accent); font-weight: 400; }
 .mbox .v {
-  display: block; margin-top: 14px; color: #fff; font-weight: 300;
-  font-size: clamp(44px, 4.6vw, 76px); line-height: 1; letter-spacing: -.04em;
-  font-variant-numeric: tabular-nums;
-  opacity: 0;
+  display: block; color: #fff; font-weight: 300;
+  font-size: clamp(40px, 4.4vw, 84px); line-height: .9; letter-spacing: -.04em;
+  font-variant-numeric: tabular-nums; opacity: 0;
 }
-.mbox .l { display: block; margin-top: 12px; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-mute); }
+.mbox .l { display: block; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-mute); opacity: 0; }
 .mbox .pin { position: absolute; right: -1px; top: -1px; width: 8px; height: 8px; background: var(--accent); transform: scale(0); }
 
-/* ── the load-in ─────────────────────────────────────────────────────────
-   A HUD panel opening, not a card landing. Every beat is a straight line
-   on a precise curve — nothing tilts, nothing overshoots:
-     line    a hairline draws out from the centre of the box, both ways
-     open    the plate opens up and down from that line
-     frame   the four corner brackets snap onto the corners
-     data    the header row, then the figure counts and the label rolls
-     rule    four segments along the top edge light in sequence, and the
-             orange pin comes on last
-   The box's position never animates; only its contents are revealed. */
-.mbox { opacity: 0; }
-.mbox.in-view { opacity: 1; }
-.mbox .hl {
-  position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--accent);
-  transform: scaleX(0); opacity: 0; pointer-events: none;
-}
-.mbox .seg { position: absolute; left: 20px; right: 20px; top: -1px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
-.mbox .seg i { height: 1px; background: rgba(255,255,255,.55); transform: scaleX(0); transform-origin: left; }
-.mbox .plate { clip-path: inset(50% 0 50% 0); }
-
-.mbox.in-view .hl { animation: m-line .42s var(--delay) cubic-bezier(.65,0,.35,1) both, m-out .3s calc(var(--delay) + .72s) linear both; }
-@keyframes m-line { from { transform: scaleX(0); opacity: 1; } to { transform: scaleX(1); opacity: 1; } }
-@keyframes m-out { from { opacity: 1; } to { opacity: 0; } }
-.mbox.in-view .plate { animation: m-open .5s calc(var(--delay) + .38s) cubic-bezier(.65,0,.35,1) both; }
-@keyframes m-open { from { clip-path: inset(50% 0 50% 0); } to { clip-path: inset(0 0 0 0); } }
-.mbox.in-view .cn { animation: m-lock .34s calc(var(--delay) + .74s) cubic-bezier(.2,0,0,1) both; }
-.mbox .cn.tl { --sx: -6px; --sy: -6px; }
-.mbox .cn.tr { --sx: 6px;  --sy: -6px; }
-.mbox .cn.bl { --sx: -6px; --sy: 6px; }
-.mbox .cn.br { --sx: 6px;  --sy: 6px; }
-@keyframes m-lock { from { opacity: 0; transform: translate(var(--sx), var(--sy)); } to { opacity: .9; transform: none; } }
-.mbox.in-view .k { animation: m-fade .4s calc(var(--delay) + .82s) linear both; }
-.mbox.in-view .v { animation: m-fade .2s calc(var(--delay) + .86s) linear both; }
-.mbox.in-view .seg i { animation: m-seg .22s linear both; }
-.mbox.in-view .seg i:nth-child(1) { animation-delay: calc(var(--delay) + 1.0s); }
-.mbox.in-view .seg i:nth-child(2) { animation-delay: calc(var(--delay) + 1.12s); }
-.mbox.in-view .seg i:nth-child(3) { animation-delay: calc(var(--delay) + 1.24s); }
-.mbox.in-view .seg i:nth-child(4) { animation-delay: calc(var(--delay) + 1.36s); }
-@keyframes m-seg { to { transform: scaleX(1); } }
-.mbox.in-view .pin { animation: m-pin .18s calc(var(--delay) + 1.55s) linear both; }
-@keyframes m-fade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes m-pin { to { transform: scale(1); } }
+/* The open/close itself is a GSAP timeline (metrics.js): line → plate →
+   corners → data → pin, and the same timeline run backwards to close. */
 
 @media (max-width: 820px) {
   #stage::after { background: linear-gradient(0deg, rgba(0,0,0,.9), rgba(0,0,0,0) 70%); }
-  .mbox { --w: calc(50% - 24px) !important; padding: 14px; }
-  .mbox[data-i="0"] { --l: 16px;  --t: 44%; }
-  .mbox[data-i="1"] { --l: 52%;   --t: 48%; }
-  .mbox[data-i="2"] { --l: 16px;  --t: 68%; }
-  .mbox[data-i="3"] { --l: 52%;   --t: 72%; }
-  .mbox .v { font-size: 40px; }
+  .mcluster { left: 16px; right: 16px; width: auto; top: 44%; aspect-ratio: auto; height: 48%; }
+  .mbox { padding: 12px 14px; }
+  .mbox[data-i="0"] { --bx: 0 !important; --by: 0 !important; --bw: .5 !important; --bh: .5 !important; }
+  .mbox[data-i="1"] { --bx: .5 !important; --by: 0 !important; --bw: .5 !important; --bh: .5 !important; }
+  .mbox[data-i="2"] { --bx: 0 !important; --by: .5 !important; --bw: .5 !important; --bh: .5 !important; }
+  .mbox[data-i="3"] { --bx: .5 !important; --by: .5 !important; --bw: .5 !important; --bh: .5 !important; }
+  .mbox .v { font-size: 36px; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .mbox.in-view, .mbox.in-view * { animation-duration: .01s !important; animation-delay: 0s !important; }
-  .mbox .plate { clip-path: none; }
-}
+@media (prefers-reduced-motion: reduce) { .mbox .plate { clip-path: none; } }
 </style>
 <link rel="stylesheet" href="assets/tune.css">
 </head>
