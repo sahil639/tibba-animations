@@ -1,9 +1,9 @@
 /* ══════════════════════════════════════════════════════════════════════════
-   Workbench — site menu, right dock, comments
+   Workbench — site menu and right dock
    ─────────────────────────────────────────────────────────────────────────
    Loaded by every page. It reads assets/manifest.js for the site map and
-   notes.js for the comments, and it builds its own chrome — no page carries
-   any of this markup.
+   assets/whats-new.js for which pages are new to this browser, and it builds
+   its own chrome — no page carries any of this markup.
 
    The one clever part is adopt(): a page's control panel is MOVED into the
    dock with appendChild rather than rebuilt there. Moving a node keeps every
@@ -18,15 +18,23 @@
   if (!SITE) { console.warn('[workbench] assets/manifest.js did not load'); return; }
 
   var LS = {
-    author: 'tibba.author',
-    drafts: 'tibba.notes.drafts',
     nav:    'tibba.nav.open',
     dock:   'tibba.dock.open',
-    notes:  'tibba.notes.open',
     width:  'tibba.dock.width',
   };
   function get(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
   function set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+  /* The comments feature is gone. What it left in this browser — the name
+     typed into it, unsent drafts, whether its drawer was open — is cleared
+     once, so nothing stale sits in storage. */
+  ['tibba.author', 'tibba.notes.drafts', 'tibba.notes.open'].forEach(function (k) {
+    try { localStorage.removeItem(k); } catch (e) {}
+  });
+
+  /* New to this browser — assets/whats-new.js. Tolerates a page that does
+     not load it: nothing is ever new there. */
+  var NEW = window.TibbaNew || { isNew: function () { return false; }, markSeen: function () {} };
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -97,6 +105,9 @@
       var sum = el('summary');
       sum.appendChild(el('span', 'wb-tw'));
       sum.appendChild(el('span', null, sec.label));
+      if (sec.pages.some(function (p) { return NEW.isNew(p); })) {
+        var gd = el('span', 'wb-new-dot'); gd.title = 'Something new in here'; sum.appendChild(gd);
+      }
       sum.appendChild(el('span', 'wb-n', String(sec.pages.length)));
       d.appendChild(sum);
 
@@ -105,6 +116,11 @@
         a.href = p.file;
         a.appendChild(el('span', null, p.label));
         if (p.state === 'stub') a.appendChild(el('span', 'wb-stub', 'stub'));
+        if (NEW.isNew(p)) {
+          var nt = el('span', 'wb-new', 'New');
+          if (p.change) nt.title = p.change;
+          a.appendChild(nt);
+        }
         if (CURRENT && CURRENT.id === p.id) a.setAttribute('aria-current', 'page');
         d.appendChild(a);
       });
@@ -115,63 +131,13 @@
     return nav;
   }
 
-  /* ═══ notes ══════════════════════════════════════════════════════════
-     Committed notes come from notes.js, which the dev server rewrites and a
-     dev commits. Anything written while the file cannot be reached is held
-     in localStorage and shown as uncommitted until it lands in the file. */
-  function committed() { return (window.TIBBA_NOTES || []).slice(); }
-  function drafts() {
-    try { return JSON.parse(get(LS.drafts, '[]')) || []; } catch (e) { return []; }
-  }
-  function saveDrafts(list) { set(LS.drafts, JSON.stringify(list)); }
-
-  function allNotes() {
-    var done = committed(), ids = {};
-    done.forEach(function (n) { ids[n.id] = 1; });
-    /* a draft that has since been committed by someone else is not a draft
-       any more — drop it rather than show the note twice */
-    var pending = drafts().filter(function (n) { return !ids[n.id]; });
-    if (pending.length !== drafts().length) saveDrafts(pending);
-    return done.map(function (n) { return Object.assign({}, n, { unsaved: false }); })
-      .concat(pending.map(function (n) { return Object.assign({}, n, { unsaved: true }); }))
-      .sort(function (a, b) { return String(a.at).localeCompare(String(b.at)); });
-  }
-
-  function noteFileText(list) {
-    return '/* Comments left in the workbench dock. Written by the dev server when a\n' +
-           '   note is saved; commit it with the change the note is about. */\n' +
-           'window.TIBBA_NOTES = ' + JSON.stringify(list, null, 2) + ';\n';
-  }
-
-  function persist(note, done) {
-    /* The dev server takes the note and rewrites notes.js. On Vercel, or over
-       file://, there is nothing to take it — the note stays local and the
-       panel offers the file to download instead. */
-    var ok = false;
-    try {
-      var xhr = new XMLHttpRequest();
-      xhr.open('POST', 'api/notes', true);
-      xhr.setRequestHeader('Content-Type', 'application/json');
-      xhr.onload = function () {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          try { window.TIBBA_NOTES = JSON.parse(xhr.responseText).notes || []; ok = true; } catch (e) {}
-        }
-        done(ok);
-      };
-      xhr.onerror = function () { done(false); };
-      xhr.send(JSON.stringify(note));
-    } catch (e) { done(false); }
-  }
-
   /* ═══ the dock ═══════════════════════════════════════════════════════ */
-  var dock, dockTab, listEl, countEl, scopeEl, bodyEl;
-  var notesWrap, notesToggle;
-  var scopeAll = false;
+  var dock, dockTab, bodyEl;
 
   function buildDock() {
     dock = el('aside', 'wb');
     dock.id = 'wb-dock';
-    dock.setAttribute('aria-label', 'Controls and comments');
+    dock.setAttribute('aria-label', 'Controls');
     dock.dataset.open = get(LS.dock, 'true');
     document.documentElement.dataset.wbDock = dock.dataset.open === 'true' ? 'open' : 'closed';
     var w = get(LS.width, '');
@@ -179,7 +145,6 @@
 
     dockTab = el('button', 'wb-dock-tab');
     dockTab.type = 'button';
-    dockTab.appendChild(el('span', 'wb-dot'));
     dockTab.appendChild(el('span', null, 'Panel'));
     dockTab.addEventListener('click', function () { toggleDock(); });
     dock.appendChild(dockTab);
@@ -204,7 +169,6 @@
 
     bodyEl = el('div', 'wb-dock-body');
     dock.appendChild(bodyEl);
-    dock.appendChild(buildNotes());
     return dock;
   }
 
@@ -259,172 +223,20 @@
          second placeholder under the first helps nobody */
       if (!bodyEl.querySelector('.wb-empty')) {
         bodyEl.appendChild(el('div', 'wb-empty',
-          'This page has no controls of its own. Notes below are filed against it all the same.'));
+          'This page has no controls of its own.'));
       }
     } else {
-      /* and a panel that arrives late clears the note saying there is none */
+      /* and a panel that arrives late clears the line saying there is none */
       var empty = bodyEl.querySelector('.wb-empty');
       if (empty) empty.remove();
     }
     return found.length;
   }
 
-  /* ═══ comments ═══════════════════════════════════════════════════════ */
-  function buildNotes() {
-    var wrap = notesWrap = el('div', 'wb-notes');
-    wrap.dataset.open = get(LS.notes, 'true');
-
-    var head = el('div', 'wb-notes-head');
-    notesToggle = el('button', 'wb-notes-toggle');
-    notesToggle.type = 'button';
-    notesToggle.setAttribute('aria-expanded', wrap.dataset.open);
-    notesToggle.appendChild(el('span', 'wb-tw'));
-    notesToggle.appendChild(el('span', null, 'Comments'));
-    countEl = el('span', 'wb-count', '0');
-    notesToggle.appendChild(countEl);
-    notesToggle.addEventListener('click', function () { toggleNotes(); });
-    head.appendChild(notesToggle);
-
-    scopeEl = el('button', 'wb-scope', 'this page');
-    scopeEl.type = 'button';
-    scopeEl.title = 'Switch between this page and the whole site';
-    scopeEl.addEventListener('click', function () {
-      scopeAll = !scopeAll;
-      scopeEl.textContent = scopeAll ? 'whole site' : 'this page';
-      renderNotes();
-    });
-    head.appendChild(scopeEl);
-    wrap.appendChild(head);
-
-    var notesBody = el('div', 'wb-notes-body');
-    listEl = el('div', 'wb-list');
-    notesBody.appendChild(listEl);
-
-    var compose = el('form', 'wb-compose');
-    var who = el('input');
-    who.type = 'text';
-    who.placeholder = 'Your name';
-    who.value = get(LS.author, '');
-    who.addEventListener('change', function () { set(LS.author, who.value.trim()); });
-
-    var txt = el('textarea');
-    txt.placeholder = CURRENT
-      ? 'Note on ' + CURRENT.label + '…'
-      : 'Note on this page…';
-
-    var row = el('div', 'wb-compose-row');
-    var save = el('button', 'wb-btn wb-primary', 'Save note');
-    save.type = 'submit';
-    var out = el('button', 'wb-btn', 'notes.js');
-    out.type = 'button';
-    out.title = 'Download notes.js with every comment, to commit';
-    out.addEventListener('click', function () { downloadNotes(); });
-    var say = el('span', 'wb-say', '');
-    row.appendChild(save);
-    row.appendChild(out);
-    row.appendChild(say);
-
-    compose.appendChild(who);
-    compose.appendChild(txt);
-    compose.appendChild(row);
-    compose.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var text = txt.value.trim();
-      if (!text) return;
-      var author = who.value.trim() || 'anon';
-      set(LS.author, author);
-      var note = {
-        id: 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-        page: CURRENT ? CURRENT.id : here,
-        pageLabel: CURRENT ? CURRENT.label : document.title,
-        author: author,
-        text: text,
-        at: new Date().toISOString(),
-      };
-      txt.value = '';
-      say.textContent = 'saving…';
-      persist(note, function (ok) {
-        if (!ok) {
-          var d = drafts();
-          d.push(note);
-          saveDrafts(d);
-          say.innerHTML = 'held locally — <b>download notes.js</b> to commit it';
-        } else {
-          say.textContent = 'written to notes.js — commit it';
-        }
-        renderNotes();
-        setTimeout(function () { say.textContent = ''; }, 8000);
-      });
-    });
-    notesBody.appendChild(compose);
-    wrap.appendChild(notesBody);
-    return wrap;
-  }
-
-  function toggleNotes(force) {
-    var open = force === undefined ? notesWrap.dataset.open !== 'true' : !!force;
-    notesWrap.dataset.open = String(open);
-    notesToggle.setAttribute('aria-expanded', String(open));
-    set(LS.notes, String(open));
-    /* the list only scrolls to the newest note when it has a height to scroll
-       within, so an expand has to put it back at the bottom */
-    if (open) setTimeout(function () { listEl.scrollTop = listEl.scrollHeight; }, 320);
-  }
-
-  function fmt(iso) {
-    var d = new Date(iso);
-    if (isNaN(d)) return '';
-    return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) + ' ' +
-           d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-  }
-
-  function renderNotes() {
-    var mine = CURRENT ? CURRENT.id : here;
-    var list = allNotes().filter(function (n) { return scopeAll || n.page === mine; });
-    listEl.textContent = '';
-    countEl.textContent = String(list.length);
-
-    if (!list.length) {
-      listEl.appendChild(el('div', 'wb-none',
-        scopeAll ? 'Nothing written anywhere yet.' : 'Nothing on this page yet.'));
-    }
-    list.forEach(function (n) {
-      var row = el('div', 'wb-note');
-      if (n.unsaved) row.dataset.unsaved = 'true';
-      var meta = el('div', 'wb-meta');
-      meta.appendChild(el('span', 'wb-who', n.author || 'anon'));
-      if (scopeAll) meta.appendChild(el('span', null, n.pageLabel || n.page));
-      meta.appendChild(el('span', 'wb-on', fmt(n.at)));
-      row.appendChild(meta);
-      row.appendChild(el('div', 'wb-txt', n.text));
-      listEl.appendChild(row);
-    });
-    listEl.scrollTop = listEl.scrollHeight;
-
-    countEl.dataset.unsaved = String(list.some(function (n) { return n.unsaved; }));
-    var pending = allNotes().some(function (n) { return n.unsaved; });
-    if (dockTab) dockTab.dataset.unsaved = String(pending);
-  }
-
-  function downloadNotes() {
-    var text = noteFileText(allNotes().map(function (n) {
-      var c = Object.assign({}, n);
-      delete c.unsaved;
-      return c;
-    }));
-    var blob = new Blob([text], { type: 'text/javascript' });
-    var a = el('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'notes.js';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
-  }
-
   /* Some pages own the wheel outright — topo-peaks moves focus between summits
      with it and calls preventDefault on window for every event. That listener
-     cannot tell a scroll over the mountain from a scroll over a comment
-     thread, so the chrome stops its own events reaching it. */
+     cannot tell a scroll over the mountain from a scroll over the dock's
+     panel, so the chrome stops its own events reaching it. */
   function keepScrollLocal(root) {
     ['wheel', 'touchmove'].forEach(function (type) {
       root.addEventListener(type, function (e) { e.stopPropagation(); }, { passive: true });
@@ -435,11 +247,13 @@
   function boot() {
     if (document.getElementById('wb-nav')) return;
     applyTheme();
+    /* Opening a page is seeing it: mark it before the menu is drawn, so the
+       page you are on is never flagged as new in its own menu. */
+    if (CURRENT) NEW.markSeen(CURRENT.id);
     var nav = buildNav();
     document.body.appendChild(nav);
     document.body.appendChild(buildDock());
     adopt();
-    renderNotes();
 
     /* adopt() is the dock's one piece of public surface. A page whose panel
        is built later than DOMContentLoaded — because it waits on a module, or

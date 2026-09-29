@@ -1,16 +1,25 @@
 /* ══════════════════════════════════════════════════════════════════════════
    The site map
    ─────────────────────────────────────────────────────────────────────────
-   One list, read by three things: the index, the collapsible nav every page
-   carries, and the comments panel (which files a note against a page id).
+   One list, read by the index, the collapsible nav every page carries, and
+   the New tags (assets/whats-new.js), which track what each browser has seen
+   by page id.
    Adding a page means adding a line here — nothing else knows the structure.
 
-   id      stable key. Notes are filed against it, so renaming an id orphans
-           that page's notes; renaming `label` or `file` is free.
+   id      stable key. What a browser has seen is stored against it, so
+           renaming an id makes that page New again for everyone; renaming
+           `label` or `file` is free.
    file    the html file, relative to the repo root.
    note    the one-line description shown on the index card.
    state   'live'  — a real design
            'stub'  — scaffolded, nothing designed into it yet
+   updated when the page last changed in a way worth flagging — ISO time,
+           with offset. Written by hand on purpose: a site-wide edit (a
+           favicon, a shared stylesheet) touches every file, and a date read
+           off git would mark the whole site as new. Pages changed within the
+           last 48 hours get the index's "Since your last visit" section and
+           a New tag (assets/whats-new.js).
+   change  one short line saying what changed, shown beside that tag
    ═════════════════════════════════════════════════════════════════════════ */
 window.TIBBA_SITE = {
   /* The assembled site. Kept out of the ordinary run of sections because it is
@@ -53,14 +62,14 @@ window.TIBBA_SITE = {
 
     { id: 'metrics', label: 'Metrics',
       note: 'Years, products shipped, revenue unlocked.',
-      pages: [ { id: 'metrics-01', label: 'Metrics', file: 'metrics.html',
+      pages: [ { id: 'metrics-01', updated: '2026-09-28T19:09:00+07:00', change: 'Boxes now open like HUD panels; progress line gone', label: 'Metrics', file: 'metrics.html',
                  note: "Active Peak's third scroll state; four boxes land in the room the peak leaves", state: 'live' } ] },
 
     { id: 'brands', label: 'Brands section',
       note: 'The logo wall.',
-      pages: [ { id: 'brands-01', label: 'Brands', file: 'brands.html',
+      pages: [ { id: 'brands-01', updated: '2026-09-28T19:09:00+07:00', change: 'Each tile plays its own contour field on hover', label: 'Brands', file: 'brands.html',
                  note: 'Fourteen tiles and a title filling the viewport; each plays its own contour field on hover', state: 'live' },
-               { id: 'brands-mosaic', label: 'Brands — mosaic', file: 'brands-mosaic.html',
+               { id: 'brands-mosaic', updated: '2026-09-28T19:09:00+07:00', change: 'New: brands in boxes of composed, varied sizes', label: 'Brands — mosaic', file: 'brands-mosaic.html',
                  note: 'The same brands in boxes of composed, varied sizes on a written six-by-five grid', state: 'live' } ] },
 
     { id: 'summits', label: 'Our summits',
@@ -68,18 +77,18 @@ window.TIBBA_SITE = {
       pages: [
         { id: 'summits-peaks', label: 'Three summits', file: 'summits-peaks.html',
           note: 'Copy of the hero page, free to diverge', state: 'live' },
-        { id: 'summits-range', label: 'Range', file: 'summits-range.html',
+        { id: 'summits-range', updated: '2026-09-28T12:03:28+07:00', change: 'Rebuilt in the Active Peak style, with a summit trail', label: 'Range', file: 'summits-range.html',
           note: 'Active Peak, station for station, with the four cases in its aside column and a trail to the summit', state: 'live' },
-        { id: 'summits-range-l2', label: 'Range – L2', file: 'summits-range-l2.html',
+        { id: 'summits-range-l2', updated: '2026-09-28T12:03:28+07:00', change: 'New: the cases in four cards up the peak', label: 'Range – L2', file: 'summits-range-l2.html',
           note: 'The same climb, the cases in four containers up the right flank, each with its own entrance', state: 'live' },
-        { id: 'summits-four', label: 'Four Summits', file: 'summits-four.html',
+        { id: 'summits-four', updated: '2026-09-28T19:09:00+07:00', change: 'New: four peaks, Bézier trails, cards bottom-left', label: 'Four Summits', file: 'summits-four.html',
           note: "The final site's summits section on its own: four peaks, a Bézier trail up each in its colour, L2's cards bottom-left", state: 'live' },
       ] },
 
     { id: 'case-studies', label: 'Extra case studies',
       note: 'The work that does not get a summit.',
       pages: [ { id: 'case-studies-01', label: 'Extra case studies', file: 'case-studies.html', note: '', state: 'stub' },
-               { id: 'case-studies-reel', label: 'Case reel', file: 'case-studies-reel.html',
+               { id: 'case-studies-reel', updated: '2026-09-28T19:09:00+07:00', change: 'New: extra cases on the Work Reel, altitude tape', label: 'Case reel', file: 'case-studies-reel.html',
                  note: 'The six extra cases on the Work Reel, in black, with an altitude tape that slides with the scroll', state: 'live' } ] },
 
     /* The four summits, each at full length. All four are one template and four
@@ -100,17 +109,17 @@ window.TIBBA_SITE = {
 
     { id: 'services', label: 'Our services',
       note: 'What the studio sells, as a section.',
-      pages: [ { id: 'services-01', label: 'Our services', file: 'services-section.html',
+      pages: [ { id: 'services-01', updated: '2026-09-28T12:03:28+07:00', change: 'Rebuilt on tibba.design\'s services layout', label: 'Our services', file: 'services-section.html',
                  note: "tibba.design's layout: stage tabs, a service grid, the detail beside it, recent work", state: 'live' },
-               { id: 'services-topo', label: 'Shifting Topo', file: 'services-topo.html',
+               { id: 'services-topo', updated: '2026-09-28T19:09:00+07:00', change: 'New: a stepped terrain that re-forms per stage', label: 'Shifting Topo', file: 'services-topo.html',
                  note: 'A stepped block of land that re-surveys itself per stage, services left and right', state: 'live' },
-               { id: 'services-compass', label: 'Compass', file: 'services-compass.html',
+               { id: 'services-compass', updated: '2026-09-28T19:09:00+07:00', change: 'New: a HUD compass that sets the stage', label: 'Compass', file: 'services-compass.html',
                  note: 'A HUD compass: click or turn it to a stage, and its services appear either side', state: 'live' } ] },
 
     { id: 'testimonials', label: 'Our testimonials',
       note: 'What clients say.',
       pages: [ { id: 'testimonials-01', label: 'Our testimonials', file: 'testimonials.html', note: '', state: 'stub' },
-               { id: 'testimonials-topo', label: 'Testimonials — topo', file: 'testimonials-topo.html',
+               { id: 'testimonials-topo', updated: '2026-09-28T19:09:00+07:00', change: 'New: masked quote reveals over a live contour field', label: 'Testimonials — topo', file: 'testimonials-topo.html',
                  note: "The final site's quotes, one pinned scene: masked word reveals, a live contour field per client, parallax", state: 'live' } ] },
 
     { id: 'studio', label: 'Our studio',
@@ -119,15 +128,15 @@ window.TIBBA_SITE = {
                  note: 'The section that sits between the testimonials and the footer', state: 'live' },
                { id: 'studio-photos', label: 'Photographs', file: 'studio-photos.html',
                  note: 'Seven photographs staggered around a centred title', state: 'live' },
-               { id: 'studio-polaroids', label: 'Polaroids', file: 'studio-polaroids.html',
+               { id: 'studio-polaroids', updated: '2026-09-28T19:09:00+07:00', change: 'New: draggable team polaroids round the title', label: 'Polaroids', file: 'studio-polaroids.html',
                  note: 'Exploratory: the team and studio life as draggable polaroids round the title', state: 'live' } ] },
 
     { id: 'footer', label: 'Footer',
       note: 'The bottom of every page.',
       pages: [
-        { id: 'footer-01', label: 'Footer — skyline', file: 'footer.html',
+        { id: 'footer-01', updated: '2026-09-28T11:06:00+07:00', change: 'Fix to the generated skyline', label: 'Footer — skyline', file: 'footer.html',
           note: 'The footer on the generated paper skyline', state: 'live' },
-        { id: 'footer-peak', label: 'Footer — snow peak', file: 'footer-mountain.html',
+        { id: 'footer-peak', updated: '2026-09-28T19:09:00+07:00', change: 'Layered depth, survey lines, new layout; no load-in', label: 'Footer — snow peak', file: 'footer-mountain.html',
           note: 'Granite spires in three layered depths, survey lines on the rock, the footer laid out around the peak', state: 'live' },
       ] },
 
@@ -137,7 +146,7 @@ window.TIBBA_SITE = {
 
     { id: 'about-description', label: 'About us — description',
       note: 'The studio in prose.',
-      pages: [ { id: 'about-description-01', label: 'About us — description', file: 'about-description.html',
+      pages: [ { id: 'about-description-01', updated: '2026-09-28T19:09:00+07:00', change: 'Text revealed over one scroll, with a timing panel', label: 'About us — description', file: 'about-description.html',
                  note: 'The studio in prose, revealed out of the dark over one scroll, with its timing on the panel', state: 'live' } ] },
 
     { id: 'about-team', label: 'About us — team',
@@ -146,13 +155,13 @@ window.TIBBA_SITE = {
 
     { id: 'about', label: 'About us',
       note: 'The whole about page, its sections assembled.',
-      pages: [ { id: 'about-01', label: 'About us', file: 'about.html',
+      pages: [ { id: 'about-01', updated: '2026-09-28T10:50:31+07:00', change: 'Interactive campfire added above the footer', label: 'About us', file: 'about.html',
                  note: 'The definition, the studio in prose, the foundation and the team', state: 'live' },
-               { id: 'about-campfire-contour', label: 'Campfire — contour', file: 'about-campfire-contour.html',
+               { id: 'about-campfire-contour', updated: '2026-09-28T11:19:18+07:00', change: 'Controls, looser rocks, calmer hover, real smoke', label: 'Campfire — contour', file: 'about-campfire-contour.html',
                  note: 'The campfire again, drawn in the hero\'s contour lines', state: 'live' },
-               { id: 'about-campfire-lowpoly', label: 'Campfire — low-poly', file: 'about-campfire-lowpoly.html',
+               { id: 'about-campfire-lowpoly', updated: '2026-09-28T19:09:00+07:00', change: 'New: the first campfire re-cut as facets', label: 'Campfire — low-poly', file: 'about-campfire-lowpoly.html',
                  note: 'The first campfire re-cut as facets: twenty-faced stones, hex logs, crystal flames', state: 'live' },
-               { id: 'about-campfire-hd', label: 'Campfire — high detail', file: 'about-campfire-hd.html',
+               { id: 'about-campfire-hd', updated: '2026-09-28T19:09:00+07:00', change: 'New: lights, coals, streak sparks, haze, orbit', label: 'Campfire — high detail', file: 'about-campfire-hd.html',
                  note: 'Two flickering lights, coals, streak sparks, heat haze, grade, and a camera you can drag round', state: 'live' } ] },
 
     { id: 'about-foundations', label: 'About us — foundations',
@@ -161,7 +170,7 @@ window.TIBBA_SITE = {
 
     { id: 'contact', label: 'Contact page',
       note: 'The way in.',
-      pages: [ { id: 'contact-01', label: 'Contact page', file: 'contact.html',
+      pages: [ { id: 'contact-01', updated: '2026-09-28T19:09:00+07:00', change: 'A 3D carabiner on a string; details on the right', label: 'Contact page', file: 'contact.html',
                  note: 'A 3D carabiner drops in on a string and answers a click; the ways in down the right; no footer', state: 'live' } ] },
 
     { id: 'services-page', label: 'Services page',

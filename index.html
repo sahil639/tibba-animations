@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="assets/type.css">
 <link rel="stylesheet" href="assets/workbench.css">
 <script src="assets/manifest.js"></script>
-<script src="notes.js"></script>
+<script src="assets/whats-new.js"></script>
 <script src="assets/workbench.js" defer></script>
 <style>
   /* ════════════════════════════════════════════════════════════════════════
@@ -132,6 +132,84 @@
   .pg[data-state="stub"] { background: none; border-color: var(--line); border-style: dashed; }
   .pg[data-state="stub"] .name { color: var(--dim); }
 
+  /* ── since your last visit ──────────────────────────────────────────── */
+  /* when there is something to show, the header gives up its long top run so
+     the section is inside the first screen */
+  body.has-recent header.top { padding: 12vh 0 5vh; }
+  .recent {
+    margin-bottom: 7vh; border: 1px solid var(--line); border-radius: 4px; background: var(--card);
+    position: relative; overflow: hidden;
+  }
+  .recent[data-unseen]:not([data-unseen="0"]) { border-color: rgba(255, 75, 31, .42); }
+  .recent::before {                       /* the accent rule along the top */
+    content: ''; position: absolute; left: 0; top: 0; height: 1px; width: 100%; background: var(--accent);
+    transform-origin: left; animation: rc-rule .9s cubic-bezier(.65,0,.35,1) both;
+  }
+  .recent[data-unseen="0"]::before { opacity: .35; }
+  .recent-head {
+    width: 100%; display: flex; align-items: center; gap: 14px; cursor: pointer; text-align: left;
+    padding: 18px clamp(18px, 2.2vw, 30px); background: none; border: 0; color: var(--ink); font: inherit;
+  }
+  .recent-head .sq { width: 8px; height: 8px; background: var(--accent); flex: none; }
+  .recent[data-unseen="0"] .recent-head .sq { background: var(--faint); }
+  .recent-head .t { font-size: 15.5px; font-weight: 500; letter-spacing: -.01em; }
+  .recent-head .sum { font-size: 11.5px; color: var(--faint); letter-spacing: .02em; }
+  .recent-head .sum b { color: var(--accent); font-weight: 400; }
+  .recent-head .tw { margin-left: auto; width: 10px; height: 10px; border-right: 1px solid var(--dim); border-bottom: 1px solid var(--dim);
+    transform: rotate(45deg) translate(-2px, -2px); transition: transform .3s cubic-bezier(.65,0,.35,1); }
+  .recent[data-open="true"] .recent-head .tw { transform: rotate(225deg) translate(-2px, -2px); }
+  .recent-head:focus-visible { outline: 1px solid var(--accent); outline-offset: -3px; }
+  .recent-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s cubic-bezier(.65,0,.35,1); }
+  .recent[data-open="true"] .recent-body { grid-template-rows: 1fr; }
+  .recent-in { overflow: hidden; }
+  .recent-list { padding: 0 clamp(18px, 2.2vw, 30px); }
+  .recent .day { padding: 14px 0 8px; font-size: 9.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--faint); border-top: 1px solid var(--line); }
+  .rc {
+    display: grid; grid-template-columns: 92px minmax(0, 1fr) minmax(0, 1.4fr) 64px; gap: 16px; align-items: baseline;
+    padding: 10px 0; border-top: 1px solid rgba(255,255,255,.05); transition: background .16s;
+  }
+  .recent .day + .rc { border-top: 0; }
+  .rc:hover { background: rgba(255,255,255,.025); }
+  .rc .when { font-size: 11px; color: var(--faint); font-variant-numeric: tabular-nums; }
+  .rc .who b { display: block; font-size: 13px; font-weight: 500; }
+  .rc .who em { font-style: normal; font-size: 10.5px; color: var(--faint); }
+  .rc .what { font-size: 12px; line-height: 1.55; color: var(--dim); font-weight: 300; }
+  .recent[data-open="true"] .rc { animation: rc-in .5s calc(var(--k) * 40ms) linear both; }
+  .recent-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; padding: 14px clamp(18px, 2.2vw, 30px) 18px;
+    border-top: 1px solid var(--line); font-size: 10.5px; color: var(--faint); }
+  .recent-foot .mark { padding: 8px 12px; border: 1px solid var(--line); background: none; color: var(--ink); font: inherit;
+    font-size: 10px; letter-spacing: .16em; text-transform: uppercase; cursor: pointer; border-radius: 2px; }
+  .recent-foot .mark:hover { border-color: var(--accent); }
+  @keyframes rc-rule { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @keyframes rc-in { from { opacity: 0; } to { opacity: 1; } }
+
+  /* ── the New tag ───────────────────────────────────────────────────────
+     A square that lands, then the word wipes out of it — played once when
+     the tag comes into view. That is the "seen" moment. */
+  .new {
+    justify-self: end; display: inline-flex; align-items: center; gap: 6px; flex: none;
+    font-size: 9px; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); white-space: nowrap;
+    transition: opacity .35s linear;
+  }
+  .new i { width: 6px; height: 6px; background: var(--accent); display: block; animation: nw-sq .35s linear both; }
+  .new b { font-weight: 400; display: block; clip-path: inset(0 100% 0 0); animation: nw-wipe .5s .3s cubic-bezier(.65,0,.35,1) both; }
+  .new.gone { opacity: 0; }
+  @keyframes nw-sq { 0% { transform: scale(0); } 60% { transform: scale(1); } 80% { opacity: .3; } 100% { opacity: 1; transform: scale(1); } }
+  @keyframes nw-wipe { to { clip-path: inset(0 0 0 0); } }
+  .pg .new { margin-left: 10px; }
+  .pg.is-new { border-left: 1px solid var(--accent); }
+  .pg.is-new .state { padding-left: 12px; }
+
+  @media (max-width: 860px) {
+    .rc { grid-template-columns: 1fr auto; }
+    .rc .when { grid-column: 1 / -1; }
+    .rc .what { grid-column: 1 / -1; }
+    .recent-head .sum { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .recent::before, .recent .rc, .new i, .new b { animation: none !important; clip-path: none !important; }
+  }
+
   footer.foot {
     margin-top: 8vh; padding-top: 22px; border-top: 1px solid var(--line);
     display: flex; flex-wrap: wrap; gap: 10px 28px;
@@ -156,16 +234,36 @@
   <h1>Tibba Design Studio<span class="stop">.</span><br>Every section, every page<span class="stop">.</span></h1>
   <p>One entry per section of the site, and under it every page built for that
      section. Open any of them and the same chrome comes with it: the site menu
-     top left, and a dock down the right holding that page&rsquo;s own controls with
-     the comments underneath.</p>
+     top left, and a dock down the right holding that page&rsquo;s own controls.</p>
   <p class="keys">
     <span><b>\</b> &nbsp;dock on and off</span>
     <span><b>Menu, top left</b> &nbsp;jump between pages</span>
-    <span><b>Comments</b> &nbsp;write a note, commit <b>notes.js</b></span>
+    <span><b>New</b> &nbsp;changed in the last 48 hours, until you have seen it</span>
   </p>
 </header>
 
 <main>
+  <!-- Since your last visit — every page changed in the last 48 hours.
+       Built from the `updated` stamps in assets/manifest.js; what this
+       browser has seen is assets/whats-new.js. -->
+  <section class="recent" id="recent" hidden aria-labelledby="recent-h">
+    <button class="recent-head" id="recent-toggle" type="button" aria-expanded="true" aria-controls="recent-body">
+      <span class="sq" aria-hidden="true"></span>
+      <span class="t" id="recent-h">Since your last visit</span>
+      <span class="sum" id="recent-sum"></span>
+      <span class="tw" aria-hidden="true"></span>
+    </button>
+    <div class="recent-body" id="recent-body">
+      <div class="recent-in">
+        <div class="recent-list" id="recent-list"></div>
+        <div class="recent-foot">
+          <button class="mark" id="recent-mark" type="button">Mark all as seen</button>
+          <span>Tracked in this browser only &mdash; everyone clears their own.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <a class="feature" id="feature" href="#"></a>
   <div class="sections" id="sections"></div>
 </main>
@@ -173,7 +271,7 @@
 <footer class="foot">
   <span><b id="f-pages">0</b> pages across <b id="f-secs">0</b> sections</span>
   <span><b id="f-live">0</b> designed, <b id="f-stub">0</b> still stubs</span>
-  <span><b id="f-notes">0</b> comments in notes.js</span>
+  <span><b id="f-new">0</b> changed in the last 48 hours</span>
   <span>Set in <b>F37 Analog</b></span>
 </footer>
 
@@ -214,7 +312,115 @@
   document.getElementById('f-secs').textContent  = SITE.sections.length + 1;
   document.getElementById('f-live').textContent  = live;
   document.getElementById('f-stub').textContent  = stub + F.pages.length;
-  document.getElementById('f-notes').textContent = (window.TIBBA_NOTES || []).length;
+})();
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Since your last visit, and the New tags
+   ─────────────────────────────────────────────────────────────────────────
+   The section lists every page changed in the last 48 hours, grouped by day,
+   newest first. It opens by itself when there is something this browser has
+   not seen, sits folded to one line when there is not, and is not there at
+   all when nothing has changed.
+
+   A New tag is marked seen once it has been on screen for SEEN_AFTER — long
+   enough for its entrance to play. It stays up for the rest of this visit
+   (pulling it away under the reader's eyes would be the opposite of being
+   told) and is gone the next time. Folding the section away, or "Mark all as
+   seen", acknowledges everything at once; the button also clears the tags
+   straight away, because that one is an explicit request.
+   ═════════════════════════════════════════════════════════════════════════ */
+(function () {
+  var N = window.TibbaNew;
+  if (!N) return;
+  var SEEN_AFTER = 1200;
+  var $ = function (id) { return document.getElementById(id); };
+  var recent = N.recent();
+  $('f-new').textContent = recent.length;
+
+  var esc = function (t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  var tag = function (p) {
+    return N.isNew(p) ? '<span class="new" data-id="' + p.id + '"><i></i><b>New</b></span>' : '';
+  };
+  function ago(t) {
+    var h = (Date.now() - t) / 3600000;
+    if (h < 1) return Math.max(1, Math.round(h * 60)) + ' min ago';
+    if (h < 24) return Math.round(h) + ' h ago';
+    return Math.floor(h / 24) + ' d ' + Math.round(h % 24) + ' h ago';
+  }
+  function dayLabel(t) {
+    var d = new Date(t), today = new Date(), y = new Date(); y.setDate(today.getDate() - 1);
+    var same = function (a, b) { return a.toDateString() === b.toDateString(); };
+    var name = same(d, today) ? 'Today' : same(d, y) ? 'Yesterday' : d.toLocaleDateString(undefined, { weekday: 'long' });
+    return name + ' · ' + d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+  }
+
+  /* ── the section ──────────────────────────────────────────────────── */
+  var sec = $('recent'), toggle = $('recent-toggle'), sum = $('recent-sum');
+  if (recent.length) {
+    sec.hidden = false;
+    document.body.classList.add('has-recent');
+    var html = '', lastDay = '', k = 0;
+    recent.forEach(function (p) {
+      var t = Date.parse(p.updated), day = dayLabel(t);
+      if (day !== lastDay) { html += '<p class="day">' + day + '</p>'; lastDay = day; }
+      html += '<a class="rc" href="' + p.file + '" style="--k:' + (k++) + '">' +
+                '<span class="when">' + ago(t) + '</span>' +
+                '<span class="who"><b>' + esc(p.label) + '</b><em>' + esc(p.sectionLabel) + '</em></span>' +
+                '<span class="what">' + esc(p.change || p.note || '') + '</span>' +
+                tag(p) +
+              '</a>';
+    });
+    $('recent-list').innerHTML = html;
+  }
+  function summary() {
+    var unseen = N.unseen().length;
+    sum.innerHTML = recent.length + (recent.length === 1 ? ' change' : ' changes') + ' in the last 48 h' +
+      (unseen ? ' &middot; <b>' + unseen + ' new to you</b>' : ' &middot; all seen');
+    sec.dataset.unseen = String(unseen);
+  }
+  function setOpen(open, acknowledge) {
+    sec.dataset.open = String(open);
+    toggle.setAttribute('aria-expanded', String(open));
+    /* folding it away is the reader saying "got it" */
+    if (!open && acknowledge) N.markAll();
+  }
+  setOpen(N.unseen().length > 0, false);
+  summary();
+  toggle.addEventListener('click', function () { setOpen(sec.dataset.open !== 'true', true); });
+  $('recent-mark').addEventListener('click', function () {
+    N.markAll();
+    document.querySelectorAll('.new').forEach(function (n) { n.classList.add('gone'); });
+  });
+  window.addEventListener('tibba:seen', summary);
+
+  /* ── the New tag on each page's own row ───────────────────────────── */
+  document.querySelectorAll('.pg').forEach(function (a) {
+    var file = a.getAttribute('href');
+    var p = (window.TIBBA_PAGES || []).filter(function (q) { return q.file === file; })[0];
+    if (!p || !N.isNew(p)) return;
+    a.insertAdjacentHTML('beforeend', tag(p));
+    a.classList.add('is-new');
+    if (p.change) a.title = 'New · ' + p.change;
+  });
+
+  /* ── seen: on screen for long enough ──────────────────────────────── */
+  var timers = new Map();
+  var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      var el = e.target, id = el.dataset.id;
+      var visible = e.isIntersecting && e.intersectionRect.height > 4;
+      if (visible && !timers.has(el)) {
+        timers.set(el, setTimeout(function () {
+          timers.delete(el); io.unobserve(el);
+          el.dataset.seen = 'true';
+          N.markSeen(id);
+        }, SEEN_AFTER));
+      } else if (!visible && timers.has(el)) {
+        clearTimeout(timers.get(el)); timers.delete(el);
+      }
+    });
+  }, { threshold: [0, 0.6] }) : null;
+  if (io) document.querySelectorAll('.new').forEach(function (n) { io.observe(n); });
 })();
 </script>
 

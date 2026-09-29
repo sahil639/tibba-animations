@@ -17,33 +17,35 @@ Every page carries the same chrome, from three lines in its `<head>`:
 | --- | --- |
 | Top left | The site menu. Collapsed by default; open it and the whole index is there, so you can go from any page to any other without going home. |
 | Right edge | The dock. That page's own controls, full height, resizable by dragging its left edge, `\` to show and hide. |
-| Bottom of the dock | Comments. Click the bar to collapse them and hand their height back to the controls; the state is remembered, and a collapsed bar still shows the count, in the accent if something is uncommitted. See below. |
 
 The dock does not rebuild a page's controls — it **moves** them. `wb.adopt()` in
 `assets/workbench.js` picks up `#ui` or `#tune` and appends it into the dock,
 and because moving a node keeps its listeners, every slider still drives the
 animation it was wired to with nothing changed in the page itself.
 
-## Comments
+## What's new
 
-The dock's comments are a repo artefact, not browser state. Writing one POSTs it
-to the dev server, which appends it to **`notes.js`** — a tracked file. Commit
-that with the change the note is about and the next person to pull sees it
-alongside the work.
+The index opens with **Since your last visit**: every page changed in the last
+48 hours, newest first, with what changed. Each of those pages also carries a
+**New** tag on its index row and a dot in the site menu on every page.
 
-```bash
-node dev-server.mjs          # the endpoint the comments need
-git add notes.js && git commit -m "Range: trail glow note"
+What counts as changed is written by hand in `assets/manifest.js`, as two fields
+on the page's entry:
+
+```js
+{ id: 'summits-four', updated: '2026-09-28T19:09:00+07:00',
+  change: 'New: four peaks, Bézier trails, cards bottom-left', ... }
 ```
 
-Away from the dev server — on Vercel, or opening a file directly — there is
-nothing to take the note, so it is held in `localStorage`, flagged
-**uncommitted** in the panel, and the **notes.js** button downloads the file to
-commit by hand. A note that arrives in `notes.js` from someone else's commit
-stops being a local draft the next time the page loads.
+By hand on purpose: a site-wide edit touches every file, and a date read off
+git would flag the whole site. Set `updated` to now when a page changes in a
+way worth pointing at.
 
-Notes are filed against a page's `id` in the manifest. Renaming a page's
-`label` or `file` keeps its notes; changing its `id` orphans them.
+What counts as seen is per browser (`localStorage`, key `tibba.seen`), so each
+person clears their own tags and nobody else's. A tag clears once it has been
+on screen long enough to play, once its page is opened, or all at once with
+**Mark all as seen**. Changing a page again brings its tag back.
+The logic is `assets/whats-new.js`.
 
 ## Sections and pages
 
@@ -369,9 +371,7 @@ Static files, so `/` resolves natively on any host. `vercel.json` turns on
 old `/contour-ridge-studies` and `/tibba-studio` paths to the index.
 
 On Vercel the project needs **Framework Preset: Other** with no build command and
-no output directory. The comments endpoint is local only — on a deployment the
-dock still shows every committed note and still lets you write one, but the note
-has to be downloaded and committed by hand.
+no output directory.
 
 ## State
 
