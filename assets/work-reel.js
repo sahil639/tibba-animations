@@ -98,7 +98,9 @@ function bezier(x1, y1, x2, y2) {
 const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
 const clamp01 = v => clamp(v, 0, 1);
 
-export function mountWorkReel(root) {
+export function mountWorkReel(root, opts = {}) {
+  /* opts.onFrame(a) — called with the reel's continuous position (0 … N-1)
+     every time it moves, for a page that hangs its own state off the reel */
   const strip = root.querySelector('.reel-strip');
   const scope = root.closest('.reel-scope') || root.parentElement;
 
@@ -152,6 +154,7 @@ export function mountWorkReel(root) {
       labels[i].style.setProperty('--near', near.toFixed(3));
     }
 
+    if (opts.onFrame) opts.onFrame(a);
     const next = Math.round(a);
     if (next !== active) {
       active = next;

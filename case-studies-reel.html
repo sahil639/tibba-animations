@@ -18,8 +18,10 @@
    The work that does not get a summit, run through the Work Reel from the
    miscellaneous folder (assets/work-reel.js, unchanged): the labels turned
    along the floor, one plate opening at a time as the page scrolls. On
-   black, and with the case's own copy set above the plates — the name,
-   what we did, and the disciplines — swapping as each plate opens.
+   black. Each case's name stands as the reel's rotated label until its
+   plate is the active one; then the label steps aside and the name and a
+   subtitle are set INSIDE the plate, at its foot — one title on screen,
+   never two. Padding and the active threshold are CAPTION in the script.
 
    Along the very bottom, an altitude tape. It runs horizontally and slides
    RIGHT as the page scrolls, locked to the reel's own scroll progress, under
@@ -52,19 +54,29 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
 
 /* ── the case copy, above the plates ─────────────────────────────────── */
 .cs-head { position: absolute; left: var(--gut); right: var(--gut); top: clamp(70px, 10vh, 100px); display: grid;
-  grid-template-columns: minmax(200px, .8fr) 1.4fr auto; gap: clamp(20px, 3vw, 56px); align-items: start; z-index: 3; }
+  grid-template-columns: 1fr auto; gap: clamp(20px, 3vw, 56px); align-items: start; z-index: 3; }
 .cs-head .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
 .cs-head h1 { margin-top: 12px; color: #fff; font-weight: 400; font-size: clamp(20px, 1.9vw, 30px); line-height: 1.1; letter-spacing: -.02em; }
-.cs-case { min-height: 110px; }
-.cs-case .nm { color: #fff; font-size: clamp(22px, 2.4vw, 38px); letter-spacing: -.025em; line-height: 1; }
-.cs-case .ds { margin-top: 10px; color: var(--ink-mute); font-size: 13.5px; line-height: 1.55; max-width: 58ch; }
-.cs-case .tg { margin-top: 10px; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); }
-.cs-case .mask { display: block; overflow: hidden; }
-.cs-case .mask > span { display: block; }
-.cs-case.swap .mask > span { animation: cs-rise .7s cubic-bezier(.65,0,.35,1) both; }
-.cs-case.swap .ds, .cs-case.swap .tg { animation: cs-fade .45s .15s linear both; }
-@keyframes cs-rise { from { transform: translateY(105%); } to { transform: none; } }
-@keyframes cs-fade { from { opacity: 0; } to { opacity: 1; } }
+/* ── the caption, inside the active plate ───────────────────────────────
+   Sits at the plate's foot with --cap-pad-x / --cap-pad-b of padding, over a
+   short scrim so it reads on any image. Width is the plate's full width, so
+   the text never re-wraps as the plate opens and closes around it. */
+.reel-label span { transition: opacity var(--cap-out, .25s) linear; }
+.reel-item.is-active .reel-label span { opacity: 0; transition-duration: var(--cap-out, .25s); }
+.reel-cap {
+  position: absolute; left: 0; bottom: 0; width: var(--cap-w, 480px); z-index: 2; pointer-events: none;
+  padding: 80px var(--cap-pad-x, 32px) var(--cap-pad-b, 36px);
+  background: linear-gradient(0deg, rgba(0,0,0,.72) 0%, rgba(0,0,0,.35) 55%, rgba(0,0,0,0) 100%);
+  opacity: 0; transition: opacity var(--cap-out, .25s) linear;
+}
+.reel-cap .nm { color: #fff; font-size: clamp(22px, 2.2vw, 36px); letter-spacing: -.025em; line-height: 1.02; }
+.reel-cap .ds { margin-top: 10px; color: var(--ink-warm); font-size: 13px; line-height: 1.55; max-width: 44ch; opacity: .82; }
+.reel-cap .tg { margin-top: 10px; font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); }
+.reel-cap > * { transform: translateY(var(--cap-rise, 14px)); transition: transform var(--cap-out, .25s) var(--ease); }
+.reel-item.is-active .reel-cap { opacity: 1; transition: opacity var(--cap-in, .5s) linear var(--cap-delay, .05s); }
+.reel-item.is-active .reel-cap > * { transform: none; transition: transform var(--cap-in, .5s) cubic-bezier(.16,.62,.36,1) var(--cap-delay, .05s); }
+.reel-item.is-active .reel-cap .ds { transition-delay: calc(var(--cap-delay, .05s) + .06s); }
+.reel-item.is-active .reel-cap .tg { transition-delay: calc(var(--cap-delay, .05s) + .12s); }
 .cs-count { font-size: 11px; letter-spacing: .14em; color: var(--ink-faint); font-variant-numeric: tabular-nums; text-align: right; }
 .cs-count b { color: #fff; font-weight: 400; font-size: 22px; letter-spacing: -.02em; display: block; margin-bottom: 4px; }
 
@@ -88,11 +100,10 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
 .after p { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
 
 @media (max-width: 860px) {
-  .cs-head { grid-template-columns: 1fr auto; }
-  .cs-head > div:first-child { display: none; }
+  .reel-cap .ds { display: none; }
   .reel-shot { height: calc(100svh - var(--tape-h) - 300px); }
 }
-@media (prefers-reduced-motion: reduce) { .cs-case.swap * { animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { .reel-cap, .reel-cap > * { transition: none !important; } }
 </style>
 <link rel="stylesheet" href="assets/tune.css">
 </head>
@@ -104,11 +115,6 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
       <div>
         <p class="eyebrow">[ &nbsp;More work&nbsp; ]</p>
         <h1>The climbs between the summits</h1>
-      </div>
-      <div class="cs-case" aria-live="polite">
-        <p class="nm mask"><span id="cs-nm"></span></p>
-        <p class="ds" id="cs-ds"></p>
-        <p class="tg" id="cs-tg"></p>
       </div>
       <p class="cs-count"><b id="cs-n">01</b>of <span id="cs-t">06</span></p>
     </header>
@@ -147,8 +153,9 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
   ];
   /* A plate per case, drawn here rather than borrowed: the reel folder's
      artwork carries other names printed on it. Contour rings round an
-     off-centre summit in a muted tone per case, the case's own name, and
-     the orange marker — placeholders still, but honest ones. */
+     off-centre summit in a muted tone per case and the orange marker —
+     placeholders still, but honest ones. No name on the plate: the name is
+     the caption's, and only the caption's. */
   const TONES = ['#2b3a33', '#35302a', '#28313d', '#3a2d2d', '#3b3526', '#2c2f3a'];
   function plate(c, i) {
     const W = 900, H = 1180, tone = TONES[i % TONES.length];
@@ -163,39 +170,81 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
       }
       rings += `<path d="M${pts.join('L')}Z" fill="none" stroke="rgba(233,236,242,${(0.08 + (r < 3 ? 0.25 : 0)).toFixed(2)})" stroke-width="2"/>`;
     }
-    const esc = t => t.replace(/&/g, '&amp;').replace(/'/g, '&#39;');
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
       <defs><linearGradient id="g" x1="0" y1="0" x2=".4" y2="1"><stop offset="0" stop-color="${tone}"/><stop offset="1" stop-color="#0b0b0c"/></linearGradient></defs>
       <rect width="${W}" height="${H}" fill="url(#g)"/>${rings}
       <rect x="${cx - 9}" y="${cy - 9}" width="18" height="18" fill="#FF4B1F"/>
-      <text x="56" y="${H - 120}" fill="#fff" font-family="system-ui, sans-serif" font-size="54" letter-spacing="-1">${esc(c.label)}</text>
-      <text x="58" y="${H - 72}" fill="rgba(233,236,242,.55)" font-family="system-ui, sans-serif" font-size="20" letter-spacing="4">${String(i + 1).padStart(2, '0')} · CASE STUDY · PLACEHOLDER PLATE</text>
     </svg>`;
     return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
   }
   ITEMS.splice(0, ITEMS.length, ...CASES.map((c, i) => ({ label: c.label, src: plate(c, i) })));
 
+  /* ══════════════════════════════════════════════════════════════════════
+     CAPTION — the in-plate title and subtitle
+     ════════════════════════════════════════════════════════════════════ */
+  const CAPTION = {
+    padX: 32,            // px, left/right padding inside the plate
+    padBottom: 36,       // px, from the plate's bottom edge to the last line
+    /* A plate is ACTIVE once it is this far open (0 … 1, where 1 is fully
+       open and the reel parks there). It stays active until it drops below
+       activeAt − hysteresis, so a scroll resting near the edge can't flicker. */
+    activeAt: 0.72,
+    hysteresis: 0.08,
+    fadeIn: 0.5,         // s
+    fadeOut: 0.25,       // s
+    delay: 0.05,         // s after the plate turns active
+    rise: 14,            // px the lines travel up as they come in
+  };
   const root = document.querySelector('#reel');
-  const reel = mountWorkReel(root);
-  const scope = root.closest('.reel-scope');
+  function applyCaption() {
+    const s = root.style;
+    s.setProperty('--cap-pad-x', CAPTION.padX + 'px');
+    s.setProperty('--cap-pad-b', CAPTION.padBottom + 'px');
+    s.setProperty('--cap-in', CAPTION.fadeIn + 's');
+    s.setProperty('--cap-out', CAPTION.fadeOut + 's');
+    s.setProperty('--cap-delay', CAPTION.delay + 's');
+    s.setProperty('--cap-rise', CAPTION.rise + 'px');
+  }
+  applyCaption();
+
   const N = CASES.length;
   const pad = n => String(n + 1).padStart(2, '0');
+  const isOn = new Array(N).fill(false);
+  let items = [], shown = -1, lastA = 0;
+  /* active per plate, from how far open it is — with hysteresis */
+  function onFrame(a) {
+    lastA = a;
+    if (!items.length) return;
+    let lead = -1;
+    for (let i = 0; i < N; i++) {
+      const open = Math.max(0, 1 - Math.abs(a - i));
+      const on = isOn[i] ? open >= CAPTION.activeAt - CAPTION.hysteresis : open >= CAPTION.activeAt;
+      if (on !== isOn[i]) { isOn[i] = on; items[i].classList.toggle('is-active', on); }
+      if (on) lead = i;
+    }
+    if (lead >= 0) showCase(lead);
+  }
+  const reel = mountWorkReel(root, { onFrame });
+  const scope = root.closest('.reel-scope');
   document.getElementById('cs-t').textContent = String(N).padStart(2, '0');
 
-  /* ── the case copy follows the reel's own active item ────────────────── */
-  const box = document.querySelector('.cs-case');
-  let shown = -1;
+  /* the captions go inside each plate once the reel has built them */
+  items = [...root.querySelectorAll('.reel-item')];
+  items.forEach((it, i) => {
+    const c = CASES[i], cap = document.createElement('div');
+    cap.className = 'reel-cap';
+    cap.innerHTML = `<p class="nm">${c.label}</p><p class="ds">${c.ds}</p><p class="tg">${c.tg}</p>`;
+    it.querySelector('.reel-shot').appendChild(cap);
+  });
+  const sizeCaps = () => root.style.setProperty('--cap-w', reel.P.imageW + 'px');
+  sizeCaps(); addEventListener('resize', sizeCaps);
+
+  /* ── the counter and the camp follow the active plate ────────────────── */
   function showCase(i) {
     if (i === shown) return; shown = i;
-    const c = CASES[i];
-    document.getElementById('cs-nm').textContent = c.label;
-    document.getElementById('cs-ds').textContent = c.ds;
-    document.getElementById('cs-tg').textContent = c.tg;
     document.getElementById('cs-n').textContent = pad(i);
-    box.classList.remove('swap'); void box.offsetWidth; box.classList.add('swap');
     camps.forEach((g, k) => g.classList.toggle('on', k === i));
   }
-  new MutationObserver(() => showCase(+root.dataset.active || 0)).observe(root, { attributes: true, attributeFilter: ['data-active'] });
 
   /* ── the altitude tape ──────────────────────────────────────────────────
      Metres run RIGHT to LEFT along the tape, so as it slides right the value
@@ -219,7 +268,7 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
     }
     CASES.forEach((c, i) => {
       const cx = x(campAlt(i));
-      s += `<g class="camp" transform="translate(${cx} 10)"><rect x="-4" y="-4" width="8" height="8"/><text x="8" y="3">${pad(i)} ${c.label}</text></g>`;
+      s += `<g class="camp" transform="translate(${cx} 10)"><rect x="-4" y="-4" width="8" height="8"/><text x="8" y="3">${pad(i)}</text></g>`;
     });
     svg.innerHTML = s;
     camps = [...svg.querySelectorAll('.camp')];
@@ -242,7 +291,7 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
   addEventListener('scroll', onScroll, { passive: true });
   addEventListener('resize', () => { buildTape(); onScroll(); });
   onScroll();
-  showCase(0);
+  onFrame(lastA);
 
   /* the panel: the reel's own easing presets, and the tape's scale */
   const el = document.createElement('div');
@@ -251,6 +300,11 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
     <p class="tune-sub">Reel easing</p>
     <div class="seg" id="s-preset"><button data-b="0.65,0,0.35,1" class="on">Ease</button><button data-b="0.83,0,0.17,1">Strong</button><button data-b="0.45,0,0.55,1">Soft</button><button data-b="0,0,1,1">Linear</button></div>
     <div class="row"><label>Dwell<i id="v-dw">0.00</i></label><input type="range" id="s-dw" min="0" max="45" value="0"></div>
+    <p class="tune-sub">In-plate caption</p>
+    <div class="row"><label>Padding X<i id="v-cx">${CAPTION.padX}px</i></label><input type="range" id="s-cx" min="0" max="80" value="${CAPTION.padX}"></div>
+    <div class="row"><label>Padding bottom<i id="v-cb">${CAPTION.padBottom}px</i></label><input type="range" id="s-cb" min="0" max="120" value="${CAPTION.padBottom}"></div>
+    <div class="row"><label>Active at<i id="v-ca">${CAPTION.activeAt}</i></label><input type="range" id="s-ca" min="10" max="100" value="${CAPTION.activeAt * 100}"></div>
+    <div class="row"><label>Hysteresis<i id="v-ch">${CAPTION.hysteresis}</i></label><input type="range" id="s-ch" min="0" max="30" value="${CAPTION.hysteresis * 100}"></div>
     <p class="tune-sub">Altitude tape</p>
     <div class="row"><label>Scale<i id="v-px">0.34 px/m</i></label><input type="range" id="s-px" min="10" max="80" value="34"></div>`;
   document.body.appendChild(el);
@@ -259,6 +313,11 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
     [...q('s-preset').children].forEach(c => c.classList.toggle('on', c === b)); reel.setBezier(b.dataset.b.split(',').map(Number)); });
   q('s-dw').addEventListener('input', e => { P.dwell = e.target.value / 100; q('v-dw').textContent = P.dwell.toFixed(2); reel.refresh(); });
   q('s-px').addEventListener('input', e => { T.pxPerM = e.target.value / 100; q('v-px').textContent = T.pxPerM.toFixed(2) + ' px/m'; buildTape(); onScroll(); });
+  const capBind = (id, fn) => q('s-' + id).addEventListener('input', e => { q('v-' + id).textContent = fn(+e.target.value); applyCaption(); onFrame(lastA); });
+  capBind('cx', v => (CAPTION.padX = v) + 'px');
+  capBind('cb', v => (CAPTION.padBottom = v) + 'px');
+  capBind('ca', v => (CAPTION.activeAt = v / 100));
+  capBind('ch', v => (CAPTION.hysteresis = v / 100));
   q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
   if (window.wb && window.wb.adopt) window.wb.adopt();
 </script>
