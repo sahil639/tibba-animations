@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About us — campsite</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   About us — campsite
+   ─────────────────────────────────────────────────────────────────────────
+   Two sections. The first is ordinary page — a heading and the studio's
+   own words — and is there so the smoke can be seen leaving its fire: the
+   second section's canvas reaches up over it with a clear background
+   (CAMPSITE_CONFIG.overflow), and the column of smoke climbs out of the
+   campsite and drifts up across the copy above.
+
+   The second is the campsite itself (assets/campsite.js): an isometric
+   night diorama in the Sylva Living World's register — a tent lit from
+   inside, a smaller campfire beside it on the right, two chairs, pines,
+   moss that parts under the cursor — under a night sky with a crescent
+   moon, after the reference photograph.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+
+/* ── the section above ──────────────────────────────────────────────── */
+.above { position: relative; z-index: 1; min-height: 100vh; min-height: 100svh; display: flex; align-items: center; padding: 14vh var(--gut); background: #000; }
+.above .inner { max-width: min(92vw, 1400px); }
+.above .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.above p.big { margin-top: 22px; color: #fff; font-weight: 300; font-size: clamp(26px, 3.2vw, 56px); line-height: 1.16; letter-spacing: -.025em; max-width: 26ch; }
+
+/* ── the campsite ───────────────────────────────────────────────────── */
+#camp { position: relative; z-index: 2; height: 100vh; height: 100svh; min-height: 620px;
+  background: linear-gradient(#000 0%, #070a14 18%, #0b1020 55%, #0d0f16 100%); }
+/* the canvas reaches up into .above; clear everywhere the diorama is not */
+#camp canvas { position: absolute; left: 0; width: 100%; display: block; pointer-events: none; }
+.sky { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.sky i { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #dfe6ff; opacity: var(--o); animation: tw var(--d) ease-in-out infinite alternate; }
+@keyframes tw { from { opacity: var(--o); } to { opacity: calc(var(--o) * .35); } }
+.moon { position: absolute; right: 12%; top: 13%; width: 46px; height: 46px; border-radius: 50%;
+  box-shadow: inset -9px 5px 0 0 #f2ecd8; transform: rotate(-24deg); filter: drop-shadow(0 0 14px rgba(242,236,216,.35)); }
+.camp-copy { position: absolute; z-index: 3; left: var(--gut); bottom: clamp(40px, 9vh, 90px); pointer-events: none; }
+.camp-copy .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+.camp-copy h2 { margin-top: 14px; color: #fff; font-weight: 300; font-size: clamp(26px, 3vw, 48px); letter-spacing: -.03em; line-height: 1.04; }
+.after { height: 30vh; background: #0d0f16; }
+@media (prefers-reduced-motion: reduce) { .sky i { animation: none; } }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+
+<section class="above" aria-labelledby="above-h">
+  <div class="inner">
+    <p class="eyebrow" id="above-h">[ &nbsp;Who we are&nbsp; ]</p>
+    <p class="big">Our approach to every client we work with is unique. We believe in actively
+       listening to a client's needs and modifying our processes accordingly.</p>
+  </div>
+</section>
+
+<section id="camp" aria-label="An animated campsite at night: a tent and a campfire">
+  <div class="sky" id="sky" aria-hidden="true"><span class="moon"></span></div>
+  <canvas aria-hidden="true"></canvas>
+  <div class="camp-copy">
+    <p class="eyebrow">[ &nbsp;Around the fire&nbsp; ]</p>
+    <h2>Where every climb ends</h2>
+  </div>
+</section>
+<div class="after"></div>
+
+<script>
+  /* stars, placed once; seeded so the sky is the same on every visit */
+  (function () {
+    const sky = document.getElementById('sky');
+    let s = 11; const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
+    let html = '';
+    for (let i = 0; i < 140; i++) {
+      const y = Math.pow(r(), 1.6) * 62;
+      html += `<i style="left:${(r() * 100).toFixed(2)}%;top:${y.toFixed(2)}%;--o:${(.25 + r() * .6).toFixed(2)};--d:${(2 + r() * 4).toFixed(2)}s;${r() < .12 ? 'width:3px;height:3px;' : ''}"></i>`;
+    }
+    sky.insertAdjacentHTML('beforeend', html);
+  })();
+</script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js"}}</script>
+<script type="module">
+  import { mountCampsite, CAMPSITE_CONFIG as C } from './assets/campsite.js';
+  const sec = document.getElementById('camp');
+  const camp = mountCampsite(sec, sec.querySelector('canvas'));
+  window.tibba = { camp };
+
+  /* ── the panel: writes into CAMPSITE_CONFIG ────────────────────────── */
+  const el = document.createElement('div');
+  el.id = 'tune';
+  const R = (id, label, min, max, step, val, unit = '') => `<div class="row"><label>${label}<i id="v-${id}">${val}${unit}</i></label><input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}" data-unit="${unit}"></div>`;
+  el.innerHTML = `
+    <div id="tune-head"><b>Campsite</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <p class="tune-sub">Smoke</p>
+    ${R('sh', 'Height', .2, 2.5, .05, C.smoke.height, '×')}
+    ${R('ss', 'Speed', 0, 3, .05, C.smoke.speed, '×')}
+    ${R('sp', 'Spiral turns', 0, 4, .05, C.smoke.spiral)}
+    ${R('sw', 'Spread', .2, 2.5, .05, C.smoke.spread)}
+    ${R('so', 'Opacity', 0, 1.5, .02, C.smoke.opacity)}
+    ${R('sc', 'Puffs', 20, 260, 1, C.smoke.count)}
+    ${R('ov', 'Reach above section', 0, 1.5, .05, C.overflow, '× vh')}
+    <p class="tune-sub">Loops</p>
+    ${R('fl', 'Fire flicker speed', 0, 3, .05, C.loops.flicker, '×')}
+    ${R('fa', 'Flicker amount', 0, 3, .05, C.loops.flickerAmount)}
+    ${R('tp', 'Tent breath', 1, 14, .1, C.loops.tentPeriod, 's')}
+    ${R('ta', 'Tent amount', 0, 3, .05, C.loops.tentAmount)}
+    ${R('em', 'Embers', 0, 3, .05, C.loops.embers, '×')}
+    ${R('wd', 'Moss wind', 0, 3, .05, C.loops.wind)}
+    <p class="tune-sub">Scene</p>
+    ${R('sz', 'Scale', .4, 2, .02, C.scene.scale, '×')}
+    ${R('ox', 'Offset X', -.5, .5, .01, C.scene.offsetX)}
+    ${R('oy', 'Offset Y', -.5, .5, .01, C.scene.offsetY)}
+    ${R('px', 'Parallax', 0, 3, .05, C.interaction.parallax)}
+    ${R('pt', 'Moss parting', 0, 3, .05, C.interaction.part)}
+    <div class="row inline"><label>Config<i></i></label><button class="tune-btn" id="s-cp">Copy config</button></div>`;
+  document.body.appendChild(el);
+  const q = id => el.querySelector('#' + id);
+  const bind = (id, fn) => q('s-' + id).addEventListener('input', e => {
+    const v = +e.target.value; q('v-' + id).textContent = v + e.target.dataset.unit; fn(v);
+  });
+  bind('sh', v => { C.smoke.height = v; });   bind('ss', v => { C.smoke.speed = v; });
+  bind('sp', v => { C.smoke.spiral = v; });   bind('sw', v => { C.smoke.spread = v; });
+  bind('so', v => { C.smoke.opacity = v; });  bind('sc', v => { C.smoke.count = v; });
+  bind('ov', v => { C.overflow = v; camp.reframe(); });
+  bind('fl', v => { C.loops.flicker = v; });  bind('fa', v => { C.loops.flickerAmount = v; });
+  bind('tp', v => { C.loops.tentPeriod = v; }); bind('ta', v => { C.loops.tentAmount = v; });
+  bind('em', v => { C.loops.embers = v; });   bind('wd', v => { C.loops.wind = v; });
+  bind('sz', v => { C.scene.scale = v; camp.reframe(); });
+  bind('ox', v => { C.scene.offsetX = v; camp.reframe(); });
+  bind('oy', v => { C.scene.offsetY = v; camp.reframe(); });
+  bind('px', v => { C.interaction.parallax = v; });
+  bind('pt', v => { C.interaction.part = v; });
+  q('s-cp').addEventListener('click', async () => {
+    const txt = 'export const CAMPSITE_CONFIG = ' + JSON.stringify(C, null, 2) + ';';
+    try { await navigator.clipboard.writeText(txt); } catch { console.log(txt); }
+  });
+  q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+  if (window.wb && window.wb.adopt) window.wb.adopt();
+</script>
+</body>
+</html>
