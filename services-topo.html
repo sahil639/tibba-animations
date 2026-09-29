@@ -110,6 +110,8 @@
   bind('s-el', 'v-el', n => { land.view.elev = n; return n + '°'; });
   bind('s-dr', 'v-dr', n => { land.view.drift = n; return n + '°'; });
   bind('s-op', 'v-op', n => { document.getElementById('topo').style.opacity = n / 100; return (n / 100).toFixed(2); });
+  el.insertAdjacentHTML('beforeend', servicesSplitPanel());
+  bindServicesSplitPanel(el);
   q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
   if (window.wb && window.wb.adopt) window.wb.adopt();
 </script>

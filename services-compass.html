@@ -266,6 +266,8 @@
   document.body.appendChild(tn);
   tn.querySelector('#s-k').addEventListener('input', e => { C.stiffness = +e.target.value; tn.querySelector('#v-k').textContent = e.target.value; });
   tn.querySelector('#s-dr').addEventListener('input', e => { C.drift = e.target.value / 100; tn.querySelector('#v-dr').textContent = C.drift.toFixed(2); });
+  tn.insertAdjacentHTML('beforeend', servicesSplitPanel());
+  bindServicesSplitPanel(tn);
   tn.querySelector('#tune-hide').addEventListener('click', () => tn.classList.toggle('hidden'));
 })();
 </script>
