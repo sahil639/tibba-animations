@@ -12,6 +12,7 @@
 <script src="assets/whats-new.js"></script>
 <script src="assets/workbench.js" defer></script>
 <script src="assets/tile-topo.js"></script>
+<script src="assets/brand-logos.js"></script>
 <style>
 /* ══════════════════════════════════════════════════════════════════════════
    Brands — the mosaic
@@ -57,6 +58,12 @@ a { color: inherit; text-decoration: none; }
 .b .bot { color: var(--ink-mute); }
 .b .mark { color: #fff; line-height: 1.02; letter-spacing: -.02em; font-size: clamp(15px, 14.5cqmin, 64px); }
 .b .mark.long { font-size: clamp(13px, 10.5cqmin, 46px); }
+/* the colour logos (assets/brand-logos.js): gray at rest, colour on hover;
+   left-aligned to sit on the tile's reading line like the wordmarks did */
+.b .mark:has(.brand-logo) { display: block; }
+.b .mark .brand-logo { margin: 0; }
+.b .mark .wordmark { opacity: .62; transition: opacity var(--logo-dur, .5s) var(--logo-ease, ease); }
+.b:hover .mark .wordmark, .b:focus-visible .mark .wordmark { opacity: 1; }
 .b[data-case] .top .n { color: var(--c); }
 .b[data-case] .bot .go { color: #fff; display: inline-flex; gap: 8px; align-items: center; }
 .b[data-case] .bot .go i { width: 16px; height: 1px; background: var(--c); display: block; transition: width .3s linear; }
@@ -125,39 +132,43 @@ a { color: inherit; text-decoration: none; }
 <script>
 (function () {
   /* area, name, sector, year — and the four with a summit carry a colour */
+  /* area, name, sector, year, colour, case file — and the logo key in
+     BrandLogos.LOGOS (assets/brand-logos.js); no key = a wordmark */
   const BRANDS = [
-    ['zo', 'Zomato', 'Foodtech · App & website', '2015'],
-    ['pa', 'Paytm', 'Fintech · App', '2017'],
-    ['gr', 'Groww', 'Fintech · App & website', '2024', '#4DD9C0', 'case-groww.html'],
+    ['zo', 'Zomato', 'Foodtech · App & website', '2015', , , 'zomato'],
+    ['pa', 'Paytm', 'Fintech · App', '2017', , , 'paytm'],
+    ['gr', 'Groww', 'Fintech · App & website', '2024', '#4DD9C0', 'case-groww.html', 'groww'],
     ['fp', 'Firstpost', 'News & media · App & website', '2023', '#E05555', 'case-firstpost.html'],
-    ['be', 'Breathe ESG', 'SaaS · ESG dashboard', '2023', '#4CAF70', 'case-breathe-esg.html'],
-    ['uc', 'Urban Company', 'Urban services · App', '2016'],
-    ['hd', 'HDFC Bank', 'Fintech · Rewards platform', '2019'],
-    ['ti', 'The Times of India', 'News & media · Website', '2018'],
-    ['pb', 'Policybazaar', 'Insurtech · App', '2019'],
-    ['ie', 'The Indian Express', 'News & media · App & website', '2021'],
-    ['sh', 'Shyft & Mindhouse', 'Fitness & mental health · App', '2023', '#7B8FF5', 'case-shyft-mindhouse.html'],
-    ['ak', 'Apnaklub', 'B2B wholesale · App', '2022'],
-    ['ss', 'simsim', 'Social commerce · App', '2020'],
-    ['bs', 'Bombay Shirt Company', 'Ecommerce · Website', '2018'],
+    ['be', 'Breathe ESG', 'SaaS · ESG dashboard', '2023', '#4CAF70', 'case-breathe-esg.html', 'breatheesg'],
+    ['uc', 'Urban Company', 'Urban services · App', '2016', , , 'urban-company'],
+    ['hd', 'HDFC Bank', 'Fintech · Rewards platform', '2019', , , 'hdfc-bank'],
+    ['ti', 'The Times of India', 'News & media · Website', '2018', , , 'the-times-of-india'],
+    ['pb', 'Policybazaar', 'Insurtech · App', '2019', , , 'policybazaar'],
+    ['ie', 'The Indian Express', 'News & media · App & website', '2021', , , 'the-indian-express'],
+    ['sh', 'Shyft & Mindhouse', 'Fitness & mental health · App', '2023', '#7B8FF5', 'case-shyft-mindhouse.html', 'shyft'],
+    ['ak', 'Apnaklub', 'B2B wholesale · App', '2022', , , 'apnaklub'],
+    ['ss', 'simsim', 'Social commerce · App', '2020', , , 'simsim'],
+    ['bs', 'Bombay Shirt Company', 'Ecommerce · Website', '2018', , , 'bombay-shirt-company'],
   ];
   const wall = document.getElementById('mosaic');
   const cta = wall.querySelector('.cta');
   const esc = s => s.replace(/&/g, '&amp;');
-  BRANDS.forEach(([area, name, sector, since, colour, file], i) => {
+  BRANDS.forEach(([area, name, sector, since, colour, file, logo], i) => {
     const el = document.createElement(file ? 'a' : 'div');
     el.className = 'b'; el.style.gridArea = area;
     if (file) { el.href = file; el.dataset.case = ''; el.style.setProperty('--c', colour); } else el.tabIndex = 0;
     el.innerHTML = `
       <span class="top"><span class="n">${String(i + 1).padStart(2, '0')}</span><span>${since}</span></span>
-      <div><span class="mark${name.length > 14 ? ' long' : ''}">${esc(name)}</span><p class="sector">${esc(sector)}</p></div>
+      <div><span class="mark${!logo && name.length > 14 ? ' long' : ''}">${logo ? window.BrandLogos.img(logo) : `<span class="wordmark">${esc(name)}</span>`}</span><p class="sector">${esc(sector)}</p></div>
       <span class="bot"><span>${esc(sector.split(' · ')[0])}</span>${file ? '<span class="go">Case study<i></i></span>' : ''}</span>
       <span class="pin"></span>`;
     el.setAttribute('aria-label', `${name} — ${sector}, since ${since}`);
+    el.dataset.logoHost = '';
     wall.insertBefore(el, cta);
     window.TileTopo.attach(el, { seed: i * 13 + 5, colour: colour || '#FF4B1F' });
   });
   window.TileTopo.attach(cta, { seed: 71, pattern: 'twin' });
+  window.BrandLogos.size(wall);
 
   /* the arrival order: reading order through the grid, measured off the
      laid-out boxes so it holds at the narrow breakpoint too */
@@ -179,8 +190,10 @@ a { color: inherit; text-decoration: none; }
   const el = document.createElement('div');
   el.id = 'tune';
   el.innerHTML = `<div id="tune-head"><b>Brands mosaic</b><button id="tune-hide" title="Hide (H)">–</button></div>
-    <p class="tune-sub">Load-in</p><div class="row inline"><label>Arrival<i></i></label><button class="tune-btn" id="b-rp">Replay</button></div>`;
+    <p class="tune-sub">Load-in</p><div class="row inline"><label>Arrival<i></i></label><button class="tune-btn" id="b-rp">Replay</button></div>
+    ${window.logoPanel()}`;
   document.body.appendChild(el);
+  window.bindLogoPanel(el);
   el.querySelector('#b-rp').addEventListener('click', play);
   el.querySelector('#tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
 })();

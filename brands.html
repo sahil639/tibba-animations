@@ -13,6 +13,7 @@
 <script src="assets/workbench.js" defer></script>
 <script src="assets/odometer.js" defer></script>
 <script src="assets/tile-topo.js"></script>
+<script src="assets/brand-logos.js" defer></script>
 
 <style>
 /* ══════════════════════════════════════════════════════════════════════════
@@ -24,10 +25,11 @@
    left and the way in takes a 2×1 at the bottom right, so the fourteen
    brands make up the rest of the twenty cells exactly.
 
-   The marks are typographic for now — each set in the studio face with its
-   own weight, case and tracking so the wall reads as fourteen different
-   names rather than one list. A brand with real artwork gets a `logo` path
-   in BRANDS below and the tile shows that instead; nothing else changes.
+   The marks are the clients' own colour logos (assets/logos/), shown in
+   grayscale and turning to colour on hover of the tile. Sizing, grayscale
+   and the hover timing are LOGO_CONFIG in assets/brand-logos.js, shared
+   with brands-mosaic.html. A brand without artwork (Firstpost, for now)
+   is set as a wordmark in the studio face.
 
    The tiles come in on a diagonal wave from the title, the first time the
    wall is on screen. On hover a tile lifts, a live contour field of its own
@@ -82,7 +84,9 @@ a { color: inherit; text-decoration: none; }
   font-size: clamp(16px, 1.7vw, 26px); line-height: 1.05;
   transition: transform .6s var(--ease), color .3s;
 }
-.tile .mark img { display: block; max-width: 70%; max-height: 38px; margin: 0 auto; filter: brightness(0) invert(1); }
+.tile .mark:has(.brand-logo) { display: grid; place-items: center; }
+.tile .mark .wordmark { opacity: .62; transition: opacity var(--logo-dur, .5s) var(--logo-ease, ease); }
+.tile:hover .mark .wordmark, .tile:focus-visible .mark .wordmark { opacity: 1; }
 
 /* A live contour field behind the mark, on hover — each tile its own
    landform and drift (assets/tile-topo.js). Only a hovered tile runs. */
@@ -183,27 +187,27 @@ a { color: inherit; text-decoration: none; }
 </section>
 
 <script>
-/* The wall, in the order the reference sets it. `type` is how the name is set
-   as a wordmark until real artwork arrives: weight, case and tracking. Give a
-   brand `logo: 'assets/logos/zomato.svg'` and the tile uses the file. */
+/* The wall, in the order the reference sets it. `logo` is a key of
+   BrandLogos.LOGOS (assets/brand-logos.js). `type` is how a brand without
+   artwork is set as a wordmark: weight, case and tracking. */
 const BRANDS = [
-  { name: 'Zomato',               meta: 'Foodtech',        since: '2015', type: [700, 'lower', -.04] },
-  { name: 'Paytm',                meta: 'Fintech',         since: '2017', type: [700, 'lower', -.03] },
-  { name: 'Groww',                meta: 'Fintech',         since: '2024', type: [600, 'none', -.02], colour: '#4DD9C0', file: 'case-groww.html' },
+  { name: 'Zomato',               meta: 'Foodtech',        since: '2015', logo: 'zomato' },
+  { name: 'Paytm',                meta: 'Fintech',         since: '2017', logo: 'paytm' },
+  { name: 'Groww',                meta: 'Fintech',         since: '2024', logo: 'groww', colour: '#4DD9C0', file: 'case-groww.html' },
   { name: 'Firstpost',            meta: 'News & media',    since: '2023', type: [700, 'upper', .02], colour: '#E05555', file: 'case-firstpost.html' },
-  { name: 'Breathe ESG',          meta: 'SaaS · ESG',      since: '2023', type: [500, 'none', -.01], colour: '#4CAF70', file: 'case-breathe-esg.html' },
-  { name: 'Urban Company',        meta: 'Urban services',  since: '2016', type: [500, 'none', -.02] },
-  { name: 'HDFC Bank',            meta: 'Rewards',         since: '2019', type: [700, 'upper', .04] },
-  { name: 'The Times of India',   meta: 'News & media',    since: '2018', type: [400, 'upper', .14], small: true },
-  { name: 'Policybazaar',         meta: 'Insurtech',       since: '2019', type: [600, 'lower', -.02] },
-  { name: 'The Indian Express',   meta: 'News & media',    since: '2021', type: [300, 'upper', .16], small: true },
-  { name: 'Shyft & Mindhouse',    meta: 'Health',          since: '2023', type: [400, 'none', -.01], colour: '#7B8FF5', file: 'case-shyft-mindhouse.html' },
-  { name: 'Apnaklub',             meta: 'B2B wholesale',   since: '2022', type: [700, 'none', -.03] },
-  { name: 'simsim',               meta: 'Social commerce', since: '2020', type: [600, 'lower', -.02] },
-  { name: 'Bombay Shirt Company', meta: 'Ecommerce',       since: '2018', type: [300, 'upper', .12], small: true },
+  { name: 'Breathe ESG',          meta: 'SaaS · ESG',      since: '2023', logo: 'breatheesg', colour: '#4CAF70', file: 'case-breathe-esg.html' },
+  { name: 'Urban Company',        meta: 'Urban services',  since: '2016', logo: 'urban-company' },
+  { name: 'HDFC Bank',            meta: 'Rewards',         since: '2019', logo: 'hdfc-bank' },
+  { name: 'The Times of India',   meta: 'News & media',    since: '2018', logo: 'the-times-of-india' },
+  { name: 'Policybazaar',         meta: 'Insurtech',       since: '2019', logo: 'policybazaar' },
+  { name: 'The Indian Express',   meta: 'News & media',    since: '2021', logo: 'the-indian-express' },
+  { name: 'Shyft & Mindhouse',    meta: 'Health',          since: '2023', logo: 'shyft', colour: '#7B8FF5', file: 'case-shyft-mindhouse.html' },
+  { name: 'Apnaklub',             meta: 'B2B wholesale',   since: '2022', logo: 'apnaklub' },
+  { name: 'simsim',               meta: 'Social commerce', since: '2020', logo: 'simsim' },
+  { name: 'Bombay Shirt Company', meta: 'Ecommerce',       since: '2018', logo: 'bombay-shirt-company' },
 ];
 
-(function () {
+addEventListener('DOMContentLoaded', function () {
   const wall = document.getElementById('brands');
   const cta = document.getElementById('cta');
   const esc = s => s.replace(/&/g, '&amp;');
@@ -215,22 +219,24 @@ const BRANDS = [
     else el.tabIndex = 0;
     /* each tile's rings sit a little differently, so the wall is not
        fourteen copies of the same drawing */
-    const [w, c, ls] = b.type;
+    const [w, c, ls] = b.type || [];
     const mark = b.logo
-      ? `<img src="${b.logo}" alt="${esc(b.name)}">`
-      : `<span style="font-weight:${w};text-transform:${c === 'upper' ? 'uppercase' : c === 'lower' ? 'lowercase' : 'none'};letter-spacing:${ls}em;${b.small ? 'font-size:.72em;max-width:12ch;display:inline-block' : ''}">${esc(b.name)}</span>`;
+      ? window.BrandLogos.img(b.logo)
+      : `<span class="wordmark" style="font-weight:${w};text-transform:${c === 'upper' ? 'uppercase' : c === 'lower' ? 'lowercase' : 'none'};letter-spacing:${ls}em;${b.small ? 'font-size:.72em;max-width:12ch;display:inline-block' : ''}">${esc(b.name)}</span>`;
     el.innerHTML = `
       <span class="n">${String(i + 1).padStart(2, '0')}</span>
       <span class="yr">${b.since}</span>
       <span class="mark">${mark}</span>
       <span class="meta"><span>${esc(b.meta)}</span>${b.file ? '<span class="go">Case study<i></i></span>' : ''}</span>`;
     el.setAttribute('aria-label', `${b.name} — ${b.meta}, since ${b.since}`);
+    el.dataset.logoHost = '';
     wall.insertBefore(el, cta);
     /* its own contour animation on hover: a different landform per tile */
     window.TileTopo.attach(el, { seed: i * 7 + 3, colour: b.colour || '#FF4B1F' });
   });
 
   window.TileTopo.attach(cta, { seed: 97, pattern: 'ridge' });
+  window.BrandLogos.size(wall);
 
   /* The wave: each tile's delay is its distance from the title's corner, in
      cells, so the wall opens outward from where the reading starts. Measured
@@ -263,16 +269,18 @@ const BRANDS = [
   el.innerHTML = `
     <div id="tune-head"><b>Brands</b><button id="tune-hide" title="Hide (H)">–</button></div>
     <p class="tune-sub">Load-in</p>
-    <div class="row inline"><label>Wave<i></i></label><button class="tune-btn" id="b-replay">Replay</button></div>`;
+    <div class="row inline"><label>Wave<i></i></label><button class="tune-btn" id="b-replay">Replay</button></div>
+    ${logoPanel()}`;
   document.body.appendChild(el);
+  bindLogoPanel(el, wall);
   el.querySelector('#b-replay').addEventListener('click', () => {
     wall.classList.remove('on', 'settled'); void wall.offsetWidth;
     stagger(); wall.classList.add('on');
     setTimeout(() => wall.classList.add('settled'), 2200);
   });
   el.querySelector('#tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
-  addEventListener('DOMContentLoaded', () => { if (window.wb && window.wb.adopt) window.wb.adopt(); });
-})();
+  if (window.wb && window.wb.adopt) window.wb.adopt();
+});
 </script>
 </body>
 </html>
