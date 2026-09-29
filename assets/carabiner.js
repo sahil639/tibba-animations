@@ -29,6 +29,14 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 export const M = { intensity: 1, reduced: matchMedia('(prefers-reduced-motion: reduce)').matches, stone: true, gateOnClick: true };
 
+/* CARABINER_CONFIG — the object itself */
+export const CARABINER_CONFIG = {
+  size: 1,           // overall scale of the carabiner (and its stone)
+  thickness: 0.15,   // frame radius, world units — the line weight of the drawing
+  detail: 1,         // tessellation: 0.25 (coarse) … 2 (very fine)
+  stoneSize: 0.62,   // radius of the contour stone hung from the basket
+};
+
 export function mountCarabiner(canvas) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1));
@@ -54,27 +62,48 @@ export function mountCarabiner(canvas) {
   const metal = new THREE.MeshPhysicalMaterial({ color: 0xb9c3ec, metalness: 0.55, roughness: 0.28, clearcoat: 0.6, clearcoatRoughness: 0.25 });
   const dark = new THREE.MeshStandardMaterial({ color: 0x14151a, metalness: 0.3, roughness: 0.5 });
 
-  /* the body: an asymmetric D, gate side open. Points traced off the
-     reference, in the carabiner's own frame (top of the bend ≈ y 2.9). */
-  const bodyPts = [
-    [-0.95, 1.55], [-0.95, 2.15], [-0.7, 2.7], [-0.1, 2.98], [0.6, 2.85], [1.1, 2.35],
-    [1.28, 1.5], [1.2, 0.5], [0.95, -0.55], [0.55, -1.45], [0.05, -1.9], [-0.45, -1.8], [-0.62, -1.42], [-0.5, -1.18],
+  /* ── the frame: an offset D ──────────────────────────────────────────
+     Taller than it is wide (≈ 1 : 2.2), a tight bend at the top where the
+     string clips in, a straight spine down the right, a broad basket at the
+     foot, and the gate side open on the left: the gate runs straight from
+     its hinge under the top bend down to the nose, which carries a small
+     notch the gate closes into. Traced in the carabiner's own frame with
+     the top of the bend at y = 0. Thickness and detail rebuild it live
+     (CARABINER_CONFIG). */
+  const FRAME = [
+    [-0.68, -1.15], [-0.62, -0.62], [-0.35, -0.18], [0.1, 0.02], [0.6, -0.02], [1.05, -0.28], [1.33, -0.75],
+    [1.42, -1.3], [1.43, -2.2], [1.40, -3.1], [1.33, -3.9], [1.12, -4.7], [0.7, -5.3], [0.1, -5.55],
+    [-0.5, -5.4], [-0.95, -4.95], [-1.12, -4.4], [-1.1, -3.98], [-0.98, -3.74],
   ].map(([x, y]) => new THREE.Vector3(x, y, 0));
-  const bodyCurve = new THREE.CatmullRomCurve3(bodyPts, false, 'centripetal');
-  const body = new THREE.Mesh(new THREE.TubeGeometry(bodyCurve, 220, 0.17, 24, false), metal);
-  load.add(body);
-  [bodyPts[0], bodyPts[bodyPts.length - 1]].forEach(p => {
-    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.17, 24, 16), metal); cap.position.copy(p); load.add(cap);
-  });
+  const NOTCH = [[-0.98, -3.74], [-0.84, -3.66], [-0.9, -3.52]].map(([x, y]) => new THREE.Vector3(x, y, 0));
+  const hinge = FRAME[0].clone(), nose = new THREE.Vector3(-0.9, -3.56, 0);
+  const frameCurve = new THREE.CatmullRomCurve3(FRAME, false, 'centripetal');
+  const notchCurve = new THREE.CatmullRomCurve3(NOTCH, false, 'centripetal');
+  const body = new THREE.Mesh(new THREE.BufferGeometry(), metal);
+  const notch = new THREE.Mesh(new THREE.BufferGeometry(), metal);
+  const caps = [0, 1, 2].map(() => { const m = new THREE.Mesh(new THREE.BufferGeometry(), metal); load.add(m); return m; });
+  caps[0].position.copy(FRAME[0]); caps[1].position.copy(NOTCH[NOTCH.length - 1]); caps[2].position.copy(FRAME[FRAME.length - 1]);
+  load.add(body, notch);
 
-  /* the gate: hinged at the top-left, closing onto the nose */
-  const hinge = new THREE.Vector3(-0.95, 1.55, 0), nose = new THREE.Vector3(-0.55, -1.2, 0);
+  /* the gate: hinged under the top bend, closing onto the nose */
   const gate = new THREE.Group(); gate.position.copy(hinge); load.add(gate);
   const gLen = hinge.distanceTo(nose);
   const gDir = nose.clone().sub(hinge).normalize();
   const gAng = Math.atan2(gDir.x, -gDir.y);           // lean of the gate off vertical
-  const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.105, gLen, 20), metal);
+  const rod = new THREE.Mesh(new THREE.BufferGeometry(), metal);
   rod.position.set(0, -gLen / 2, 0); const gateArm = new THREE.Group(); gateArm.rotation.z = gAng; gateArm.add(rod); gate.add(gateArm);
+
+  function buildFrame() {
+    const r = CARABINER_CONFIG.thickness, d = Math.max(0.25, CARABINER_CONFIG.detail);
+    const tub = Math.round(260 * d), rad = Math.max(8, Math.round(28 * d));
+    [body, notch, rod, ...caps].forEach(m => m.geometry.dispose());
+    body.geometry = new THREE.TubeGeometry(frameCurve, tub, r, rad, false);
+    notch.geometry = new THREE.TubeGeometry(notchCurve, Math.max(8, Math.round(24 * d)), r * 0.92, rad, false);
+    rod.geometry = new THREE.CylinderGeometry(r * 0.66, r * 0.66, gLen, rad);
+    caps.forEach((c, i) => { c.geometry = new THREE.SphereGeometry(i === 1 ? r * 0.92 : r, rad, Math.max(6, Math.round(rad * 0.66))); });
+    load.scale.setScalar(CARABINER_CONFIG.size);
+  }
+  buildFrame();
 
   /* the screw sleeve: orange, hatched, between two dark collars */
   const hatch = (() => {
@@ -90,13 +119,16 @@ export function mountCarabiner(canvas) {
   const collarB = collarA.clone();
   const sleeveG = new THREE.Group(); sleeveG.add(sleeve, collarA, collarB);
   collarA.position.y = 0.55; collarB.position.y = -0.55;
-  sleeveG.position.set(0, -0.72, 0); gateArm.add(sleeveG);
+  const SLEEVE_Y = -gLen * 0.34;             // the sleeve sits a third of the way down the gate
+  sleeveG.position.set(0, SLEEVE_Y, 0); gateArm.add(sleeveG);
   /* thin pale outlines on the collars, the reference's drawn edge */
   [collarA, collarB].forEach(c => c.add(new THREE.LineSegments(new THREE.EdgesGeometry(c.geometry, 30), new THREE.LineBasicMaterial({ color: 0xb9c3ec, transparent: true, opacity: .55 }))));
 
   /* ── the stone, drawn in contour lines, hanging in the basket ───────── */
-  const stonePivot = new THREE.Group(); stonePivot.position.set(0.05, -1.7, 0); load.add(stonePivot);
-  const sg = new THREE.IcosahedronGeometry(1.25, 5);
+  /* smaller than it was, and hung from the foot of the basket like a charm,
+     so the whole frame stays readable around it */
+  const stonePivot = new THREE.Group(); stonePivot.position.set(0.1, -5.5, 0); load.add(stonePivot);
+  const sg = new THREE.IcosahedronGeometry(0.62, 5);
   { const p = sg.attributes.position, v = new THREE.Vector3();
     const n3 = (x, y, z) => Math.sin(x * 2.1 + y * 1.3) * 0.5 + Math.sin(y * 3.7 - z * 2.2) * 0.3 + Math.sin(z * 5.1 + x * 3.3) * 0.2;
     for (let i = 0; i < p.count; i++) {
@@ -107,7 +139,7 @@ export function mountCarabiner(canvas) {
     }
     sg.computeVertexNormals(); }
   const stone = new THREE.Mesh(sg, new THREE.ShaderMaterial({
-    uniforms: { uLine: { value: new THREE.Color('#b9c3ec') }, uStep: { value: 0.17 } },
+    uniforms: { uLine: { value: new THREE.Color('#b9c3ec') }, uStep: { value: 0.11 } },
     vertexShader: `varying vec3 vP; varying vec3 vN; varying vec3 vV;
       void main(){ vP = position; vN = normalize(normalMatrix * normal); vec4 mv = modelViewMatrix * vec4(position,1.0); vV = -mv.xyz; gl_Position = projectionMatrix * mv; }`,
     fragmentShader: `uniform vec3 uLine; uniform float uStep; varying vec3 vP; varying vec3 vN; varying vec3 vV;
@@ -124,11 +156,12 @@ export function mountCarabiner(canvas) {
         #include <colorspace_fragment>
       }`,
   }));
-  stone.position.y = -1.35;
+  stone.position.y = -0.55;
+  stone.scale.setScalar(CARABINER_CONFIG.stoneSize / 0.62);
   stonePivot.add(stone);
 
-  /* the carabiner hangs from the top of its bend */
-  load.position.y = -2.98;
+  /* the carabiner hangs from the top of its bend, which is y = 0 */
+  load.position.y = -0.02;
 
   /* ── the string ─────────────────────────────────────────────────────── */
   const stringMat = new THREE.MeshBasicMaterial({ color: 0xe9ecf2, transparent: true, opacity: 0.75 });
@@ -148,7 +181,7 @@ export function mountCarabiner(canvas) {
     const r = canvas.getBoundingClientRect();
     ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(ndc, camera);
-    return ray.intersectObjects([body, rod, sleeve, stone], false).length > 0;
+    return ray.intersectObjects([body, notch, rod, sleeve, stone], false).length > 0;
   }
   canvas.addEventListener('pointermove', e => { hover = hit(e); canvas.style.cursor = hover ? 'pointer' : ''; });
   canvas.addEventListener('click', e => { if (hit(e)) kick(ndc.x); });
@@ -196,7 +229,7 @@ export function mountCarabiner(canvas) {
     /* gate swings inward about its hinge; the sleeve backs off up the gate first */
     const gOpen = Math.max(0, Math.min(1, S.gate));
     gate.rotation.z = -gOpen * 0.42;
-    sleeveG.position.y = -0.72 + gOpen * 0.18;
+    sleeveG.position.y = SLEEVE_Y + gOpen * 0.18;
     /* the string: anchor to the pivot */
     const a = new THREE.Vector3(ax, ay + 20, 0), b = pivot.position;
     const mid = a.clone().add(b).multiplyScalar(0.5);
@@ -229,5 +262,7 @@ export function mountCarabiner(canvas) {
     renderer.render(scene, camera);
   })(last);
 
-  return { M, S, drop, kick, get hover() { return hover; } };
+  return { M, S, drop, kick, get hover() { return hover; },
+    /** Re-read CARABINER_CONFIG: rebuild the frame and resize the stone. */
+    rebuild() { buildFrame(); stone.scale.setScalar(CARABINER_CONFIG.stoneSize / 0.62); } };
 }

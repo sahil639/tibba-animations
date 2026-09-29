@@ -102,7 +102,7 @@ form button:hover { background: var(--ink-warm); }
 
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.165.0/examples/jsm/"}}</script>
 <script type="module">
-  import { mountCarabiner, M } from './assets/carabiner.js';
+  import { mountCarabiner, M, CARABINER_CONFIG as CB } from './assets/carabiner.js';
   const c = mountCarabiner(document.getElementById('biner'));
   window.tibbaCarabiner = c;
 
@@ -127,6 +127,11 @@ form button:hover { background: var(--ink-warm); }
     <div class="row inline"><label>Reduced motion<i></i></label><input type="checkbox" id="s-rm" ${M.reduced ? 'checked' : ''}></div>
     <div class="row inline"><label>Gate opens on click<i></i></label><input type="checkbox" id="s-gt" checked></div>
     <div class="row inline"><label>Contour stone<i></i></label><input type="checkbox" id="s-st" checked></div>
+    <p class="tune-sub">Carabiner</p>
+    <div class="row"><label>Size<i id="v-cz">${CB.size}</i></label><input type="range" id="s-cz" min="0.5" max="1.6" step="0.01" value="${CB.size}"></div>
+    <div class="row"><label>Line thickness<i id="v-ct">${CB.thickness}</i></label><input type="range" id="s-ct" min="0.06" max="0.3" step="0.005" value="${CB.thickness}"></div>
+    <div class="row"><label>Detail<i id="v-cd">${CB.detail}</i></label><input type="range" id="s-cd" min="0.25" max="2" step="0.05" value="${CB.detail}"></div>
+    <div class="row"><label>Stone size<i id="v-cs">${CB.stoneSize}</i></label><input type="range" id="s-cs" min="0.2" max="1.3" step="0.01" value="${CB.stoneSize}"></div>
     <p class="tune-sub">Replay</p>
     <div class="row inline"><label>Drop again<i></i></label><button class="tune-btn" id="s-dr">Reset</button></div>
     <div class="row inline"><label>Nudge<i></i></label><button class="tune-btn" id="s-kk">Click</button></div>`;
@@ -136,6 +141,8 @@ form button:hover { background: var(--ink-warm); }
   q('s-rm').addEventListener('change', e => { M.reduced = e.target.checked; });
   q('s-gt').addEventListener('change', e => { M.gateOnClick = e.target.checked; });
   q('s-st').addEventListener('change', e => { M.stone = e.target.checked; });
+  [['cz', 'size'], ['ct', 'thickness'], ['cd', 'detail'], ['cs', 'stoneSize']].forEach(([id, key]) =>
+    q('s-' + id).addEventListener('input', e => { CB[key] = +e.target.value; q('v-' + id).textContent = CB[key]; c.rebuild(); }));
   q('s-dr').addEventListener('click', () => c.drop());
   q('s-kk').addEventListener('click', () => c.kick(0.4));
   q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
