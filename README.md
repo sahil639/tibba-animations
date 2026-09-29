@@ -224,13 +224,15 @@ frames at all and would otherwise sit on the loader indefinitely.
 
 ## What is waiting on assets
 
-The case study pages and the team are carried on the clients' own screenshots
-and the studio's own photography, neither of which is in this repo. Every one
-of those is a labelled plate at the right size in the right place in the
-scroll, captioned with what belongs in it. The layout, the rhythm and the
-scroll are finished; the images are the one part waiting on a hand-off. The
-brands section's display plate is the same — it shows a wordmark until the real
-marks are supplied.
+The case study pages are carried on the clients' own screenshots, which are not
+in this repo. Every one of those is a labelled plate at the right size in the
+right place in the scroll, captioned with what belongs in it. The layout, the
+rhythm and the scroll are finished; the images are the one part waiting on a
+hand-off.
+
+The brand logos (`assets/logos/`, viewBoxes cropped to their ink) and the team
+cut-outs (`assets/people/`) are in. Firstpost is the one brand still set as a
+wordmark: no artwork for it came with the logos.
 
 ## Type
 
@@ -332,6 +334,33 @@ sentence being revealed. **Esc** returns.
 All of them respect `prefers-reduced-motion`.
 
 ## Tuning
+
+### The config objects
+
+Each page below keeps every tunable in one named object, and its panel (the
+dock, `\` to show) writes into that same object live. Where a page has a
+**Copy config** button, it puts the current values on the clipboard as a
+ready-to-paste literal — paste it over the object to make them the defaults.
+
+| Page | Object (file) | What it holds |
+| --- | --- | --- |
+| Four Summits | `SUMMITS_CONFIG` (`assets/four-summits.js`) | `scroll.thresholds` / `hysteresis` / `height` — when each summit takes over; `camera.duration` / `ease` / framing; `path.defaults` + `path.perSummit[i]` — draw duration & ease per summit, `afterCamera`, width; `cards` — side, `clearance`, `offsetX/Y`, per-summit overrides, fade in/out, delay, slide |
+| Metrics | `METRICS_CONFIG` (`assets/metrics.js`) | `scroll.openAt` / `closeBelow`, `stagger`, `open` / `close` duration & ease, `order`, `layout` (cluster frame and each box's x/y/w/h) |
+| Brands, Brands — mosaic | `LOGO_CONFIG` (`assets/brand-logos.js`) | optical `size`, `maxWidth` / `maxHeight` (× tile) and `…Px` caps, `grayscale`, `restOpacity`, `hoverDuration` / `hoverEase`; per-logo `weight` and `lift` in `LOGOS` |
+| Case reel | `CAPTION` (`case-studies-reel.html`) | `padX`, `padBottom`, `activeAt` + `hysteresis`, fade in/out, delay, rise |
+| Shifting Topo, Compass | `SERVICES_SPLIT_CONFIG` (`assets/services-split.js`) | `boxGap`, `boxPad`, `subGap`, `subAlign` (top · center · bottom), `boxMinHeight` |
+| Compass | `COMPASS_OVERLAYS` (`services-compass.html`) | one flag per removed vector overlay (rings, dot ring, inner ring, brackets, chevrons) |
+| Shifting Topo | `THREE_PEAKS_CONFIG` (`assets/three-peaks.js`) | per-peak `height`, `radius`, `x` / `z` (screen-aligned), `heightScale`, `spacing`, `shape`, `contour.interval` (density), `lineWidth`, `indexWidth`, `summitRings`, `view` |
+| Polaroids | `POLAROID_CONFIG` (`studio-polaroids.html`) | `scale`, `baseWidth`, `shadow`, `spring` (stiffness, damping, stagger, travel, spin), `cards[i]` = x / y / r. **Bake layout** saves to `localStorage` (`tibba.polaroids.layout`) and copies the literal |
+| Footer — green range | `MEADOW_CONFIG` (`assets/footer-meadow.js`) | `mountains` (height, subdivisions, peaks, noise, variation, seed), `moss`, `interaction` (intensity, radius, follow, parallax), `animation` (speed, wind) |
+| About — description | `DESCRIPTION_CONFIG` + `R` (`about-description.html`) | `maxWidth` (vw), `distance` (vh; `null` = auto), `startAt`; the unit / timing / look dials |
+| About — hero | `HERO_CONFIG` (`about-hero.html`) | the aim line's word reveal: delay, duration, stagger, and the resting look |
+| About — team | `TEAM_CONFIG` (`about-team.html`) | `back` / `front` mountain width, x, y, peak, levels; `person.height`; `dither` intensity, cell, duration, contrast, colours; `hover.part` |
+| About — campsite | `CAMPSITE_CONFIG` (`assets/campsite.js`) | `smoke` (height, speed, spiral, spread, opacity, count), `loops` (flicker, tent breath, embers, wind), `scene` (scale, offsetX/Y), `interaction`, `overflow` |
+| About — foundations | `FOUNDATION_CONFIG` (`about-foundations.html`) | `tilt` (max, responsiveness, perspective), `depth` per layer, `shadow` (depth, blur, opacity), `glare`, `entrance` (duration, ease, stagger) |
+| Contact | `CARABINER_CONFIG` (`assets/carabiner.js`) | `size`, `thickness` (line weight), `detail` (tessellation), `stoneSize` |
+
+### Elsewhere
 
 Everything worth changing sits at the top of each file's `<script>`:
 
