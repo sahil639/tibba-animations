@@ -1,24 +1,31 @@
 /* ══════════════════════════════════════════════════════════════════════════
-   Our Summits — the four summits, as one scene
+   Our Summits — the four summits, one at a time
    ─────────────────────────────────────────────────────────────────────────
-   The final website's Our Summits section on a page of its own, redone in
-   the hero's language: the range drawn in the Active Peak palette on black,
-   the orange accent, the studio face. Not the hero's layout — no plan view,
-   no aside — just the four client summits held in one wide frame, centred
-   to the right, with the case cards in the bottom-left corner.
+   The final website's Our Summits section on a page of its own, in the
+   hero's language: the range drawn in the Active Peak palette on black, the
+   orange accent, the studio face.
 
-   ── each summit ───────────────────────────────────────────────────────────
-   One orange square on the true top, and a trail up to it: a single cubic
-   Bézier from a trailhead on the lower slope to the summit, laid out in plan
-   and then draped on the terrain (scene.heightAt), drawn as a screen-space
-   ribbon in that client's own colour. The draw is a timed tween whose
-   duration, easing, speed and stagger all live on the panel.
+   ── the walk ──────────────────────────────────────────────────────────────
+   One mountain is in focus at a time, centred in the viewport. Scrolling
+   through #scope moves the camera from summit to summit — 1 → 2 → 3 → 4 —
+   and each summit, the first time it becomes the active one, draws its
+   trail from the trailhead up to the orange square on its top. The draw is
+   STATEFUL: idle → waiting → playing → done. Once a trail is done it stays
+   drawn, so scrolling back and forth (or a trackpad's small jitters across a
+   threshold) never restarts it. The thresholds carry hysteresis for the
+   same reason.
 
    ── the cards ─────────────────────────────────────────────────────────────
-   Range – L2's behaviour: four containers, each entering its own way — wipe,
-   fold, focus, draw — scrubbed by its scroll band, the active one opening
-   its body. Stacked bottom-left, first at the foot. The active case lights
-   its summit, brightens its trail and leans the camera a few units its way.
+   One card per summit, anchored to the focused mountain's projected centre
+   and offset into the empty space beside it — right of the peak by default.
+   Only the active card is shown; it fades and slides in after the camera
+   has started moving, and the outgoing card fades out faster than the new
+   one comes in so the two never read as a stack.
+
+   ── controls ──────────────────────────────────────────────────────────────
+   Every value above lives in SUMMITS_CONFIG, below. The page's panel writes
+   into the same object, so a value found on the panel can be pasted back
+   here as the new default.
    ═════════════════════════════════════════════════════════════════════════ */
 import * as THREE from 'three';
 import { createRangeScene } from './range-scene.js';
@@ -50,7 +57,9 @@ export const CASES = [
 const N = CASES.length;
 const pad = i => String(i + 1).padStart(2, '0');
 
-/* ── the timing, all of it on the panel ───────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════════
+   SUMMITS_CONFIG — every tunable of the section
+   ═════════════════════════════════════════════════════════════════════════ */
 export const EASES = {
   'In-out (cubic)': [0.65, 0, 0.35, 1],
   'In-out (sine)':  [0.37, 0, 0.63, 1],
@@ -58,52 +67,112 @@ export const EASES = {
   'In (quad)':      [0.55, 0, 1, 0.45],
   'Linear':         [0, 0, 1, 1],
 };
-export const T = {
-  duration: 3.2,        // seconds for one trail, foot to summit, at speed 1
-  speed: 1,             // multiplier on every trail's pace
-  delay: 0.45,          // seconds between one trail starting and the next
-  start: 0.4,           // seconds before the first starts
-  ease: 'In-out (cubic)',
-  curve: 1,             // how far the Bézier handles bend the route
-  loop: false,          // redraw forever
-  hold: 2.4,            // seconds each set stays drawn before a loop redraws it
-  width: 2.2,           // CSS px
-  dim: 0.35,            // how far inactive trails drop back
+
+export const SUMMITS_CONFIG = {
+  /* When a summit becomes the active one. Values are progress through the
+     section's scroll (0 = section top reaches viewport top, 1 = end of its
+     travel). thresholds[i] is where summit i takes over. */
+  scroll: {
+    thresholds: [0, 0.24, 0.49, 0.74],
+    hysteresis: 0.025,   // must pass a threshold by this much to switch — kills jitter
+    height: 520,         // #scope height, in vh — more = slower walk per summit
+  },
+
+  /* The camera's station on each summit. It looks at the summit from the
+     south-east, at elev°, from dist units away (scaled by the summit's
+     spread so a broad mountain and a narrow one fill the frame alike). */
+  camera: {
+    duration: 1.6,            // seconds for the flight between two summits
+    ease: 'power3.inOut',     // any GSAP ease: 'power2.inOut', 'expo.out', 'sine.inOut' …
+    elev: 24,                 // degrees above the horizon
+    azim: -22,                // degrees round from due south
+    dist: 128,                // base distance, world units
+    scaleBySpread: true,      // dist × (this summit's spread / the average)
+    aimY: 0.42,               // aim this far up the summit (0 = foot, 1 = top)
+    shiftX: 0,                // nudge the mountain off-centre, world units along the camera's right
+    narrowDist: 1.45,         // distance multiplier under 820px wide
+  },
+
+  /* The trail draw. `defaults` applies to every summit; `perSummit[i]`
+     overrides any of its keys for summit i. */
+  path: {
+    defaults: {
+      duration: 3.0,          // seconds, trailhead → summit
+      ease: 'In-out (cubic)', // a key of EASES
+      delay: 0.25,            // seconds after the start point below
+    },
+    perSummit: [
+      { duration: 3.0 },
+      { duration: 3.2 },
+      { duration: 2.8 },
+      { duration: 3.4, ease: 'In-out (sine)' },
+    ],
+    afterCamera: 0.55,        // start once this fraction of the camera flight has run (0 = at once)
+    width: 2.2,               // CSS px
+    dim: 0.3,                 // opacity of trails that are drawn but not in focus
+    curve: 1,                 // how far the Bézier handles bend the route
+  },
+
+  /* The case card beside the focused summit. Offsets are from the summit's
+     projected centre, as fractions of the viewport (x of width, y of height).
+     The card starts from the mountain's projected flank (its spread, times
+     `clearance`), so a broad summit pushes it further out than a narrow one.
+     side 'right' puts the card's left edge at flank + offsetX; 'left' puts
+     its right edge at flank − offsetX. perSummit[i] overrides for one summit. */
+  cards: {
+    side: 'right',
+    clearance: 0.8,           // × the summit's projected half-width
+    offsetX: 0.02,
+    offsetY: -0.02,
+    perSummit: [{}, {}, {}, {}],   // e.g. { side: 'left', offsetX: .16, offsetY: .04 }
+    width: 380,               // px
+    fadeIn: 0.7,              // seconds
+    fadeOut: 0.3,             // seconds
+    delay: 0.35,              // seconds after the summit becomes active
+    slide: 28,                // px the card travels as it enters
+    ease: 'cubic-bezier(.16,.62,.36,1)',
+    margin: 24,               // px the card is kept inside the viewport by
+  },
 };
 
 export function mountFourSummits() {
+  const C = SUMMITS_CONFIG;
   const stage = $('#stage');
+  const scope = $('#scope');
+  scope.style.height = C.scroll.height + 'vh';
+
   const scene = createRangeScene({ canvas: $('#peak-canvas'), mode: 'range', palette: 'peak', hover: true, noStudio: true });
   scene.setAccent(ACCENT);
   scene.setDepth(0.1);
   document.documentElement.style.setProperty('--accent', ACCENT);
 
   const tops = scene.clientTops();
+  const avgSpread = tops.reduce((a, t) => a + t.spread, 0) / N;
 
-  /* ── the wide station ───────────────────────────────────────────────
-     Looking north over all four, the aim point pulled LEFT of the range's
-     middle so the range itself sits centred-to-right of the frame. */
-  const cx = tops.reduce((a, t) => a + t.x, 0) / N, cz = tops.reduce((a, t) => a + t.z, 0) / N;
-  const VIEW = { elev: 24, azim: -30, dist: 272, shiftX: -40, y: 12, lean: 3 };
-  let lean = 0;
-  function station(dur) {
-    const narrow = innerWidth <= 820;
-    /* turned a little off the range's own line, so the four recede on a
-       diagonal instead of standing in a row too wide for the frame; the
-       offset is along the camera's right, which is what slides the range
-       to the right of the frame without turning it */
-    const e = VIEW.elev * Math.PI / 180, a = VIEW.azim * Math.PI / 180, d = VIEW.dist * (narrow ? 1.5 : 1);
-    const sh = (narrow ? 0 : VIEW.shiftX) + lean;
-    const tx = cx + Math.cos(a) * sh, tz = cz - Math.sin(a) * sh;
-    scene.setView([tx + Math.sin(a) * Math.cos(e) * d, VIEW.y + Math.sin(e) * d, tz + Math.cos(a) * Math.cos(e) * d], [tx, VIEW.y, tz], dur);
+  /* ── the station on one summit ────────────────────────────────────────
+     The camera's target is a point partway up the summit, so that point —
+     and with it the mountain — sits in the middle of the frame. */
+  const aimOf = i => {
+    const t = tops[i], a = C.camera.azim * Math.PI / 180;
+    const sh = innerWidth <= 820 ? 0 : C.camera.shiftX;
+    return [t.x + Math.cos(a) * sh, t.y * C.camera.aimY, t.z - Math.sin(a) * sh];
+  };
+  function station(i, dur = C.camera.duration) {
+    const cam = C.camera, t = tops[i];
+    const e = cam.elev * Math.PI / 180, a = cam.azim * Math.PI / 180;
+    const d = cam.dist * (cam.scaleBySpread ? t.spread / avgSpread : 1) * (innerWidth <= 820 ? cam.narrowDist : 1);
+    const [tx, ty, tz] = aimOf(i);
+    scene.setView([tx + Math.sin(a) * Math.cos(e) * d, ty + Math.sin(e) * d, tz + Math.cos(a) * Math.cos(e) * d],
+                  [tx, ty, tz], dur, cam.ease);
   }
-  station(0);
-  addEventListener('resize', () => station(0));
 
   /* ── the trails ─────────────────────────────────────────────────────── */
-  const trails = tops.map((top, i) => buildTrail(top, i));
+  const pathOf = i => ({ ...C.path.defaults, ...(C.path.perSummit[i] || {}) });
+  const easeCache = {};
+  const easeFn = name => easeCache[name] || (easeCache[name] = cubicBezier(...(EASES[name] || EASES['In-out (cubic)'])));
+
   function bezierPoints(top, i) {
-    const R = top.spread, side = i % 2 ? -1 : 1, k = T.curve;
+    const R = top.spread, side = i % 2 ? -1 : 1, k = C.path.curve;
     /* trailhead on the near, lower slope; handles bend the line across the
        face and back so it climbs the way a path would, not straight up */
     const P0 = [top.x + side * 0.55 * R, top.z + 1.3 * R];
@@ -125,7 +194,7 @@ export function mountFourSummits() {
     const mat = new THREE.ShaderMaterial({
       transparent: true, depthWrite: false, depthTest: true, side: THREE.DoubleSide,
       uniforms: {
-        uHalfRes: { value: new THREE.Vector2(1, 1) }, uWidth: { value: T.width },
+        uHalfRes: { value: new THREE.Vector2(1, 1) }, uWidth: { value: C.path.width },
         uProgress: { value: 0 }, uAlpha: { value: 1 },
         uColor: { value: new THREE.Color(CASES[i].colour) },
       },
@@ -161,7 +230,8 @@ export function mountFourSummits() {
     mesh.frustumCulled = false;
     mesh.renderOrder = 6;
     scene.group.add(mesh);
-    const t = { i, top, mesh, mat, pts: null, p: 0, alpha: 1, alphaT: 1 };
+    const t = { i, top, mesh, mat, pts: null, p: 0, alpha: 1, alphaT: 1,
+      state: 'idle', startAt: 0, t0: 0 };   // idle → waiting → playing → done
     rebuildTrail(t);
     return t;
   }
@@ -199,6 +269,8 @@ export function mountFourSummits() {
     return out.lerpVectors(a, b, u);
   };
 
+  const trails = tops.map((top, i) => buildTrail(top, i));
+
   /* ── the orange squares, and the walkers ────────────────────────────── */
   const layer = document.createElement('div');
   layer.className = 'fs-layer';
@@ -219,29 +291,11 @@ export function mountFourSummits() {
     if (!s) { el.style.visibility = 'hidden'; return; }
     el.style.visibility = ''; el.style.transform = `translate3d(${s[0].toFixed(1)}px, ${s[1].toFixed(1)}px, 0)`;
   };
-  trails[0].mesh.onBeforeRender = (renderer, _s, cam) => {
-    const hr = renderer.getDrawingBufferSize(new THREE.Vector2()).multiplyScalar(0.5);
-    trails.forEach((t, i) => {
-      t.mat.uniforms.uHalfRes.value.copy(hr);
-      t.mat.uniforms.uWidth.value = T.width * renderer.getPixelRatio();
-      place(peakEls[i], project(_h.set(t.top.x, t.top.y + 0.7, t.top.z), cam));
-      peakEls[i].classList.toggle('arrived', t.p >= 0.999);
-      place(headEls[i], t.p > 0.001 && t.p < 0.999 ? project(pointAt(t, t.p, _h), cam) : null);
-    });
-  };
 
-  /* ── the draw ───────────────────────────────────────────────────────── */
-  let ease = cubicBezier(...EASES[T.ease]);
-  let t0 = performance.now();
-  function replay() { t0 = performance.now(); trails.forEach(t => { t.p = 0; }); }
-  function setEase(name) { T.ease = name; ease = cubicBezier(...EASES[name]); }
-
-  /* ── the cards (Range – L2's) ──────────────────────────────────────── */
-  const FX = ['wipe', 'fold', 'focus', 'draw'];
+  /* ── the cards ──────────────────────────────────────────────────────── */
   const casesEl = $('#cases');
   casesEl.innerHTML = CASES.map((c, i) => `
-    <article class="card" data-i="${i}" data-fx="${FX[i]}" style="--c:${c.colour}">
-      <svg class="frame" preserveAspectRatio="none" aria-hidden="true"><rect x=".5" y=".5" pathLength="1"/></svg>
+    <article class="card" data-i="${i}" style="--c:${c.colour}">
       <div class="in">
         <span class="k l1"><b>${pad(i)} / ${pad(N - 1)}</b><em>${c.name} · ${c.years}</em></span>
         <h3 class="t l2">${c.title}</h3>
@@ -252,31 +306,110 @@ export function mountFourSummits() {
       <span class="pin" aria-hidden="true"></span>
     </article>`).join('');
   const cards = [...casesEl.querySelectorAll('.card')];
-  const prog = new Array(N).fill(0), shown = new Array(N).fill(0);
-  let active = -1;
-  const scope = $('#scope');
-  const counter = $('#fs-count');
+  /* card timing lives in CSS variables, so a transition picks it up live */
+  function applyCardVars() {
+    const k = C.cards, st = document.documentElement.style;
+    st.setProperty('--fs-card-w', k.width + 'px');
+    st.setProperty('--fs-in', k.fadeIn + 's');
+    st.setProperty('--fs-out', k.fadeOut + 's');
+    st.setProperty('--fs-delay', k.delay + 's');
+    st.setProperty('--fs-slide', k.slide + 'px');
+    st.setProperty('--fs-ease', k.ease);
+  }
+  applyCardVars();
+  const cardOf = i => ({ side: C.cards.side, offsetX: C.cards.offsetX, offsetY: C.cards.offsetY, ...(C.cards.perSummit[i] || {}) });
+  /* each card rides its own summit's projected centre, so it travels with
+     the mountain during the flight rather than sitting still over it */
+  function placeCard(i, cam) {
+    const el = cards[i], s = project(_h.set(...aimOf(i)), cam);
+    if (!s) return;
+    const r = scene.canvas.getBoundingClientRect(), W = r.width, H = r.height, m = C.cards.margin;
+    if (innerWidth <= 820) { el.dataset.side = 'bottom'; return; }
+    /* the flank: how far the summit's spread reaches across the screen */
+    const t = tops[i], a = C.camera.azim * Math.PI / 180;
+    const f = project(_h.set(t.x + Math.cos(a) * t.spread, t.y * C.camera.aimY, t.z - Math.sin(a) * t.spread), cam);
+    const flank = f ? Math.abs(f[0] - s[0]) * C.cards.clearance : 0;
+    const o = cardOf(i), w = el.offsetWidth, h = el.offsetHeight;
+    let x = o.side === 'left' ? s[0] - flank - o.offsetX * W - w : s[0] + flank + o.offsetX * W;
+    let y = s[1] + o.offsetY * H - h / 2;
+    x = Math.max(m, Math.min(W - w - m, x));
+    y = Math.max(m + 60, Math.min(H - h - m, y));
+    el.dataset.side = o.side;
+    el.style.left = x.toFixed(1) + 'px'; el.style.top = y.toFixed(1) + 'px';
+  }
 
-  function onScroll() {
+  trails[0].mesh.onBeforeRender = (renderer, _s, cam) => {
+    const hr = renderer.getDrawingBufferSize(new THREE.Vector2()).multiplyScalar(0.5);
+    trails.forEach((t, i) => {
+      t.mat.uniforms.uHalfRes.value.copy(hr);
+      t.mat.uniforms.uWidth.value = C.path.width * renderer.getPixelRatio();
+      place(peakEls[i], project(_h.set(t.top.x, t.top.y + 0.7, t.top.z), cam));
+      peakEls[i].classList.toggle('arrived', t.p >= 0.999);
+      place(headEls[i], t.p > 0.001 && t.p < 0.999 ? project(pointAt(t, t.p, _h), cam) : null);
+    });
+    /* only the cards that can be seen need placing */
+    cards.forEach((c, i) => { if (i === active || c.classList.contains('leaving')) placeCard(i, cam); });
+  };
+
+  /* ── the path state machine ─────────────────────────────────────────
+       idle     never been the active summit (or left before it started)
+       waiting  active; queued to start at startAt
+       playing  drawing; runs to the end even if the user scrolls away
+       done     drawn, and stays drawn — never replays on its own        */
+  function queueTrail(i) {
+    const t = trails[i];
+    if (t.state !== 'idle') return;
+    t.state = 'waiting';
+    t.startAt = performance.now() + (C.camera.duration * C.path.afterCamera + pathOf(i).delay) * 1000;
+  }
+
+  /* ── the scroll: which summit is active ───────────────────────────── */
+  let active = -1;
+  const counter = $('#fs-count');
+  function progress() {
     const travel = scope.offsetHeight - innerHeight;
-    const t = travel > 0 ? clamp01(-scope.getBoundingClientRect().top / travel) : 0;
-    /* the first card is already in when the page opens: the scene should
-       never be empty of copy */
-    const bandT = 0.46 + t * (N - 0.46);
-    for (let i = 0; i < N; i++) prog[i] = clamp01((bandT - i) / 0.45);
-    const idx = Math.min(N - 1, Math.floor(bandT));
-    if (idx !== active) {
-      active = idx;
-      cards.forEach((c, k) => { c.classList.toggle('active', k === idx); c.classList.toggle('past', k < idx); });
-      scene.light(idx);
-      trails.forEach((tr, k) => { tr.alphaT = k === idx ? 1 : T.dim; });
-      peakEls.forEach((e, k) => e.classList.toggle('on', k === idx));
-      lean = (tops[idx].x - cx) / 226 * VIEW.lean;
-      station(1.6);
-      if (counter) counter.innerHTML = `<b>${pad(idx)}</b>&thinsp;/&thinsp;${pad(N - 1)}`;
+    return travel > 0 ? clamp01(-scope.getBoundingClientRect().top / travel) : 0;
+  }
+  /* the summit a progress value belongs to, with hysteresis: moving on
+     needs thresholds[i] + h, moving back needs thresholds[i] - h, so a
+     scroll resting on a boundary cannot flip between two summits */
+  function indexFor(p) {
+    const th = C.scroll.thresholds, h = C.scroll.hysteresis;
+    let idx = 0;
+    for (let i = 1; i < N; i++) {
+      const edge = th[i] + (active >= i ? -h : h);
+      if (p >= edge) idx = i;
     }
+    return idx;
+  }
+  function setActive(idx, dur) {
+    const prev = active;
+    active = idx;
+    cards.forEach((c, k) => {
+      const was = k === prev && prev !== idx;
+      c.classList.toggle('active', k === idx);
+      c.classList.toggle('live', k === idx);
+      c.classList.toggle('leaving', was);
+      c.dataset.dir = k === idx ? (prev > idx ? 'back' : 'fwd') : (k < idx ? 'back' : 'fwd');
+      if (was) setTimeout(() => c.classList.remove('leaving'), C.cards.fadeOut * 1000 + 50);
+    });
+    scene.light(idx);
+    peakEls.forEach((e, k) => e.classList.toggle('on', k === idx));
+    trails.forEach((tr, k) => {
+      tr.alphaT = k === idx ? 1 : C.path.dim;
+      /* left before it began: put it back, so it plays when next in focus */
+      if (k !== idx && tr.state === 'waiting') tr.state = 'idle';
+    });
+    queueTrail(idx);
+    station(idx, dur);
+    if (counter) counter.innerHTML = `<b>${pad(idx)}</b>&thinsp;/&thinsp;${pad(N - 1)}`;
+  }
+  function onScroll() {
+    const idx = indexFor(progress());
+    if (idx !== active) setActive(idx, active < 0 ? 0 : C.camera.duration);
   }
   addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('resize', () => { if (active >= 0) station(active, 0); });
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   onScroll();
 
@@ -284,31 +417,31 @@ export function mountFourSummits() {
   function tick(now) {
     requestAnimationFrame(tick);
     const dt = Math.min(0.05, (now - last) / 1000); last = now;
-    /* trails: each on its own delayed clock */
-    const el = (now - t0) / 1000;
-    const dur = T.duration / Math.max(0.05, T.speed);
-    const setLen = T.start + T.delay * (N - 1) + dur;
-    const local = T.loop ? el % (setLen + T.hold) : el;
     trails.forEach((tr, i) => {
-      const k = REDUCED ? 1 : clamp01((local - T.start - i * T.delay) / dur);
-      tr.p = ease(k);
+      if (tr.state === 'waiting' && now >= tr.startAt) { tr.state = 'playing'; tr.t0 = now; }
+      if (tr.state === 'playing') {
+        const P = pathOf(i);
+        const k = REDUCED ? 1 : clamp01((now - tr.t0) / 1000 / Math.max(0.05, P.duration));
+        tr.p = easeFn(P.ease)(k);
+        if (k >= 1) { tr.state = 'done'; tr.p = 1; }
+      }
       tr.mat.uniforms.uProgress.value = tr.p;
       tr.alpha += (tr.alphaT - tr.alpha) * Math.min(1, dt * 4);
       tr.mat.uniforms.uAlpha.value = tr.alpha;
-    });
-    /* cards, chased so a wheel notch never jumps them */
-    const f = REDUCED ? 1 : Math.min(1, dt * 7);
-    cards.forEach((c, i) => {
-      shown[i] += (prog[i] - shown[i]) * f;
-      c.style.setProperty('--p', shown[i].toFixed(4));
-      c.classList.toggle('live', shown[i] > 0.002);
     });
   }
   requestAnimationFrame(tick);
 
   return {
-    scene, trails, T, VIEW, EASES, replay, setEase,
-    setCurve(v) { T.curve = v; trails.forEach(rebuildTrail); },
-    station,
+    scene, trails, CONFIG: C, EASES,
+    /** Wipe every trail back to idle and play the focused one again. */
+    replay() { trails.forEach(t => { t.state = 'idle'; t.p = 0; }); if (active >= 0) queueTrail(active); },
+    setCurve(v) { C.path.curve = v; trails.forEach(rebuildTrail); },
+    /** Re-seat the camera on the active summit — call after changing C.camera. */
+    reframe(dur = 0) { if (active >= 0) station(active, dur); },
+    applyCardVars,
+    /** Re-read C.scroll after a change (height, thresholds). */
+    rescroll() { scope.style.height = C.scroll.height + 'vh'; onScroll(); },
+    get active() { return active; },
   };
 }

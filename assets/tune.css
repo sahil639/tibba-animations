@@ -209,6 +209,14 @@ body #tune #tune-head button {
   border: 0; padding: 2px 4px; font-size: 15px; letter-spacing: 0;
 }
 
+/* a drop-down, for choices too many for a segmented row (easings) */
+body #tune select, body #ui select {
+  display: block; width: 100%; font: inherit; font-size: 11px;
+  color: var(--t-ink); background: transparent;
+  border: 1px solid var(--t-line); border-radius: 0; padding: 6px 8px; cursor: pointer;
+}
+body #tune select option, body #ui select option { background: #151516; color: var(--t-ink); }
+
 /* ── segmented choices ──────────────────────────────────────────────────── */
 body #tune .seg, body #ui .seg {
   display: flex; gap: 0; margin: 4px 0 2px;

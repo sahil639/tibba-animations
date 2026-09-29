@@ -2084,12 +2084,12 @@ const mouse  = { x: 0, y: 0 };
 const mSmooth = { x: 0, y: 0 };
 
 /* ─── Camera animation ───────────────────────────────────────── */
-function moveCam(p, t, dur=1.4, cb) {
+function moveCam(p, t, dur=1.4, cb, ease='power3.inOut') {
   if(camAnim) camAnim.kill();
   camTweening = true;
   camAnim = gsap.timeline({ onComplete(){ camTweening=false; if(cb)cb(); } });
-  camAnim.to(camBase,  {x:p.x,y:p.y,z:p.z,duration:dur,ease:'power3.inOut'},0);
-  camAnim.to(camTarget,{x:t.x,y:t.y,z:t.z,duration:dur,ease:'power3.inOut'},0);
+  camAnim.to(camBase,  {x:p.x,y:p.y,z:p.z,duration:dur,ease},0);
+  camAnim.to(camTarget,{x:t.x,y:t.y,z:t.z,duration:dur,ease},0);
 }
 
 /* ─── Markers ────────────────────────────────────────────────── */
@@ -2631,14 +2631,15 @@ return {
 
   /** Put the camera on any station, in either mode — a wide view of the
       whole range, say. Leaves the case walk: a resize no longer re-seats
-      the camera on a summit afterwards. dur 0 cuts, otherwise it flies. */
-  setView(pos, tgt, dur) {
+      the camera on a summit afterwards. dur 0 cuts, otherwise it flies,
+      on `ease` (any GSAP ease name; power3.inOut when left out). */
+  setView(pos, tgt, dur, ease) {
     focused = -1;
     const p = new THREE.Vector3(...pos), t = new THREE.Vector3(...tgt);
     if (!dur) {
       if (camAnim) { camAnim.kill(); camTweening = false; }
       camBase.copy(p); camTarget.copy(t);
-    } else moveCam(p, t, dur);
+    } else moveCam(p, t, dur, undefined, ease);
   },
 
   /** Light one client summit (0–3) and let the others recede; -1 for none. */
