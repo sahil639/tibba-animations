@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Footer — green range</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<script src="assets/odometer.js" defer></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Footer — green range
+   ─────────────────────────────────────────────────────────────────────────
+   The reference footer's composition, filled with ours:
+
+     left     the enquiry form — name and email, the message behind a "+",
+              send — and a status line with the orange square
+     centre   the site's sections, one per line, centred
+     right    where else to find us, underlined; the address; the legal line
+     foot     the copyright, centred, sitting on the skyline
+
+   Where the reference sets a giant wordmark along the very bottom, this
+   footer has a range of green mountains instead (assets/footer-meadow.js):
+   finely subdivided, grown over with moss, and moving the way the Sylva
+   Living World scene moves — slow gusts, the moss parting under the
+   cursor, the camera leaning toward the pointer.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+button { font: inherit; }
+
+.approach { min-height: 70vh; display: flex; align-items: flex-end; padding: 0 var(--gut) 12vh; }
+.approach p { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+
+/* ── the footer ─────────────────────────────────────────────────────────── */
+.ft { --range-h: clamp(220px, 34vw, 460px);
+  position: relative; background: #161617; overflow: hidden; border-top: 1px solid rgba(255,255,255,.06); }
+.ft-grid { position: relative; z-index: 2; max-width: 1600px; margin: 0 auto;
+  display: grid; grid-template-columns: minmax(260px, 1.05fr) 1fr minmax(240px, 1fr); gap: clamp(28px, 4vw, 72px);
+  padding: clamp(56px, 8vw, 96px) var(--gut) 0; }
+
+/* left: the form */
+.ft-form h2 { color: #fff; font-weight: 400; font-size: clamp(17px, 1.35vw, 21px); letter-spacing: -.005em; }
+.ft-form .fields { margin-top: 20px; display: grid; gap: 8px; max-width: 460px; }
+.ft-form .field { width: 100%; padding: 15px 16px; background: #2a2a2c; border: 1px solid rgba(255,255,255,.1); border-radius: 0;
+  color: #fff; font: inherit; font-size: 15px; transition: border-color .2s linear, background .2s linear; }
+.ft-form .field::placeholder { color: rgba(232,227,220,.46); }
+.ft-form .field:focus { outline: none; border-color: var(--accent); background: #303032; }
+.ft-form .msg { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s var(--ease); }
+.ft-form .msg > div { overflow: hidden; }
+.ft-form.more .msg { grid-template-rows: 1fr; }
+.ft-form textarea.field { min-height: 120px; resize: vertical; }
+.ft-form .acts { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.ft-send { padding: 15px 16px; background: #f2f0ec; color: #111; border: 0; cursor: pointer;
+  font-size: 13px; letter-spacing: .1em; text-transform: uppercase; transition: background .2s linear; }
+.ft-send:hover { background: #fff; }
+.ft-more { width: 54px; background: #f2f0ec; color: #111; border: 0; cursor: pointer; font-size: 20px; line-height: 1; transition: transform .35s var(--ease), background .2s linear; }
+.ft-more:hover { background: #fff; }
+.ft-form.more .ft-more { transform: rotate(45deg); }
+.ft-form .fine { margin-top: 14px; font-size: 13px; color: var(--ink-faint); }
+.ft-status { margin-top: 26px; display: grid; gap: 10px; }
+.ft-status p { display: flex; align-items: center; gap: 12px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-mute); }
+.ft-status p::before { content: ''; flex: none; width: 9px; height: 9px; background: var(--accent); }
+.ft-status a { text-decoration: none; border-bottom: 1px solid rgba(232,227,220,.3); }
+
+/* centre: the sections */
+.ft-nav { list-style: none; display: grid; gap: 18px; justify-items: center; align-content: start; }
+.ft-nav a { text-decoration: none; font-size: 15px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-mute); transition: color .2s linear; }
+.ft-nav a:hover { color: #fff; }
+
+/* right: elsewhere, the address, the legal line */
+.ft-links { display: grid; gap: 8px; align-content: start; justify-items: start; }
+.ft-links a { font-size: clamp(15px, 1.2vw, 18px); color: var(--ink-warm); text-decoration: none; border-bottom: 1px solid rgba(232,227,220,.5); padding-bottom: 2px; transition: color .2s linear, border-color .2s linear; }
+.ft-links a:hover { color: #fff; border-color: var(--accent); }
+.ft-links .gap { height: 14px; }
+.ft-links .legal a { font-size: 14px; color: var(--ink-mute); border-color: rgba(232,227,220,.3); }
+
+/* foot: the copyright on the skyline, then the range */
+.ft-copy { position: relative; z-index: 2; text-align: center; margin-top: clamp(56px, 7vw, 96px);
+  font-size: 15px; line-height: 1.6; color: var(--ink-mute); pointer-events: none; }
+.ft-range { position: relative; z-index: 1; display: block; width: 100%; height: var(--range-h); margin-top: calc(var(--range-h) * -0.42); }
+
+@media (max-width: 900px) {
+  .ft-grid { grid-template-columns: 1fr 1fr; }
+  .ft-form { grid-column: 1 / -1; }
+  .ft-nav { justify-items: start; }
+}
+@media (max-width: 560px) { .ft-grid { grid-template-columns: 1fr; } }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+
+<section class="approach"><p>Scroll to the footer</p></section>
+
+<footer class="ft">
+  <div class="ft-grid">
+    <!-- A real form, posting nowhere: there is no back end in this repo. It
+         opens a mail draft with the fields filled in, as the shared footer's
+         form does. -->
+    <form class="ft-form" id="ft-form">
+      <h2>Let's get to know you and your idea!</h2>
+      <div class="fields">
+        <input class="field" name="name" type="text" placeholder="Name" autocomplete="name" required>
+        <input class="field" name="email" type="email" placeholder="Email" autocomplete="email" required>
+        <div class="msg"><div><textarea class="field" name="message" placeholder="Message"></textarea></div></div>
+        <div class="acts">
+          <button class="ft-send" type="submit">Send request</button>
+          <button class="ft-more" type="button" aria-expanded="false" aria-label="Add a message">+</button>
+        </div>
+      </div>
+      <div class="ft-status">
+        <p>Drop us a line at <a href="mailto:hello@tibba.design">hello@tibba.design</a></p>
+      </div>
+    </form>
+
+    <ul class="ft-nav">
+      <li><a href="final-website.html">Home</a></li>
+      <li><a href="final-website.html#services">Services</a></li>
+      <li><a href="final-website.html#range">Case study</a></li>
+      <li><a href="final-website.html#testimonials">Testimonial</a></li>
+      <li><a href="about.html">About us</a></li>
+    </ul>
+
+    <div class="ft-links">
+      <a href="mailto:hello@tibba.design">hello@tibba.design</a>
+      <a href="https://medium.com/@tibbadesignstudio">Medium</a>
+      <a href="https://www.instagram.com/tibba.design/">Instagram</a>
+      <a href="https://www.linkedin.com/company/tibba-design-studio/">LinkedIn</a>
+    </div>
+  </div>
+
+  <p class="ft-copy">© <span id="yr"></span> Tibba Design Studio</p>
+  <canvas class="ft-range" id="ft-range" aria-hidden="true"></canvas>
+</footer>
+
+<script>
+  document.getElementById('yr').textContent = new Date().getFullYear();
+  /* the form: "+" opens the message; send opens a filled-in mail draft */
+  (function () {
+    const f = document.getElementById('ft-form'), more = f.querySelector('.ft-more');
+    more.addEventListener('click', () => {
+      const on = f.classList.toggle('more'); more.setAttribute('aria-expanded', String(on));
+      if (on) f.querySelector('textarea').focus();
+    });
+    f.addEventListener('submit', e => {
+      e.preventDefault();
+      const d = new FormData(f);
+      location.href = `mailto:hello@tibba.design?subject=${encodeURIComponent('Project enquiry — ' + d.get('name'))}&body=${encodeURIComponent((d.get('message') || '') + '\n\n' + d.get('name') + ' · ' + d.get('email'))}`;
+    });
+  })();
+</script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js"}}</script>
+<script type="module">
+  import { createFooterMeadow, MEADOW_CONFIG as C } from './assets/footer-meadow.js';
+  const meadow = createFooterMeadow(document.getElementById('ft-range'));
+  window.tibba = { meadow };
+
+  /* ── the panel: writes into MEADOW_CONFIG ─────────────────────────── */
+  const el = document.createElement('div');
+  el.id = 'tune';
+  const R = (id, label, min, max, step, val, unit = '') => `<div class="row"><label>${label}<i id="v-${id}">${val}${unit}</i></label><input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}" data-unit="${unit}"></div>`;
+  el.innerHTML = `
+    <div id="tune-head"><b>Green range</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <p class="tune-sub">Mountains</p>
+    ${R('mh', 'Height', .3, 2, .05, C.mountains.height, '×')}
+    ${R('ms', 'Subdivisions', 80, 600, 10, C.mountains.subdivisions)}
+    ${R('mp', 'Summits', 3, 14, 1, C.mountains.peaks)}
+    ${R('mn', 'Noise', 0, 1.2, .02, C.mountains.noise)}
+    ${R('mv', 'Variation', 0, 1, .02, C.mountains.variation)}
+    ${R('sd', 'Seed', 1, 60, 1, C.mountains.seed)}
+    <p class="tune-sub">Moss</p>
+    ${R('mc', 'Blades', 0, 160000, 1000, C.moss.count)}
+    ${R('ml', 'Blade length', .05, .5, .01, C.moss.length)}
+    ${R('msl', 'Bare above slope', .3, .95, .01, C.moss.maxSlope)}
+    <p class="tune-sub">Interaction</p>
+    ${R('ii', 'Intensity', 0, 2.5, .05, C.interaction.intensity)}
+    ${R('ir', 'Radius', .3, 4, .05, C.interaction.radius)}
+    ${R('if', 'Follow', .02, .5, .01, C.interaction.follow)}
+    ${R('ip', 'Parallax', 0, 3, .05, C.interaction.parallax)}
+    <p class="tune-sub">Animation</p>
+    ${R('as', 'Speed', 0, 3, .05, C.animation.speed, '×')}
+    ${R('aw', 'Wind', 0, 3, .05, C.animation.wind)}
+    <div class="row inline"><label>Config<i></i></label><button class="tune-btn" id="s-cp">Copy config</button></div>`;
+  document.body.appendChild(el);
+  const q = id => el.querySelector('#' + id);
+  let pend = 0;
+  const later = fn => { clearTimeout(pend); pend = setTimeout(fn, 120); };   // rebuilds are heavy: once the slider rests
+  const bind = (id, fn) => q('s-' + id).addEventListener('input', e => {
+    const v = +e.target.value; q('v-' + id).textContent = v + e.target.dataset.unit; fn(v);
+  });
+  bind('mh', v => { C.mountains.height = v; later(meadow.rebuild); });
+  bind('ms', v => { C.mountains.subdivisions = v; later(meadow.rebuild); });
+  bind('mp', v => { C.mountains.peaks = v; later(meadow.rebuild); });
+  bind('mn', v => { C.mountains.noise = v; later(meadow.rebuild); });
+  bind('mv', v => { C.mountains.variation = v; later(meadow.rebuild); });
+  bind('sd', v => { C.mountains.seed = v; later(meadow.rebuild); });
+  bind('mc', v => { C.moss.count = v; later(meadow.replant); });
+  bind('ml', v => { C.moss.length = v; later(meadow.replant); });
+  bind('msl', v => { C.moss.maxSlope = v; later(meadow.rebuild); });
+  bind('ii', v => { C.interaction.intensity = v; });
+  bind('ir', v => { C.interaction.radius = v; });
+  bind('if', v => { C.interaction.follow = v; });
+  bind('ip', v => { C.interaction.parallax = v; });
+  bind('as', v => { C.animation.speed = v; });
+  bind('aw', v => { C.animation.wind = v; });
+  q('s-cp').addEventListener('click', async () => {
+    const txt = 'export const MEADOW_CONFIG = ' + JSON.stringify(C, null, 2) + ';';
+    try { await navigator.clipboard.writeText(txt); } catch { console.log(txt); }
+  });
+  q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+  if (window.wb && window.wb.adopt) window.wb.adopt();
+</script>
+</body>
+</html>
