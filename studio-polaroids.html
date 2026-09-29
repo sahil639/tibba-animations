@@ -15,24 +15,30 @@
 <script src="assets/workbench.js" defer></script>
 <style>
 /* ══════════════════════════════════════════════════════════════════════════
-   Our studio — polaroids (exploratory)
+   Our studio — polaroids
    ─────────────────────────────────────────────────────────────────────────
-   The team and the studio's life as a table of polaroids, scattered round a
-   title in the middle of the screen. Each is a real polaroid: white frame,
-   the deep margin at the bottom, and a line in handwriting on it.
+   The team and the studio's life as a table of polaroids round a title in
+   the middle of the screen: white frame, the deep bottom margin, a line in
+   handwriting. No tape; a soft shadow under each print; every print the
+   same size.
 
-     scatter  authored slots around the title, each jittered a little and
-              given its own tilt — loose, but never over the title and
-              never stacked more than a corner deep
-     hover    the print lifts off the table and tilts toward the pointer in
-              3D, with its shadow lengthening under it
-     drag     pick any of them up and put it down anywhere; the one you
-              touched comes to the top of the pile and settles at a fresh
-              small angle when dropped
+     entrance  the first time the table is on screen, the prints fly in
+               from the left and right edges — each from its nearer side —
+               on a spring, staggered, and land exactly on their layout
+     layout    authored, not random: every print's x, y and rotation live in
+               POLAROID_CONFIG.cards (x/y as fractions of the table)
+     hover     the print lifts and tilts toward the pointer
+     drag      pick any print up and put it down; the move is written back
+               into its layout entry, so a drag is an edit
 
-   The four portraits are placeholders — the studio's own photography is not
-   in this repo (about.html says the same); the landscape prints are the
-   studio photographs from assets/studio/.
+   "Bake layout" on the panel freezes the current layout: it is saved in
+   this browser (localStorage) and loaded instead of the defaults, and the
+   same values are copied to the clipboard to paste over POLAROID_CONFIG
+   as the new defaults. From then on the resting layout is plain data —
+   it never depends on where an animation happened to stop.
+
+   The four portraits are the team's own cut-outs (assets/people/) set on a
+   studio backdrop; the landscape prints are assets/studio/.
    ═════════════════════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: #0c0c0d; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow: hidden; }
@@ -48,23 +54,28 @@ body { background: #0c0c0d; color: var(--ink-warm); font-family: 'F37 Analog', s
   position: absolute; left: 0; top: 0; width: var(--w, 190px); touch-action: none; cursor: grab; z-index: 2;
   transform: translate3d(var(--x), var(--y), 0) rotate(var(--r)); will-change: transform; perspective: 900px; }
 .pol.drag { cursor: grabbing; }
+/* the shadow: one soft drop (--sh-*, from POLAROID_CONFIG.shadow) that
+   lengthens as the print lifts, over a hairline contact shadow */
 .pol .card { background: #f4f2ec; padding: 9px 9px 0; border-radius: 2px;
   transform: rotateX(var(--tx)) rotateY(var(--ty)) translateZ(calc(var(--lift) * 24px)) scale(calc(1 + var(--lift) * .03));
-  box-shadow: 0 calc(2px + var(--lift) * 16px) calc(6px + var(--lift) * 30px) rgba(0,0,0,calc(.45 + var(--lift) * .2)), 0 1px 1px rgba(0,0,0,.4);
+  box-shadow: 0 calc(var(--sh-y, 8px) + var(--lift) * 12px) calc(var(--sh-blur, 22px) + var(--lift) * 18px) rgba(0,0,0,calc(var(--sh-a, .26) + var(--lift) * .12)),
+              0 1px 2px rgba(0,0,0,.25);
   transition: box-shadow .25s ease; transform-style: preserve-3d; }
+.pol.sel .card { outline: 1px dashed rgba(255,75,31,.7); outline-offset: 5px; }
 .pol .ph { position: relative; aspect-ratio: 1; overflow: hidden; background: #1a1a1c; }
 .pol .ph img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; user-select: none; filter: saturate(.9) contrast(1.03); }
+.pol .ph.person { background: radial-gradient(120% 90% at 50% 30%, #d8d2c8 0%, #b9b2a6 70%, #a39b8e 100%); }
+.pol .ph.person img { object-position: 50% 12%; filter: saturate(.92) contrast(1.02); }
 .pol .ph svg { width: 100%; height: 100%; display: block; }
 .pol .ph::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,.1), rgba(255,255,255,0) 40%); pointer-events: none; }
 .pol .note { height: 58px; display: flex; flex-direction: column; justify-content: center; padding: 0 4px; font-family: 'Caveat', 'Segoe Print', cursive; color: #232220; }
 .pol .note b { font-weight: 500; font-size: 22px; line-height: 1; }
 .pol .note span { font-size: 16px; line-height: 1.05; color: #55524c; }
-.pol .tape { position: absolute; left: 50%; top: -9px; width: 58px; height: 18px; transform: translateX(-50%) rotate(var(--tr, -3deg)); background: rgba(232,227,220,.55); box-shadow: 0 1px 2px rgba(0,0,0,.2); }
 
 .reset { position: absolute; right: var(--gut); bottom: 22px; z-index: 50; padding: 9px 12px; border: 1px solid rgba(255,255,255,.16); background: rgba(0,0,0,.4);
   color: var(--ink-warm); font: 10.5px/1 'F37 Analog', system-ui, sans-serif; letter-spacing: .16em; text-transform: uppercase; cursor: pointer; }
 .reset:hover { border-color: rgba(255,255,255,.4); }
-@media (max-width: 760px) { .pol { --w: 128px !important; } .pol .note { height: 44px; } .pol .note b { font-size: 17px; } .pol .note span { font-size: 13px; } }
+@media (max-width: 760px) { .pol .note { height: 44px; } .pol .note b { font-size: 17px; } .pol .note span { font-size: 13px; } }
 @media (prefers-reduced-motion: reduce) { .pol .card { transform: none !important; } }
 </style>
 <link rel="stylesheet" href="assets/tune.css">
@@ -77,73 +88,141 @@ body { background: #0c0c0d; color: var(--ink-warm); font-family: 'F37 Analog', s
     <p>A lean design team based out of India, and the places we go to think.</p>
     <p class="hint">Drag the photos around</p>
   </div>
-  <button class="reset" id="reset" type="button">Scatter again</button>
+  <button class="reset" id="reset" type="button">Replay entrance</button>
 </main>
 
 <script>
+/* ══════════════════════════════════════════════════════════════════════════
+   POLAROID_CONFIG — size, shadow, spring and the layout itself
+   ═════════════════════════════════════════════════════════════════════════ */
+const POLAROID_CONFIG = {
+  scale: 1,              // one scale for every print
+  baseWidth: 180,        // px width of a print at scale 1 on a 1440px-wide table
+  shadow: { y: 8, blur: 22, opacity: 0.26 },
+  /* the entrance: a damped spring per print. stiffness pulls it home,
+     damping bleeds the bounce (critical ≈ 2·√stiffness — lower is springier) */
+  spring: { stiffness: 120, damping: 14, stagger: 0.07, travel: 120, spin: 18 },
+  /* x, y: the print's top-left as a fraction of the table; r: degrees */
+  cards: [
+    { x: 0.07, y: 0.08, r: -5 },
+    { x: 0.30, y: 0.05, r: 3 },
+    { x: 0.61, y: 0.06, r: -2 },
+    { x: 0.83, y: 0.10, r: 6 },
+    { x: 0.04, y: 0.44, r: 4 },
+    { x: 0.85, y: 0.42, r: -4 },
+    { x: 0.17, y: 0.66, r: -3 },
+    { x: 0.44, y: 0.68, r: 2 },
+    { x: 0.68, y: 0.64, r: -6 },
+  ],
+};
+const BAKE_KEY = 'tibba.polaroids.layout';
+
 (function () {
+  const C = POLAROID_CONFIG;
   const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  /* A portrait placeholder: a dark plate with contour rings and initials,
-     in place of the studio's own photography. */
-  const portrait = (ini, seed) => {
-    let rings = '';
-    for (let r = 0; r < 12; r++) {
-      const R = 14 + r * 11, pts = [];
-      for (let a = 0; a <= 48; a++) { const t = a / 48 * 6.283; const w = 1 + .1 * Math.sin(t * 3 + r * .6 + seed); pts.push((100 + Math.cos(t) * R * w).toFixed(1) + ' ' + (92 + Math.sin(t) * R * .85 * w).toFixed(1)); }
-      rings += `<path d="M${pts.join('L')}Z" fill="none" stroke="rgba(233,236,242,${r < 2 ? .5 : .14})"/>`;
-    }
-    return `<svg viewBox="0 0 200 200" aria-hidden="true"><rect width="200" height="200" fill="#18181b"/>${rings}
-      <rect x="95" y="87" width="10" height="10" fill="#FF4B1F"/><text x="14" y="186" fill="rgba(233,236,242,.55)" font-family="system-ui" font-size="11" letter-spacing="2">PORTRAIT · ${ini}</text></svg>`;
-  };
+  /* a baked layout, if this browser has one, wins over the defaults */
+  try { const b = JSON.parse(localStorage.getItem(BAKE_KEY) || 'null'); if (b && b.cards && b.cards.length === C.cards.length) Object.assign(C, b); } catch {}
+
   const PICS = [
-    { name: 'Rahul', note: 'founder, designer', ph: portrait('RB', 1) },
-    { name: 'Neel', note: 'designer', ph: portrait('NL', 2) },
-    { name: 'Riya', note: 'designer', ph: portrait('RP', 3) },
-    { name: 'Sahil', note: 'designer', ph: portrait('SP', 4) },
+    { name: 'Rahul', note: 'founder, designer', person: 'assets/people/rahul.png' },
+    { name: 'Neel', note: 'designer', person: 'assets/people/neel.png' },
+    { name: 'Riya', note: 'designer', person: 'assets/people/riya.png' },
+    { name: 'Sahil', note: 'designer', person: 'assets/people/sahil.png' },
     { name: "Team Tibba '25", note: 'offsite, somewhere high', img: 'assets/studio/01-dawn.jpg' },
     { name: 'Remote friendly', note: 'the view from this week’s desk', img: 'assets/studio/05-lake.jpg' },
     { name: 'Base camp', note: 'where the sprints get planned', img: 'assets/studio/06-night.jpg' },
     { name: 'First light', note: 'worth the 4am alarm', img: 'assets/studio/07-summit.jpg' },
     { name: 'The long ridge', note: 'walk & talk reviews', img: 'assets/studio/03-ridge.jpg' },
   ];
-  /* slots around the title, as fractions of the table; the middle band
-     (where the title is) is left clear */
-  const SLOTS = [[.07, .08], [.3, .04], [.62, .06], [.84, .1], [.05, .52], [.86, .5], [.16, .74], [.45, .76], [.72, .72]];
   const table = document.getElementById('table');
-  let z = 10, seed = 1;
-  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  let z = 10, selected = 0;
 
   const els = PICS.map((p, i) => {
     const el = document.createElement('figure');
     el.className = 'pol';
-    el.innerHTML = `<div class="card"><i class="tape" style="--tr:${(i % 3 - 1) * 4}deg"></i>
-      <div class="ph">${p.img ? `<img src="${p.img}" alt="${p.name}">` : p.ph}</div>
+    el.dataset.i = i;
+    el.innerHTML = `<div class="card">
+      <div class="ph${p.person ? ' person' : ''}"><img src="${p.person || p.img}" alt="${p.name}"></div>
       <figcaption class="note"><b>${p.name}</b><span>${p.note}</span></figcaption></div>`;
     table.appendChild(el);
     return el;
   });
 
-  function scatter(animate) {
-    const W = table.clientWidth, H = table.clientHeight;
-    els.forEach((el, i) => {
-      /* sized off the table, so nine prints never crowd the title */
-      const w = Math.round(W < 760 ? 128 : Math.min(230, Math.max(120, W * .125 + rnd() * W * .025)));
-      el.style.setProperty('--w', w + 'px');
-      const [sx, sy] = SLOTS[i];
-      const x = Math.min(W - w - 10, Math.max(10, sx * W + (rnd() - .5) * 60));
-      const y = Math.min(H - w * 1.35 - 10, Math.max(10, sy * H + (rnd() - .5) * 50));
-      el.style.transition = animate && !REDUCED ? 'transform .9s cubic-bezier(.22,1,.36,1)' : 'none';
-      el.style.setProperty('--x', x + 'px'); el.style.setProperty('--y', y + 'px');
-      el.style.setProperty('--r', ((rnd() - .5) * 16).toFixed(1) + 'deg');
-      el._x = x; el._y = y;
-    });
+  /* ── size, shadow, and where each print rests ──────────────────────── */
+  const width = () => {
+    const W = table.clientWidth;
+    return Math.round(C.baseWidth * C.scale * (W < 760 ? 0.66 : Math.min(1.15, Math.max(0.7, W / 1440))));
+  };
+  function applyLook() {
+    const st = table.style;
+    st.setProperty('--w', width() + 'px');
+    st.setProperty('--sh-y', C.shadow.y + 'px');
+    st.setProperty('--sh-blur', C.shadow.blur + 'px');
+    st.setProperty('--sh-a', C.shadow.opacity);
   }
-  scatter(false);
-  document.getElementById('reset').addEventListener('click', () => scatter(true));
-  addEventListener('resize', () => scatter(false));
+  /* the layout, held inside the table so a small window never crops a print */
+  const home = i => {
+    const W = table.clientWidth, H = table.clientHeight, c = C.cards[i], el = els[i];
+    const w = el.offsetWidth || width(), h = el.offsetHeight || w * 1.4;
+    return { x: Math.min(W - w - 8, Math.max(8, c.x * W)), y: Math.min(H - h - 8, Math.max(8, c.y * H)), r: c.r };
+  };
+  function put(el, x, y, r) {
+    el._x = x; el._y = y;
+    el.style.setProperty('--x', x.toFixed(1) + 'px'); el.style.setProperty('--y', y.toFixed(1) + 'px');
+    el.style.setProperty('--r', r.toFixed(2) + 'deg');
+  }
+  function settle() { els.forEach((el, i) => { const h = home(i); put(el, h.x, h.y, h.r); }); }
 
-  /* hover tilt + lift, and dragging */
-  els.forEach(el => {
+  /* ── the entrance: a spring per print, from its nearer side ────────── */
+  let springs = null, raf = 0;
+  function enter() {
+    applyLook();
+    cancelAnimationFrame(raf);
+    if (REDUCED) { settle(); return; }
+    const W = table.clientWidth, w = width(), S = C.spring;
+    springs = els.map((el, i) => {
+      const h = home(i), left = h.x + w / 2 < W / 2;
+      const x0 = left ? -w - S.travel : W + S.travel;
+      return { el, i, h, delay: i * S.stagger, t: 0,
+        x: x0, vx: 0, y: h.y + (i % 2 ? 40 : -30), vy: 0, r: h.r + (left ? -S.spin : S.spin), vr: 0 };
+    });
+    springs.forEach(s => put(s.el, s.x, s.y, s.r));
+    let last = performance.now();
+    const step = now => {
+      const dt = Math.min(1 / 30, (now - last) / 1000); last = now;
+      let moving = false;
+      springs.forEach(s => {
+        s.t += dt;
+        if (s.t < s.delay) { moving = true; return; }
+        /* semi-implicit Euler, in small substeps so stiff springs stay stable */
+        for (let k = 0; k < 4; k++) {
+          const h = dt / 4, K = C.spring.stiffness, D = C.spring.damping;
+          s.vx += (K * (s.h.x - s.x) - D * s.vx) * h; s.x += s.vx * h;
+          s.vy += (K * (s.h.y - s.y) - D * s.vy) * h; s.y += s.vy * h;
+          s.vr += (K * (s.h.r - s.r) - D * s.vr) * h; s.r += s.vr * h;
+        }
+        put(s.el, s.x, s.y, s.r);
+        if (Math.abs(s.h.x - s.x) + Math.abs(s.h.y - s.y) + Math.abs(s.vx) + Math.abs(s.vy) > 0.2) moving = true;
+      });
+      if (moving) raf = requestAnimationFrame(step);
+      else { springs = null; settle(); }      // land exactly on the layout
+    };
+    raf = requestAnimationFrame(step);
+  }
+  applyLook(); settle();
+  els.forEach(el => { el.style.visibility = 'hidden'; });
+  const io = new IntersectionObserver(([e]) => {
+    if (!e.isIntersecting) return;
+    io.disconnect();
+    els.forEach(el => { el.style.visibility = ''; });
+    enter();
+  }, { threshold: 0.3 });
+  io.observe(table);
+  document.getElementById('reset').addEventListener('click', enter);
+  addEventListener('resize', () => { applyLook(); if (!springs) settle(); });
+
+  /* hover tilt + lift, and dragging — a drop writes back into the layout */
+  els.forEach((el, i) => {
     const card = el.querySelector('.card');
     let lift = 0, liftT = 0, tx = 0, ty = 0, txT = 0, tyT = 0, raf = 0;
     const tick = () => {
@@ -162,28 +241,93 @@ body { background: #0c0c0d; color: var(--ink-warm); font-family: 'F37 Analog', s
 
     let drag = false, ox = 0, oy = 0;
     el.addEventListener('pointerdown', e => {
+      if (springs) return;                         // not mid-entrance
       drag = true; el.setPointerCapture(e.pointerId); el.classList.add('drag');
-      el.style.transition = 'none'; el.style.zIndex = ++z;
+      el.style.zIndex = ++z; select(i);
       ox = e.clientX - el._x; oy = e.clientY - el._y; liftT = 1.2; kick();
     });
     el.addEventListener('pointermove', e => {
       if (!drag) return;
       const W = table.clientWidth, H = table.clientHeight, w = el.offsetWidth, h = el.offsetHeight;
-      el._x = Math.min(W - w * .4, Math.max(-w * .6, e.clientX - ox));
-      el._y = Math.min(H - h * .3, Math.max(-h * .5, e.clientY - oy));
-      el.style.setProperty('--x', el._x + 'px'); el.style.setProperty('--y', el._y + 'px');
+      const x = Math.min(W - w * .4, Math.max(-w * .6, e.clientX - ox));
+      const y = Math.min(H - h * .3, Math.max(-h * .5, e.clientY - oy));
+      C.cards[i].x = +(x / W).toFixed(4); C.cards[i].y = +(y / H).toFixed(4);
+      put(el, x, y, C.cards[i].r);
     });
     const drop = () => {
       if (!drag) return; drag = false; el.classList.remove('drag');
-      /* put down at a fresh small angle, the way a print lands */
-      el.style.transition = REDUCED ? 'none' : 'transform .45s cubic-bezier(.22,1,.36,1)';
-      el.style.setProperty('--r', ((rnd() - .5) * 12).toFixed(1) + 'deg');
-      liftT = 0; txT = 0; tyT = 0; kick();
-      setTimeout(() => { el.style.transition = 'none'; }, 460);
+      liftT = 0; txT = 0; tyT = 0; kick(); syncPanel();
     };
     el.addEventListener('pointerup', drop);
     el.addEventListener('pointercancel', drop);
   });
+
+  /* ── the panel ─────────────────────────────────────────────────────── */
+  const tn = document.createElement('div');
+  tn.id = 'tune';
+  const R = (id, label, min, max, step, val, unit = '') => `<div class="row"><label>${label}<i id="v-${id}">${val}${unit}</i></label><input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}" data-unit="${unit}"></div>`;
+  tn.innerHTML = `
+    <div id="tune-head"><b>Polaroids</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <p class="tune-sub">All prints</p>
+    ${R('sc', 'Scale', .5, 1.6, .01, C.scale)}
+    ${R('sy', 'Shadow offset', 0, 30, 1, C.shadow.y, 'px')}
+    ${R('sb', 'Shadow blur', 0, 60, 1, C.shadow.blur, 'px')}
+    ${R('sa', 'Shadow strength', 0, .7, .01, C.shadow.opacity)}
+    <p class="tune-sub">Spring entrance</p>
+    ${R('st', 'Stiffness', 20, 400, 1, C.spring.stiffness)}
+    ${R('dp', 'Damping', 2, 40, .5, C.spring.damping)}
+    ${R('sg', 'Stagger', 0, .3, .01, C.spring.stagger, 's')}
+    <div class="row inline"><label>Entrance<i></i></label><button class="tune-btn" id="p-replay">Replay</button></div>
+    <p class="tune-sub">One print — click or drag it to pick</p>
+    <div class="row"><label>Print<i></i></label><select id="s-pk">${PICS.map((p, i) => `<option value="${i}">${String(i + 1).padStart(2, '0')} ${p.name}</option>`).join('')}</select></div>
+    ${R('px', 'X', -.1, 1, .001, 0)}
+    ${R('py', 'Y', -.1, 1, .001, 0)}
+    ${R('pr', 'Rotation', -30, 30, .5, 0, '°')}
+    <p class="tune-sub">Layout</p>
+    <div class="tune-acts"><button class="tune-btn" id="p-bake">Bake layout</button><button class="tune-btn" id="p-clear">Clear baked</button></div>
+    <p class="why" id="p-state"></p>`;
+  document.body.appendChild(tn);
+  const q = id => tn.querySelector('#' + id);
+  const bind = (id, fn) => q('s-' + id).addEventListener('input', e => {
+    const v = +e.target.value; q('v-' + id).textContent = v + e.target.dataset.unit; fn(v);
+  });
+  bind('sc', v => { C.scale = v; applyLook(); });
+  bind('sy', v => { C.shadow.y = v; applyLook(); });
+  bind('sb', v => { C.shadow.blur = v; applyLook(); });
+  bind('sa', v => { C.shadow.opacity = v; applyLook(); });
+  bind('st', v => { C.spring.stiffness = v; });
+  bind('dp', v => { C.spring.damping = v; });
+  bind('sg', v => { C.spring.stagger = v; });
+  q('p-replay').addEventListener('click', enter);
+  function select(i) {
+    selected = i; els.forEach((el, k) => el.classList.toggle('sel', k === i && !tn.classList.contains('hidden')));
+    q('s-pk').value = i; syncPanel();
+  }
+  function syncPanel() {
+    const c = C.cards[selected];
+    [['px', c.x, ''], ['py', c.y, ''], ['pr', c.r, '°']].forEach(([id, v, u]) => { q('s-' + id).value = v; q('v-' + id).textContent = (+v).toFixed(3).replace(/\.?0+$/, '') + u; });
+  }
+  q('s-pk').addEventListener('change', e => select(+e.target.value));
+  const edit = (k, v) => { C.cards[selected][k] = v; const h = home(selected); put(els[selected], h.x, h.y, h.r); };
+  bind('px', v => edit('x', v));
+  bind('py', v => edit('y', v));
+  bind('pr', v => edit('r', v));
+  const state = () => {
+    let baked = false; try { baked = !!localStorage.getItem(BAKE_KEY); } catch {}
+    q('p-state').textContent = baked ? 'This browser is showing a baked layout.' : 'Showing the defaults in POLAROID_CONFIG.';
+  };
+  q('p-bake').addEventListener('click', async () => {
+    const out = { scale: C.scale, baseWidth: C.baseWidth, shadow: C.shadow, spring: C.spring, cards: C.cards };
+    try { localStorage.setItem(BAKE_KEY, JSON.stringify(out)); } catch {}
+    const txt = 'const POLAROID_CONFIG = ' + JSON.stringify(out, null, 2) + ';';
+    try { await navigator.clipboard.writeText(txt); q('p-state').textContent = 'Baked and copied — paste over POLAROID_CONFIG to make it the default.'; }
+    catch { console.log(txt); q('p-state').textContent = 'Baked; the config is in the console to paste over POLAROID_CONFIG.'; }
+  });
+  q('p-clear').addEventListener('click', () => { try { localStorage.removeItem(BAKE_KEY); } catch {} location.reload(); });
+  q('tune-hide').addEventListener('click', () => { tn.classList.toggle('hidden'); select(selected); });
+  select(0); state();
+  addEventListener('DOMContentLoaded', () => { if (window.wb && window.wb.adopt) window.wb.adopt(); });
+  window.tibba = { CONFIG: C, enter, settle };
 })();
 </script>
 </body>
