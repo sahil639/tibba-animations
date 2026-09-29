@@ -20,7 +20,8 @@
    ─────────────────────────────────────────────────────────────────────────
    A navigation instrument in the middle of the page, after a HUD compass:
    a bearing ring labelled every 22.5°, the eight points, a track carrying
-   the three company stages as arcs, spokes, an inner ring, and a pointer.
+   the three company stages as arcs, spokes, and a pointer. The decorative
+   vector rings and overlays are off (COMPASS_OVERLAYS, in the script).
 
    The stage is a heading. Click an arc, click a tab below, use the arrow
    keys, or grab the dial and turn it — on release the pointer settles on
@@ -29,8 +30,7 @@
    opens on Early-stage startup.
 
    Drawn as SVG, built in script, in the site's own colours: ink for the
-   ring, the orange accent for the pointer and the live arc, and one cool
-   lavender for the inner instrument ring.
+   ring, the orange accent for the pointer and the live arc.
    ═════════════════════════════════════════════════════════════════════════ */
 :root { --accent: #FF4B1F; --cool: #9aa6f0; }
 .ss-center { grid-column: 2; grid-row: 2; display: grid; place-items: center; min-height: 0; }
@@ -104,17 +104,32 @@
   const LBL = ['Early-stage startup', 'Mid-size company', 'Established company'];
   const C = { stiffness: 42, drift: 1 };                 // follow rate, ambient
 
+  /* ── COMPASS_OVERLAYS — the vector rings and overlays ─────────────────
+     Removed from the design: the thin ring circles, the dotted ring, the
+     lavender inner ring, the corner brackets and the chevrons. Each is one
+     flag, so any can come back with a `true` here — nothing else changes. */
+  const COMPASS_OVERLAYS = {
+    rings: false,        // the two thin ring circles
+    dotRing: false,      // the 32-dot bearing ring
+    innerRing: false,    // the lavender instrument ring at the hub (and its drift)
+    brackets: false,     // the four corner brackets
+    chevrons: false,     // the four chevrons outside the ring
+  };
+  const O = COMPASS_OVERLAYS;
+
   /* ── the static instrument ─────────────────────────────────────────── */
   const R = { deg: 292, dots: 262, pts: 232, track: 196, spokeA: 112, spokeB: 162, inner: 70 };
-  el('circle', { class: 'ring', r: R.dots });
-  el('circle', { class: 'ring', r: R.track - 14 });
+  if (O.rings) {
+    el('circle', { class: 'ring', r: R.dots });
+    el('circle', { class: 'ring', r: R.track - 14 });
+  }
   for (let i = 0; i < 16; i++) {
     const d = i * 22.5, [x, y] = P(R.deg, d);
     const t = el('text', { class: 'deg', x, y, 'text-anchor': 'middle', 'dominant-baseline': 'middle',
       transform: `rotate(${d > 90 && d < 270 ? d + 180 : d} ${x} ${y})` });
     t.textContent = d % 1 ? d.toFixed(1).padStart(5, '0') : pad(d, 3);
   }
-  for (let i = 0; i < 32; i++) { const [x, y] = P(R.dots, i * 11.25); el('circle', { class: 'dot' + (i % 2 ? ' o' : ''), cx: x, cy: y, r: i % 2 ? 1.6 : 2.4 }); }
+  if (O.dotRing) for (let i = 0; i < 32; i++) { const [x, y] = P(R.dots, i * 11.25); el('circle', { class: 'dot' + (i % 2 ? ' o' : ''), cx: x, cy: y, r: i % 2 ? 1.6 : 2.4 }); }
   ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'].forEach((p, i) => {
     const d = i * 45 + 22.5 * 0, [x, y] = P(R.pts, d + 11.25);
     const t = el('text', { class: 'pt', x, y, 'text-anchor': 'middle', 'dominant-baseline': 'middle', transform: `rotate(${d + 11.25} ${x} ${y})` });
@@ -122,12 +137,12 @@
   });
   /* the north mark and the four chevrons outside the ring */
   el('path', { class: 'north', d: 'M0 -205 l7 16 l-7 -5 l-7 5 z' });
-  [0, 90, 180, 270].forEach(d => {
+  if (O.chevrons) [0, 90, 180, 270].forEach(d => {
     const [x, y] = P(322, d);
     el('path', { class: 'chev', d: 'M-7 3 L0 -4 L7 3', transform: `translate(${x} ${y}) rotate(${d})` });
   });
   /* corner brackets */
-  [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([sx, sy]) => {
+  if (O.brackets) [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([sx, sy]) => {
     const x = sx * 300, y = sy * 300;
     el('path', { class: 'brk', d: `M${x} ${y - sy * 22} L${x} ${y} L${x - sx * 22} ${y}` });
   });
@@ -157,8 +172,8 @@
 
   /* the inner instrument ring — turns slowly on its own, the one ambient move */
   const inner = el('g', { class: 'inner' });
-  el('circle', { r: R.inner }, inner);
-  for (let i = 0; i < 24; i++) {
+  if (O.innerRing) el('circle', { r: R.inner }, inner);
+  if (O.innerRing) for (let i = 0; i < 24; i++) {
     const d = i * 15, [x0, y0] = P(R.inner - 6, d), [x1, y1] = P(R.inner + (i % 3 ? 6 : 14), d);
     el('line', { x1: x0, y1: y0, x2: x1, y2: y1, 'stroke-opacity': i % 3 ? .45 : .9 }, inner);
   }

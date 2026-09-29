@@ -18,18 +18,28 @@
 /* ══════════════════════════════════════════════════════════════════════════
    Our services — Shifting Topo
    ─────────────────────────────────────────────────────────────────────────
-   Behind everything, the Topo Lines field at 10% on black. In the middle, a
-   block of stepped land (assets/shifting-topo.js) that re-surveys itself
-   for the chosen stage — a low plateau for an early-stage startup, two
-   ridges for a mid-size company, a tall massif for an established one —
-   with the services for that stage either side of it (assets/services-
-   split.js). The shift is three weights tweened on the GPU: slabs rise and
-   fall at the contours, restrained, no overshoot.
+   Behind everything, the Topo Lines field at 10% on black. In the middle,
+   three peaks in the hero's contour style (assets/three-peaks.js), one per
+   company stage and sized to it — smallest for an early-stage startup,
+   largest for an established company — at a fixed isometric angle, with
+   no hover. The selected stage's peak comes forward and takes the orange
+   summit rings; the services for that stage sit either side of it
+   (assets/services-split.js). Heights, spacing, line weight and contour
+   density are THREE_PEAKS_CONFIG, all on the panel.
    ═════════════════════════════════════════════════════════════════════════ */
 :root { --accent: #FF4B1F; }
 #topo { position: fixed; inset: 0; width: 100%; height: 100%; display: block; opacity: .1; pointer-events: none; }
 .ss-center { grid-column: 2; grid-row: 2; position: relative; min-height: 0; }
 #land { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+/* the stage number and name on each summit */
+.tp-labels { position: absolute; inset: 0; pointer-events: none; }
+.tp-label { position: absolute; left: 0; top: 0; white-space: nowrap; margin: -28px 0 0 -8px;
+  font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.4); transition: color .5s linear; }
+.tp-label b { font-weight: 400; color: var(--ink-faint); margin-right: 8px; transition: color .5s linear; }
+.tp-label span { display: inline-block; max-width: 0; overflow: hidden; vertical-align: bottom; opacity: 0; transition: max-width .6s var(--ease), opacity .4s linear; }
+.tp-label.on { color: #fff; }
+.tp-label.on span { max-width: 24ch; opacity: 1; }
+.tp-label.on b { color: var(--accent); }
 .land-read { position: absolute; left: 50%; bottom: 2%; transform: translateX(-50%); display: flex; gap: 22px;
   font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-faint); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .land-read b { color: #fff; font-weight: 400; }
@@ -46,13 +56,14 @@
       <p class="eyebrow">[ &nbsp;Our services&nbsp; ]</p>
       <h1>The ground changes with the climb</h1>
     </div>
-    <p class="ss-read"><span>Stage</span><b id="rd-stage">01 / 03</b><span>Slabs</span><b id="rd-slabs">00</b></p>
+    <p class="ss-read"><span>Stage</span><b id="rd-stage">01 / 03</b><span>Contours</span><b id="rd-slabs">00</b></p>
   </header>
 
   <section class="ss-col left" aria-label="Research and strategy services"></section>
   <div class="ss-center" aria-hidden="true">
     <canvas id="land"></canvas>
-    <p class="land-read"><span><i></i>Summit band</span><span>Interval <b>1 slab</b></span></p>
+    <div class="tp-labels" id="tp-labels"></div>
+    <p class="land-read"><span><i></i>Summit rings</span><span>Interval <b id="rd-int">0.42</b></span></p>
   </div>
   <section class="ss-col right" aria-label="Design and delivery services"></section>
 
@@ -64,52 +75,75 @@
 
 <script>window.TOPO_LINES = { background: '#000000', lineColor: '#FFFFFF', panel: false, markers: 0 };</script>
 <script src="assets/topo-lines.js" defer></script>
-<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js"}}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.165.0/examples/jsm/"}}</script>
 <script type="module">
-  import { createShiftingTopo } from './assets/shifting-topo.js';
-  const land = createShiftingTopo(document.getElementById('land'));
+  import { createThreePeaks, THREE_PEAKS_CONFIG as C } from './assets/three-peaks.js';
+  const land = createThreePeaks(document.getElementById('land'), { labels: document.getElementById('tp-labels') });
   window.tibba = { land };
   const pad = n => String(n).padStart(2, '0');
   const slabs = document.getElementById('rd-slabs');
-  land.onLevel(n => { slabs.textContent = pad(n); });
-  slabs.textContent = pad(land.MAXLV[0]);
+  const readout = () => { slabs.textContent = pad(land.levels()[land.stage]); document.getElementById('rd-int').textContent = C.contour.interval.toFixed(2); };
 
-  let DUR = 1.6;
   const split = mountServicesSplit({
     left: document.querySelector('.ss-col.left'),
     right: document.querySelector('.ss-col.right'),
     stages: document.querySelector('.ss-stages'),
     blurb: document.querySelector('.ss-blurb'),
     onStage(i) {
-      land.setStage(i, DUR);
+      land.setStage(i);
+      readout();
       document.getElementById('rd-stage').textContent = `${pad(i + 1)} / 03`;
     },
   });
   split.pick(0);
 
-  /* the panel */
+  /* the panel: writes into THREE_PEAKS_CONFIG */
   const el = document.createElement('div');
   el.id = 'tune';
+  const R = (id, label, min, max, step, val, unit = '') => `<div class="row"><label>${label}<i id="v-${id}">${val}${unit}</i></label><input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}" data-unit="${unit}"></div>`;
   el.innerHTML = `
     <div id="tune-head"><b>Shifting Topo</b><button id="tune-hide" title="Hide (H)">–</button></div>
-    <p class="tune-sub">Shift</p>
-    <div class="row"><label>Duration<i id="v-du">1.6s</i></label><input type="range" id="s-du" min="4" max="40" value="16"></div>
-    <p class="tune-sub">Land</p>
-    <div class="row"><label>Slab height<i id="v-st">0.42</i></label><input type="range" id="s-st" min="20" max="80" value="42"></div>
-    <div class="row"><label>Riser steepness<i id="v-rz">0.22</i></label><input type="range" id="s-rz" min="4" max="60" value="22"></div>
-    <div class="row"><label>Camera angle<i id="v-el">33°</i></label><input type="range" id="s-el" min="15" max="70" value="33"></div>
-    <div class="row"><label>Pointer drift<i id="v-dr">3°</i></label><input type="range" id="s-dr" min="0" max="10" value="3"></div>
+    <p class="tune-sub">Peak heights</p>
+    ${C.peaks.map((p, i) => R('h' + i, `${pad(i + 1)} ${p.label}`, 1, 16, .1, p.height)).join('')}
+    ${R('hs', 'All heights ×', .4, 2, .05, C.heightScale)}
+    <p class="tune-sub">Positions</p>
+    ${C.peaks.map((p, i) => R('x' + i, `${pad(i + 1)} across`, -16, 16, .1, p.x) + R('z' + i, `${pad(i + 1)} depth`, -10, 10, .1, p.z)).join('')}
+    ${R('sp', 'Spacing ×', .6, 1.6, .02, C.spacing)}
+    <p class="tune-sub">Lines</p>
+    ${R('lw', 'Line thickness', .5, 4, .05, C.contour.lineWidth, 'px')}
+    ${R('iw', 'Index line thickness', .5, 5, .05, C.contour.indexWidth, 'px')}
+    ${R('in', 'Contour interval', .15, 1.2, .01, C.contour.interval)}
+    ${R('rg', 'Summit rings', 0, 6, 1, C.contour.summitRings)}
+    ${R('ia', 'Unselected peaks', 0, 1, .02, C.inactive)}
     <p class="tune-sub">Background</p>
-    <div class="row"><label>Topo opacity<i id="v-op">0.10</i></label><input type="range" id="s-op" min="0" max="40" value="10"></div>`;
+    ${R('op', 'Topo opacity', 0, .4, .01, .1)}
+    <div class="row inline"><label>Config<i></i></label><button class="tune-btn" id="s-cp">Copy config</button></div>`;
   document.body.appendChild(el);
   const q = id => el.querySelector('#' + id);
-  const bind = (s, v, fn) => q(s).addEventListener('input', e => { q(v).textContent = fn(+e.target.value); });
-  bind('s-du', 'v-du', n => { DUR = n / 10; return DUR.toFixed(1) + 's'; });
-  bind('s-st', 'v-st', n => { land.setStep(n / 100); return (n / 100).toFixed(2); });
-  bind('s-rz', 'v-rz', n => { land.setRiser(n / 100); return (n / 100).toFixed(2); });
-  bind('s-el', 'v-el', n => { land.view.elev = n; return n + '°'; });
-  bind('s-dr', 'v-dr', n => { land.view.drift = n; return n + '°'; });
-  bind('s-op', 'v-op', n => { document.getElementById('topo').style.opacity = n / 100; return (n / 100).toFixed(2); });
+  let pend = 0;
+  const later = fn => { cancelAnimationFrame(pend); pend = requestAnimationFrame(fn); };   // one retrace per frame while dragging
+  const bind = (id, fn) => q('s-' + id).addEventListener('input', e => {
+    const v = +e.target.value; q('v-' + id).textContent = v + e.target.dataset.unit; fn(v);
+  });
+  const rebuild = () => later(() => { land.rebuild(); readout(); });
+  C.peaks.forEach((p, i) => {
+    bind('h' + i, v => { p.height = v; rebuild(); });
+    bind('x' + i, v => { p.x = v; rebuild(); });
+    bind('z' + i, v => { p.z = v; rebuild(); });
+  });
+  bind('hs', v => { C.heightScale = v; rebuild(); });
+  bind('sp', v => { C.spacing = v; rebuild(); });
+  bind('lw', v => { C.contour.lineWidth = v; land.restyle(); });
+  bind('iw', v => { C.contour.indexWidth = v; land.restyle(); });
+  bind('in', v => { C.contour.interval = v; rebuild(); });
+  bind('rg', v => { C.contour.summitRings = v; rebuild(); });
+  bind('ia', v => { C.inactive = v; land.restyle(); });
+  bind('op', v => { document.getElementById('topo').style.opacity = v; });
+  q('s-cp').addEventListener('click', async () => {
+    const txt = 'export const THREE_PEAKS_CONFIG = ' + JSON.stringify(C, null, 2) + ';';
+    try { await navigator.clipboard.writeText(txt); } catch { console.log(txt); }
+  });
   el.insertAdjacentHTML('beforeend', servicesSplitPanel());
   bindServicesSplitPanel(el);
   q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
