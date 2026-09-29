@@ -89,10 +89,11 @@ function paintFlag(svgMarkup) {
 }
 paintFlag(null);
 
-/* The mark lives in the nav, which site-chrome.js builds after this module
-   may already have run — so it is looked for until it is there. */
+/* The mark lives in the nav — the site nav, or the ca-nav header on the
+   About hero page — which is built after this module may already have run,
+   so it is looked for until it is there. */
 (function findMark(tries = 0) {
-  const svg = document.querySelector('[data-site-nav] svg[aria-label="Tibba"], [data-site-nav] .mark svg, [data-site-nav] svg');
+  const svg = document.querySelector('[data-site-nav] svg[aria-label="Tibba"], [data-site-nav] .mark svg, [data-site-nav] svg, .ca-mark svg');
   if (!svg) { if (tries < 60) setTimeout(() => findMark(tries + 1), 100); return; }
   const c = svg.cloneNode(true);
   c.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
