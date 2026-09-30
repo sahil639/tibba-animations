@@ -6,8 +6,8 @@
    keeps that reading and varies the mountain:
 
      0  the mark itself — one peak, summit to the right
-     1  the same peak turned the other way — summit to the left
-     2  one tall peak, summit centred
+     1  chosen from FORM_OPTIONS (default: a double summit)
+     2  chosen from FORM_OPTIONS (default: a spire with a foothill)
      3  the main peak with a smaller one at its shoulder
      4  a range: small, main, medium
 
@@ -15,6 +15,10 @@
    coordinates of the ORIGINAL triangle, and re-mapped into whichever
    triangle is the main peak of a form — so it keeps the same place in the
    mountain (low, pointing at the summit) however the mountain changes.
+
+   The base line is not part of any peak: it stays on screen the whole
+   time, easing its length from one form's width to the next's, so there
+   is always ground for the next mountain to rise from.
 
    The move: the current form sinks down into its base line and the next
    rises out of the same base — both on easing curves, no spring and no
@@ -48,6 +52,10 @@ export const LOGO_MORPH = {
   speed: 1,               // multiplies the pace of everything above
   fastSpeed: 2.6,         // the pace the high-speed option uses
   fast: false,            // high-speed option
+  slots: ['Double summit', 'Spire & foothill'],   // forms 1 and 2, from FORM_OPTIONS
+  baseline: true,         // the base line stays while the peaks come and go
+  baseWeight: 1.2,        // its thickness, in the mark's 48-unit frame
+  baseExtend: 0,          // how far it runs past the outer peaks, each side
   colour: '#ffffff',
 };
 function bezier(x1, y1, x2, y2) {
@@ -78,60 +86,96 @@ function arrowIn(t) {
   return ARROW_B.map(([u, v, w]) => [u * t.a[0] + v * t.b[0] + w * t.c[0], u * t.a[1] + v * t.b[1] + w * t.c[1]]);
 }
 
-/* peaks: x0/x1 base corners, ax/ay summit. `main` carries the arrow. */
-export const FORMS = [
-  [{ x0: 8, x1: 39.04, ax: 28.22, ay: 8, main: true }],
-  [{ x0: 39.04, x1: 8, ax: 18.8, ay: 8, main: true }],
-  [{ x0: 10, x1: 38, ax: 24, ay: 4, main: true }],
-  [{ x0: 4, x1: 23, ax: 12, ay: 17 }, { x0: 13, x1: 43, ax: 30, ay: 6, main: true }],
-  [{ x0: 2, x1: 19, ax: 10, ay: 17.5 }, { x0: 30, x1: 46, ax: 38.5, ay: 14 }, { x0: 11, x1: 37, ax: 24, ay: 5, main: true }],
-];
+/* peaks: x0/x1 base corners, ax/ay summit. `main` carries the arrow.
+
+   Forms 0, 3 and 4 are fixed — the mark, the mark with a shoulder peak,
+   and the range. Forms 1 and 2, the two that come straight after the
+   mark, are picked from FORM_OPTIONS by LOGO_MORPH.slots, so they can be
+   swapped on the panel without touching the others. */
+const MARK  = [{ x0: 8, x1: 39.04, ax: 28.22, ay: 8, main: true }];
+const TWIN  = [{ x0: 4, x1: 23, ax: 12, ay: 17 }, { x0: 13, x1: 43, ax: 30, ay: 6, main: true }];
+const RANGE = [{ x0: 2, x1: 19, ax: 10, ay: 17.5 }, { x0: 30, x1: 46, ax: 38.5, ay: 14 }, { x0: 11, x1: 37, ax: 24, ay: 5, main: true }];
+export const FORM_OPTIONS = {
+  'Double summit':    [{ x0: 21, x1: 45, ax: 34, ay: 10 }, { x0: 3, x1: 33, ax: 16, ay: 5, main: true }],
+  'Spire & foothill': [{ x0: 23, x1: 46, ax: 38, ay: 18 }, { x0: 9, x1: 31, ax: 18, ay: 3, main: true }],
+  'Broad massif':     [{ x0: 2, x1: 46, ax: 29, ay: 10, main: true }],
+  'Twin equal':       [{ x0: 24, x1: 46, ax: 35, ay: 7 }, { x0: 2, x1: 26, ax: 13, ay: 7, main: true }],
+  'Lean left':        [{ x0: 39.04, x1: 8, ax: 18.8, ay: 8, main: true }],
+  'Centred tall':     [{ x0: 10, x1: 38, ax: 24, ay: 4, main: true }],
+};
+export function formsFor(cfg = LOGO_MORPH) {
+  const pick = n => FORM_OPTIONS[n] || FORM_OPTIONS['Double summit'];
+  return [MARK, pick(cfg.slots[0]), pick(cfg.slots[1]), TWIN, RANGE];
+}
+/** the five forms as configured now (kept as a name for older callers) */
+export const FORMS = { get length() { return 5; } };
 
 const tri = p => ({ a: [p.x0, BASE], b: [p.x1, BASE], c: [p.ax, p.ay] });
-function peakPath(p) {
-  const t = tri(p);
-  let d = `M${t.a[0]} ${t.a[1]}L${t.b[0]} ${t.b[1]}L${t.c[0]} ${t.c[1]}Z`;
-  if (p.main) d += 'M' + arrowIn(t).map(q => q[0].toFixed(3) + ' ' + q[1].toFixed(3)).join('L') + 'Z';
-  return d;
-}
+const triPath = p => `M${p.x0} ${BASE}L${p.x1} ${BASE}L${p.ax} ${p.ay}Z`;
+const arrowPath = p => 'M' + arrowIn(tri(p)).map(q => q[0].toFixed(3) + ' ' + q[1].toFixed(3)).join('L') + 'Z';
+const extentOf = f => [Math.min(...f.map(p => Math.min(p.x0, p.x1))), Math.max(...f.map(p => Math.max(p.x0, p.x1)))];
 
+let MASK_ID = 0;
 export function mountLogoMorph(host, cfg = LOGO_MORPH) {
   const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  host.innerHTML = `<svg viewBox="0 2 48 27" aria-hidden="true" style="display:block;width:100%;height:100%;overflow:visible"><g></g></svg>`;
-  const g = host.querySelector('g');
+  const NS = 'http://www.w3.org/2000/svg', id = 'lm-mask-' + (++MASK_ID);
+  /* The silhouette is drawn through a mask: every peak white, the main
+     peak's arrow black. So the arrow is cut out of the WHOLE silhouette —
+     a neighbouring peak behind it can never fill it in. The baseline sits
+     outside the mask: it is not a peak, it never collapses. */
+  host.innerHTML = `<svg viewBox="0 2 48 27" aria-hidden="true" style="display:block;width:100%;height:100%;overflow:visible">
+    <defs><mask id="${id}" maskUnits="userSpaceOnUse" x="-10" y="-10" width="70" height="50"><g class="pk"></g></mask></defs>
+    <rect x="-10" y="-10" width="70" height="50" fill="${cfg.colour}" mask="url(#${id})"/>
+    <rect class="bl" fill="${cfg.colour}"/></svg>`;
+  const g = host.querySelector('.pk'), bl = host.querySelector('.bl');
   let form = 0, busy = false, queued = null, timer = 0;
-  let peaks = [];            // { el, s, v, delay }
+  let peaks = [];            // { els: [peak, arrow?], s, delay }
+  let ext = extentOf(MARK);  // the baseline's current left/right ends
 
   function draw(i) {
     g.innerHTML = '';
-    peaks = FORMS[i].map((p, k) => {
-      const el = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      el.setAttribute('d', peakPath(p));
-      el.setAttribute('fill', cfg.colour);
-      el.setAttribute('fill-rule', 'evenodd');
-      g.appendChild(el);
-      /* secondary peaks rise a beat after the main one */
-      return { el, s: 0, v: 0, delay: p.main ? 0 : cfg.follow * (k + 1) };
+    const F = formsFor(cfg)[i];
+    const mk = (d, fill) => { const e = document.createElementNS(NS, 'path'); e.setAttribute('d', d); e.setAttribute('fill', fill); return e; };
+    /* secondaries first, then the main peak, then the main peak's arrow */
+    const order = F.map((p, k) => ({ p, k })).sort((A, B) => (A.p.main ? 1 : 0) - (B.p.main ? 1 : 0));
+    peaks = order.map(({ p, k }) => {
+      const els = [mk(triPath(p), '#fff')];
+      g.appendChild(els[0]);
+      return { p, els, s: 0, delay: p.main ? 0 : cfg.follow * (k + 1) };
     });
-    /* the main peak last, so it sits over its neighbours */
-    peaks.filter((_, k) => FORMS[i][k].main).forEach(p => g.appendChild(p.el));
+    peaks.forEach(pk => { if (pk.p.main) { const ar = mk(arrowPath(pk.p), '#000'); g.appendChild(ar); pk.els.push(ar); } });
   }
-  const setS = (p, s) => p.el.setAttribute('transform', `translate(0 ${BASE}) scale(1 ${Math.max(0, s).toFixed(4)}) translate(0 ${-BASE})`);
+  const setS = (pk, s) => {
+    const tr = `translate(0 ${BASE}) scale(1 ${Math.max(0, s).toFixed(4)}) translate(0 ${-BASE})`;
+    pk.els.forEach(e => e.setAttribute('transform', tr));
+  };
+  /* the baseline: always there, easing its length between forms */
+  function setBase(e0, e1) {
+    const show = cfg.baseline !== false, w = cfg.baseWeight, x = cfg.baseExtend;
+    bl.style.display = show ? '' : 'none';
+    bl.setAttribute('x', (e0 - x).toFixed(3)); bl.setAttribute('width', Math.max(0, e1 - e0 + 2 * x).toFixed(3));
+    bl.setAttribute('y', (BASE - w).toFixed(3)); bl.setAttribute('height', w.toFixed(3));
+  }
 
   const pace = () => Math.max(0.05, cfg.fast ? cfg.fastSpeed : cfg.speed);
 
   function run(next) {
-    if (REDUCED) { form = next; draw(form); peaks.forEach(p => setS(p, 1)); return; }
+    const target = extentOf(formsFor(cfg)[next]);
+    if (REDUCED) { form = next; draw(form); peaks.forEach(p => setS(p, 1)); ext = target; setBase(...ext); return; }
     busy = true;
     const sp = pace(), dSink = Math.max(0.01, cfg.collapse / sp), dRise = Math.max(0.01, cfg.rise / sp);
     const eIn = easeOf(cfg.collapseEase), eOut = easeOf(cfg.riseEase);
-    const t0 = performance.now(), from = peaks.map(p => p.s);
+    const t0 = performance.now(), from = peaks.map(p => p.s), ext0 = ext.slice();
     /* 1 — sink into the base; 2 — the next form rises from it. With overlap
-       the rise starts before the sink has quite finished. */
-    const riseAt = dSink * (1 - Math.min(0.9, cfg.overlap));
+       the rise starts before the sink has quite finished. The baseline
+       stays throughout and eases to the new form's width over the whole move. */
+    const riseAt = dSink * (1 - Math.min(0.9, cfg.overlap)), total = riseAt + dRise;
     let swapped = false;
     (function frame(now) {
       const t = (now - t0) / 1000;
+      const kb = eOut(Math.min(1, t / total));
+      ext = [ext0[0] + (target[0] - ext0[0]) * kb, ext0[1] + (target[1] - ext0[1]) * kb];
+      setBase(...ext);
       if (!swapped) {
         const k = Math.min(1, t / dSink);
         peaks.forEach((p, i) => setS(p, from[i] * (1 - eIn(k))));
@@ -139,20 +183,21 @@ export function mountLogoMorph(host, cfg = LOGO_MORPH) {
         return requestAnimationFrame(frame);
       }
       const tr = t - riseAt;
-      let moving = false;
+      let moving = t < total;
       peaks.forEach(p => {
         const k = Math.min(1, Math.max(0, (tr - p.delay / sp) / dRise));   // secondary peaks lag a beat
         p.s = eOut(k); setS(p, p.s);
         if (k < 1) moving = true;
       });
       if (moving) return requestAnimationFrame(frame);
+      ext = target; setBase(...ext);
       busy = false;
       if (queued !== null && queued !== form) { const q = queued; queued = null; run(q); } else queued = null;
     })(t0);
   }
 
   function to(i) {
-    i = ((i % FORMS.length) + FORMS.length) % FORMS.length;
+    i = ((i % 5) + 5) % 5;
     if (busy) { queued = i; return; }
     if (i !== form) run(i);
   }
@@ -160,9 +205,11 @@ export function mountLogoMorph(host, cfg = LOGO_MORPH) {
     clearInterval(timer);
     if (on) { to(form + 1); timer = setInterval(() => to(form + 1), cfg.hoverEvery / pace() * 1000); }
   }
+  /* redraw in place — for a change of slot or baseline on the panel */
+  function refresh() { draw(form); peaks.forEach(p => { p.s = 1; setS(p, 1); }); ext = extentOf(formsFor(cfg)[form]); setBase(...ext); }
 
-  draw(0); peaks.forEach(p => { p.s = 1; setS(p, 1); });
+  refresh();
   host.addEventListener('pointerenter', () => cycle(true));
   host.addEventListener('pointerleave', () => cycle(false));
-  return { to, next: () => to(form + 1), cycle, get form() { return form; }, forms: FORMS };
+  return { to, next: () => to(form + 1), cycle, refresh, get form() { return form; }, forms: () => formsFor(cfg) };
 }

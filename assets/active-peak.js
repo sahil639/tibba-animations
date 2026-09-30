@@ -13,7 +13,7 @@
      accent            tibba-peak.html's orange rather than the site's
    ═════════════════════════════════════════════════════════════════════════ */
 import { createRangeScene } from './range-scene.js';
-import { mountLogoMorph, LOGO_MORPH, MORPH_EASES } from './logo-morph.js';
+import { mountLogoMorph, LOGO_MORPH, MORPH_EASES, FORM_OPTIONS } from './logo-morph.js';
 
 const $ = s => document.querySelector(s);
 const clamp01 = t => t < 0 ? 0 : t > 1 ? 1 : t;
@@ -281,6 +281,13 @@ onScroll();
       <input type="range" id="s-lgl" min="0" max="40" value="${pc(LOGO_MORPH.follow)}"></div>
     <div class="row"><label>Hover interval<i id="v-lgh">${LOGO_MORPH.hoverEvery.toFixed(2)}s</i></label>
       <input type="range" id="s-lgh" min="20" max="300" value="${pc(LOGO_MORPH.hoverEvery)}"></div>
+    <div class="row"><label>Form 2<i></i></label><select id="s-lgs1">${Object.keys(FORM_OPTIONS).map(k => `<option${k === LOGO_MORPH.slots[0] ? ' selected' : ''}>${k}</option>`).join('')}</select></div>
+    <div class="row"><label>Form 3<i></i></label><select id="s-lgs2">${Object.keys(FORM_OPTIONS).map(k => `<option${k === LOGO_MORPH.slots[1] ? ' selected' : ''}>${k}</option>`).join('')}</select></div>
+    <div class="row inline"><label>Baseline<i></i></label><input type="checkbox" id="s-lgb"${LOGO_MORPH.baseline ? ' checked' : ''}></div>
+    <div class="row"><label>Baseline weight<i id="v-lgbw">${LOGO_MORPH.baseWeight.toFixed(2)}</i></label>
+      <input type="range" id="s-lgbw" min="20" max="400" value="${pc(LOGO_MORPH.baseWeight)}"></div>
+    <div class="row"><label>Baseline overhang<i id="v-lgbx">${LOGO_MORPH.baseExtend.toFixed(2)}</i></label>
+      <input type="range" id="s-lgbx" min="0" max="800" value="${pc(LOGO_MORPH.baseExtend)}"></div>
     <div class="row"><label>Size<i id="v-lgz">${HERO_LOGO.size}px</i></label>
       <input type="range" id="s-lgz" min="20" max="140" value="${HERO_LOGO.size}"></div>
     <div class="row inline"><label>Next form<i></i></label><button id="s-lgn" class="tune-btn">Play</button></div>
@@ -411,6 +418,12 @@ onScroll();
   q('s-lgce').addEventListener('change', e => { LOGO_MORPH.collapseEase = e.target.value; });
   q('s-lgre').addEventListener('change', e => { LOGO_MORPH.riseEase = e.target.value; });
   q('s-lgn').addEventListener('click', () => mark.next());
+  /* forms 2 and 3 (the two straight after the mark) are picked from FORM_OPTIONS */
+  q('s-lgs1').addEventListener('change', e => { LOGO_MORPH.slots[0] = e.target.value; mark.refresh(); mark.to(1); });
+  q('s-lgs2').addEventListener('change', e => { LOGO_MORPH.slots[1] = e.target.value; mark.refresh(); mark.to(2); });
+  q('s-lgb').addEventListener('change', e => { LOGO_MORPH.baseline = e.target.checked; mark.refresh(); });
+  bind('s-lgbw', 'v-lgbw', n => n / 100, two, x => { LOGO_MORPH.baseWeight = x; mark.refresh(); });
+  bind('s-lgbx', 'v-lgbx', n => n / 100, two, x => { LOGO_MORPH.baseExtend = x; mark.refresh(); });
 
   q('s-reseed').addEventListener('click', () => {
     const u = new URL(location.href);
