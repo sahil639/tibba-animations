@@ -89,9 +89,9 @@
   }
 
   /* size one logo against the box it sits in */
-  function fit(el, box) {
+  function fit(el, box, over) {
     const L = LOGOS[el.dataset.logo]; if (!L) return;
-    const c = LOGO_CONFIG, W = box.width, H = box.height;
+    const c = over ? { ...LOGO_CONFIG, ...over } : LOGO_CONFIG, W = box.width, H = box.height;
     const side = Math.min(W, H) * c.size * L.weight;
     let w = side * Math.sqrt(L.ratio), h = side / Math.sqrt(L.ratio);
     const mw = Math.min(W * c.maxWidth, c.maxWidthPx), mh = Math.min(H * c.maxHeight, c.maxHeightPx);
@@ -102,11 +102,16 @@
 
   const roots = new Set();
   /* the tile is the logo's nearest [data-logo-host], else its parent's parent */
-  function size(root = document) {
+  /* over: optional LOGO_CONFIG overrides for this root only (e.g. the
+     mobile rows, whose tiles want bigger marks) */
+  const overrides = new Map();
+  function size(root = document, over) {
     roots.add(root);
+    if (over) overrides.set(root, over);
+    over = overrides.get(root);
     root.querySelectorAll('.brand-logo').forEach(el => {
       const host = el.closest('[data-logo-host]') || el.parentElement.parentElement;
-      fit(el, host.getBoundingClientRect());
+      fit(el, host.getBoundingClientRect(), over);
     });
   }
   let raf = 0;

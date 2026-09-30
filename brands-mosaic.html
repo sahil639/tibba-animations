@@ -104,7 +104,32 @@ a { color: inherit; text-decoration: none; }
 @keyframes bm-in { from { opacity: 0; } to { opacity: 1; } }
 #mosaic.settled .b, #mosaic.settled .b > * { animation: none !important; clip-path: none; }
 
-@media (max-width: 860px) {
+/* ── mobile: one viewport ─────────────────────────────────────────────────
+   Under 760px the mosaic gives way to #mosaic-m: the heading, then four
+   rows of bordered tiles in a brick bond that run off both edges, each row
+   drifting slowly (alternate rows the other way) so the cut-off logos come
+   round into view. Row height is whatever the viewport leaves after the
+   heading, split four ways — the whole section is exactly one screen.
+   MOBILE_BRANDS in the script: the rows, tile spans, drift speed. */
+#mosaic-m { display: none; }
+@media (max-width: 760px) {
+  #mosaic { display: none; }
+  #mosaic-m { display: flex; flex-direction: column; height: 100vh; height: 100svh; overflow: hidden; background: #000; }
+  #mosaic-m .head { padding: 22px 16px 18px; flex: none; }
+  #mosaic-m .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+  #mosaic-m h1 { margin-top: 12px; color: #fff; font-weight: 400; font-size: clamp(26px, 8.4vw, 40px); line-height: 1.02; letter-spacing: -.035em; max-width: 13ch; }
+  #mosaic-m .head p { margin-top: 14px; color: var(--ink-mute); font-size: 13.5px; line-height: 1.6; max-width: 44ch; }
+  #mosaic-m .rows { flex: 1; min-height: 0; display: grid; grid-template-rows: repeat(4, 1fr); gap: 2px; border-top: 1px solid rgba(255,255,255,.12); padding-top: 10px; }
+  #mosaic-m .row { position: relative; overflow: hidden; min-height: 0; }
+  #mosaic-m .track { position: absolute; top: 0; bottom: 0; left: 0; display: flex; gap: 2px; will-change: transform;
+    transform: translateX(var(--start, 0)); animation: bm-drift var(--dur, 60s) linear infinite var(--dir, normal); }
+  @keyframes bm-drift { from { transform: translateX(var(--start, 0)); } to { transform: translateX(calc(var(--start, 0px) - 50%)); } }
+  #mosaic-m .t { flex: none; width: calc(var(--span) * 1vw); height: 100%; display: grid; place-items: center;
+    border: 1px solid rgba(255,255,255,.14); background: #000; }
+  #mosaic-m .t .wordmark { color: #fff; font-size: 22px; letter-spacing: .02em; font-weight: 700; text-transform: uppercase; }
+}
+@media (max-width: 760px) and (prefers-reduced-motion: reduce) { #mosaic-m .track { animation: none; } }
+@media (max-width: 860px) and (min-width: 761px) {
   #mosaic { height: auto; grid-template-columns: repeat(2, 1fr); grid-template-rows: none; grid-auto-rows: 38vw;
     grid-template-areas: "t t" "t t" "zo zo" "pa gr" "fp gr" "be be" "be be" "uc hd" "uc ti" "pb sh" "ie sh" "ak ss" "bs bs" "ct ct"; }
 }
@@ -129,6 +154,31 @@ a { color: inherit; text-decoration: none; }
   </a>
 </section>
 
+<section id="mosaic-m" aria-label="Brands we have worked with">
+  <div class="head">
+    <p class="eyebrow">[ &nbsp;Brands&nbsp; ]</p>
+    <h1>We've worked with start ups and market leaders</h1>
+    <p>Over the past decade we've helped companies deliver food, perform services,
+       insure health, provide financial services, publish news and sell products.</p>
+  </div>
+  <div class="rows" id="mosaic-rows"></div>
+</section>
+
+<script>
+/* MOBILE_BRANDS — the one-viewport mobile layout. Each row is a list of
+   [logo key or name, span in vw]; `start` shifts the row so tiles are cut
+   by the edges, `dur` is seconds for one full drift, alternate rows run
+   the other way. */
+const MOBILE_BRANDS = {
+  logo: { size: 0.52, maxWidth: 0.8, maxHeight: 0.34, maxWidthPx: 220, maxHeightPx: 56 },   // LOGO_CONFIG overrides for these tiles
+  rows: [
+    { start: -18, dur: 70, tiles: [['shyft', 34], ['paytm', 34], ['groww', 42], ['Firstpost', 38]] },
+    { start: -8, dur: 84, tiles: [['the-indian-express', 58], ['zomato', 52], ['apnaklub', 44]] },
+    { start: -22, dur: 76, tiles: [['hdfc-bank', 56], ['breatheesg', 58], ['the-times-of-india', 62]] },
+    { start: -10, dur: 90, tiles: [['policybazaar', 52], ['simsim', 34], ['urban-company', 52], ['bombay-shirt-company', 62]] },
+  ],
+};
+</script>
 <script>
 (function () {
   /* area, name, sector, year — and the four with a summit carry a colour */
@@ -169,6 +219,16 @@ a { color: inherit; text-decoration: none; }
   });
   window.TileTopo.attach(cta, { seed: 71, pattern: 'twin' });
   window.BrandLogos.size(wall);
+
+  /* the mobile rows: each track holds its tiles twice, so drifting it by
+     half its width comes round seamlessly */
+  const rowsEl = document.getElementById('mosaic-rows');
+  rowsEl.innerHTML = MOBILE_BRANDS.rows.map((r, i) => {
+    const tiles = r.tiles.map(([k, span]) => `<div class="t" data-logo-host style="--span:${span}">${
+      window.BrandLogos.LOGOS[k] ? window.BrandLogos.img(k) : `<span class="wordmark">${esc(k)}</span>`}</div>`).join('');
+    return `<div class="row"><div class="track" style="--start:${r.start}vw;--dur:${r.dur}s;--dir:${i % 2 ? 'reverse' : 'normal'}">${tiles}${tiles}</div></div>`;
+  }).join('');
+  window.BrandLogos.size(rowsEl, MOBILE_BRANDS.logo);
 
   /* the arrival order: reading order through the grid, measured off the
      laid-out boxes so it holds at the narrow breakpoint too */

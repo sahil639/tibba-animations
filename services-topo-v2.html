@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our services — Shifting Topo v2</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<script src="assets/services.js"></script>
+<script src="assets/services-split.js"></script>
+<link rel="stylesheet" href="assets/services-split.css">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Our services — Shifting Topo v2
+   (The earlier stepped-slab centrepiece, kept as its own page after
+   services-topo.html moved to three contour peaks.)
+   ─────────────────────────────────────────────────────────────────────────
+   Behind everything, the Topo Lines field at 10% on black. In the middle, a
+   block of stepped land (assets/shifting-topo.js) that re-surveys itself
+   for the chosen stage — a low plateau for an early-stage startup, two
+   ridges for a mid-size company, a tall massif for an established one —
+   with the services for that stage either side of it (assets/services-
+   split.js). The shift is three weights tweened on the GPU: slabs rise and
+   fall at the contours, restrained, no overshoot.
+   ═════════════════════════════════════════════════════════════════════════ */
+:root { --accent: #FF4B1F; }
+#topo { position: fixed; inset: 0; width: 100%; height: 100%; display: block; opacity: .1; pointer-events: none; }
+.ss-center { grid-column: 2; grid-row: 2; position: relative; min-height: 0; }
+#land { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.land-read { position: absolute; left: 50%; bottom: 2%; transform: translateX(-50%); display: flex; gap: 22px;
+  font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-faint); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.land-read b { color: #fff; font-weight: 400; }
+.land-read i { display: inline-block; width: 7px; height: 7px; background: var(--accent); margin-right: 8px; vertical-align: 0; }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<canvas id="topo" aria-hidden="true"></canvas>
+
+<main class="ss-page">
+  <header class="ss-title">
+    <div>
+      <p class="eyebrow">[ &nbsp;Our services&nbsp; ]</p>
+      <h1>The ground changes with the climb</h1>
+    </div>
+    <p class="ss-read"><span>Stage</span><b id="rd-stage">01 / 03</b><span>Slabs</span><b id="rd-slabs">00</b></p>
+  </header>
+
+  <section class="ss-col left" aria-label="Research and strategy services"></section>
+  <div class="ss-center" aria-hidden="true">
+    <canvas id="land"></canvas>
+    <p class="land-read"><span><i></i>Summit band</span><span>Interval <b>1 slab</b></span></p>
+  </div>
+  <section class="ss-col right" aria-label="Design and delivery services"></section>
+
+  <footer class="ss-foot">
+    <div class="ss-stages" role="tablist" aria-label="Company stage"></div>
+    <p class="ss-blurb" aria-live="polite"></p>
+  </footer>
+</main>
+
+<script>window.TOPO_LINES = { background: '#000000', lineColor: '#FFFFFF', panel: false, markers: 0 };</script>
+<script src="assets/topo-lines.js" defer></script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js"}}</script>
+<script type="module">
+  import { createShiftingTopo } from './assets/shifting-topo.js';
+  const land = createShiftingTopo(document.getElementById('land'));
+  window.tibba = { land };
+  const pad = n => String(n).padStart(2, '0');
+  const slabs = document.getElementById('rd-slabs');
+  land.onLevel(n => { slabs.textContent = pad(n); });
+  slabs.textContent = pad(land.MAXLV[0]);
+
+  let DUR = 1.6;
+  const split = mountServicesSplit({
+    left: document.querySelector('.ss-col.left'),
+    right: document.querySelector('.ss-col.right'),
+    stages: document.querySelector('.ss-stages'),
+    blurb: document.querySelector('.ss-blurb'),
+    onStage(i) {
+      land.setStage(i, DUR);
+      document.getElementById('rd-stage').textContent = `${pad(i + 1)} / 03`;
+    },
+  });
+  split.pick(0);
+
+  /* the panel */
+  const el = document.createElement('div');
+  el.id = 'tune';
+  el.innerHTML = `
+    <div id="tune-head"><b>Shifting Topo</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <p class="tune-sub">Shift</p>
+    <div class="row"><label>Duration<i id="v-du">1.6s</i></label><input type="range" id="s-du" min="4" max="40" value="16"></div>
+    <p class="tune-sub">Land</p>
+    <div class="row"><label>Slab height<i id="v-st">0.42</i></label><input type="range" id="s-st" min="20" max="80" value="42"></div>
+    <div class="row"><label>Riser steepness<i id="v-rz">0.22</i></label><input type="range" id="s-rz" min="4" max="60" value="22"></div>
+    <div class="row"><label>Camera angle<i id="v-el">33°</i></label><input type="range" id="s-el" min="15" max="70" value="33"></div>
+    <div class="row"><label>Pointer drift<i id="v-dr">3°</i></label><input type="range" id="s-dr" min="0" max="10" value="3"></div>
+    <p class="tune-sub">Background</p>
+    <div class="row"><label>Topo opacity<i id="v-op">0.10</i></label><input type="range" id="s-op" min="0" max="40" value="10"></div>`;
+  document.body.appendChild(el);
+  const q = id => el.querySelector('#' + id);
+  const bind = (s, v, fn) => q(s).addEventListener('input', e => { q(v).textContent = fn(+e.target.value); });
+  bind('s-du', 'v-du', n => { DUR = n / 10; return DUR.toFixed(1) + 's'; });
+  bind('s-st', 'v-st', n => { land.setStep(n / 100); return (n / 100).toFixed(2); });
+  bind('s-rz', 'v-rz', n => { land.setRiser(n / 100); return (n / 100).toFixed(2); });
+  bind('s-el', 'v-el', n => { land.view.elev = n; return n + '°'; });
+  bind('s-dr', 'v-dr', n => { land.view.drift = n; return n + '°'; });
+  bind('s-op', 'v-op', n => { document.getElementById('topo').style.opacity = n / 100; return (n / 100).toFixed(2); });
+  el.insertAdjacentHTML('beforeend', servicesSplitPanel());
+  bindServicesSplitPanel(el);
+  q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+  if (window.wb && window.wb.adopt) window.wb.adopt();
+</script>
+</body>
+</html>
