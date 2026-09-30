@@ -89,6 +89,10 @@
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js"}}</script>
 <script type="module">
   import { mountSummitsV2, SUMMITS2_CONFIG as C } from './assets/summits-v2.js';
+  import { applyBaked, bakeControls } from './assets/bake.js';
+  /* baked settings (the panel's Bake button) load over the defaults before anything mounts */
+  const BAKE_KEY = 'tibba.bake.summits-v3';
+  applyBaked(BAKE_KEY, C);
   const s = mountSummitsV2({ layout: 'text' });
   window.tibba = s;
 
@@ -112,7 +116,7 @@
     ${R('sw', 'Shadow width', 0, 20, .5, C.path.shadow.width, 'px')}
     ${R('so', 'Shadow opacity', 0, 1, .02, C.path.shadow.opacity)}
     <div class="row inline"><label>Trails<i></i></label><button class="tune-btn" id="s-rp">Replay</button></div>
-    <div class="row inline"><label>Config<i></i></label><button class="tune-btn" id="s-cp">Copy config</button></div>`;
+    ${bakeControls.html}`;
   document.body.appendChild(el);
   const q = id => el.querySelector('#' + id);
   const bind = (id, fn) => q('s-' + id).addEventListener('input', e => { const v = +e.target.value; q('v-' + id).textContent = v + e.target.dataset.unit; fn(v); });
@@ -122,10 +126,7 @@
   bind('pd', v => { C.path.duration = v; }); bind('pf', v => { C.path.fadeIn = v; });
   bind('sw', v => { C.path.shadow.width = v; }); bind('so', v => { C.path.shadow.opacity = v; });
   q('s-rp').addEventListener('click', () => s.replay());
-  q('s-cp').addEventListener('click', async () => {
-    const txt = 'export const SUMMITS2_CONFIG = ' + JSON.stringify(C, null, 2) + ';';
-    try { await navigator.clipboard.writeText(txt); } catch { console.log(txt); }
-  });
+  bakeControls.bind(el, BAKE_KEY, C, 'SUMMITS2_CONFIG');
   q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
   if (window.wb && window.wb.adopt) window.wb.adopt();
 </script>

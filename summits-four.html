@@ -17,8 +17,9 @@
      to the next. Each summit's trail draws once, base to peak, the first
      time it is in focus. The case card sits beside the focused peak.
      Behaviour and every default: SUMMITS_CONFIG in assets/four-summits.js.
-     The panel on the right writes into that object live; "Copy config"
-     puts the current values on the clipboard to paste back as defaults.
+     The panel on the right writes into that object live; "Bake settings"
+     keeps them in this browser so the next refresh opens on them (as the
+     Polaroids page does), and copies them to paste back as defaults.
      ═════════════════════════════════════════════════════════════════════ -->
 <link rel="stylesheet" href="assets/summits-range.css">
 <style>
@@ -92,6 +93,10 @@ body[data-layout="summits"] .card.leaving { transform: translateX(calc(var(--fs-
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js"}}</script>
 <script type="module">
   import { mountFourSummits, SUMMITS_CONFIG as C, EASES } from './assets/four-summits.js';
+  import { applyBaked, bakeControls } from './assets/bake.js';
+  /* baked settings (the panel's Bake button) load over the defaults before anything mounts */
+  const BAKE_KEY = 'tibba.bake.summits-four';
+  applyBaked(BAKE_KEY, C);
   const fs = mountFourSummits();
   window.tibba = fs;
 
@@ -134,7 +139,7 @@ body[data-layout="summits"] .card.leaving { transform: translateX(calc(var(--fs-
     ${R('fo', 'Fade out', .05, 1.5, .05, C.cards.fadeOut, 's')}
     ${R('fd', 'Delay', 0, 1.5, .05, C.cards.delay, 's')}
     ${R('sl', 'Slide', 0, 80, 1, C.cards.slide, 'px')}
-    <div class="row inline"><label>Config<i></i></label><button class="tune-btn" id="s-cp">Copy config</button></div>`;
+    ${bakeControls.html}`;
   document.body.appendChild(el);
   const q = id => el.querySelector('#' + id);
   const bind = (id, fn) => q('s-' + id).addEventListener('input', e => {
@@ -176,11 +181,7 @@ body[data-layout="summits"] .card.leaving { transform: translateX(calc(var(--fs-
   bind('fo', v => { C.cards.fadeOut = v; fs.applyCardVars(); });
   bind('fd', v => { C.cards.delay = v; fs.applyCardVars(); });
   bind('sl', v => { C.cards.slide = v; fs.applyCardVars(); });
-  q('s-cp').addEventListener('click', async () => {
-    const txt = 'export const SUMMITS_CONFIG = ' + JSON.stringify(C, null, 2) + ';';
-    try { await navigator.clipboard.writeText(txt); q('s-cp').textContent = 'Copied'; } catch { console.log(txt); q('s-cp').textContent = 'In console'; }
-    setTimeout(() => { q('s-cp').textContent = 'Copy config'; }, 1600);
-  });
+  bakeControls.bind(el, BAKE_KEY, C, 'SUMMITS_CONFIG');
   q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
   if (window.wb && window.wb.adopt) window.wb.adopt();
 </script>
