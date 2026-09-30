@@ -243,8 +243,42 @@
     });
   }
 
+  /* ═══ embedded ══════════════════════════════════════════════════════
+     Inside the full-page preview (full-page.html) a page is a block in a
+     longer page: no menu, no dock, no panel, no scrollbar of its own. Its
+     scroll is driven by the outer page, and the wheel and touch it receives
+     are handed straight up to the outer page, so the whole stack scrolls
+     as one document. */
+  var EMBED = window.self !== window.top || /[?&]embed\b/.test(location.search);
+  function embed() {
+    document.documentElement.classList.add('wb-embed');
+    var st = document.createElement('style');
+    st.textContent = '#tune,#ui,#wb-nav,#wb-dock{display:none!important}' +
+      'html{overflow:hidden!important;scrollbar-width:none}html::-webkit-scrollbar{display:none}' +
+      /* body must not become a scroll container of its own (overflow-x:hidden
+         on body would, once html's overflow is set) or sticky stages break */
+      'body{overflow:visible!important}';
+    document.head.appendChild(st);
+    window.wb = { adopt: function () {} };
+    var up = window.parent;
+    if (!up || up === window) return;
+    window.addEventListener('wheel', function (e) {
+      if (e.ctrlKey) return;
+      e.preventDefault();
+      up.scrollBy(0, e.deltaMode === 1 ? e.deltaY * 32 : e.deltaY);
+    }, { passive: false, capture: true });
+    var ty = null;
+    window.addEventListener('touchstart', function (e) { ty = e.touches[0].clientY; }, { passive: true, capture: true });
+    window.addEventListener('touchmove', function (e) {
+      if (ty === null) return;
+      var y = e.touches[0].clientY; up.scrollBy(0, ty - y); ty = y;
+    }, { passive: true, capture: true });
+    window.addEventListener('touchend', function () { ty = null; }, { passive: true, capture: true });
+  }
+
   /* ═══ boot ═══════════════════════════════════════════════════════════ */
   function boot() {
+    if (EMBED) { embed(); return; }
     if (document.getElementById('wb-nav')) return;
     applyTheme();
     /* Opening a page is seeing it: mark it before the menu is drawn, so the

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Full page</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/manifest.js"></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Full page — every ticked section, one under the other
+   ─────────────────────────────────────────────────────────────────────────
+   The index's checkboxes (localStorage 'tibba.fullpage') decide what is
+   here, in the index's order. Each section is a block exactly as tall as
+   its own page, holding a sticky, viewport-sized frame of that page; as
+   this page scrolls through the block, the frame's own document is
+   scrolled to match. So every section behaves exactly as it does on its
+   own — pinned scenes pin, scroll-driven reveals run — just in sequence.
+   Inside a frame the workbench stands down (assets/workbench.js, embed
+   mode): no menu, no dock, and the wheel and touch go to this page.
+
+   Frames load when they come near the screen and unload when they are far
+   away, so a long stack of WebGL scenes never runs out of GPU contexts.
+
+   Top left, the mark (assets/logo-morph.js), changing form as you scroll
+   and cycling while the pointer is on it. FULLPAGE_CONFIG below.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #000; }
+body { color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+
+.fp-bar { position: fixed; z-index: 50; left: 0; right: 0; top: 0; height: 64px; display: flex; align-items: center; gap: 16px;
+  padding: 0 var(--gut); pointer-events: none; }
+.fp-bar > * { pointer-events: auto; }
+.fp-logo { width: 44px; height: 25px; cursor: pointer; filter: drop-shadow(0 1px 6px rgba(0,0,0,.5)); }
+.fp-name { font-size: 15px; letter-spacing: -.01em; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,.6); }
+.fp-now { margin-left: auto; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-faint);
+  background: rgba(0,0,0,.55); padding: 7px 10px; border: 1px solid rgba(255,255,255,.1); }
+.fp-now b { color: #fff; font-weight: 400; }
+.fp-edit { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #000; background: var(--accent); padding: 8px 11px; text-decoration: none; }
+
+.fp-block { position: relative; }
+.fp-block .sticky { position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden; }
+.fp-block iframe { display: block; width: 100%; height: 100%; border: 0; background: #000; }
+.fp-block + .fp-block { border-top: 1px solid rgba(255,255,255,.06); }
+
+.fp-empty { min-height: 100vh; display: grid; place-content: center; gap: 18px; text-align: center; padding: 0 24px; }
+.fp-empty h1 { color: #fff; font-weight: 300; font-size: clamp(28px, 4vw, 56px); letter-spacing: -.03em; }
+.fp-empty p { color: var(--ink-mute); font-size: 14px; }
+.fp-empty a { justify-self: center; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: #000; background: var(--accent); padding: 10px 14px; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<header class="fp-bar">
+  <span class="fp-logo" id="fp-logo" title="Tibba" role="img" aria-label="Tibba"></span>
+  <span class="fp-name">Tibba</span>
+  <span class="fp-now" id="fp-now"></span>
+  <a class="fp-edit" href="index.html">Edit sections</a>
+</header>
+<main id="stack"></main>
+
+<script type="module">
+  import { mountLogoMorph, LOGO_MORPH } from './assets/logo-morph.js';
+
+  /* FULLPAGE_CONFIG */
+  const FULLPAGE_CONFIG = {
+    logoStep: 0.9,        // viewports of scroll per change of the mark's form
+    loadAhead: 1.5,       // viewports: how far ahead a frame starts loading
+    unloadBeyond: 4,      // viewports: frames further away than this are unloaded
+  };
+  const C = FULLPAGE_CONFIG;
+
+  /* ── what to stack: the ticked pages, in the index's order ────────── */
+  let picked = [];
+  try { picked = JSON.parse(localStorage.getItem('tibba.fullpage') || '[]'); } catch {}
+  const order = (window.TIBBA_PAGES || []).map(p => p.file);
+  const label = f => ((window.TIBBA_PAGES || []).find(p => p.file === f) || {}).label || f;
+  const files = order.filter(f => picked.includes(f));
+  const stack = document.getElementById('stack');
+
+  if (!files.length) {
+    stack.innerHTML = `<section class="fp-empty"><h1>Nothing ticked yet</h1>
+      <p>Tick sections on the index and they appear here, one under the other.</p><a href="index.html">Choose sections</a></section>`;
+  }
+
+  const blocks = files.map(file => {
+    const sec = document.createElement('section');
+    sec.className = 'fp-block';
+    sec.style.height = '100vh';
+    sec.innerHTML = `<div class="sticky"><iframe title="${label(file)}" loading="eager"></iframe></div>`;
+    stack.appendChild(sec);
+    return { file, sec, frame: sec.querySelector('iframe'), H: 0, loaded: false, lastY: -1, ro: null };
+  });
+
+  /* ── each block as tall as its page ─────────────────────────────── */
+  function measure(b) {
+    try {
+      const d = b.frame.contentDocument;
+      if (!d || !d.body) return;
+      const h = Math.max(d.documentElement.scrollHeight, d.body.scrollHeight, innerHeight);
+      if (Math.abs(h - b.H) > 2) { b.H = h; b.sec.style.height = h + 'px'; }
+    } catch {}
+  }
+  function load(b) {
+    if (b.loaded) return;
+    b.loaded = true; b.lastY = -1;
+    b.frame.addEventListener('load', function onload() {
+      b.frame.removeEventListener('load', onload);
+      measure(b);
+      try {
+        b.ro = new ResizeObserver(() => measure(b));
+        b.ro.observe(b.frame.contentDocument.body);
+      } catch {}
+      /* pages that grow after load (fonts, modules) — a few late checks */
+      [300, 1000, 2500].forEach(t => setTimeout(() => measure(b), t));
+      sync(true);
+    });
+    b.frame.src = b.file + (b.file.includes('?') ? '&' : '?') + 'embed=1';
+  }
+  function unload(b) {
+    if (!b.loaded) return;
+    b.loaded = false;
+    if (b.ro) b.ro.disconnect();
+    b.frame.src = 'about:blank';          // keeps its measured height
+  }
+
+  /* ── the scroll: drive each frame's own document ────────────────── */
+  let ticking = false;
+  function sync(force) {
+    const vh = innerHeight;
+    let current = null;
+    blocks.forEach(b => {
+      const r = b.sec.getBoundingClientRect();
+      const near = r.bottom > -vh * C.loadAhead && r.top < vh * (1 + C.loadAhead);
+      const far = r.bottom < -vh * C.unloadBeyond || r.top > vh * (1 + C.unloadBeyond);
+      if (near) load(b); else if (far) unload(b);
+      if (r.top <= vh * 0.5 && r.bottom > vh * 0.5) current = b;
+      if (!b.loaded) return;
+      const y = Math.round(Math.min(Math.max(0, -r.top), Math.max(0, (b.H || vh) - vh)));
+      if (force || y !== b.lastY) {
+        b.lastY = y;
+        try { b.frame.contentWindow.scrollTo(0, y); } catch {}
+      }
+    });
+    if (current) document.getElementById('fp-now').innerHTML = `<b>${String(blocks.indexOf(current) + 1).padStart(2, '0')}</b> / ${String(blocks.length).padStart(2, '0')} &nbsp;${label(current.file)}`;
+    /* the mark changes form every logoStep viewports */
+    logo.to(Math.floor(scrollY / (vh * C.logoStep)));
+  }
+  addEventListener('scroll', () => {
+    if (ticking) return; ticking = true;
+    requestAnimationFrame(() => { ticking = false; sync(false); });
+  }, { passive: true });
+  addEventListener('resize', () => { blocks.forEach(b => b.loaded && measure(b)); sync(true); });
+
+  const logo = mountLogoMorph(document.getElementById('fp-logo'), LOGO_MORPH);
+  window.tibba = { blocks, logo, CONFIG: C };
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  sync(true);
+</script>
+</body>
+</html>
