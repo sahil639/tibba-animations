@@ -73,7 +73,20 @@
       pick((cur + (e.key === 'ArrowRight' ? 1 : S.length - 1)) % S.length, true);
     });
 
+    /* layout 'boxes' (Compass v2/v3): no subtitles and no group box — every
+       service is its own bordered box, stacked in a brick bond that alternates
+       left and right, each with a small index in its corner */
+    function boxes(list, side, offset) {
+      return `<p class="ssb-head"><span>${side === 'left' ? 'Research and strategy' : 'Design &amp; delivery'}</span><b>${pad(list.length)}</b></p>
+        <div class="ssb-list">${list.map((sv, k) => `
+          <div class="ssb" style="--k:${k}" title="${sv.points[0].replace(/"/g, '&quot;')}">
+            <span class="ix">${String(offset + k + 1).padStart(3, '0')}</span>
+            <span class="nm">${cap(sv.name)}</span>
+          </div>`).join('')}</div>`;
+    }
+
     function col(list, side, offset) {
+      if (o.layout === 'boxes') return boxes(list, side, offset);
       return `<p class="ss-head"><span>${side === 'left' ? 'Research &amp; strategy' : 'Design &amp; delivery'}</span><i></i><b>${pad(list.length)}</b></p>
         <ol class="ss-list">${list.map((sv, k) => `
           <li class="ss-item" style="--k:${k}" data-k="${k}">

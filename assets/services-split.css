@@ -102,3 +102,26 @@ button { font: inherit; color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .ss-col.in *, .ss-blurb.in { animation: none !important; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   layout 'boxes' — Compass v2 / v3
+   Each service a bordered box; the boxes stack in a brick bond, alternating
+   left and right edges and sharing their hairlines, with a small index in
+   the top-left corner. The right column is set in capitals, as drawn.
+   ═════════════════════════════════════════════════════════════════════════ */
+.ssb-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+  color: #fff; font-size: clamp(16px, 1.45vw, 24px); letter-spacing: -.005em; text-transform: uppercase; }
+.ssb-head b { font-weight: 300; color: var(--accent); font-size: 1.15em; font-variant-numeric: tabular-nums; }
+.ssb-list { margin-top: clamp(24px, 4vh, 56px); display: flex; flex-direction: column; }
+.ssb { position: relative; align-self: flex-start; min-width: 52%; max-width: 78%;
+  margin-top: -1px; padding: clamp(16px, 1.6vw, 24px) clamp(20px, 2vw, 30px);
+  border: 1px solid rgba(255,255,255,.26); background: #000; cursor: default;
+  transition: border-color .25s linear, background .25s linear; }
+.ssb:nth-child(even) { align-self: flex-end; }
+.ssb .ix { position: absolute; left: 8px; top: 5px; font-size: 11px; letter-spacing: .04em; color: rgba(255,255,255,.4); font-variant-numeric: tabular-nums; }
+.ssb .nm { display: block; color: #fff; font-size: clamp(16px, 1.55vw, 26px); line-height: 1.15; letter-spacing: -.01em; }
+.ss-col.right .ssb .nm { text-transform: uppercase; letter-spacing: 0; }
+.ssb:hover { border-color: var(--accent); background: #0c0c0d; z-index: 1; }
+.ssb:hover .ix { color: var(--accent); }
+.ss-col.in .ssb { animation: ss-fade .4s calc(100ms + var(--k) * 60ms) linear both; }
+.ss-col.in .ssb-head { animation: ss-fade .3s linear both; }
