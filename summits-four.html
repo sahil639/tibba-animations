@@ -15,7 +15,7 @@
      Our summits — Four Summits
      One mountain in focus at a time, centred; scrolling walks the camera
      to the next. Each summit's trail draws once, base to peak, the first
-     time it is in focus. The case card sits beside the focused peak.
+     time it is in focus. The case sits bottom-left (or beside the peak: cards.anchor).
      Behaviour and every default: SUMMITS_CONFIG in assets/four-summits.js.
      The panel on the right writes into that object live; "Bake settings"
      keeps them in this browser so the next refresh opens on them (as the
@@ -51,6 +51,27 @@ body[data-layout="summits"] .card.active {
   transition: opacity var(--fs-in, .7s) var(--fs-ease) var(--fs-delay, .35s), transform var(--fs-in, .7s) var(--fs-ease) var(--fs-delay, .35s), border-color .4s, background .4s;
 }
 body[data-layout="summits"] .card.leaving { transform: translateX(calc(var(--fs-slide, 28px) * -.5 * var(--dx, 1))); }
+.card .nm { display: none; }
+
+/* ── corner: the case as plain type, bottom-left (cards.anchor = 'corner') ─
+   Title top-left stays as it is; the lit summit's name, its line and the
+   View project link sit in the bottom-left corner, on a soft floor of dark. */
+body[data-cards="corner"] #stage::after { opacity: 1; background: linear-gradient(20deg, rgba(0,0,0,.82) 0%, rgba(0,0,0,.45) 28%, rgba(0,0,0,0) 52%); }
+body[data-cards="corner"][data-layout="summits"] .card {
+  left: var(--gut) !important; top: auto !important; right: auto; bottom: clamp(32px, 7vh, 72px);
+  width: min(var(--fs-card-w, 380px), calc(100vw - 2 * var(--gut))); padding: 0; border: 0; background: none !important;
+  backdrop-filter: none; -webkit-backdrop-filter: none; clip-path: none;
+  transform: translateY(var(--fs-slide, 28px));
+}
+body[data-cards="corner"][data-layout="summits"] .card.active { transform: none; }
+body[data-cards="corner"][data-layout="summits"] .card.leaving { transform: translateY(calc(var(--fs-slide, 28px) * -.4)); }
+body[data-cards="corner"] .card .k, body[data-cards="corner"] .card .tags,
+body[data-cards="corner"] .card .body, body[data-cards="corner"] .card .pin, body[data-cards="corner"] .card .frame { display: none; }
+body[data-cards="corner"] .card .nm { display: block; margin: 0; color: #fff; font-weight: 400; font-size: clamp(34px, 4.2vw, 68px); line-height: .98; letter-spacing: -.035em; }
+body[data-cards="corner"] .card .nm::before { content: ''; display: block; width: 28px; height: 2px; margin-bottom: 18px; background: var(--c, var(--accent)); }
+body[data-cards="corner"] .card .t { margin-top: 12px; max-width: 34ch; color: var(--ink-mute); font-size: clamp(14px, 1.1vw, 17px); line-height: 1.4; }
+body[data-cards="corner"] .card .more { grid-template-rows: 1fr; }
+body[data-cards="corner"] .card .go { margin-top: 22px; }
 
 /* the orange squares and the walkers */
 .fs-layer { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
@@ -129,7 +150,10 @@ body[data-layout="summits"] .card.leaving { transform: translateX(calc(var(--fs-
     ${R('dm', 'Inactive trails', 0, 1, .01, C.path.dim)}
     ${R('cv', 'Bézier bend', 0, 2, .01, C.path.curve)}
     <div class="row inline"><label>Trails<i></i></label><button class="tune-btn" id="s-rp">Replay</button></div>
+    <p class="tune-sub">Focus</p>
+    ${R('fz', 'Depth (how far the rest recedes)', 0, .95, .01, C.focus.depth)}
     <p class="tune-sub">Cards</p>
+    <div class="seg" id="s-anchor"><button data-s="corner">Bottom-left</button><button data-s="peak">Beside peak</button></div>
     <div class="seg" id="s-side"><button data-s="left">Left</button><button data-s="right">Right</button></div>
     ${R('cl', 'Clear of flank', 0, 2, .05, C.cards.clearance, '×')}
     ${R('ox', 'Offset X', -.2, .4, .005, C.cards.offsetX, ' vw')}
@@ -166,12 +190,20 @@ body[data-layout="summits"] .card.leaving { transform: translateX(calc(var(--fs-
   bind('wd', v => { C.path.width = v; });
   bind('dm', v => { C.path.dim = v; fs.trails.forEach((t, k) => { if (k !== fs.active) t.alphaT = v; }); });
   bind('cv', v => fs.setCurve(v));
+  bind('fz', v => fs.setFocusDepth(v));
   q('s-rp').addEventListener('click', () => fs.replay());
   const side = q('s-side');
   [...side.children].forEach(b => b.classList.toggle('on', b.dataset.s === C.cards.side));
   side.addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
     [...side.children].forEach(c => c.classList.toggle('on', c === b)); C.cards.side = b.dataset.s;
+  });
+  const anchor = q('s-anchor');
+  [...anchor.children].forEach(b => b.classList.toggle('on', b.dataset.s === C.cards.anchor));
+  anchor.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    [...anchor.children].forEach(c => c.classList.toggle('on', c === b));
+    C.cards.anchor = document.body.dataset.cards = b.dataset.s;
   });
   bind('cl', v => { C.cards.clearance = v; });
   bind('ox', v => { C.cards.offsetX = v; });

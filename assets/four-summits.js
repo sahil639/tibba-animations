@@ -120,6 +120,10 @@ export const SUMMITS_CONFIG = {
      side 'right' puts the card's left edge at flank + offsetX; 'left' puts
      its right edge at flank − offsetX. perSummit[i] overrides for one summit. */
   cards: {
+    /* 'corner': the summit's name, its line and View project sit in the
+       bottom-left corner, as plain type (the offsets below are unused).
+       'peak': the old card, riding beside the focused summit. */
+    anchor: 'corner',
     side: 'right',
     clearance: 0.8,           // × the summit's projected half-width
     offsetX: 0.02,
@@ -133,6 +137,11 @@ export const SUMMITS_CONFIG = {
     ease: 'cubic-bezier(.16,.62,.36,1)',
     margin: 24,               // px the card is kept inside the viewport by
   },
+
+  /* How strongly the active summit is picked out: how far the rest of the
+     range recedes while it is lit. 0 = everything equal, 0.95 = the others
+     all but gone. */
+  focus: { depth: 0.38 },
 };
 
 export function mountFourSummits() {
@@ -144,7 +153,9 @@ export function mountFourSummits() {
   const scene = createRangeScene({ canvas: $('#peak-canvas'), mode: 'range', palette: 'peak', hover: true, noStudio: true });
   scene.setAccent(ACCENT);
   scene.setDepth(0.1);
+  scene.setFocusDepth(C.focus.depth);
   document.documentElement.style.setProperty('--accent', ACCENT);
+  document.body.dataset.cards = C.cards.anchor;
 
   const tops = scene.clientTops();
   const avgSpread = tops.reduce((a, t) => a + t.spread, 0) / N;
@@ -298,6 +309,7 @@ export function mountFourSummits() {
     <article class="card" data-i="${i}" style="--c:${c.colour}">
       <div class="in">
         <span class="k l1"><b>${pad(i)} / ${pad(N - 1)}</b><em>${c.name} · ${c.years}</em></span>
+        <h2 class="nm">${c.name}</h2>
         <h3 class="t l2">${c.title}</h3>
         <p class="tags l3">${c.tags.map(x => `<span>${x}</span>`).join('')}</p>
         <div class="more"><div><p class="body">${c.body}</p>
@@ -348,7 +360,8 @@ export function mountFourSummits() {
       place(headEls[i], t.p > 0.001 && t.p < 0.999 ? project(pointAt(t, t.p, _h), cam) : null);
     });
     /* only the cards that can be seen need placing */
-    cards.forEach((c, i) => { if (i === active || c.classList.contains('leaving')) placeCard(i, cam); });
+    if (C.cards.anchor === 'peak')
+      cards.forEach((c, i) => { if (i === active || c.classList.contains('leaving')) placeCard(i, cam); });
   };
 
   /* ── the path state machine ─────────────────────────────────────────
@@ -440,6 +453,8 @@ export function mountFourSummits() {
     /** Re-seat the camera on the active summit — call after changing C.camera. */
     reframe(dur = 0) { if (active >= 0) station(active, dur); },
     applyCardVars,
+    /** How strongly the lit summit stands out (C.focus.depth, 0–0.95). */
+    setFocusDepth(v) { C.focus.depth = v; scene.setFocusDepth(v); },
     /** Re-read C.scroll after a change (height, thresholds). */
     rescroll() { scope.style.height = C.scroll.height + 'vh'; onScroll(); },
     get active() { return active; },

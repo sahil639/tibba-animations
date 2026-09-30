@@ -2876,6 +2876,11 @@ return {
     u.uFillY.value = lo + (hi - lo) * Math.min(1, Math.max(0, t));
   },
 
+  /** How strongly a lit summit stands out: how far the rest of the range
+      recedes while one is lit (0 = not at all, 0.95 = nearly gone). */
+  setFocusDepth(v) { MORPH.dim = Math.min(0.97, Math.max(0, v)); },
+  focusDepth() { return MORPH.dim; },
+
   setDepth(t) {
     const d = Math.min(1, Math.max(0, t));
     /* at 0 the fade is pushed so far back that nothing reaches it; at 1 it
