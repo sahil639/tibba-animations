@@ -23,6 +23,25 @@ The dock does not rebuild a page's controls — it **moves** them. `wb.adopt()` 
 and because moving a node keeps its listeners, every slider still drives the
 animation it was wired to with nothing changed in the page itself.
 
+## The full page
+
+Every page on the index has a checkbox. Tick the sections you want and
+**Open full page** (the bar above the sections) stacks them, in index order,
+on `full-page.html` — the site read as one page. The choice is kept in this
+browser (`localStorage`, `tibba.fullpage`).
+
+Each ticked page is a block as tall as its own page, holding a sticky,
+viewport-sized frame of it whose document is scrolled along with the outer
+page — so pinned scenes pin and scroll reveals run exactly as they do on
+their own. Inside a frame `assets/workbench.js` runs in embed mode: no menu,
+no dock, no panel, and wheel/touch are handed to the outer page. Frames load
+as they come near the screen and unload when far away (`FULLPAGE_CONFIG`).
+
+Top left is the mark (`assets/logo-morph.js`, `LOGO_MORPH`): the peak with
+the up-arrow cut out of it, in five forms — the mark, turned, centred, with a
+shoulder peak, a range — collapsing into its base and springing up as the
+next form every `logoStep` viewports of scroll, and cycling while hovered.
+
 ## What's new
 
 The index opens with **Since your last visit**: every page changed in the last
@@ -358,6 +377,10 @@ ready-to-paste literal — paste it over the object to make them the defaults.
 | About — team | `TEAM_CONFIG` (`about-team.html`) | `back` / `front` mountain width, x, y, peak, levels; `person.height`; `dither` intensity, cell, duration, contrast, colours; `hover.part` |
 | About — campsite | `CAMPSITE_CONFIG` (`assets/campsite.js`) | `smoke` (height, speed, spiral, spread, opacity, count), `loops` (flicker, tent breath, embers, wind), `scene` (scale, offsetX/Y), `interaction`, `overflow` |
 | About — foundations | `FOUNDATION_CONFIG` (`about-foundations.html`) | `tilt` (max, responsiveness, perspective), `depth` per layer, `shadow` (depth, blur, opacity), `glare`, `entrance` (duration, ease, stagger) |
+| Summits v2, v3 | `SUMMITS2_CONFIG` (`assets/summits-v2.js`) | `camera` (dist, elev, lift, liftDist, bearings, aside, tilt), `focus.chase`, `fill` (count, seed, height, ridges → range-scene `opts.fill`), `path` (turns, wander, start, duration, shadow, fadeIn) |
+| Compass v2, v3 | `layout: 'boxes'` (`assets/services-split.js`) | services as boxed brick bonds; the page CSS fixes the compass row |
+| Brands — mosaic (mobile) | `MOBILE_BRANDS` (`brands-mosaic.html`) | rows of `[logo, span]`, start offset, drift duration, logo size overrides |
+| Full page | `FULLPAGE_CONFIG` (`full-page.html`), `LOGO_MORPH` (`assets/logo-morph.js`) | logo step, load/unload distance; collapse time, spring, hover interval |
 | Contact | `CARABINER_CONFIG` (`assets/carabiner.js`) | `size`, `thickness` (line weight), `detail` (tessellation), `stoneSize` |
 
 ### Elsewhere
