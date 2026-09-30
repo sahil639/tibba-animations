@@ -16,22 +16,47 @@
    triangle is the main peak of a form — so it keeps the same place in the
    mountain (low, pointing at the summit) however the mountain changes.
 
-   The move: the current form collapses down into its base line, and the
-   next springs up out of the same base, a little past full height and back.
-   Secondary peaks follow the main one by a beat.
+   The move: the current form sinks down into its base line and the next
+   rises out of the same base — both on easing curves, no spring and no
+   overshoot, so the change reads as one smooth breath. Secondary peaks
+   follow the main one by a beat. `speed` scales every duration at once;
+   `fastSpeed` is what the high-speed option switches it to.
 
-     const m = mountLogoMorph(host, { ...LOGO_MORPH });
+     const m = mountLogoMorph(host, LOGO_MORPH);   // reads cfg live
      m.to(i)      go to form i            m.next()   the next form
      m.cycle(on)  keep cycling (hover)    m.forms    the five forms
    ═════════════════════════════════════════════════════════════════════════ */
 
+/* the easings on offer, as cubic-béziers */
+export const MORPH_EASES = {
+  'In-out (sine)':  [0.37, 0, 0.63, 1],
+  'In-out (cubic)': [0.65, 0, 0.35, 1],
+  'In-out (quint)': [0.83, 0, 0.17, 1],
+  'Out (expo)':     [0.16, 1, 0.3, 1],
+  'In (cubic)':     [0.32, 0, 0.67, 0],
+  'Linear':         [0, 0, 1, 1],
+};
+
 export const LOGO_MORPH = {
-  collapse: 0.2,          // s, the current form sinking into its base
-  spring: { stiffness: 230, damping: 13 },   // the rise: lower damping = more overshoot
-  follow: 0.07,           // s, secondary peaks' lag behind the main one
-  hoverEvery: 0.85,       // s between forms while the pointer is on the mark
+  collapse: 0.32,         // s, the current form sinking into its base
+  rise: 0.5,              // s, the next form rising out of it
+  collapseEase: 'In (cubic)',
+  riseEase: 'In-out (cubic)',
+  overlap: 0,             // 0–0.9: how much of the sink the rise may overlap (0 = strictly one then the other)
+  follow: 0.06,           // s, secondary peaks' lag behind the main one
+  hoverEvery: 0.9,        // s between forms while the pointer is on the mark
+  speed: 1,               // multiplies the pace of everything above
+  fastSpeed: 2.6,         // the pace the high-speed option uses
+  fast: false,            // high-speed option
   colour: '#ffffff',
 };
+function bezier(x1, y1, x2, y2) {
+  const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx, cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+  const X = t => ((ax * t + bx) * t + cx) * t, Y = t => ((ay * t + by) * t + cy) * t;
+  return x => { if (x <= 0) return 0; if (x >= 1) return 1; let lo = 0, hi = 1, t = x;
+    for (let i = 0; i < 22; i++) { const v = X(t); if (Math.abs(v - x) < 1e-5) break; if (v < x) lo = t; else hi = t; t = (lo + hi) / 2; } return Y(t); };
+}
+const easeOf = name => bezier(...(MORPH_EASES[name] || MORPH_EASES['In-out (cubic)']));
 
 /* the original mark, in its own 48-wide frame (favicon.svg's path) */
 const BASE = 28;
@@ -93,36 +118,37 @@ export function mountLogoMorph(host, cfg = LOGO_MORPH) {
   }
   const setS = (p, s) => p.el.setAttribute('transform', `translate(0 ${BASE}) scale(1 ${Math.max(0, s).toFixed(4)}) translate(0 ${-BASE})`);
 
+  const pace = () => Math.max(0.05, cfg.fast ? cfg.fastSpeed : cfg.speed);
+
   function run(next) {
-    if (REDUCED) { form = next; draw(form); peaks.forEach(p => setS(p, 1)); return Promise.resolve(); }
+    if (REDUCED) { form = next; draw(form); peaks.forEach(p => setS(p, 1)); return; }
     busy = true;
-    return new Promise(done => {
-      /* 1 — collapse into the base */
-      const t0 = performance.now(), from = peaks.map(p => p.s);
-      (function sink(now) {
-        const k = Math.min(1, (now - t0) / 1000 / cfg.collapse), e = k * k * k;
-        peaks.forEach((p, i) => setS(p, from[i] * (1 - e)));
-        if (k < 1) return requestAnimationFrame(sink);
-        /* 2 — the next form springs up from the same base */
-        form = next; draw(form); peaks.forEach(p => setS(p, 0));
-        let last = performance.now(); const start = last;
-        (function rise(now) {
-          const dt = Math.min(0.032, (now - last) / 1000); last = now;
-          let moving = false;
-          peaks.forEach(p => {
-            if ((now - start) / 1000 < p.delay) { moving = true; return; }
-            const K = cfg.spring.stiffness, D = cfg.spring.damping;
-            for (let s = 0; s < 4; s++) { p.v += (K * (1 - p.s) - D * p.v) * dt / 4; p.s += p.v * dt / 4; }
-            setS(p, p.s);
-            if (Math.abs(1 - p.s) > 0.002 || Math.abs(p.v) > 0.01) moving = true;
-          });
-          if (moving) return requestAnimationFrame(rise);
-          peaks.forEach(p => { p.s = 1; setS(p, 1); });
-          busy = false; done();
-          if (queued !== null && queued !== form) { const q = queued; queued = null; run(q); } else queued = null;
-        })(last);
-      })(t0);
-    });
+    const sp = pace(), dSink = Math.max(0.01, cfg.collapse / sp), dRise = Math.max(0.01, cfg.rise / sp);
+    const eIn = easeOf(cfg.collapseEase), eOut = easeOf(cfg.riseEase);
+    const t0 = performance.now(), from = peaks.map(p => p.s);
+    /* 1 — sink into the base; 2 — the next form rises from it. With overlap
+       the rise starts before the sink has quite finished. */
+    const riseAt = dSink * (1 - Math.min(0.9, cfg.overlap));
+    let swapped = false;
+    (function frame(now) {
+      const t = (now - t0) / 1000;
+      if (!swapped) {
+        const k = Math.min(1, t / dSink);
+        peaks.forEach((p, i) => setS(p, from[i] * (1 - eIn(k))));
+        if (t >= riseAt) { swapped = true; form = next; draw(form); peaks.forEach(p => setS(p, 0)); }
+        return requestAnimationFrame(frame);
+      }
+      const tr = t - riseAt;
+      let moving = false;
+      peaks.forEach(p => {
+        const k = Math.min(1, Math.max(0, (tr - p.delay / sp) / dRise));   // secondary peaks lag a beat
+        p.s = eOut(k); setS(p, p.s);
+        if (k < 1) moving = true;
+      });
+      if (moving) return requestAnimationFrame(frame);
+      busy = false;
+      if (queued !== null && queued !== form) { const q = queued; queued = null; run(q); } else queued = null;
+    })(t0);
   }
 
   function to(i) {
@@ -132,7 +158,7 @@ export function mountLogoMorph(host, cfg = LOGO_MORPH) {
   }
   function cycle(on) {
     clearInterval(timer);
-    if (on) { to(form + 1); timer = setInterval(() => to(form + 1), cfg.hoverEvery * 1000); }
+    if (on) { to(form + 1); timer = setInterval(() => to(form + 1), cfg.hoverEvery / pace() * 1000); }
   }
 
   draw(0); peaks.forEach(p => { p.s = 1; setS(p, 1); });

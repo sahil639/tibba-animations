@@ -13,6 +13,7 @@
      accent            tibba-peak.html's orange rather than the site's
    ═════════════════════════════════════════════════════════════════════════ */
 import { createRangeScene } from './range-scene.js';
+import { mountLogoMorph, LOGO_MORPH, MORPH_EASES } from './logo-morph.js';
 
 const $ = s => document.querySelector(s);
 const clamp01 = t => t < 0 ? 0 : t > 1 ? 1 : t;
@@ -139,7 +140,27 @@ function onScroll() {
   if (window.__apReadout) window.__apReadout(st, t);
 }
 
+/* ── the mark in the hero ────────────────────────────────────────────────
+   The full page's morphing mark, top left of the hero: it changes form every
+   HERO_LOGO.step viewports of the hero's scroll (fastStep with the high-speed
+   option on, which also runs each change at LOGO_MORPH.fastSpeed), and cycles
+   while hovered. The motion itself is LOGO_MORPH — eased, no bounce. */
+const HERO_LOGO = {
+  step: 0.5,          // viewports of scroll per change of form
+  fastStep: 0.18,     // … with the high-speed option on
+  size: 46,           // px, the mark's width
+};
+const heroLogo = document.getElementById('hero-logo');
+heroLogo.addEventListener('click', e => e.preventDefault());
+const mark = mountLogoMorph(heroLogo.querySelector('.mk'), LOGO_MORPH);
+heroLogo.style.setProperty('--hl-w', HERO_LOGO.size + 'px');
+function logoScroll() {
+  const step = (LOGO_MORPH.fast ? HERO_LOGO.fastStep : HERO_LOGO.step) * innerHeight;
+  mark.to(Math.floor(Math.max(0, -scope.getBoundingClientRect().top) / Math.max(1, step)));
+}
+
 addEventListener('scroll', onScroll, { passive: true });
+addEventListener('scroll', logoScroll, { passive: true });
 addEventListener('resize', onScroll);
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 onScroll();
@@ -237,6 +258,32 @@ onScroll();
     <p class="tune-sub">Summit</p>
     <div class="row"><label>Rings<i id="v-top">3</i></label>
       <input type="range" id="s-top" min="1" max="10" value="3"></div>
+
+    <p class="tune-sub">Logo animation</p>
+    <div class="row inline"><label>High speed<i></i></label><input type="checkbox" id="s-lgf"${LOGO_MORPH.fast ? ' checked' : ''}></div>
+    <div class="row"><label>Speed<i id="v-lgs">${LOGO_MORPH.speed.toFixed(2)}×</i></label>
+      <input type="range" id="s-lgs" min="20" max="400" value="${pc(LOGO_MORPH.speed)}"></div>
+    <div class="row"><label>High-speed pace<i id="v-lgfs">${LOGO_MORPH.fastSpeed.toFixed(2)}×</i></label>
+      <input type="range" id="s-lgfs" min="100" max="800" value="${pc(LOGO_MORPH.fastSpeed)}"></div>
+    <div class="row"><label>Scroll per form<i id="v-lgst">${HERO_LOGO.step.toFixed(2)} vh</i></label>
+      <input type="range" id="s-lgst" min="5" max="200" value="${pc(HERO_LOGO.step)}"></div>
+    <div class="row"><label>… at high speed<i id="v-lgfst">${HERO_LOGO.fastStep.toFixed(2)} vh</i></label>
+      <input type="range" id="s-lgfst" min="3" max="100" value="${pc(HERO_LOGO.fastStep)}"></div>
+    <div class="row"><label>Sink<i id="v-lgc">${LOGO_MORPH.collapse.toFixed(2)}s</i></label>
+      <input type="range" id="s-lgc" min="4" max="200" value="${pc(LOGO_MORPH.collapse)}"></div>
+    <div class="row"><label>Sink easing<i></i></label><select id="s-lgce">${Object.keys(MORPH_EASES).map(k => `<option${k === LOGO_MORPH.collapseEase ? ' selected' : ''}>${k}</option>`).join('')}</select></div>
+    <div class="row"><label>Rise<i id="v-lgr">${LOGO_MORPH.rise.toFixed(2)}s</i></label>
+      <input type="range" id="s-lgr" min="4" max="300" value="${pc(LOGO_MORPH.rise)}"></div>
+    <div class="row"><label>Rise easing<i></i></label><select id="s-lgre">${Object.keys(MORPH_EASES).map(k => `<option${k === LOGO_MORPH.riseEase ? ' selected' : ''}>${k}</option>`).join('')}</select></div>
+    <div class="row"><label>Overlap<i id="v-lgo">${LOGO_MORPH.overlap.toFixed(2)}</i></label>
+      <input type="range" id="s-lgo" min="0" max="90" value="${pc(LOGO_MORPH.overlap)}"></div>
+    <div class="row"><label>Secondary peak lag<i id="v-lgl">${LOGO_MORPH.follow.toFixed(2)}s</i></label>
+      <input type="range" id="s-lgl" min="0" max="40" value="${pc(LOGO_MORPH.follow)}"></div>
+    <div class="row"><label>Hover interval<i id="v-lgh">${LOGO_MORPH.hoverEvery.toFixed(2)}s</i></label>
+      <input type="range" id="s-lgh" min="20" max="300" value="${pc(LOGO_MORPH.hoverEvery)}"></div>
+    <div class="row"><label>Size<i id="v-lgz">${HERO_LOGO.size}px</i></label>
+      <input type="range" id="s-lgz" min="20" max="140" value="${HERO_LOGO.size}"></div>
+    <div class="row inline"><label>Next form<i></i></label><button id="s-lgn" class="tune-btn">Play</button></div>
 
     <p class="tune-sub">Terrain</p>
     <div class="row inline"><label>Seed<i id="v-seed">${scene.info().seed}</i></label>
@@ -348,6 +395,22 @@ onScroll();
     scene.setLineColour(e.target.value);
   });
   bind('s-lm', 'v-lm', n => n / 100, two, x => scene.setLineColour(null, x));
+
+  /* ── the logo animation ──────────────────────────────────────────── */
+  q('s-lgf').addEventListener('change', e => { LOGO_MORPH.fast = e.target.checked; logoScroll(); });
+  bind('s-lgs',  'v-lgs',  n => n / 100, x => x.toFixed(2) + '×', x => { LOGO_MORPH.speed = x; });
+  bind('s-lgfs', 'v-lgfs', n => n / 100, x => x.toFixed(2) + '×', x => { LOGO_MORPH.fastSpeed = x; });
+  bind('s-lgst', 'v-lgst', n => n / 100, x => x.toFixed(2) + ' vh', x => { HERO_LOGO.step = x; });
+  bind('s-lgfst','v-lgfst',n => n / 100, x => x.toFixed(2) + ' vh', x => { HERO_LOGO.fastStep = x; });
+  bind('s-lgc',  'v-lgc',  n => n / 100, x => x.toFixed(2) + 's', x => { LOGO_MORPH.collapse = x; });
+  bind('s-lgr',  'v-lgr',  n => n / 100, x => x.toFixed(2) + 's', x => { LOGO_MORPH.rise = x; });
+  bind('s-lgo',  'v-lgo',  n => n / 100, two, x => { LOGO_MORPH.overlap = x; });
+  bind('s-lgl',  'v-lgl',  n => n / 100, x => x.toFixed(2) + 's', x => { LOGO_MORPH.follow = x; });
+  bind('s-lgh',  'v-lgh',  n => n / 100, x => x.toFixed(2) + 's', x => { LOGO_MORPH.hoverEvery = x; });
+  bind('s-lgz',  'v-lgz',  n => n, x => x + 'px', x => { HERO_LOGO.size = x; heroLogo.style.setProperty('--hl-w', x + 'px'); });
+  q('s-lgce').addEventListener('change', e => { LOGO_MORPH.collapseEase = e.target.value; });
+  q('s-lgre').addEventListener('change', e => { LOGO_MORPH.riseEase = e.target.value; });
+  q('s-lgn').addEventListener('click', () => mark.next());
 
   q('s-reseed').addEventListener('click', () => {
     const u = new URL(location.href);

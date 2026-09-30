@@ -48,6 +48,12 @@ body {
 }
 #peak-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 
+/* the mark, top left of the hero; its size is HERO_LOGO.size (--hl-w) */
+#hero-logo { position: absolute; z-index: 4; left: var(--gut); top: clamp(72px, 10vh, 104px);
+  display: flex; align-items: center; gap: 12px; color: #fff; text-decoration: none; }
+#hero-logo .mk { display: block; width: var(--hl-w, 46px); height: calc(var(--hl-w, 46px) * 27 / 48); cursor: pointer; }
+#hero-logo .nm { font-size: calc(var(--hl-w, 46px) * .36); letter-spacing: -.01em; }
+
 /* ── the space the copy will go in ───────────────────────────────────────
    Not content — a marker for where content goes. The third scroll state moves
    the peak left and leaves this half of the frame for it, and without
@@ -109,6 +115,9 @@ body {
 <div id="scope">
   <div id="stage">
     <canvas id="peak-canvas"></canvas>
+
+    <!-- the mark, changing form as the hero scrolls (assets/logo-morph.js) -->
+    <a id="hero-logo" href="#" aria-label="Tibba"><span class="mk"></span><span class="nm">Tibba</span></a>
 
     <div id="reserve" aria-hidden="true">
       <div class="slot">
