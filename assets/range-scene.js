@@ -374,6 +374,48 @@ const PEAK_ACCENT = PEAKS.map(() => srgbVec(0x7B8FF5));
 const peakLit    = PEAKS.map(() => 0);   // 0..1 highlight, clients only
 const peakLitT   = PEAKS.map(() => 0);
 
+/* ── fill: the country between the client summits (range mode, opt-in) ──
+   opts.fill (true, or { count, seed, height, ridges }) adds lower landforms
+   to the range — a ridge along each gap between neighbouring summits, so
+   the four read as one connected range, and knolls scattered round and
+   between them so the ground carries contour work edge to edge, as the
+   Active Peak hero's does. They are summed into the heightfield only: they
+   are not PEAKS, so every per-peak uniform keeps its size, and each is
+   held to `height` × the lowest client summit, so the four stay the
+   tallest things on the sheet. */
+const FILL = [];
+if (MODE_RANGE && opts.fill) {
+  const F = { count: 16, seed: 7, height: 0.55, ridges: true, ...(typeof opts.fill === 'object' ? opts.fill : {}) };
+  let a = (F.seed * 2654435761) >>> 0;
+  const rnd = () => { a ^= a << 13; a >>>= 0; a ^= a >>> 17; a ^= a << 5; a >>>= 0; return a / 4294967296; };
+  const between = (lo, hi) => lo + (hi - lo) * rnd();
+  const tops = [1, 2, 3, 4].map(i => PEAKS[i]);
+  const cap = Math.min(...tops.map(p => p.h)) * F.height;
+  const land = (x, z, h, spread, aniso, rot, extra = {}) => ({
+    x, z, h, spread, seed: between(0, 300), rot, aniso, warp: between(6, 14),
+    spur: between(0.18, 0.36), spurF: between(1.9, 3.1), flute: between(0.05, 0.12), fluteF: between(8, 13),
+    parts: [{ dx: 0, dz: 0, h, spread, sharp: between(1.5, 2.3), aniso }], ...extra });
+  if (F.ridges) for (let i = 0; i < tops.length - 1; i++) {
+    const A = tops[i], B = tops[i + 1], dx = B.x - A.x, dz = B.z - A.z, L = Math.hypot(dx, dz);
+    FILL.push(land((A.x + B.x) / 2, (A.z + B.z) / 2 + between(-6, 6), cap * between(0.7, 0.95), L * 0.34, 2.4, -Math.atan2(dz, dx)));
+  }
+  let tries = 0;
+  while (FILL.length < F.count + (F.ridges ? 3 : 0) && tries++ < 400) {
+    const x = between(-178, 178), z = between(-188, -18);
+    if (tops.some(p => Math.hypot(p.x - x, p.z - z) < p.spread * 1.15)) continue;
+    if (FILL.some(p => Math.hypot(p.x - x, p.z - z) < 26)) continue;
+    const spread = between(11, 26);
+    FILL.push(land(x, z, cap * between(0.3, 1), spread, between(1, 1.8), between(-Math.PI, Math.PI)));
+  }
+  FILL.forEach(p => {
+    p._cos = Math.cos(p.rot); p._sin = Math.sin(p.rot);
+    p._ax = p.spread * p.aniso; p._az = p.spread / p.aniso;
+    let reach = 0;
+    p.parts.forEach(t => { t._c = p._cos; t._s = p._sin; t._ax = t.spread * t.aniso; t._az = t.spread / t.aniso; t._lim = 2.0;
+      reach = Math.max(reach, Math.max(t._ax, t._az) * t._lim); });
+    p._cut = reach + p.warp; p._cut2 = p._cut * p._cut;
+  });
+}
 function coneAt(p, x, z){
   const qx = x - p.x, qz = z - p.z;
   if (qx*qx + qz*qz > p._cut2) return 0;
@@ -432,7 +474,7 @@ function coneAt(p, x, z){
    summits are where it bunches up. Raising it puts folds, spurs and small
    basins across the ground between the tops, which is most of what reads as
    country rather than as objects on a table. */
-const GROUND_RELIEF = opts.backdrop === 'behind' ? 16.0 : 6.0;
+const GROUND_RELIEF = opts.backdrop === 'behind' ? 16.0 : (FILL.length ? 9.0 : 6.0);
 
 /* How high the plain sits before any landform is added to it.
 
@@ -469,6 +511,7 @@ let studioOff = false;
 function mh(x,z){
   let v = GROUND_BASE + (fbm(x*.058+1.7,z*.058+2.3)-.45)*GROUND_RELIEF;
   for(let i=0;i<PEAKS.length;i++) { if (i === 0 && studioOff) continue; v += coneAt(PEAKS[i], x, z); }
+  for(let i=0;i<FILL.length;i++) v += coneAt(FILL[i], x, z);
   v = Math.max(0, v);
 
   /* Press the low ground down. Applied after the cones are summed rather than

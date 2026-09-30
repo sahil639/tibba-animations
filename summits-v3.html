@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our summits — Summits v3</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<link rel="stylesheet" href="assets/summits-range.css">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Our summits — Summits v3
+   ─────────────────────────────────────────────────────────────────────────
+   Summits v2 without the cards: the same country, camera, trails and
+   rail, with the section's copy kept bottom-left and naming the summit in
+   focus. The move between summits is one continuous chase, so every
+   transition is smooth. Click a summit to open its case study.
+   Behaviour and every default: SUMMITS2_CONFIG in assets/summits-v2.js.
+   ═════════════════════════════════════════════════════════════════════════ */
+#scope { height: 520vh; }
+
+/* the summit markers and the walkers (as Four Summits) */
+.fs-layer { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.fs-layer > span { position: absolute; left: 0; top: 0; will-change: transform; }
+.fs-peak i { position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; background: var(--accent);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.6); transform: scale(.55); opacity: .6; transition: transform .45s cubic-bezier(.65,0,.35,1), opacity .45s linear; }
+.fs-peak.arrived i { transform: scale(1); opacity: 1; }
+.fs-peak em { position: absolute; left: 12px; top: -20px; font: 400 9.5px/1 'F37 Analog', system-ui, sans-serif; font-style: normal;
+  letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.45); white-space: nowrap; transition: color .4s linear; }
+.fs-peak.on em { color: #fff; }
+.fs-peak.on i::after { content: ''; position: absolute; inset: -1px; border: 1px solid var(--accent); animation: fs-ping 2.2s cubic-bezier(.16,.62,.36,1) infinite; }
+@keyframes fs-ping { 0% { opacity: .9; transform: scale(1); } 100% { opacity: 0; transform: scale(3.4); } }
+.fs-head::before { content: ''; position: absolute; left: -3.5px; top: -3.5px; width: 7px; height: 7px; border-radius: 50%;
+  background: #fff; box-shadow: 0 0 0 2px var(--c), 0 0 14px 3px var(--c); }
+
+/* the rail, as on Three Summits */
+#rail { position: absolute; right: 26px; top: 50%; transform: translateY(-50%); z-index: 6; display: grid; gap: 14px; opacity: 1; pointer-events: auto; }
+#rail button { appearance: none; -webkit-appearance: none; display: flex; align-items: center; justify-content: flex-end; gap: 9px;
+  background: none; border: 0; padding: 2px 0; cursor: pointer; color: #fff; font: 11px/1 'F37 Analog', system-ui, sans-serif;
+  letter-spacing: .12em; opacity: .36; transition: opacity .25s; }
+#rail button .tick { display: block; width: 16px; height: 1px; background: currentColor; order: 2; transition: width .35s cubic-bezier(.22,.9,.3,1), background .35s; }
+#rail button .nm { font-size: 9.5px; text-transform: uppercase; letter-spacing: .16em; opacity: 0; transition: opacity .25s; }
+#rail button:hover .nm, #rail button[aria-current="true"] .nm { opacity: 1; }
+#rail button[aria-current="true"] { opacity: 1; }
+#rail button[aria-current="true"] .tick { width: 34px; background: var(--accent); }
+#rail button:hover { opacity: .8; }
+@media (prefers-reduced-motion: reduce) { .fs-peak.on i::after { animation: none; } }
+
+/* LAYOUT:START */
+/* no cards: the section's copy bottom-left, naming the summit in focus */
+#stage::after { opacity: 1; background: linear-gradient(0deg, rgba(0,0,0,.8) 0%, rgba(0,0,0,.35) 22%, rgba(0,0,0,0) 40%),
+  linear-gradient(90deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,0) 34%); }
+.tx { position: absolute; z-index: 3; left: var(--gut); bottom: clamp(28px, 6vh, 64px); max-width: 520px; pointer-events: none; }
+.tx .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.tx h1 { margin-top: 14px; color: #fff; font-weight: 400; font-size: clamp(28px, 3.2vw, 52px); line-height: 1.02; letter-spacing: -.03em; }
+.tx .now { margin-top: 22px; display: flex; align-items: baseline; gap: 16px; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+.tx .now b { color: #fff; font-weight: 400; }
+.tx .nmw { display: block; overflow: hidden; }
+.tx .nmw #tx-name { display: block; font-size: 13px; letter-spacing: .14em; }
+.tx .nmw.swap #tx-name { animation: tx-rise .8s cubic-bezier(.22,.9,.3,1) both; }
+@keyframes tx-rise { from { transform: translateY(110%); } to { transform: none; } }
+.tx .hint { margin-top: 10px; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-faint); }
+/* LAYOUT:END */
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body data-layout="summits">
+<div id="scope">
+  <div id="stage">
+    <canvas id="peak-canvas"></canvas>
+    <!-- MARKUP:START -->
+    <div class="tx">
+      <p class="eyebrow">[ &nbsp;Our summits&nbsp; ]</p>
+      <h1>Four climbs, and what they were for</h1>
+      <p class="now"><span id="tx-count"><b>01</b>&thinsp;/&thinsp;04</span><span class="nmw"><span id="tx-name"></span></span></p>
+      <p class="hint">Click a summit to open its case</p>
+    </div>
+    <!-- MARKUP:END -->
+    <nav id="rail" aria-label="Summits"></nav>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js"}}</script>
+<script type="module">
+  import { mountSummitsV2, SUMMITS2_CONFIG as C } from './assets/summits-v2.js';
+  const s = mountSummitsV2({ layout: 'text' });
+  window.tibba = s;
+
+  /* ── the panel: writes into SUMMITS2_CONFIG ─────────────────────────── */
+  const el = document.createElement('div');
+  el.id = 'tune';
+  const R = (id, label, min, max, step, val, unit = '') => `<div class="row"><label>${label}<i id="v-${id}">${val}${unit}</i></label><input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}" data-unit="${unit}"></div>`;
+  el.innerHTML = `
+    <div id="tune-head"><b>Summits</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <p class="tune-sub">Camera</p>
+    ${R('cd', 'Distance', 60, 220, 1, C.camera.dist)}
+    ${R('ce', 'Angle', 8, 60, 1, C.camera.elev, '°')}
+    ${R('cl', 'Lift between summits', 0, 50, 1, C.camera.lift, '°')}
+    ${R('cld', 'Lift distance', 0, 160, 1, C.camera.liftDist)}
+    ${R('ch', 'Follow speed', .5, 10, .1, C.focus.chase)}
+    <p class="tune-sub">Trails</p>
+    ${R('pt', 'Turns round the mountain', 0, 2.5, .05, C.path.turns)}
+    ${R('pw', 'Wander', 0, .6, .01, C.path.wander)}
+    ${R('pd', 'Draw duration', .5, 8, .1, C.path.duration, 's')}
+    ${R('pf', 'Trailhead fade', 0, .6, .01, C.path.fadeIn)}
+    ${R('sw', 'Shadow width', 0, 20, .5, C.path.shadow.width, 'px')}
+    ${R('so', 'Shadow opacity', 0, 1, .02, C.path.shadow.opacity)}
+    <div class="row inline"><label>Trails<i></i></label><button class="tune-btn" id="s-rp">Replay</button></div>
+    <div class="row inline"><label>Config<i></i></label><button class="tune-btn" id="s-cp">Copy config</button></div>`;
+  document.body.appendChild(el);
+  const q = id => el.querySelector('#' + id);
+  const bind = (id, fn) => q('s-' + id).addEventListener('input', e => { const v = +e.target.value; q('v-' + id).textContent = v + e.target.dataset.unit; fn(v); });
+  bind('cd', v => { C.camera.dist = v; }); bind('ce', v => { C.camera.elev = v; }); bind('cl', v => { C.camera.lift = v; });
+  bind('cld', v => { C.camera.liftDist = v; }); bind('ch', v => { C.focus.chase = v; });
+  bind('pt', v => { C.path.turns = v; s.rebuild(); }); bind('pw', v => { C.path.wander = v; s.rebuild(); });
+  bind('pd', v => { C.path.duration = v; }); bind('pf', v => { C.path.fadeIn = v; });
+  bind('sw', v => { C.path.shadow.width = v; }); bind('so', v => { C.path.shadow.opacity = v; });
+  q('s-rp').addEventListener('click', () => s.replay());
+  q('s-cp').addEventListener('click', async () => {
+    const txt = 'export const SUMMITS2_CONFIG = ' + JSON.stringify(C, null, 2) + ';';
+    try { await navigator.clipboard.writeText(txt); } catch { console.log(txt); }
+  });
+  q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+  if (window.wb && window.wb.adopt) window.wb.adopt();
+</script>
+</body>
+</html>
