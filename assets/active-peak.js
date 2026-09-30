@@ -224,9 +224,17 @@ onScroll();
     <div class="row"><label>Drift<i id="v-df">${dots.flow.toFixed(2)}</i></label>
       <input type="range" id="s-df" min="0" max="200" value="${pc(dots.flow)}"></div>
 
-    <p class="tune-sub">Summit</p>
-    <div class="row"><label>Accent<i id="v-acc">${ACCENT}</i></label>
+    <p class="tune-sub">Colour</p>
+    <div class="row"><label>Background<i id="v-bg">#000000</i></label>
+      <input type="color" id="s-bg" value="#000000"></div>
+    <div class="row"><label>Ridge lines<i id="v-ln">${scene.lineColour().hex.toUpperCase()}</i></label>
+      <input type="color" id="s-ln" value="${scene.lineColour().hex}"></div>
+    <div class="row"><label>Line colour strength<i id="v-lm">${scene.lineColour().mix.toFixed(2)}</i></label>
+      <input type="range" id="s-lm" min="0" max="100" value="${pc(scene.lineColour().mix)}"></div>
+    <div class="row"><label>Summit rings<i id="v-acc">${ACCENT}</i></label>
       <input type="color" id="s-acc" value="${ACCENT.toLowerCase()}"></div>
+
+    <p class="tune-sub">Summit</p>
     <div class="row"><label>Rings<i id="v-top">3</i></label>
       <input type="range" id="s-top" min="1" max="10" value="3"></div>
 
@@ -322,6 +330,24 @@ onScroll();
     document.documentElement.style.setProperty('--accent', e.target.value);
     scene.setAccent(e.target.value);
   });
+
+  /* ── colour ──────────────────────────────────────────────────────────
+     Background moves the page, the ground plane and the peak's body tone
+     together (range-scene setBackground). Ridge lines is the contour ink;
+     its strength is how far the lines leave the height ramp for it — 0
+     keeps the ramp's shading alone, 1 is the flat colour. Summit rings is
+     the accent the top rings (and the page's orange) are drawn in. */
+  q('s-bg').addEventListener('input', e => {
+    const c = e.target.value;
+    q('v-bg').textContent = c.toUpperCase();
+    document.body.style.background = c;
+    scene.setBackground(c);
+  });
+  q('s-ln').addEventListener('input', e => {
+    q('v-ln').textContent = e.target.value.toUpperCase();
+    scene.setLineColour(e.target.value);
+  });
+  bind('s-lm', 'v-lm', n => n / 100, two, x => scene.setLineColour(null, x));
 
   q('s-reseed').addEventListener('click', () => {
     const u = new URL(location.href);

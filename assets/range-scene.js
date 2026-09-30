@@ -783,6 +783,7 @@ const mountainMat = new THREE.ShaderMaterial({
        fills, everything on screen is mesh and everything on screen competes;
        the massif has to lead, or the plan view reads as an even field of
        rubble with no subject in it. 1 is no distinction at all. */
+    uPaper:  { value: new THREE.Vector3(0.022, 0.022, 0.026) },   // the contoured body's tone, a shade over the page
     uCountryLit: { value: 1 },
   },
   transparent: true,
@@ -832,7 +833,7 @@ const mountainMat = new THREE.ShaderMaterial({
     precision highp float;
     varying float vH, vCut, vMorph, vFog, vMax, vOn, vHome;
     varying vec3 vN;
-    uniform float uAlpha, uBand, uMode, uEdgeAmt, uCountryLit;
+    uniform float uAlpha, uBand, uMode, uEdgeAmt, uCountryLit; uniform vec3 uPaper;
     ${CT_PALETTE_GLSL}
     void main(){
       /* The ramp is curved, not linear. Read straight off height, an apron a
@@ -872,7 +873,7 @@ const mountainMat = new THREE.ShaderMaterial({
          read the page through. A trace of the shading is added back rather than
          mixed in — mixing keeps a fixed share, which on a summit that was nearly
          white leaves a grey cap sitting on an otherwise black mountain. */
-      vec3 paper = vec3(0.022,0.022,0.026);
+      vec3 paper = uPaper;
       col = mix(col, paper + col * 0.055, 1.0 - solid);
 
       float live = uEdgeAmt * vOn;
@@ -1664,6 +1665,7 @@ const contourMat = new THREE.ShaderMaterial({
     uFogNear:  { value: 200 },
     uFogFar:   { value: 520 },
     uInk:      { value: new THREE.Color(0x9FB0E8) },
+    uInkMix:   { value: 0.52 },     // how far the lines are pulled from the height ramp to uInk
     uEdge:     { value: new THREE.Color(0xC9D4FF) },
   },
   vertexShader: `
@@ -1780,7 +1782,7 @@ const contourMat = new THREE.ShaderMaterial({
     uniform float uAnyLit, uDim;
     uniform float uHoverY, uHoverAmt, uHoverBand, uHoverR, uPulse;
     uniform vec2  uHoverXZ;
-    uniform vec3 uInk, uEdge, uHoverCol;
+    uniform vec3 uInk, uEdge, uHoverCol; uniform float uInkMix;
     uniform float uFillOn, uFillY, uFillBand, uFillGhost, uFillGlow;
     ${CT_PALETTE_GLSL}
     void main(){
@@ -1804,7 +1806,7 @@ const contourMat = new THREE.ShaderMaterial({
          reads as discrete peaks rather than one field of noise */
       float aer = 1.0 - smoothstep(uFadeA, uFadeB, vR);
 
-      vec3 col = mix(palette(t) * 1.70, uInk, 0.52);
+      vec3 col = mix(palette(t) * 1.70, uInk, uInkMix);
       col = mix(col, uEdge, edge * 0.85);
       col += uEdge * edge * 0.35;
 
@@ -2960,6 +2962,28 @@ return {
       u.uFadeB.value = next.fade + 0.26;
     }
     if (next.depthOp != null) u.uDepthOp.value = next.depthOp;
+  },
+
+  /* ── colour ───────────────────────────────────────────────────────────
+     The background is three things that have to agree: the ground plane
+     (the far edge of the terrain fades onto it), the contoured body's own
+     tone (a shade over the page, so a peak stays a silhouette), and the
+     page behind the canvas, which the caller owns. */
+  setBackground(hex) {
+    const c = new THREE.Color(hex);
+    ground.material.color.copy(c);
+    mountainMat.uniforms.uPaper.value.set(c.r + 0.022, c.g + 0.022, c.b + 0.026);
+  },
+  /** The contour lines' colour, and how strongly it overrides the height
+      ramp (0 = the ramp alone, 1 = flat colour; the hero ships 0.52). */
+  setLineColour(hex, mix) {
+    const u = contourMat.uniforms;
+    if (hex != null) u.uInk.value.set(hex);
+    if (mix != null) u.uInkMix.value = mix;
+  },
+  lineColour() {
+    const u = contourMat.uniforms;
+    return { hex: '#' + u.uInk.value.getHexString(), mix: u.uInkMix.value };
   },
 
   ink() {
