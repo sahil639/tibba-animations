@@ -21,7 +21,8 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; background: #000; }
 body { color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased;
-  display: grid; grid-template-columns: minmax(340px, 400px) 1fr; overflow: hidden; }
+  display: grid; grid-template-columns: minmax(300px, 360px) minmax(0, 1fr) var(--panel-w, 300px); overflow: hidden; transition: grid-template-columns .45s cubic-bezier(.22,1,.36,1); }
+body.panel-off { --panel-w: 0px; }
 button, select { font: inherit; color: inherit; }
 
 /* ── the hub ──────────────────────────────────────────────────────────── */
@@ -64,9 +65,58 @@ button, select { font: inherit; color: inherit; }
 .hub-foot a.primary { background: #FF4B1F; border-color: #FF4B1F; color: #000; }
 .hub-foot button:hover, .hub-foot a:hover { border-color: #FF4B1F; position: relative; }
 
-/* ── the assembled page ───────────────────────────────────────────────── */
-.preview { position: relative; min-width: 0; }
-.preview iframe { display: block; width: 100%; height: 100%; border: 0; background: #000; }
+/* ── the assembled page, in a device ──────────────────────────────────── */
+.preview { position: relative; min-width: 0; background:
+  linear-gradient(rgba(233,236,242,.035) 1px, transparent 1px) 0 0 / 24px 24px,
+  linear-gradient(90deg, rgba(233,236,242,.035) 1px, transparent 1px) 0 0 / 24px 24px, #050506; }
+.stage { position: absolute; inset: 0; display: grid; place-items: center; overflow: auto; }
+.device { position: relative; flex: none; transform-origin: 50% 50%; background: #000;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.14), 0 30px 80px rgba(0,0,0,.6); transition: width .45s cubic-bezier(.22,1,.36,1), height .45s cubic-bezier(.22,1,.36,1); }
+.device .screen { position: absolute; inset: 0; overflow: hidden; }
+.device iframe { display: block; border: 0; background: #000; transform-origin: 0 0; }
+.device .chrome { display: none; }
+/* desktop: a browser bar */
+.device.desktop { border-radius: 10px; }
+.device.desktop .chrome { position: absolute; left: 0; right: 0; top: 0; height: 34px; display: flex; align-items: center; gap: 7px; padding: 0 14px;
+  background: #121214; border-bottom: 1px solid rgba(255,255,255,.08); border-radius: 10px 10px 0 0; }
+.device.desktop .chrome i { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.16); }
+.device.desktop .chrome span { margin-left: 14px; flex: 1; max-width: 340px; padding: 5px 10px; border-radius: 6px; background: #1c1c1f; font-size: 11px; color: var(--ink-faint); }
+.device.desktop .screen { top: 34px; border-radius: 0 0 10px 10px; }
+/* tablet and phone: a bezel */
+.device.tablet, .device.mobile { padding: 14px; border-radius: 34px; background: #111113; }
+.device.mobile { padding: 11px; border-radius: 48px; }
+.device.tablet .screen, .device.mobile .screen { inset: 14px; border-radius: 22px; }
+.device.mobile .screen { inset: 11px; border-radius: 38px; }
+.device.mobile::after { content: ''; position: absolute; z-index: 2; left: 50%; top: 22px; width: 92px; height: 26px; margin-left: -46px; border-radius: 14px; background: #000; }
+
+/* ── the control panel, right ─────────────────────────────────────────── */
+.mw-panel { position: relative; min-width: 0; overflow: hidden; background: #0a0a0b; border-left: 1px solid rgba(255,255,255,.12); }
+body.panel-off .mw-panel { border-left-color: transparent; }
+.panel-in { width: 300px; height: 100%; overflow-y: auto; padding: 20px 18px; }
+.p-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,.1); }
+.p-head b { display: flex; align-items: center; gap: 10px; color: #fff; font-weight: 400; font-size: 15px; }
+.p-head b::before { content: ''; width: 7px; height: 7px; background: #FF4B1F; }
+.p-head button, .dev-row button { padding: 7px 10px; border: 1px solid rgba(255,255,255,.16); background: none; cursor: pointer; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; }
+.p-head button:hover, .dev-row button:hover { border-color: #FF4B1F; }
+.p-sub { margin-top: 22px; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+.dev-kind { margin-top: 10px; display: grid; grid-template-columns: repeat(3, 1fr); }
+.dev-kind button { margin-left: -1px; padding: 10px 6px; border: 1px solid rgba(255,255,255,.16); background: none; cursor: pointer; font-size: 12px; color: var(--ink-mute); }
+.dev-kind button.on { color: #000; background: #FF4B1F; border-color: #FF4B1F; position: relative; }
+#dev-model { margin-top: 10px; width: 100%; padding: 8px; background: #111; border: 1px solid rgba(255,255,255,.16); font-size: 12px; cursor: pointer; }
+.dev-row { margin-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 11px; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+.chk { margin-top: 12px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-mute); cursor: pointer; }
+.chk input { accent-color: #FF4B1F; }
+.p-acts { margin-top: 10px; display: grid; gap: 0; }
+.p-acts a, .p-acts button { margin-top: -1px; padding: 12px 10px; border: 1px solid rgba(255,255,255,.16); background: none; cursor: pointer; text-align: center; text-decoration: none;
+  font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #fff; }
+.p-acts a.primary { background: #FF4B1F; border-color: #FF4B1F; color: #000; }
+.p-acts button:hover { border-color: #FF4B1F; position: relative; }
+.p-note { margin-top: 18px; font-size: 12px; line-height: 1.6; color: var(--ink-faint); }
+/* the tab that brings the panel back */
+.mw-tab { position: absolute; z-index: 3; right: 0; top: 50%; transform: translate(100%, -50%); padding: 14px 8px; border: 1px solid rgba(255,255,255,.16); border-right: 0;
+  background: #0a0a0b; cursor: pointer; writing-mode: vertical-rl; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: #fff; opacity: 0; pointer-events: none; transition: transform .45s cubic-bezier(.22,1,.36,1), opacity .3s linear; }
+.mw-tab::before { content: ''; display: block; width: 6px; height: 6px; margin: 0 auto 10px; background: #FF4B1F; }
+body.panel-off .mw-tab { transform: translate(0, -50%); opacity: 1; pointer-events: auto; }
 .preview .tag { position: absolute; right: 14px; bottom: 14px; z-index: 2; padding: 7px 10px; background: rgba(0,0,0,.7); border: 1px solid rgba(255,255,255,.14);
   font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-faint); pointer-events: none; }
 .preview .tag b { color: #fff; font-weight: 400; }
@@ -74,6 +124,7 @@ button, select { font: inherit; color: inherit; }
 @media (max-width: 900px) {
   body { grid-template-columns: 1fr; grid-template-rows: 55vh 45vh; }
   .hub { order: 2; border-right: 0; border-top: 1px solid rgba(255,255,255,.12); }
+  .mw-panel { position: fixed; right: 0; top: 0; bottom: 0; z-index: 10; width: var(--panel-w); }
 }
 </style>
 </head>
@@ -86,16 +137,34 @@ button, select { font: inherit; color: inherit; }
     <p class="count" id="count"></p>
   </div>
   <ol class="list" id="list"></ol>
-  <div class="hub-foot">
-    <button type="button" id="reset">Reset</button>
-    <button type="button" id="reload">Reload preview</button>
-    <a class="primary" href="final-website-v2.html" target="_blank" rel="noopener">Open home</a>
-  </div>
 </aside>
 <section class="preview" aria-label="The assembled home page">
-  <iframe id="preview" title="Final Website v2, as arranged" src="final-website-v2.html"></iframe>
+  <div class="stage" id="stage">
+    <div class="device" id="device">
+      <div class="chrome"><i></i><i></i><i></i><span id="dev-url">tibba.design</span></div>
+      <div class="screen"><iframe id="preview" title="Final Website v2, as arranged" src="final-website-v2.html"></iframe></div>
+    </div>
+  </div>
   <p class="tag" id="tag"></p>
+  <button class="mw-tab" id="panel-tab" type="button" aria-controls="panel" aria-expanded="true"><span>Controls</span></button>
 </section>
+<aside class="mw-panel" id="panel" aria-label="Preview controls">
+  <div class="panel-in">
+    <div class="p-head"><b>Controls</b><button type="button" id="panel-hide" aria-label="Hide the controls">Hide</button></div>
+    <p class="p-sub">Device</p>
+    <div class="dev-kind" id="dev-kind"><button data-k="desktop">Desktop</button><button data-k="tablet">Tablet</button><button data-k="mobile">Mobile</button></div>
+    <select id="dev-model" aria-label="Device model"></select>
+    <div class="dev-row"><button type="button" id="dev-rot">Rotate</button><span id="dev-size"></span></div>
+    <label class="chk"><input type="checkbox" id="dev-fit" checked> Fit to the window</label>
+    <p class="p-sub">Home page</p>
+    <div class="p-acts">
+      <button type="button" id="reload">Reload preview</button>
+      <button type="button" id="reset">Reset order</button>
+      <a class="primary" href="final-website-v2.html" target="_blank" rel="noopener">Open home</a>
+    </div>
+    <p class="p-note">The list on the left is the home page, top to bottom. Changes save in this browser and rebuild the preview straight away.</p>
+  </div>
+</aside>
 
 <script type="module">
   import { HOME_SECTIONS, LAYOUT_KEY, loadLayout, resolveLayout, sectionsFor } from './assets/site-sections.js';
@@ -137,7 +206,7 @@ button, select { font: inherit; color: inherit; }
       </li>`;
     }).join('');
     document.getElementById('count').innerHTML = `<b>${n}</b> of ${layout.length} sections on the home page`;
-    document.getElementById('tag').innerHTML = `Live · <b>${n}</b> sections`;
+    if (typeof fit === 'function' && dev) fit();
   }
   const move = (from, to) => { if (to < 0 || to >= layout.length || from === to) return; const [e] = layout.splice(from, 1); layout.splice(to, 0, e); push(); };
 
@@ -163,6 +232,52 @@ button, select { font: inherit; color: inherit; }
     const li = e.target.closest('.item'); if (!li || dragFrom < 0) return;
     e.preventDefault(); move(dragFrom, +li.dataset.i);
   });
+
+  /* ── devices: current CSS viewport sizes ──────────────────────────── */
+  const DEVICES = {
+    desktop: [['MacBook Pro 14"', 1512, 982], ['MacBook Air 13"', 1470, 956], ['Desktop 1080p', 1920, 1080], ['Laptop 1440', 1440, 900]],
+    tablet: [['iPad Pro 13" (M4)', 1032, 1376], ['iPad Air 11"', 820, 1180], ['iPad mini', 744, 1133], ['Galaxy Tab S10', 800, 1280]],
+    mobile: [['iPhone 17 Pro', 402, 874], ['iPhone 17 Pro Max', 440, 956], ['iPhone Air', 420, 912], ['Galaxy S25', 360, 780], ['Pixel 9', 412, 923]],
+  };
+  const PREF = 'tibba.modular.view';
+  let view = { kind: 'desktop', model: 0, rot: false, fit: true, panel: true };
+  try { Object.assign(view, JSON.parse(localStorage.getItem(PREF) || '{}')); } catch {}
+  const dev = document.getElementById('device'), stage = document.getElementById('stage'), model = document.getElementById('dev-model');
+  function applyView() {
+    try { localStorage.setItem(PREF, JSON.stringify(view)); } catch {}
+    const list = DEVICES[view.kind]; view.model = Math.min(view.model, list.length - 1);
+    model.innerHTML = list.map(([n, w, h], i) => `<option value="${i}"${i === view.model ? ' selected' : ''}>${n} · ${w}×${h}</option>`).join('');
+    document.querySelectorAll('#dev-kind button').forEach(b => b.classList.toggle('on', b.dataset.k === view.kind));
+    let [, w, h] = list[view.model];
+    if (view.rot) [w, h] = [h, w];
+    const chrome = view.kind === 'desktop' ? 34 : 0, bez = view.kind === 'tablet' ? 14 : view.kind === 'mobile' ? 11 : 0;
+    dev.className = 'device ' + view.kind;
+    dev.style.width = (w + bez * 2) + 'px'; dev.style.height = (h + chrome + bez * 2) + 'px';
+    frame.style.width = w + 'px'; frame.style.height = h + 'px';
+    document.getElementById('dev-size').textContent = `${w} × ${h}`;
+    document.getElementById('dev-fit').checked = view.fit;
+    document.body.classList.toggle('panel-off', !view.panel);
+    document.getElementById('panel-tab').setAttribute('aria-expanded', String(view.panel));
+    fit();
+  }
+  /* scale the whole device to sit inside the stage, never above 1:1 */
+  function fit() {
+    const W = stage.clientWidth - 48, H = stage.clientHeight - 48;
+    const k = view.fit ? Math.min(1, W / dev.offsetWidth, H / dev.offsetHeight) : 1;
+    dev.style.transform = `scale(${k.toFixed(4)})`;
+    dev.style.margin = view.fit ? `${-(dev.offsetHeight * (1 - k)) / 2}px ${-(dev.offsetWidth * (1 - k)) / 2}px` : '24px';
+    document.getElementById('tag').innerHTML = `Live · <b>${layout.filter(e => e.on).length}</b> sections · ${Math.round(k * 100)}%`;
+  }
+  new ResizeObserver(fit).observe(stage);
+  dev.addEventListener('transitionend', fit);
+  document.getElementById('dev-kind').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; view.kind = b.dataset.k; view.model = 0; view.rot = false; applyView(); });
+  model.addEventListener('change', () => { view.model = +model.value; applyView(); });
+  document.getElementById('dev-rot').addEventListener('click', () => { view.rot = !view.rot; applyView(); });
+  document.getElementById('dev-fit').addEventListener('change', e => { view.fit = e.target.checked; applyView(); });
+  const togglePanel = on => { view.panel = on; applyView(); setTimeout(fit, 480); };
+  document.getElementById('panel-hide').addEventListener('click', () => togglePanel(false));
+  document.getElementById('panel-tab').addEventListener('click', () => togglePanel(!view.panel));
+  applyView();
 
   document.getElementById('reset').addEventListener('click', () => { layout = resolveLayout(null); push(); });
   document.getElementById('reload').addEventListener('click', () => { save(); frame.src = 'final-website-v2.html?t=' + Date.now(); });

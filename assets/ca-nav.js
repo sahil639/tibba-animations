@@ -97,7 +97,7 @@ function marquee(text) {
      mark          HTML for the mark in place of the hatched fan */
 export function mountCaHeader(host, opts = {}) {
   const nav = opts.nav || NAV;
-  const items = nav.map(item => `<li>
+  const items = nav.map(item => `<li${item.minor ? ' class="ca-minor"' : ''}>
     <a class="ca-link" href="${esc(item.href)}"${item.target ? ` data-target="${esc(item.target)}"` : ''}>${odometer(item.label)}${
       item.accent ? '<span aria-hidden="true" class="ca-dot"></span>' : ''
     }</a>

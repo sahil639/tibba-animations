@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Footer Design — campfire versions</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Footer Design — three campfire footers
+   ─────────────────────────────────────────────────────────────────────────
+     A  Campfire, dithered    the fire as a one-bit dot / ASCII drawing in
+                              the site's ink and orange (assets/campfire-
+                              dither.js), the footer on the right
+     B  Contour ridge fire    the About page's contour campfire with its
+                              sticks thrown together by hand, a free
+                              viewing angle, and no smoke at all
+     C  Analytical campfire   the fire as a monochrome pixel scan on a fine
+                              grid, with a scan line and annotation boxes,
+                              leader lines and labels in the brand's orange —
+                              the reference's "analysed" campfire, ours
+
+   One footer layout for all three: the fire on the left, the footer on the
+   right with the same hierarchy each time. ?v=a, ?v=b or ?v=c shows one
+   version on its own (the site's footer slot uses these). Every value:
+   FOOTER_DESIGN in the script, on the panel, bakeable.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+
+.fd-intro { padding: clamp(96px, 14vh, 150px) var(--gut) clamp(32px, 5vh, 56px); display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 24px; }
+.fd-intro .k { display: flex; align-items: center; gap: 10px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.fd-intro .k::before { content: ''; width: 7px; height: 7px; background: var(--accent); }
+.fd-intro h1 { margin-top: 14px; color: #fff; font-weight: 300; font-size: clamp(32px, 4vw, 64px); line-height: 1; letter-spacing: -.035em; }
+.fd-jump { display: flex; }
+.fd-jump a { margin-left: -1px; padding: 11px 14px; border: 1px solid rgba(255,255,255,.16); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-mute); text-decoration: none; }
+.fd-jump a:hover { color: #fff; border-color: var(--accent); position: relative; }
+body.single .fd-intro { display: none; }
+
+/* ── one footer ─────────────────────────────────────────────────────── */
+.fd { position: relative; height: 100vh; height: 100svh; min-height: 640px; display: grid; grid-template-columns: 1.15fr 1fr; overflow: hidden;
+  border-top: 1px solid rgba(255,255,255,.08); }
+.fd .art { position: relative; min-width: 0; overflow: hidden; }
+.fd .art canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.fd .tag { position: absolute; z-index: 3; left: var(--gut); top: clamp(84px, 11vh, 110px); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+.fd .tag b { color: var(--accent); font-weight: 400; }
+body.single .fd .tag { display: none; }
+
+.fd .copy { position: relative; z-index: 2; display: flex; flex-direction: column; padding: clamp(84px, 12vh, 130px) var(--gut) clamp(28px, 4vh, 44px) clamp(24px, 3vw, 56px); }
+.fd .copy .eyebrow { display: flex; align-items: center; gap: 10px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.fd .copy .eyebrow::before { content: ''; width: 7px; height: 7px; background: var(--accent); }
+.fd .copy h2 { margin-top: 18px; max-width: 13ch; color: #fff; font-weight: 300; font-size: clamp(34px, 3.8vw, 66px); line-height: 1; letter-spacing: -.04em; }
+.fd .copy .lede { margin-top: 18px; max-width: 40ch; color: var(--ink-mute); font-size: 14px; line-height: 1.65; }
+.fd .acts { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 0; }
+.fd .acts a { margin-left: -1px; padding: 14px 18px; border: 1px solid rgba(255,255,255,.2); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: #fff; text-decoration: none; transition: border-color .2s linear, background .2s linear; }
+.fd .acts a.primary { background: var(--accent); border-color: var(--accent); color: #000; }
+.fd .acts a:hover { border-color: var(--accent); position: relative; }
+.fd .cols { margin-top: auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid rgba(255,255,255,.12); }
+.fd .cols div { padding: 18px 18px 0 0; }
+.fd .cols p { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+.fd .cols ul { margin-top: 12px; list-style: none; display: grid; gap: 8px; }
+.fd .cols a { color: var(--ink-warm); font-size: 14px; text-decoration: none; transition: color .2s linear; }
+.fd .cols a:hover { color: var(--accent); }
+.fd .base { margin-top: 26px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.12); display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
+.fd .base .word { color: #fff; font-weight: 300; font-size: clamp(22px, 2vw, 32px); line-height: .95; letter-spacing: -.03em; }
+.fd .base small { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); }
+
+/* B — the contour fire's own ground */
+#fd-b { background: #161617; }
+#fd-b .art::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(22,22,23,0) 70%, #161617 100%); }
+/* C — the analytical sheet: a fine grid, the scan, the marks */
+#fd-c .art { background:
+  linear-gradient(rgba(233,236,242,var(--grid, .05)) 1px, transparent 1px) 0 0 / 22px 22px,
+  linear-gradient(90deg, rgba(233,236,242,var(--grid, .05)) 1px, transparent 1px) 0 0 / 22px 22px, #050505; }
+#fd-c .overlay { pointer-events: none; z-index: 2; }
+
+@media (max-width: 900px) {
+  .fd { grid-template-columns: 1fr; grid-template-rows: 48% 52%; height: auto; min-height: 100svh; }
+  .fd .copy { padding: 24px 16px 24px; }
+  .fd .copy h2 { font-size: 34px; }
+  .fd .cols { grid-template-columns: 1fr 1fr; margin-top: 28px; }
+  .fd .cols div:last-child { display: none; }
+  #fd-b .art::after { background: linear-gradient(180deg, rgba(22,22,23,0) 75%, #161617 100%); }
+}
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<header class="fd-intro">
+  <div>
+    <p class="k">Footer design</p>
+    <h1>Three fires to end on</h1>
+  </div>
+  <nav class="fd-jump" aria-label="Versions"><a href="#fd-a">A · Dithered</a><a href="#fd-b">B · Contour ridge</a><a href="#fd-c">C · Analytical</a></nav>
+</header>
+
+<section class="fd" id="fd-a" data-v="a" aria-label="Footer, version A">
+  <div class="art"><canvas aria-hidden="true"></canvas><p class="tag"><b>A</b> · Campfire, dithered</p></div>
+  <div class="copy"></div>
+</section>
+<section class="fd" id="fd-b" data-v="b" aria-label="Footer, version B">
+  <div class="art"><canvas aria-hidden="true"></canvas><p class="tag"><b>B</b> · Contour ridge, sticks by hand</p></div>
+  <div class="copy"></div>
+</section>
+<section class="fd" id="fd-c" data-v="c" aria-label="Footer, version C">
+  <div class="art"><canvas aria-hidden="true"></canvas><canvas class="overlay" aria-hidden="true"></canvas><p class="tag"><b>C</b> · Analytical campfire</p></div>
+  <div class="copy"></div>
+</section>
+
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.165.0/examples/jsm/"}}</script>
+<script type="module">
+  import { mountDitherFire } from './assets/campfire-dither.js';
+  import { applyBaked, bakeControls } from './assets/bake.js';
+
+  /* ══ FOOTER_DESIGN ════════════════════════════════════════════════════ */
+  const FOOTER_DESIGN = {
+    a: { mode: 'dither', palette: 'warm', cell: 5, dot: 0.78, contrast: 1.15, flame: 1, embers: 1, speed: 1, light: 1, scale: 0.86 },
+    b: { stickMess: 0.75, stickSeed: 5, camElev: 18, camAzim: -14, camDist: 8.4, size: 1, embers: 1, weight: 1 },
+    c: { cell: 4, dot: 0.82, contrast: 1.25, flame: 1, embers: 0.7, speed: 0.9, scale: 0.84, wood: 0.62, overlay: true, scan: 1, grid: 0.05 },
+  };
+  const C = FOOTER_DESIGN;
+  const BAKE_KEY = 'tibba.bake.footer-design';
+  applyBaked(BAKE_KEY, C);
+
+  /* ?v=a|b|c: one version, on its own */
+  const only = (new URLSearchParams(location.search).get('v') || '').toLowerCase();
+  if (/^[abc]$/.test(only)) {
+    document.body.classList.add('single');
+    document.querySelectorAll('.fd').forEach(s => { if (s.dataset.v !== only) s.remove(); });
+  }
+  const has = v => !!document.getElementById('fd-' + v);
+
+  /* ── the footer, the same on every version ─────────────────────────── */
+  const COPY = {
+    a: ['Around the fire', 'Every climb ends around a fire.', "Tell us where you're headed. We'll bring the map, the rope and a decade of climbs."],
+    b: ['Base camp', "Let's plan the next ascent.", 'Founders and design leaders come to us for the hard part of the climb. Start with a hello.'],
+    c: ['Field report', 'Your summit, surveyed.', 'Every project starts with a reading of the ground. Send us yours and we will map the route up.'],
+  };
+  const year = new Date().getFullYear();
+  document.querySelectorAll('.fd').forEach(sec => {
+    const [eb, h, lede] = COPY[sec.dataset.v];
+    sec.querySelector('.copy').innerHTML = `
+      <p class="eyebrow">${eb}</p>
+      <h2>${h}</h2>
+      <p class="lede">${lede}</p>
+      <div class="acts"><a class="primary" href="mailto:hello@tibba.design">Start a project</a><a href="mailto:hello@tibba.design">hello@tibba.design</a></div>
+      <div class="cols">
+        <div><p>Studio</p><ul><li><a href="final-website-v2.html">Work</a></li><li><a href="services-compass-v4.html">Services</a></li><li><a href="about-landing.html">About us</a></li></ul></div>
+        <div><p>Elsewhere</p><ul><li><a href="https://medium.com/@tibbadesignstudio">Medium</a></li><li><a href="https://www.instagram.com/tibba.design/">Instagram</a></li><li><a href="https://www.linkedin.com/company/tibba-design-studio/">LinkedIn</a></li></ul></div>
+        <div><p>Base</p><ul><li><a href="#">India</a></li><li><a href="#">Remote, everywhere</a></li></ul></div>
+      </div>
+      <div class="base"><span class="word">Tibba<br>Design Studio</span><small>© Tibba Design Studio ${year}</small></div>`;
+  });
+
+  /* ── A: the dithered fire ──────────────────────────────────────────── */
+  let fa = null, fc = null, fb = null;
+  if (has('a')) fa = mountDitherFire(document.querySelector('#fd-a canvas'), { ...C.a, x: 0.52, y: 0.66 });
+
+  /* ── B: the contour ridge fire, sticks by hand, no smoke ───────────── */
+  if (has('b')) {
+    const mod = await import('./assets/campfire-contour.js');
+    Object.assign(mod.K, C.b, { smokeOn: false, wisps: false });
+    const sec = document.getElementById('fd-b');
+    fb = mod.mountContourFire(sec.querySelector('.art'), sec.querySelector('.art canvas'));
+    fb.rebuildLogs();
+  }
+
+  /* ── C: the analysed fire ──────────────────────────────────────────── */
+  if (has('c')) {
+    const sec = document.getElementById('fd-c'), art = sec.querySelector('.art');
+    fc = mountDitherFire(art.querySelector('canvas'), { ...C.c, mode: 'dither', palette: 'mono', x: 0.5, y: 0.66 });
+    const ov = art.querySelector('.overlay'), g = ov.getContext('2d');
+    const ACC = '#FF4B1F';
+    const pad3 = n => String(n).padStart(3, '0');
+    let t0 = performance.now(), vis = false;
+    new IntersectionObserver(([e]) => { vis = e.isIntersecting; if (vis) requestAnimationFrame(draw); }).observe(art);
+    function draw(now) {
+      if (vis) requestAnimationFrame(draw);
+      const r = art.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1);
+      if (ov.width !== Math.round(r.width * dpr)) { ov.width = Math.round(r.width * dpr); ov.height = Math.round(r.height * dpr); }
+      art.style.setProperty('--grid', C.c.grid);
+      g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, r.width, r.height);
+      if (!C.c.overlay) return;
+      const f = fc.features(), t = (now - t0) / 1000, s = f.s;
+      g.lineWidth = 1; g.strokeStyle = ACC; g.fillStyle = ACC;
+      g.font = "400 10px 'F37 Analog', system-ui, sans-serif";
+      /* the scan line, sweeping down the sheet */
+      const sy = ((t * 0.09 * C.c.scan) % 1) * r.height;
+      const sg = g.createLinearGradient(0, sy - 40, 0, sy);
+      sg.addColorStop(0, 'rgba(255,75,31,0)'); sg.addColorStop(1, 'rgba(255,75,31,.12)');
+      g.fillStyle = sg; g.fillRect(0, sy - 40, r.width, 40);
+      g.globalAlpha = .7; g.beginPath(); g.moveTo(0, sy + .5); g.lineTo(r.width, sy + .5); g.stroke(); g.globalAlpha = 1;
+      g.fillStyle = ACC;
+      /* the marks: boxes on the parts of the fire, each with its code,
+         leader lines running off to the corner the readings go to */
+      const origin = { x: r.width + 40, y: -40 };
+      const wob = (k) => Math.sin(t * 1.3 + k) * 1.5;
+      const marks = [
+        { x: f.tip.x + wob(1), y: f.tip.y, w: 26, h: 26, code: 'FL33', lead: true },
+        { x: f.core.x + wob(2), y: f.core.y, w: 30, h: 30, code: 'FL03', lead: true },
+        { x: f.logs[1].x - s * 0.12, y: f.logs[1].y, w: 26, h: 26, code: 'WD003', lead: true },
+        { x: f.base.x - s * 1.3, y: f.base.y - s * 1.55, w: 22, h: 22, code: '0X33³', lead: true },
+        { x: f.base.x + s * 0.95, y: f.base.y - s * 1.0, w: 26, h: 26, code: 'PX333', lead: true },
+      ];
+      g.globalAlpha = .5;
+      marks.forEach(m => { if (m.lead) { g.beginPath(); g.moveTo(m.x + m.w / 2, m.y - m.h / 2); g.lineTo(origin.x, origin.y); g.stroke(); } });
+      g.globalAlpha = 1;
+      marks.forEach(m => {
+        g.strokeRect(Math.round(m.x - m.w / 2) + .5, Math.round(m.y - m.h / 2) + .5, m.w, m.h);
+        g.fillText(m.code, m.x - m.w / 2, m.y + m.h / 2 + 13);
+      });
+      /* the big frame round the near log's cut end */
+      const L0 = f.logs[0], bw = s * 0.62, bh = s * 0.72;
+      g.strokeRect(Math.round(L0.x - bw * 0.55) + .5, Math.round(L0.y - bh * 0.5) + .5, bw, bh);
+      g.fillText('PW33', L0.x - bw * 0.55 + 8, L0.y - bh * 0.5 + 16);
+      /* the reading, top left of the sheet */
+      const heat = f.heat();
+      g.fillStyle = 'rgba(233,236,242,.55)';
+      const lines = [`SCAN ${pad3(Math.floor(t * 0.09 * C.c.scan) % 1000)} · THERMAL`, `CORE ${Math.round(780 + heat * 420)}°C`, `FLAME ${Math.round(heat * 100)}%`, `T+ ${t.toFixed(1)}s`];
+      lines.forEach((l, k) => g.fillText(l, Math.max(16, r.width * 0.06), Math.min(r.height * 0.3, 150) + k * 16));
+    }
+  }
+
+  /* ── the panel ─────────────────────────────────────────────────────── */
+  const el = document.createElement('div');
+  el.id = 'tune';
+  const R = (id, label, min, max, step, val, unit = '') => `<div class="row"><label>${label}<i id="v-${id}">${val}${unit}</i></label><input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}" data-unit="${unit}"></div>`;
+  el.innerHTML = `<div id="tune-head"><b>Footer design</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    ${has('a') ? `<p class="tune-sub">A · Dithered</p>
+      <div class="seg" id="a-mode"><button data-v="dither">Dither</button><button data-v="ascii">ASCII</button></div>
+      <div class="seg" id="a-pal"><button data-v="warm">Warm</button><button data-v="mono">Mono</button></div>
+      ${R('a-cell', 'Cell size', 3, 14, 1, C.a.cell, 'px')}${R('a-dot', 'Dot size', .3, 1, .01, C.a.dot)}
+      ${R('a-con', 'Contrast', .6, 2.2, .01, C.a.contrast)}${R('a-fl', 'Flame height', .5, 1.6, .01, C.a.flame)}
+      ${R('a-em', 'Embers', 0, 2, .05, C.a.embers)}${R('a-sp', 'Speed', 0, 2.5, .05, C.a.speed)}${R('a-sc', 'Fire size', .6, 1.5, .01, C.a.scale)}` : ''}
+    ${has('b') ? `<p class="tune-sub">B · Contour ridge</p>
+      ${R('b-mess', 'Sticks: tidy → by hand', 0, 1, .01, C.b.stickMess)}
+      <div class="row inline"><label>Sticks<i></i></label><button class="tune-btn" id="b-restick">New sticks</button></div>
+      ${R('b-el', 'Angle above ground', 2, 75, .5, C.b.camElev, '°')}${R('b-az', 'Angle round the fire', -180, 180, 1, C.b.camAzim, '°')}
+      ${R('b-di', 'Distance', 4.5, 14, .05, C.b.camDist)}${R('b-sz', 'Flame size', .4, 1.8, .01, C.b.size)}
+      ${R('b-em', 'Embers', 0, 2, .05, C.b.embers)}${R('b-wt', 'Line weight', .4, 2.5, .05, C.b.weight)}` : ''}
+    ${has('c') ? `<p class="tune-sub">C · Analytical</p>
+      <div class="row inline"><label>Annotations<i></i></label><input type="checkbox" id="c-ov" ${C.c.overlay ? 'checked' : ''}></div>
+      ${R('c-cell', 'Pixel size', 3, 10, 1, C.c.cell, 'px')}${R('c-con', 'Contrast', .6, 2.2, .01, C.c.contrast)}
+      ${R('c-fl', 'Flame height', .5, 1.6, .01, C.c.flame)}${R('c-scan', 'Scan speed', 0, 4, .05, C.c.scan)}
+      ${R('c-grid', 'Grid', 0, .2, .005, C.c.grid)}${R('c-wood', 'Wood brightness', .2, 1.2, .01, C.c.wood)}` : ''}
+    ${bakeControls.html}`;
+  document.body.appendChild(el);
+  const q = id => el.querySelector('#' + id);
+  const bind = (id, fn) => { const i = q('s-' + id); if (i) i.addEventListener('input', e => { const v = +e.target.value; q('v-' + id).textContent = v + e.target.dataset.unit; fn(v); }); };
+  const seg = (id, obj, key, fn) => { const g = q(id); if (!g) return;
+    [...g.children].forEach(b => b.classList.toggle('on', b.dataset.v === obj[key]));
+    g.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; [...g.children].forEach(c => c.classList.toggle('on', c === b)); obj[key] = b.dataset.v; fn && fn(); }); };
+  if (fa) {
+    const set = (k, v) => { C.a[k] = v; fa.K[k] = v; };
+    seg('a-mode', C.a, 'mode', () => { fa.K.mode = C.a.mode; fa.K.cell = C.a.cell = C.a.mode === 'ascii' ? Math.max(C.a.cell, 9) : C.a.cell; });
+    seg('a-pal', C.a, 'palette', () => { fa.K.palette = C.a.palette; });
+    bind('a-cell', v => set('cell', v)); bind('a-dot', v => set('dot', v)); bind('a-con', v => set('contrast', v));
+    bind('a-fl', v => set('flame', v)); bind('a-em', v => set('embers', v)); bind('a-sp', v => set('speed', v));
+    bind('a-sc', v => { set('scale', v); fa.relayout(); });
+  }
+  if (fb) {
+    const K = fb.K, set = (k, v) => { C.b[k] = v; K[k] = v; };
+    bind('b-mess', v => { set('stickMess', v); fb.rebuildLogs(); });
+    q('b-restick').addEventListener('click', () => { fb.restick(); C.b.stickSeed = K.stickSeed; });
+    bind('b-el', v => set('camElev', v)); bind('b-az', v => set('camAzim', v)); bind('b-di', v => set('camDist', v));
+    bind('b-sz', v => set('size', v)); bind('b-em', v => set('embers', v)); bind('b-wt', v => set('weight', v));
+  }
+  if (fc) {
+    const set = (k, v) => { C.c[k] = v; if (k in fc.K) fc.K[k] = v; };
+    q('c-ov').addEventListener('change', e => { C.c.overlay = e.target.checked; });
+    bind('c-cell', v => set('cell', v)); bind('c-con', v => set('contrast', v)); bind('c-fl', v => set('flame', v));
+    bind('c-scan', v => set('scan', v)); bind('c-grid', v => set('grid', v)); bind('c-wood', v => set('wood', v));
+  }
+  bakeControls.bind(el, BAKE_KEY, C, 'FOOTER_DESIGN');
+  q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+  if (window.wb && window.wb.adopt) window.wb.adopt();
+  window.tibba = { fa, fb, fc, CONFIG: C };
+</script>
+</body>
+</html>

@@ -51,7 +51,7 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
   /* ── the navbar ───────────────────────────────────────────────────── */
   const header = document.getElementById('ca-header');
   function navItems() {
-    const fromSections = sections.filter(s => s.nav).map(s => ({ label: s.nav, href: '#' + s.id, target: s.id }));
+    const fromSections = sections.filter(s => s.nav).map(s => ({ label: s.nav, href: '#' + s.id, target: s.id, minor: !!s.navMinor }));
     return [...fromSections, ...extraNav];
   }
   function drawNav() {

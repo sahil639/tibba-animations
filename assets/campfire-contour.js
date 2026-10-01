@@ -46,6 +46,11 @@ export const K = {
   cursorOn: true, push: 1, wind: 1, ease: 0.45,
   /* lines */
   weight: 1,
+  /* sticks: 0 = the tidy teepee, toward 1 = thrown together by hand */
+  stickMess: 0, stickSeed: 5,
+  /* the viewing angle: degrees above the ground, degrees round the fire,
+     distance — the defaults are the original camera exactly */
+  camElev: 12.45, camAzim: 0, camDist: 8.81,
 };
 
 const BG = new THREE.Color('#161617');
@@ -141,9 +146,13 @@ export function mountContourFire(section, canvas) {
     parent.add(m); return { geo, matrix };
   }
 
-  /* logs — fixed; the rocks are what varies */
+  /* logs — the teepee and the three lying across the pit. stickMess pulls
+     them out of their pattern: every stick's angle round the fire, its
+     reach, its lean, where it meets the others, its length and thickness
+     loosen together, and with enough of it a stick or two has fallen
+     outward and lies on the ground. */
   const logSolids = [];
-  const logGroup = new THREE.Group(); scene.add(logGroup);
+  let logGroup = new THREE.Group(); scene.add(logGroup);
   function log(len, rad, from, to) {
     const g = new THREE.CylinderGeometry(rad * 0.92, rad, len, 18, 1);
     const A = new THREE.Vector3(...from), B = new THREE.Vector3(...to);
@@ -151,15 +160,35 @@ export function mountContourFire(section, canvas) {
       new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), B.clone().sub(A).normalize()), new THREE.Vector3(1, 1, 1));
     logSolids.push(depthMesh(g, M, logGroup));
   }
-  log(2.1, 0.12, [-1.05, 0.13, -0.55], [1.05, 0.13, -0.5]);
-  log(1.7, 0.11, [-0.7, 0.12, 0.45], [0.8, 0.12, 0.3]);
-  log(1.1, 0.1, [0.15, 0.1, 0.55], [0.55, 0.1, -0.2]);
-  const TEEPEE = 6, apex = [0.02, 1.62, 0.02];
-  for (let i = 0; i < TEEPEE; i++) {
-    const a = (i / TEEPEE) * Math.PI * 2 + 0.3, r = 0.78 + (i % 2) * 0.12;
-    log(1.95, 0.085 + (i % 3) * 0.01, [Math.cos(a) * r, 0.02, Math.sin(a) * r],
-        [apex[0] + Math.cos(a) * 0.06, apex[1] - (i % 2) * 0.12, apex[2] + Math.sin(a) * 0.06]);
+  function buildLogs() {
+    logGroup.traverse(o => o.geometry && o.geometry.dispose()); scene.remove(logGroup);
+    logGroup = new THREE.Group(); scene.add(logGroup); logSolids.length = 0;
+    const m = clamp(K.stickMess, 0, 1), rnd = seeded(K.stickSeed), j = a => (rnd() - 0.5) * 2 * a * m;
+    /* the three lying across the pit */
+    [[2.1, 0.12, [-1.05, 0.13, -0.55], [1.05, 0.13, -0.5]], [1.7, 0.11, [-0.7, 0.12, 0.45], [0.8, 0.12, 0.3]], [1.1, 0.1, [0.15, 0.1, 0.55], [0.55, 0.1, -0.2]]]
+      .forEach(([len, rad, A, B]) => {
+        const rot = j(0.9), c = Math.cos(rot), sn = Math.sin(rot), sh = [j(0.35), j(0.35)];
+        const T = p => [p[0] * c - p[2] * sn + sh[0], p[1] + Math.abs(j(0.06)), p[0] * sn + p[2] * c + sh[1]];
+        log(len * (1 + j(0.25)), rad * (1 + j(0.3)), T(A), T(B));
+      });
+    /* the teepee */
+    const TEEPEE = 6 + Math.round(m * rnd() * 2), apex = [0.02 + j(0.25), 1.62 + j(0.25), 0.02 + j(0.25)];
+    for (let i = 0; i < TEEPEE; i++) {
+      const a = (i / TEEPEE) * Math.PI * 2 + 0.3 + j(Math.PI / TEEPEE * 1.4), r = (0.78 + (i % 2) * 0.12) * (1 + j(0.35));
+      const rad = (0.085 + (i % 3) * 0.01) * (1 + j(0.35));
+      const foot = [Math.cos(a) * r, 0.02, Math.sin(a) * r];
+      if (m > 0.35 && rnd() < (m - 0.35) * 0.45) {
+        /* fallen: lying outward from the pit */
+        const L2 = 1.2 + rnd() * 0.7, b = a + j(0.8);
+        log(L2, rad, [foot[0], rad, foot[2]], [foot[0] + Math.cos(b) * L2, rad, foot[2] + Math.sin(b) * L2]);
+        continue;
+      }
+      const top = [apex[0] + Math.cos(a) * (0.06 + Math.abs(j(0.22))), apex[1] - (i % 2) * 0.12 + j(0.3), apex[2] + Math.sin(a) * (0.06 + Math.abs(j(0.22)))];
+      const len = Math.hypot(top[0] - foot[0], top[1] - foot[1], top[2] - foot[2]) * (1.05 + Math.abs(j(0.25)));
+      log(len, rad, foot, top);
+    }
   }
+  buildLogs();
 
   /* ── rocks ────────────────────────────────────────────────────────────
      Built from one randomness dial, R in 0..1. At 0 they are a tidy ring of
@@ -573,8 +602,13 @@ export function mountContourFire(section, canvas) {
     /* the camera drifts a little with the eased pointer — never the raw one */
     const px = active ? clamp(ndc.x, -1, 1) : 0, py = active ? clamp(ndc.y, -1, 1) : 0;
     const kc = 1 - Math.exp(-dt / 1.2);
+    {
+      const el = K.camElev * Math.PI / 180, az = K.camAzim * Math.PI / 180;
+      camHome.set(Math.sin(az) * Math.cos(el) * K.camDist, look.y + Math.sin(el) * K.camDist, Math.cos(az) * Math.cos(el) * K.camDist);
+    }
     camera.position.x += (camHome.x + px * 0.22 - camera.position.x) * kc;
     camera.position.y += (camHome.y + py * 0.1 - camera.position.y) * kc;
+    camera.position.z += (camHome.z - camera.position.z) * kc;
     camera.lookAt(look);
     renderer.render(scene, camera);
   }
@@ -598,6 +632,9 @@ export function mountContourFire(section, canvas) {
   return {
     K,
     rebuildRocks: buildRocks,
+    /* new sticks (and the rings, which are sliced from them) */
+    rebuildLogs() { buildLogs(); buildRocks(); },
+    restick() { K.stickSeed = (K.stickSeed * 7 + 11) % 997; buildLogs(); buildRocks(); },
     reshuffle() { K.rockSeed = (K.rockSeed * 7 + 13) % 997; buildRocks(); },
     relight() { ignite = 0; },
     state() { return { ignite, visible, fireSegs: fire.g.instanceCount, wispSegs: wisps.g.instanceCount, fan: S.fan, wind: S.wind, lean: S.lean, on: S.on }; },

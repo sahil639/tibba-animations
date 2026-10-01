@@ -244,7 +244,7 @@
      change events a hand on the control would, so the page applies them
      exactly as if they had been set by hand. "Clear baked" drops them. */
   function attachBake(panel) {
-    if (panel.dataset.wbBake || panel.querySelector('#bk-bake')) return;
+    if (panel.dataset.wbBake || panel.querySelector('#bk-bake, #p-bake, [data-bake]')) return;
     panel.dataset.wbBake = '1';
     var KEY = 'tibba.wbbake.' + location.pathname;
     var box = document.createElement('div');

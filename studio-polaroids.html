@@ -68,14 +68,26 @@ body { background: #0c0c0d; color: var(--ink-warm); font-family: 'F37 Analog', s
 .pol .ph.person img { object-position: 50% 12%; filter: saturate(.92) contrast(1.02); }
 .pol .ph svg { width: 100%; height: 100%; display: block; }
 .pol .ph::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,.1), rgba(255,255,255,0) 40%); pointer-events: none; }
-.pol .note { height: 58px; display: flex; flex-direction: column; justify-content: center; padding: 0 4px; font-family: 'Caveat', 'Segoe Print', cursive; color: #232220; }
-.pol .note b { font-weight: 500; font-size: 22px; line-height: 1; }
-.pol .note span { font-size: 16px; line-height: 1.05; color: #55524c; }
+.pol .note { height: 52px; display: flex; align-items: center; padding: 0 4px; font-family: 'Caveat', 'Segoe Print', cursive; color: #232220; }
+.pol .note b { font-weight: 500; font-size: 22px; line-height: 1; outline: none; }
+.pol .note b[contenteditable="true"] { background: rgba(255,75,31,.12); }
 
 .reset { position: absolute; right: var(--gut); bottom: 22px; z-index: 50; padding: 9px 12px; border: 1px solid rgba(255,255,255,.16); background: rgba(0,0,0,.4);
   color: var(--ink-warm); font: 10.5px/1 'F37 Analog', system-ui, sans-serif; letter-spacing: .16em; text-transform: uppercase; cursor: pointer; }
 .reset:hover { border-color: rgba(255,255,255,.4); }
-@media (max-width: 760px) { .pol .note { height: 44px; } .pol .note b { font-size: 17px; } .pol .note span { font-size: 13px; } }
+@media (max-width: 760px) { .pol .note { height: 44px; } .pol .note b { font-size: 19px; } }
+/* ── mobile: one messy stack, swiped through ─────────────────────────── */
+body.stacked .title { top: clamp(64px, 11vh, 110px); transform: translateX(-50%); width: calc(100% - 32px); }
+body.stacked .title h1 { font-size: 40px; }
+body.stacked .title p { font-size: 13px; }
+body.stacked .pol { cursor: grab; transition: none; }
+body.stacked .pol.sel .card { outline: none; }
+body.stacked .pol .card { transition: box-shadow .3s ease; }
+body.stacked .reset { display: none; }
+.dots { display: none; }
+body.stacked .dots { position: absolute; z-index: 60; left: 50%; bottom: 22px; transform: translateX(-50%); display: flex; gap: 6px; }
+body.stacked .dots i { width: 5px; height: 5px; background: rgba(255,255,255,.25); transition: background .3s linear, transform .3s ease; }
+body.stacked .dots i.on { background: var(--accent); transform: scale(1.4); }
 @media (prefers-reduced-motion: reduce) { .pol .card { transform: none !important; } }
 </style>
 <link rel="stylesheet" href="assets/tune.css">
@@ -86,8 +98,9 @@ body { background: #0c0c0d; color: var(--ink-warm); font-family: 'F37 Analog', s
     <p class="eyebrow">[ &nbsp;Our studio&nbsp; ]</p>
     <h1>Team Tibba</h1>
     <p>A lean design team based out of India, and the places we go to think.</p>
-    <p class="hint">Drag the photos around</p>
+    <p class="hint" id="hint">Drag the photos around</p>
   </div>
+  <div class="dots" id="dots" aria-hidden="true"></div>
   <button class="reset" id="reset" type="button">Replay entrance</button>
 </main>
 
@@ -102,6 +115,10 @@ const POLAROID_CONFIG = {
   /* the entrance: a damped spring per print. stiffness pulls it home,
      damping bleeds the bounce (critical ≈ 2·√stiffness — lower is springier) */
   spring: { stiffness: 120, damping: 14, stagger: 0.07, travel: 120, spin: 18 },
+  /* one title per print, in order — edit on the panel, or double-click a caption */
+  titles: ['Rahul', 'Neel', 'Riya', 'Sahil', "Team Tibba '25", 'Remote friendly', 'Base camp', 'First light', 'The long ridge'],
+  /* mobile: the stack, and the swipe that cycles it */
+  stack: { spring: 170, damping: 22, threshold: 0.26, spread: 1, tilt: 1 },
   /* x, y: the print's top-left as a fraction of the table; r: degrees */
   cards: [
     { x: 0.07, y: 0.08, r: -5 },
@@ -121,19 +138,18 @@ const BAKE_KEY = 'tibba.polaroids.layout';
   const C = POLAROID_CONFIG;
   const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
   /* a baked layout, if this browser has one, wins over the defaults */
-  try { const b = JSON.parse(localStorage.getItem(BAKE_KEY) || 'null'); if (b && b.cards && b.cards.length === C.cards.length) Object.assign(C, b); } catch {}
+  try { const b = JSON.parse(localStorage.getItem(BAKE_KEY) || 'null'); if (b && b.cards && b.cards.length === C.cards.length) { Object.assign(C, b); } } catch {}
+  if (!C.stack) C.stack = { spring: 170, damping: 22, threshold: 0.26, spread: 1, tilt: 1 };
 
   const PICS = [
-    { name: 'Rahul', note: 'founder, designer', person: 'assets/people/rahul.png' },
-    { name: 'Neel', note: 'designer', person: 'assets/people/neel.png' },
-    { name: 'Riya', note: 'designer', person: 'assets/people/riya.png' },
-    { name: 'Sahil', note: 'designer', person: 'assets/people/sahil.png' },
-    { name: "Team Tibba '25", note: 'offsite, somewhere high', img: 'assets/studio/01-dawn.jpg' },
-    { name: 'Remote friendly', note: 'the view from this week’s desk', img: 'assets/studio/05-lake.jpg' },
-    { name: 'Base camp', note: 'where the sprints get planned', img: 'assets/studio/06-night.jpg' },
-    { name: 'First light', note: 'worth the 4am alarm', img: 'assets/studio/07-summit.jpg' },
-    { name: 'The long ridge', note: 'walk & talk reviews', img: 'assets/studio/03-ridge.jpg' },
+    { person: 'assets/people/rahul.png' }, { person: 'assets/people/neel.png' },
+    { person: 'assets/people/riya.png' }, { person: 'assets/people/sahil.png' },
+    { img: 'assets/studio/01-dawn.jpg' }, { img: 'assets/studio/05-lake.jpg' },
+    { img: 'assets/studio/06-night.jpg' }, { img: 'assets/studio/07-summit.jpg' },
+    { img: 'assets/studio/03-ridge.jpg' },
   ];
+  const title = i => (C.titles && C.titles[i]) || '';
+  const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const table = document.getElementById('table');
   let z = 10, selected = 0;
 
@@ -142,8 +158,8 @@ const BAKE_KEY = 'tibba.polaroids.layout';
     el.className = 'pol';
     el.dataset.i = i;
     el.innerHTML = `<div class="card">
-      <div class="ph${p.person ? ' person' : ''}"><img src="${p.person || p.img}" alt="${p.name}"></div>
-      <figcaption class="note"><b>${p.name}</b><span>${p.note}</span></figcaption></div>`;
+      <div class="ph${p.person ? ' person' : ''}"><img src="${p.person || p.img}" alt="${esc(title(i))}"></div>
+      <figcaption class="note"><b>${esc(title(i))}</b></figcaption></div>`;
     table.appendChild(el);
     return el;
   });
@@ -151,6 +167,7 @@ const BAKE_KEY = 'tibba.polaroids.layout';
   /* ── size, shadow, and where each print rests ──────────────────────── */
   const width = () => {
     const W = table.clientWidth;
+    if (document.body.classList.contains('stacked')) return Math.round(Math.min(W * 0.62, 300) * C.scale);
     return Math.round(C.baseWidth * C.scale * (W < 760 ? 0.66 : Math.min(1.15, Math.max(0.7, W / 1440))));
   };
   function applyLook() {
@@ -177,6 +194,7 @@ const BAKE_KEY = 'tibba.polaroids.layout';
   let springs = null, raf = 0;
   function enter() {
     applyLook();
+    if (stacked) { stackEnter(); return; }
     cancelAnimationFrame(raf);
     if (REDUCED) { settle(); return; }
     const W = table.clientWidth, w = width(), S = C.spring;
@@ -213,13 +231,117 @@ const BAKE_KEY = 'tibba.polaroids.layout';
   els.forEach(el => { el.style.visibility = 'hidden'; });
   const io = new IntersectionObserver(([e]) => {
     if (!e.isIntersecting) return;
-    io.disconnect();
+    io.disconnect(); entered = true;
     els.forEach(el => { el.style.visibility = ''; });
     enter();
   }, { threshold: 0.3 });
   io.observe(table);
   document.getElementById('reset').addEventListener('click', enter);
-  addEventListener('resize', () => { applyLook(); if (!springs) settle(); });
+  addEventListener('resize', () => { applyLook(); setMode(); if (!springs && !stacked) settle(); });
+
+  /* ══ mobile: the stack ════════════════════════════════════════════════
+     Under 760px the table becomes one pile of prints, dealt a little out of
+     true. The top one follows the finger — sliding, turning with the drag,
+     the one beneath rising to meet it — and a swipe past the threshold (or
+     a quick flick) throws it to that side, from where it tucks back in at
+     the bottom of the pile on the same side. Every print rides its own
+     spring toward its place in the pile, so a cycle is one continuous,
+     slightly bouncy move rather than a jump. */
+  let stacked = false, entered = false, order = PICS.map((_, i) => i), sraf = 0;
+  const S = PICS.map(() => ({ x: 0, y: 0, r: 0, s: 1, vx: 0, vy: 0, vr: 0, vs: 0, hold: null, fly: 0, side: 0 }));
+  const jit = (i, k) => { const v = Math.sin(i * 127.1 + k * 311.7) * 43758.5453; return (v - Math.floor(v)) * 2 - 1; };
+  const dotsEl = document.getElementById('dots');
+  dotsEl.innerHTML = PICS.map(() => '<i></i>').join('');
+  function slot(i, d) {
+    const W = table.clientWidth, H = table.clientHeight, el = els[i], w = el.offsetWidth || width(), h = el.offsetHeight || w * 1.25;
+    const cx = W / 2, cy = Math.min(H * 0.62, H - h / 2 - 48);
+    const sp = C.stack.spread, tl = C.stack.tilt, D = Math.min(d, 6);
+    const st = S[i];
+    /* a print just sent back keeps a lean toward the side it went */
+    const lean = st.side * Math.max(0, 1 - D / 6) * 0;
+    return {
+      x: cx - w / 2 + (d ? jit(i, 1) * 16 * sp : jit(i, 1) * 3) + lean,
+      y: cy - h / 2 + D * 7 * sp + (d ? jit(i, 2) * 6 * sp : 0),
+      r: (d ? jit(i, 3) * 9 : jit(i, 3) * 2.5) * tl,
+      s: 1 - D * 0.028,
+    };
+  }
+  function stackStep(now) {
+    sraf = 0;
+    const dt = Math.min(1 / 30, (now - (stackStep.last || now)) / 1000); stackStep.last = now;
+    let moving = false;
+    order.forEach((i, d) => {
+      const st = S[i], el = els[i];
+      let T = slot(i, d);
+      if (st.hold) T = st.hold;                       // under the finger
+      else if (st.fly) T = { x: T.x + st.side * table.clientWidth * 0.62, y: T.y - 24, r: st.side * 22, s: 1 };
+      const K = st.hold ? 900 : C.stack.spring, Dm = st.hold ? 60 : C.stack.damping;
+      for (let k = 0; k < 3; k++) {
+        const h = dt / 3;
+        st.vx += (K * (T.x - st.x) - Dm * st.vx) * h; st.x += st.vx * h;
+        st.vy += (K * (T.y - st.y) - Dm * st.vy) * h; st.y += st.vy * h;
+        st.vr += (K * (T.r - st.r) - Dm * st.vr) * h; st.r += st.vr * h;
+        st.vs += (K * (T.s - st.s) - Dm * st.vs) * h; st.s += st.vs * h;
+      }
+      /* out at the side: now tuck it under, from that side */
+      if (st.fly && Math.abs(st.x - T.x) < table.clientWidth * 0.18) {
+        st.fly = 0; order = order.filter(k => k !== i).concat(i);
+      }
+      el.style.zIndex = st.fly ? 200 : 100 - order.indexOf(i);
+      el.style.setProperty('--x', st.x.toFixed(1) + 'px'); el.style.setProperty('--y', st.y.toFixed(1) + 'px');
+      el.style.setProperty('--r', st.r.toFixed(2) + 'deg');
+      el.style.transform = `translate3d(${st.x.toFixed(1)}px, ${st.y.toFixed(1)}px, 0) rotate(${st.r.toFixed(2)}deg) scale(${st.s.toFixed(4)})`;
+      el.style.visibility = d < 7 || st.fly ? '' : 'hidden';
+      if (Math.abs(T.x - st.x) + Math.abs(T.y - st.y) + Math.abs(st.vx) + Math.abs(st.vy) + Math.abs(T.r - st.r) > 0.05 || st.hold || st.fly) moving = true;
+    });
+    [...dotsEl.children].forEach((dt2, k) => dt2.classList.toggle('on', k === order[0]));
+    if (moving && stacked) sraf = requestAnimationFrame(stackStep);
+  }
+  const stackKick = () => { if (!sraf && stacked) { stackStep.last = performance.now(); sraf = requestAnimationFrame(stackStep); } };
+  function stackEnter() {
+    const H = table.clientHeight;
+    order.forEach((i, d) => { const st = S[i], T = slot(i, d); Object.assign(st, { x: T.x + jit(i, 5) * 40, y: H + 80 + d * 40, r: jit(i, 6) * 30, s: 1, vx: 0, vy: 0, vr: 0, vs: 0, fly: 0, hold: null }); });
+    els.forEach(el => { el.style.visibility = ''; });
+    stackKick();
+  }
+  /* the swipe, on whichever print is on top */
+  let sw = null;
+  table.addEventListener('pointerdown', e => {
+    if (!stacked) return;
+    const el = e.target.closest('.pol'); if (!el || +el.dataset.i !== order[0]) return;
+    const i = order[0], st = S[i], base = slot(i, 0);
+    sw = { i, id: e.pointerId, x0: e.clientX, y0: e.clientY, base, t: performance.now(), lx: e.clientX, vx: 0 };
+    el.setPointerCapture(e.pointerId); el.classList.add('drag');
+    st.hold = { ...base };
+    stackKick();
+  });
+  table.addEventListener('pointermove', e => {
+    if (!sw || e.pointerId !== sw.id) return;
+    const dx = e.clientX - sw.x0, dy = e.clientY - sw.y0, now = performance.now();
+    sw.vx = sw.vx * 0.6 + ((e.clientX - sw.lx) / Math.max(1, now - sw.t)) * 0.4; sw.lx = e.clientX; sw.t = now;
+    S[sw.i].hold = { x: sw.base.x + dx, y: sw.base.y + dy * 0.35, r: sw.base.r + dx * 0.07, s: 1.02 };
+    stackKick();
+  });
+  const release = e => {
+    if (!sw || e.pointerId !== sw.id) return;
+    const st = S[sw.i], dx = e.clientX - sw.x0, w = els[sw.i].offsetWidth;
+    els[sw.i].classList.remove('drag');
+    st.hold = null;
+    if (Math.abs(dx) > w * C.stack.threshold || Math.abs(sw.vx) > 0.55) { st.side = Math.sign(dx || sw.vx); st.fly = 1; }
+    sw = null; stackKick();
+  };
+  table.addEventListener('pointerup', release);
+  table.addEventListener('pointercancel', release);
+  /* desktop table ⇄ mobile stack */
+  function setMode() {
+    const want = matchMedia('(max-width: 760px)').matches;
+    if (want === stacked) return;
+    stacked = want; document.body.classList.toggle('stacked', stacked); applyLook();
+    document.getElementById('hint').textContent = stacked ? 'Swipe the photos' : 'Drag the photos around';
+    if (stacked) { cancelAnimationFrame(raf); springs = null; order.forEach((i, d) => { const T = slot(i, d); Object.assign(S[i], T); }); if (entered) stackKick(); }
+    else { els.forEach(el => { el.style.transform = ''; el.style.zIndex = ''; el.style.visibility = ''; }); settle(); }
+  }
+  setMode();
 
   /* hover tilt + lift, and dragging — a drop writes back into the layout */
   els.forEach((el, i) => {
@@ -232,7 +354,7 @@ const BAKE_KEY = 'tibba.polaroids.layout';
     };
     const kick = () => { if (!raf) raf = requestAnimationFrame(tick); };
     el.addEventListener('pointermove', e => {
-      if (REDUCED) return;
+      if (REDUCED || stacked) return;
       const r = card.getBoundingClientRect();
       const u = (e.clientX - r.left) / r.width - .5, v = (e.clientY - r.top) / r.height - .5;
       tyT = u * 16; txT = -v * 14; liftT = drag ? 1.2 : 1; kick();
@@ -241,7 +363,7 @@ const BAKE_KEY = 'tibba.polaroids.layout';
 
     let drag = false, ox = 0, oy = 0;
     el.addEventListener('pointerdown', e => {
-      if (springs) return;                         // not mid-entrance
+      if (stacked || springs) return;              // the stack has its own swipe; not mid-entrance
       drag = true; el.setPointerCapture(e.pointerId); el.classList.add('drag');
       el.style.zIndex = ++z; select(i);
       ox = e.clientX - el._x; oy = e.clientY - el._y; liftT = 1.2; kick();
@@ -279,11 +401,18 @@ const BAKE_KEY = 'tibba.polaroids.layout';
     ${R('sg', 'Stagger', 0, .3, .01, C.spring.stagger, 's')}
     <div class="row inline"><label>Entrance<i></i></label><button class="tune-btn" id="p-replay">Replay</button></div>
     <p class="tune-sub">One print — click or drag it to pick</p>
-    <div class="row"><label>Print<i></i></label><select id="s-pk">${PICS.map((p, i) => `<option value="${i}">${String(i + 1).padStart(2, '0')} ${p.name}</option>`).join('')}</select></div>
+    <div class="row"><label>Print<i></i></label><select id="s-pk">${PICS.map((p, i) => `<option value="${i}">${String(i + 1).padStart(2, '0')} ${esc(title(i))}</option>`).join('')}</select></div>
+    <div class="row"><label>Title<i></i></label><input type="text" id="s-tt" maxlength="40" style="width:100%;padding:6px 8px;background:#111;border:1px solid rgba(255,255,255,.16);color:#fff;font:inherit"></div>
     ${R('px', 'X', -.1, 1, .001, 0)}
     ${R('py', 'Y', -.1, 1, .001, 0)}
     ${R('pr', 'Rotation', -30, 30, .5, 0, '°')}
     <p class="tune-sub">Layout</p>
+    <p class="tune-sub">Mobile stack</p>
+    ${R('ms', 'Spring', 60, 400, 5, C.stack.spring)}
+    ${R('md', 'Damping', 8, 50, .5, C.stack.damping)}
+    ${R('mt', 'Swipe distance', .1, .6, .01, C.stack.threshold, '× width')}
+    ${R('mp', 'Messiness', 0, 2, .05, C.stack.spread)}
+    ${R('mr', 'Tilt', 0, 2, .05, C.stack.tilt)}
     <div class="tune-acts"><button class="tune-btn" id="p-bake">Bake layout</button><button class="tune-btn" id="p-clear">Clear baked</button></div>
     <p class="why" id="p-state"></p>`;
   document.body.appendChild(tn);
@@ -299,9 +428,26 @@ const BAKE_KEY = 'tibba.polaroids.layout';
   bind('dp', v => { C.spring.damping = v; });
   bind('sg', v => { C.spring.stagger = v; });
   q('p-replay').addEventListener('click', enter);
+  bind('ms', v => { C.stack.spring = v; }); bind('md', v => { C.stack.damping = v; });
+  bind('mt', v => { C.stack.threshold = v; }); bind('mp', v => { C.stack.spread = v; stackKick(); }); bind('mr', v => { C.stack.tilt = v; stackKick(); });
+  /* the title: one field per print */
+  function setTitle(i, t) {
+    C.titles[i] = t;
+    els[i].querySelector('.note b').textContent = t; els[i].querySelector('img').alt = t;
+    q('s-pk').options[i].textContent = String(i + 1).padStart(2, '0') + ' ' + t;
+  }
+  q('s-tt').addEventListener('input', e => setTitle(selected, e.target.value));
+  /* or straight on the print: double-click its caption */
+  els.forEach((el, i) => {
+    const b = el.querySelector('.note b');
+    b.addEventListener('dblclick', () => { b.contentEditable = 'true'; b.focus(); document.getSelection().selectAllChildren(b); });
+    b.addEventListener('blur', () => { b.contentEditable = 'false'; setTitle(i, b.textContent.trim()); if (i === selected) q('s-tt').value = C.titles[i]; });
+    b.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); b.blur(); } });
+    b.addEventListener('pointerdown', e => { if (b.isContentEditable) e.stopPropagation(); });
+  });
   function select(i) {
     selected = i; els.forEach((el, k) => el.classList.toggle('sel', k === i && !tn.classList.contains('hidden')));
-    q('s-pk').value = i; syncPanel();
+    q('s-pk').value = i; q('s-tt').value = title(i); syncPanel();
   }
   function syncPanel() {
     const c = C.cards[selected];
@@ -317,7 +463,7 @@ const BAKE_KEY = 'tibba.polaroids.layout';
     q('p-state').textContent = baked ? 'This browser is showing a baked layout.' : 'Showing the defaults in POLAROID_CONFIG.';
   };
   q('p-bake').addEventListener('click', async () => {
-    const out = { scale: C.scale, baseWidth: C.baseWidth, shadow: C.shadow, spring: C.spring, cards: C.cards };
+    const out = { scale: C.scale, baseWidth: C.baseWidth, shadow: C.shadow, spring: C.spring, cards: C.cards, titles: C.titles, stack: C.stack };
     try { localStorage.setItem(BAKE_KEY, JSON.stringify(out)); } catch {}
     const txt = 'const POLAROID_CONFIG = ' + JSON.stringify(out, null, 2) + ';';
     try { await navigator.clipboard.writeText(txt); q('p-state').textContent = 'Baked and copied — paste over POLAROID_CONFIG to make it the default.'; }
