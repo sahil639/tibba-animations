@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Site hero — loader, Active Peak, Metrics</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<script src="assets/odometer.js" defer></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Site hero — the home page's opening for Final Website v2
+   ─────────────────────────────────────────────────────────────────────────
+   Loader → Active Peak → Metrics in one scene: see assets/site-hero.js.
+   Add ?noloader to start straight on the hero.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+body:not(.ld-gone) { overflow: hidden; }
+
+#scope { position: relative; height: 270vh; }
+#stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+#peak-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+#stage::after { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background: linear-gradient(270deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.5) 34%, rgba(0,0,0,0) 56%); opacity: var(--lock, 0); }
+
+/* ── 1 · the loader's readout ─────────────────────────────────────────── */
+.ld { position: absolute; z-index: 5; inset: 0; pointer-events: none; transition: opacity .7s cubic-bezier(.22,1,.36,1), transform .9s cubic-bezier(.22,1,.36,1); }
+.ld-gone .ld { opacity: 0; transform: translateY(-14px); }
+.ld-top { position: absolute; top: clamp(110px, 15vh, 150px); left: var(--gut); }
+.ld-top .k { font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+.ld-top .n { margin-top: 8px; display: flex; align-items: baseline; gap: 4px; font-size: clamp(40px, 5.2vw, 76px); font-weight: 300; line-height: .9;
+  letter-spacing: -.03em; color: #fff; font-variant-numeric: tabular-nums; }
+.ld-top .n small { font-size: .32em; color: var(--ink-mute); letter-spacing: 0; }
+#ld-bar { margin-top: 14px; width: clamp(150px, 16vw, 230px); height: 1px; background: rgba(255,255,255,.12); }
+#ld-bar i { display: block; height: 100%; background: var(--accent); transform-origin: 0 50%; transform: scaleX(0); }
+#ld-stage { margin-top: 10px; font-size: 12px; color: var(--ink-mute); }
+.ld-done #ld-stage { color: var(--accent); }
+#ld-coords { position: absolute; right: var(--gut); bottom: clamp(18px, 3vw, 36px); list-style: none; text-align: right;
+  font-size: 11px; letter-spacing: .06em; font-variant-numeric: tabular-nums; color: var(--ink-mute); }
+#ld-coords li { display: flex; align-items: center; justify-content: flex-end; gap: 9px; padding: 3px 0; white-space: nowrap; }
+#ld-coords li:nth-child(2) { opacity: .62; } #ld-coords li:nth-child(3) { opacity: .38; } #ld-coords li:nth-child(4) { opacity: .18; }
+#ld-coords li i { width: 5px; height: 5px; background: var(--accent); flex: none; }
+#ld-coords li span { color: var(--ink-faint); }
+
+/* ── 2 · the hero copy ────────────────────────────────────────────────── */
+.hero-copy { position: absolute; z-index: 3; inset: 0; pointer-events: none; opacity: calc(1 - var(--hero-out, 0)); }
+.hero-title { position: absolute; left: var(--gut); top: 50%; transform: translateY(-50%); }
+.hero-title .eyebrow { display: flex; align-items: center; gap: 10px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.hero-title .eyebrow::before { content: ''; width: 7px; height: 7px; background: var(--accent); }
+.hero-title h1 { margin-top: 18px; color: #fff; font-weight: 300; font-size: clamp(40px, 6vw, 108px); line-height: .92; letter-spacing: -.045em; text-transform: uppercase; }
+.hero-title h1 span { display: block; overflow: hidden; }
+.hero-title h1 span > i { display: block; font-style: normal; transform: translateY(105%); transition: transform 1.1s cubic-bezier(.22,1,.36,1); }
+.hero-title h1 span:nth-child(2) > i { transition-delay: .08s; } .hero-title h1 span:nth-child(3) > i { transition-delay: .16s; }
+.hero-in .hero-title h1 span > i { transform: none; }
+.hero-title .eyebrow, .hero-side, .hero-cue { opacity: 0; transform: translateY(10px); transition: opacity .8s linear .25s, transform 1s cubic-bezier(.22,1,.36,1) .25s; }
+.hero-in .hero-title .eyebrow, .hero-in .hero-side, .hero-in .hero-cue { opacity: 1; transform: none; }
+.hero-side { position: absolute; right: var(--gut); bottom: clamp(28px, 6vh, 64px); max-width: 360px; text-align: left; transition-delay: .4s; }
+.hero-side .lede { color: #fff; font-size: clamp(17px, 1.45vw, 23px); line-height: 1.3; letter-spacing: -.015em; }
+.hero-side .sub { margin-top: 12px; color: var(--ink-mute); font-size: 13.5px; line-height: 1.65; }
+.hero-side .def { margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.14); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); }
+.hero-side .def b { color: var(--accent); font-weight: 400; }
+.hero-cue { position: absolute; left: var(--gut); bottom: clamp(28px, 6vh, 64px); display: flex; align-items: center; gap: 12px;
+  font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-faint); transition-delay: .6s; }
+.hero-cue i { display: block; width: 1px; height: 34px; background: linear-gradient(var(--accent), transparent); animation: cue 2.4s cubic-bezier(.65,0,.35,1) infinite; transform-origin: top; }
+@keyframes cue { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
+
+/* the definition, on an orange card, from the summit's rings */
+#def-card { position: absolute; z-index: 8; width: min(340px, calc(100vw - 32px)); padding: 22px 22px 20px; background: var(--accent); color: #0b0b0c;
+  opacity: 0; transform: translateY(10px) scale(.97); transform-origin: 0 50%; pointer-events: none;
+  transition: opacity .35s linear, transform .5s cubic-bezier(.22,1,.36,1); }
+#def-card.on { opacity: 1; transform: none; pointer-events: auto; }
+#def-card::before { content: ''; position: absolute; left: -1px; top: -1px; width: 9px; height: 9px; background: #0b0b0c; }
+#def-card .k { display: flex; justify-content: space-between; padding-right: 30px; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; }
+#def-card h3 { margin-top: 16px; font-weight: 400; font-size: 44px; line-height: .9; letter-spacing: -.04em; }
+#def-card .ipa { margin-top: 8px; font-size: 13px; letter-spacing: .04em; }
+#def-card ol { margin-top: 16px; list-style: none; display: grid; gap: 4px; font-size: 17px; letter-spacing: -.01em; }
+#def-card ol li span { display: inline-block; width: 22px; font-size: 11px; letter-spacing: .1em; }
+#def-card p.aim { margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(11,11,12,.25); font-size: 13px; line-height: 1.5; }
+#def-close { position: absolute; right: 10px; top: 10px; width: 26px; height: 26px; border: 0; background: none; color: #0b0b0c; font-size: 18px; cursor: pointer; }
+
+/* ── 3 · the metrics (as metrics.html) ────────────────────────────────── */
+#metrics { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.mcluster { --x: 0; --y: 0; position: absolute; left: var(--cl); top: var(--ct); width: var(--cw); aspect-ratio: var(--ca); }
+.mbox { position: absolute; left: calc(var(--bx) * 100%); top: calc(var(--by) * 100%); width: calc(var(--bw) * 100% + 1px); height: calc(var(--bh) * 100% + 1px);
+  padding: clamp(14px, 1.6vw, 26px) clamp(16px, 1.9vw, 30px); display: flex; flex-direction: column; pointer-events: auto; }
+.mbox .plate { position: absolute; inset: 0; border: 1px solid rgba(255,255,255,.16); background: rgba(10,10,12,.78);
+  backdrop-filter: blur(14px) saturate(1.1); -webkit-backdrop-filter: blur(14px) saturate(1.1); clip-path: inset(50% 0 50% 0); }
+.mbox .hl { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--accent); transform: scaleX(0); opacity: 0; }
+.mbox .cn { position: absolute; width: 10px; height: 10px; border-color: #fff; border-style: solid; opacity: 0; }
+.mbox .cn.tl { left: -1px; top: -1px; border-width: 1px 0 0 1px; } .mbox .cn.tr { right: -1px; top: -1px; border-width: 1px 1px 0 0; }
+.mbox .cn.bl { left: -1px; bottom: -1px; border-width: 0 0 1px 1px; } .mbox .cn.br { right: -1px; bottom: -1px; border-width: 0 1px 1px 0; }
+.mbox .in { position: relative; flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-height: 0; }
+.mbox .k { display: flex; justify-content: space-between; font-size: 9.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); opacity: 0; }
+.mbox .k b { color: var(--accent); font-weight: 400; }
+.mbox .v { display: block; color: #fff; font-weight: 300; font-size: clamp(40px, 4.4vw, 84px); line-height: .9; letter-spacing: -.04em; font-variant-numeric: tabular-nums; opacity: 0; }
+.mbox .l { display: block; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-mute); opacity: 0; }
+.mbox .pin { position: absolute; right: -1px; top: -1px; width: 8px; height: 8px; background: var(--accent); transform: scale(0); }
+.m-head { position: absolute; z-index: 3; left: var(--gut); top: clamp(110px, 15vh, 150px); display: flex; gap: 14px; align-items: center;
+  font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); opacity: var(--lock, 0); }
+.m-head::before { content: ''; width: 7px; height: 7px; background: var(--accent); }
+
+@media (max-width: 820px) {
+  #stage::after { background: linear-gradient(0deg, rgba(0,0,0,.9), rgba(0,0,0,0) 70%); }
+  .mcluster { left: 16px; right: 16px; width: auto; top: 44%; aspect-ratio: auto; height: 48%; }
+  .mbox { padding: 12px 14px; }
+  .mbox[data-i="0"] { --bx: 0 !important; --by: 0 !important; --bw: .5 !important; --bh: .5 !important; }
+  .mbox[data-i="1"] { --bx: .5 !important; --by: 0 !important; --bw: .5 !important; --bh: .5 !important; }
+  .mbox[data-i="2"] { --bx: 0 !important; --by: .5 !important; --bw: .5 !important; --bh: .5 !important; }
+  .mbox[data-i="3"] { --bx: .5 !important; --by: .5 !important; --bw: .5 !important; --bh: .5 !important; }
+  .mbox .v { font-size: 36px; }
+  .hero-title { top: 30%; } .hero-side { left: var(--gut); max-width: none; } .hero-cue { display: none; }
+}
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<section id="scope" aria-label="Tibba Design Studio">
+  <div id="stage">
+    <canvas id="peak-canvas"></canvas>
+
+    <div class="ld" aria-hidden="false">
+      <div class="ld-top" role="status" aria-live="polite">
+        <p class="k">Loading</p>
+        <p class="n"><span id="ld-count">000</span><small>%</small></p>
+        <div id="ld-bar"><i></i></div>
+        <p id="ld-stage">Surveying the valley floor</p>
+      </div>
+      <ul id="ld-coords" aria-hidden="true"></ul>
+    </div>
+
+    <div class="hero-copy">
+      <div class="hero-title">
+        <p class="eyebrow">Design studio · India</p>
+        <h1><span><i>Tibba</i></span><span><i>Design</i></span><span><i>Studio</i></span></h1>
+      </div>
+      <div class="hero-side">
+        <p class="lede">Helping ambitious teams reach the next peak.</p>
+        <p class="sub">We partner with founders and design leaders to turn ambitious ideas into shipped, high-impact work.</p>
+        <p class="def"><b>tibba</b> — click the summit's rings</p>
+      </div>
+      <p class="hero-cue"><i></i>Scroll</p>
+    </div>
+
+    <aside id="def-card" role="dialog" aria-label="What Tibba means" aria-hidden="true">
+      <button id="def-close" type="button" aria-label="Close">×</button>
+      <p class="k"><span>Definition</span><span>n.</span></p>
+      <h3>tibba</h3>
+      <p class="ipa">/ tɪb-bɑ /</p>
+      <ol><li><span>01</span>a higher place</li><li><span>02</span>a peak</li></ol>
+      <p class="aim">Higher place — and that's exactly where we aim to take you and your business, with design.</p>
+    </aside>
+
+    <p class="m-head"><span>The numbers</span></p>
+    <div id="metrics"></div>
+  </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js"}}</script>
+<script type="module" src="assets/site-hero.js"></script>
+</body>
+</html>

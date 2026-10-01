@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modular Website</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Modular Website — the home page's control hub
+   ─────────────────────────────────────────────────────────────────────────
+   Every major section of the home landing (Final Website v2), where it
+   comes from, and whether it is in. Tick a section in or out, drag it (or
+   use the arrows) to reorder, pick which page fills it — the assembled home
+   page on the right rebuilds as you go, and the layout is saved in this
+   browser, so final-website-v2.html opens in the same arrangement.
+   "Reset" goes back to the registry's order (assets/site-sections.js).
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: #000; }
+body { color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased;
+  display: grid; grid-template-columns: minmax(340px, 400px) 1fr; overflow: hidden; }
+button, select { font: inherit; color: inherit; }
+
+/* ── the hub ──────────────────────────────────────────────────────────── */
+.hub { position: relative; display: flex; flex-direction: column; min-height: 0; border-right: 1px solid rgba(255,255,255,.12); background: #0a0a0b; }
+.hub-head { padding: 22px 22px 18px; border-bottom: 1px solid rgba(255,255,255,.1); }
+.hub-head .k { display: flex; align-items: center; gap: 10px; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: #FF4B1F; }
+.hub-head .k::before { content: ''; width: 7px; height: 7px; background: #FF4B1F; }
+.hub-head h1 { margin-top: 12px; color: #fff; font-weight: 300; font-size: 30px; line-height: 1; letter-spacing: -.03em; }
+.hub-head p { margin-top: 10px; font-size: 12.5px; line-height: 1.6; color: var(--ink-mute); }
+.hub-head .count { margin-top: 14px; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-faint); }
+.hub-head .count b { color: #fff; font-weight: 400; }
+
+.list { flex: 1; overflow-y: auto; padding: 12px 12px 20px; list-style: none; }
+.item { position: relative; display: grid; grid-template-columns: 22px 1fr auto; column-gap: 12px; align-items: start;
+  margin-top: -1px; padding: 13px 12px 13px 10px; border: 1px solid rgba(255,255,255,.14); background: #000; cursor: grab;
+  transition: border-color .2s linear, opacity .2s linear, transform .2s cubic-bezier(.22,1,.36,1); }
+.item:hover { border-color: rgba(255,255,255,.3); z-index: 1; }
+.item.off { opacity: .45; }
+.item.drag { opacity: .35; }
+.item.over::before { content: ''; position: absolute; left: -1px; right: -1px; top: -2px; height: 2px; background: #FF4B1F; }
+.item .ix { padding-top: 2px; font-size: 10px; letter-spacing: .08em; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+.item.on .ix { color: #FF4B1F; }
+.item .nm { color: #fff; font-size: 15px; letter-spacing: -.01em; }
+.item .src { margin-top: 5px; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); }
+.item select { margin-top: 9px; width: 100%; padding: 6px 8px; background: #111; border: 1px solid rgba(255,255,255,.14); font-size: 12px; cursor: pointer; }
+.item .ctl { display: grid; gap: 6px; justify-items: end; }
+.item .arrows { display: flex; gap: 0; }
+.item .arrows button { width: 26px; height: 24px; margin-left: -1px; border: 1px solid rgba(255,255,255,.16); background: none; cursor: pointer; font-size: 11px; color: var(--ink-mute); }
+.item .arrows button:hover { color: #fff; border-color: #FF4B1F; position: relative; }
+.item .arrows button:disabled { opacity: .3; cursor: default; }
+/* the in/out switch */
+.sw { position: relative; width: 38px; height: 20px; border: 1px solid rgba(255,255,255,.2); background: none; cursor: pointer; }
+.sw::after { content: ''; position: absolute; left: 3px; top: 3px; width: 12px; height: 12px; background: var(--ink-faint); transition: transform .25s cubic-bezier(.22,1,.36,1), background .2s linear; }
+.item.on .sw { border-color: rgba(255,75,31,.6); }
+.item.on .sw::after { transform: translateX(18px); background: #FF4B1F; }
+
+.hub-foot { display: flex; gap: 0; padding: 14px 12px 16px; border-top: 1px solid rgba(255,255,255,.1); }
+.hub-foot a, .hub-foot button { flex: 1; margin-left: -1px; padding: 11px 10px; border: 1px solid rgba(255,255,255,.16); background: none; cursor: pointer; text-align: center; text-decoration: none;
+  font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #fff; }
+.hub-foot a.primary { background: #FF4B1F; border-color: #FF4B1F; color: #000; }
+.hub-foot button:hover, .hub-foot a:hover { border-color: #FF4B1F; position: relative; }
+
+/* ── the assembled page ───────────────────────────────────────────────── */
+.preview { position: relative; min-width: 0; }
+.preview iframe { display: block; width: 100%; height: 100%; border: 0; background: #000; }
+.preview .tag { position: absolute; right: 14px; bottom: 14px; z-index: 2; padding: 7px 10px; background: rgba(0,0,0,.7); border: 1px solid rgba(255,255,255,.14);
+  font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-faint); pointer-events: none; }
+.preview .tag b { color: #fff; font-weight: 400; }
+
+@media (max-width: 900px) {
+  body { grid-template-columns: 1fr; grid-template-rows: 55vh 45vh; }
+  .hub { order: 2; border-right: 0; border-top: 1px solid rgba(255,255,255,.12); }
+}
+</style>
+</head>
+<body>
+<aside class="hub" aria-label="Home page sections">
+  <div class="hub-head">
+    <p class="k">Tibba final website</p>
+    <h1>Modular Website</h1>
+    <p>The home page, section by section. Switch a section in or out, drag to reorder, choose the page that fills it. The page on the right rebuilds as you go.</p>
+    <p class="count" id="count"></p>
+  </div>
+  <ol class="list" id="list"></ol>
+  <div class="hub-foot">
+    <button type="button" id="reset">Reset</button>
+    <button type="button" id="reload">Reload preview</button>
+    <a class="primary" href="final-website-v2.html" target="_blank" rel="noopener">Open home</a>
+  </div>
+</aside>
+<section class="preview" aria-label="The assembled home page">
+  <iframe id="preview" title="Final Website v2, as arranged" src="final-website-v2.html"></iframe>
+  <p class="tag" id="tag"></p>
+</section>
+
+<script type="module">
+  import { HOME_SECTIONS, LAYOUT_KEY, loadLayout, resolveLayout, sectionsFor } from './assets/site-sections.js';
+  const byId = Object.fromEntries(HOME_SECTIONS.map(s => [s.id, s]));
+  let layout = loadLayout();
+  const list = document.getElementById('list'), frame = document.getElementById('preview');
+  const pad = n => String(n).padStart(2, '0');
+
+  function save() { try { localStorage.setItem(LAYOUT_KEY, JSON.stringify(layout)); } catch {} }
+  /* the preview rebuilds in place by message; a short pause so a run of
+     quick changes rebuilds once */
+  let timer = 0;
+  function push(keepScroll = false) {
+    save(); render();
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      try { frame.contentWindow.postMessage({ tibba: 'layout', sections: sectionsFor(layout), keepScroll }, '*'); } catch {}
+    }, 220);
+  }
+
+  function render() {
+    let n = 0;
+    list.innerHTML = layout.map((e, i) => {
+      const s = byId[e.id], on = e.on;
+      if (on) n++;
+      return `<li class="item ${on ? 'on' : 'off'}" draggable="true" data-i="${i}">
+        <span class="ix">${on ? pad(n) : '—'}</span>
+        <div>
+          <p class="nm">${s.label}</p>
+          <p class="src">${s.folder}${s.frame ? ' · ' + s.frame : ''}${s.nav ? ' · nav: ' + s.nav : ''}</p>
+          ${s.variants.length > 1 ? `<select data-i="${i}" aria-label="Page for ${s.label}">${s.variants.map((v, k) =>
+            `<option value="${k}"${k === e.variant ? ' selected' : ''}>${v.label} — ${v.file}</option>`).join('')}</select>`
+            : `<p class="src" style="text-transform:none;letter-spacing:.02em">${s.variants[0].file}</p>`}
+        </div>
+        <div class="ctl">
+          <button class="sw" type="button" data-sw="${i}" aria-pressed="${on}" aria-label="Include ${s.label}"></button>
+          <span class="arrows"><button type="button" data-mv="${i}:-1" ${i ? '' : 'disabled'} aria-label="Move up">▲</button><button type="button" data-mv="${i}:1" ${i < layout.length - 1 ? '' : 'disabled'} aria-label="Move down">▼</button></span>
+        </div>
+      </li>`;
+    }).join('');
+    document.getElementById('count').innerHTML = `<b>${n}</b> of ${layout.length} sections on the home page`;
+    document.getElementById('tag').innerHTML = `Live · <b>${n}</b> sections`;
+  }
+  const move = (from, to) => { if (to < 0 || to >= layout.length || from === to) return; const [e] = layout.splice(from, 1); layout.splice(to, 0, e); push(); };
+
+  list.addEventListener('click', e => {
+    const sw = e.target.closest('[data-sw]');
+    if (sw) { const it = layout[+sw.dataset.sw]; it.on = !it.on; push(true); return; }
+    const mv = e.target.closest('[data-mv]');
+    if (mv) { const [i, d] = mv.dataset.mv.split(':').map(Number); move(i, i + d); }
+  });
+  list.addEventListener('change', e => {
+    const sel = e.target.closest('select[data-i]'); if (!sel) return;
+    layout[+sel.dataset.i].variant = +sel.value; push(true);
+  });
+  /* drag to reorder */
+  let dragFrom = -1;
+  list.addEventListener('dragstart', e => { const li = e.target.closest('.item'); if (!li) return; dragFrom = +li.dataset.i; li.classList.add('drag'); e.dataTransfer.effectAllowed = 'move'; });
+  list.addEventListener('dragend', () => { dragFrom = -1; list.querySelectorAll('.drag, .over').forEach(n => n.classList.remove('drag', 'over')); });
+  list.addEventListener('dragover', e => {
+    const li = e.target.closest('.item'); if (!li || dragFrom < 0) return;
+    e.preventDefault(); list.querySelectorAll('.over').forEach(n => n.classList.remove('over')); li.classList.add('over');
+  });
+  list.addEventListener('drop', e => {
+    const li = e.target.closest('.item'); if (!li || dragFrom < 0) return;
+    e.preventDefault(); move(dragFrom, +li.dataset.i);
+  });
+
+  document.getElementById('reset').addEventListener('click', () => { layout = resolveLayout(null); push(); });
+  document.getElementById('reload').addEventListener('click', () => { save(); frame.src = 'final-website-v2.html?t=' + Date.now(); });
+  render();
+</script>
+</body>
+</html>

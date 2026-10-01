@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tibba Design Studio</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/ca-nav.css">
+<link rel="stylesheet" href="assets/site-shell.css">
+<!-- ─────────────────────────────────────────────────────────────────────────
+     Final Website v2 — the home landing, stitched from the live sections
+
+       Loader → Hero (Active Peak) → Metrics   site-hero.html, one scene
+       Brands                                  brands-mosaic.html, in 75vh
+       Our summits                             summits-v3.html
+       Extra case studies                      case-studies-reel.html
+       Our services                            services-compass-v4.html
+       Testimonials                            testimonials-topo.html
+       Our studio                              studio-polaroids.html
+       Footer                                  footer.html
+
+     How the sections are framed, scrolled, seamed and refreshed:
+     assets/site-shell.js. What they are and where they come from:
+     assets/site-sections.js. The order and which ones are in can be changed
+     on the Modular Website page (modular-website.html); add ?default to
+     ignore that and show the registry's own order.
+     ───────────────────────────────────────────────────────────────────── -->
+</head>
+<body>
+<header id="ca-header"></header>
+<main id="stack"></main>
+<button class="site-refresh" id="site-refresh" type="button" title="Reload every section from its latest design" aria-label="Refresh sections">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg>
+  <span>Refresh</span>
+</button>
+
+<script type="module">
+  import { mountSite } from './assets/site-shell.js';
+  import { HOME_SECTIONS, loadLayout, resolveLayout, sectionsFor } from './assets/site-sections.js';
+  const layout = /[?&]default\b/.test(location.search) ? resolveLayout(null) : loadLayout();
+  window.tibba = mountSite({
+    sections: sectionsFor(layout, HOME_SECTIONS),
+    home: '#',
+    extraNav: [{ label: 'About', href: 'about-landing.html' }],
+  });
+</script>
+</body>
+</html>

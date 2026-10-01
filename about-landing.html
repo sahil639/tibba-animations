@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About us — Tibba Design Studio</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/ca-nav.css">
+<link rel="stylesheet" href="assets/site-shell.css">
+<!-- ─────────────────────────────────────────────────────────────────────────
+     About us — landing, stitched the same way as Final Website v2
+
+       About us — hero          about-hero.html
+       About us — description   about-description.html
+       About us — foundations   about-foundations.html
+       About us — team          about-team.html
+       Footer                   footer.html
+
+     Same shell, same navbar, same seams and timing as the home landing:
+     assets/site-shell.js and assets/site-sections.js.
+     ───────────────────────────────────────────────────────────────────── -->
+</head>
+<body>
+<header id="ca-header"></header>
+<main id="stack"></main>
+<button class="site-refresh" id="site-refresh" type="button" title="Reload every section from its latest design" aria-label="Refresh sections">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg>
+  <span>Refresh</span>
+</button>
+
+<script type="module">
+  import { mountSite } from './assets/site-shell.js';
+  import { ABOUT_SECTIONS, resolveLayout, sectionsFor } from './assets/site-sections.js';
+  window.tibba = mountSite({
+    sections: sectionsFor(resolveLayout(null, ABOUT_SECTIONS), ABOUT_SECTIONS),
+    home: 'final-website-v2.html',
+    extraNav: [{ label: 'Home', href: 'final-website-v2.html' }],
+  });
+</script>
+</body>
+</html>

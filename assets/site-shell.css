@@ -1,0 +1,51 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Site shell — the stitched landings' own chrome (see assets/site-shell.js)
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #000; }
+body { color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+html.site-locked { overflow: hidden; }
+
+/* the sections */
+.site-block { position: relative; }
+.site-block .sticky { position: sticky; top: 0; height: var(--frame-h, 100vh); overflow: hidden; }
+.site-block iframe { display: block; width: 100%; height: 100%; border: 0; background: #000; }
+.site-block .seam { position: absolute; left: 0; right: 0; top: 0; height: 18vh; pointer-events: none; opacity: 0;
+  background: linear-gradient(180deg, #000 0%, rgba(0,0,0,.85) 30%, rgba(0,0,0,0) 100%); }
+/* a contained section (Brands, 75vh) sits on a hairline, with the page's gutter of air around it */
+.site-block[style*="75vh"] .sticky { border-top: 1px solid rgba(255,255,255,.08); border-bottom: 1px solid rgba(255,255,255,.08); }
+
+/* the navbar: the About hero's pill, in F37, above everything */
+.ca.site-nav { z-index: 60; --ca-mono: 'F37 Analog', system-ui, sans-serif; --ca-accent: #FF4B1F; }
+.site-nav .ca-link { letter-spacing: .08em; }
+.site-nav .ca-link[aria-current] { color: #fff; }
+.site-nav .ca-link[aria-current]::after { content: ''; position: absolute; left: 0; right: 0; bottom: -5px; height: 1px; background: #FF4B1F; }
+.site-nav .ca-marquee { letter-spacing: .06em; }
+.site-nav .ca-home { align-items: center; }
+.site-mark { display: block; width: 34px; height: 19px; cursor: pointer; }
+@media (max-width: 640px) {
+  .site-nav .ca-list { gap: 10px; }
+  .site-nav .ca-link { font-size: 10.5px; letter-spacing: .04em; }
+  .site-nav .ca-row { gap: 10px; padding: 6px 8px; }
+  .site-mark { width: 28px; height: 16px; }
+}
+
+/* the refresh button, bottom left */
+.site-refresh { position: fixed; z-index: 60; left: 16px; bottom: 16px; display: inline-flex; align-items: center; gap: 9px;
+  height: 38px; padding: 0 13px 0 11px; border: 1px solid rgba(255,255,255,.16); background: rgba(10,10,12,.82);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #fff; cursor: pointer;
+  font: 400 10px/1 'F37 Analog', system-ui, sans-serif; letter-spacing: .18em; text-transform: uppercase; transition: border-color .25s linear; }
+.site-refresh:hover { border-color: #FF4B1F; }
+.site-refresh svg { width: 16px; height: 16px; display: block; }
+.site-refresh.spin svg { animation: site-spin .9s cubic-bezier(.65,0,.35,1); }
+.site-refresh span { display: none; }
+.site-refresh:hover span { display: inline; }
+.site-refresh::before { content: ''; position: absolute; right: -1px; top: -1px; width: 6px; height: 6px; background: #FF4B1F; }
+@keyframes site-spin { to { transform: rotate(360deg); } }
+html.site-locked .site-refresh { opacity: 0; pointer-events: none; }
+.site-refresh { transition: opacity .6s linear, border-color .25s linear; }
+@media (max-width: 640px) {
+  .site-nav .ca-list { max-width: calc(100vw - 92px); overflow-x: auto; scrollbar-width: none; }
+  .site-nav .ca-list::-webkit-scrollbar { display: none; }
+  .site-nav .ca-list li { flex: none; }
+}

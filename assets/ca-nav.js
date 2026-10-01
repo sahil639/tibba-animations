@@ -90,9 +90,15 @@ function marquee(text) {
   </div>`;
 }
 
-export function mountCaHeader(host) {
-  const items = NAV.map(item => `<li>
-    <a class="ca-link" href="${esc(item.href)}">${odometer(item.label)}${
+/* opts (all optional; the defaults are the reference header as it is):
+     nav           [{ label, href, accent, target }] — `target` is copied to
+                   data-target, for a page that scrolls to sections itself
+     announcement  the marquee's phrase
+     mark          HTML for the mark in place of the hatched fan */
+export function mountCaHeader(host, opts = {}) {
+  const nav = opts.nav || NAV;
+  const items = nav.map(item => `<li>
+    <a class="ca-link" href="${esc(item.href)}"${item.target ? ` data-target="${esc(item.target)}"` : ''}>${odometer(item.label)}${
       item.accent ? '<span aria-hidden="true" class="ca-dot"></span>' : ''
     }</a>
   </li>`).join('');
@@ -103,10 +109,10 @@ export function mountCaHeader(host) {
       <div class="ca-panel-inner">
         <nav aria-label="Primary">
           <div class="ca-row">
-            <a class="ca-home" href="/" aria-label="Home">${mark()}</a>
+            <a class="ca-home" href="${opts.home || '/'}" aria-label="Home">${opts.mark || mark()}</a>
             <ul class="ca-list">${items}</ul>
           </div>
-          <div class="ca-marquee-rule">${marquee(ANNOUNCEMENT)}</div>
+          <div class="ca-marquee-rule">${marquee(opts.announcement || ANNOUNCEMENT)}</div>
         </nav>
       </div>
     </div>`;

@@ -30,6 +30,14 @@ window.TIBBA_SITE = {
     pages: [
       { id: 'final-website', label: 'Final website', file: 'final-website.html',
         note: 'Loader, hero and its three scroll states, metrics, brands, the four-summit walk, services, testimonials', state: 'live' },
+      { id: 'final-website-v2', updated: '2026-10-01T18:00:00+07:00', change: 'New: every section stitched into one site', label: 'Final Website v2', file: 'final-website-v2.html',
+        note: 'The live sections as one website: loader into Active Peak into Metrics, Brands, Summits v3, case reel, Compass v4, testimonials, polaroids, footer; one navbar, refresh bottom left', state: 'live' },
+      { id: 'about-landing', updated: '2026-10-01T18:00:00+07:00', change: 'New: the About landing, stitched the same way', label: 'About us — landing', file: 'about-landing.html',
+        note: 'About hero, description, foundations, team and footer as one page, with the same navbar and transitions as the home landing', state: 'live' },
+      { id: 'modular-website', updated: '2026-10-01T18:00:00+07:00', change: 'New: switch, reorder and swap the home page sections', label: 'Modular Website', file: 'modular-website.html',
+        note: 'The home page as a control hub: every section with its source, in or out, drag to reorder, pick the page that fills it — the assembled page rebuilds live', state: 'live' },
+      { id: 'site-hero', updated: '2026-10-01T18:00:00+07:00', change: 'New: loader → Active Peak → Metrics in one scene', label: 'Site hero', file: 'site-hero.html',
+        note: "The home page's opening: the loader fills the plan view, flies down into the hero (rings open the definition), then turns aside for the metrics", state: 'live' },
     ],
   },
 
