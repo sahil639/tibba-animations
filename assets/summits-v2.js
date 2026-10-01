@@ -56,6 +56,8 @@ export const SUMMITS2_CONFIG = {
     drift: 1.2,             // degrees of slow idle sway
   },
   fill: { count: 24, seed: 7, height: 0.6, ridges: true },    // range-scene opts.fill: extra landforms, held below the summits
+                          // (also spacing: min distance between them, relief: the ground's noise)
+  terrain: null,          // { levels, width } — contour density and line weight (range-scene opts.terrain)
   path: {
     duration: 3.4, ease: 'In-out (sine)', delay: 0.2,
     turns: 1.15,            // how far round its mountain a trail winds
@@ -76,7 +78,7 @@ export function mountSummitsV2({ layout = 'cards' } = {}) {
 
   const scene = createRangeScene({
     canvas: $('#peak-canvas'), mode: 'range', palette: 'peak', hover: true, noStudio: true,
-    fill: C.fill,
+    fill: C.fill, terrain: C.terrain,
     onPeakClick: i => { location.href = CASES[i].file; },
   });
   scene.setAccent(ACCENT);
@@ -301,7 +303,16 @@ export function mountSummitsV2({ layout = 'cards' } = {}) {
   }
   requestAnimationFrame(tick);
 
-  return { scene, trails, CONFIG: C, rebuild, goTo,
+  /** The country round the summits, live — writes C.fill / C.terrain and
+      rebuilds the ground, its contours and the trails that sit on it. */
+  function setTerrain(o) {
+    ['count', 'height', 'spacing', 'seed', 'ridges', 'relief'].forEach(k => { if (o[k] != null) C.fill[k] = o[k]; });
+    C.terrain = Object.assign(C.terrain || {}, o.levels != null ? { levels: o.levels } : {}, o.width != null ? { width: o.width } : {});
+    scene.setTerrain(o);
+    scene.clientTops().forEach((t, i) => Object.assign(tops[i], t));
+    rebuild();
+  }
+  return { scene, trails, CONFIG: C, rebuild, goTo, setTerrain,
     replay() { trails.forEach(t => { t.state = 'idle'; t.p = 0; }); },
     get focus() { return focus; } };
 }

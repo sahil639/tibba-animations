@@ -39,7 +39,7 @@
 
 /* ── the page grid ──────────────────────────────────────────────────────── */
 .ss-page { grid-template-columns: minmax(440px, 1.05fr) minmax(0, .8fr) minmax(0, .8fr);
-  grid-template-rows: auto auto minmax(0, 1fr); column-gap: clamp(24px, 2.6vw, 56px); row-gap: clamp(20px, 3.2vh, 40px);
+  grid-template-rows: auto auto minmax(0, 1fr); column-gap: var(--cg, clamp(24px, 2.6vw, 56px)); row-gap: clamp(20px, 3.2vh, 40px);
   padding-top: clamp(84px, 11vh, 120px); padding-bottom: clamp(28px, 5vh, 56px); }
 .ss-title { grid-column: 1 / -1; grid-row: 1; align-items: flex-end; padding-bottom: clamp(16px, 2.4vh, 28px); border-bottom: 1px solid var(--line); }
 .ss-title h1 { font-size: clamp(30px, 3.3vw, 56px); letter-spacing: -.035em; }
@@ -55,51 +55,58 @@
 .v4-card::after { right: -1px; bottom: -1px; border-right: 1px solid var(--accent); border-bottom: 1px solid var(--accent); }
 .ss-foot { grid-column: auto; grid-row: auto; margin: 0; display: block; }
 .ss-stages { display: grid; grid-template-columns: repeat(3, 1fr); border: 0; border-bottom: 1px solid var(--line); }
-.ss-stage { justify-content: flex-start; padding: 15px 18px 14px; background: none; border-right: 1px solid var(--line); font-size: 12px; white-space: nowrap; min-width: 0; overflow: hidden; }
+.ss-stage { justify-content: flex-start; padding: 15px 18px 14px; background: none; border-right: 1px solid var(--line); font-size: clamp(14px, 1.05vw, 16px); letter-spacing: -.005em; color: rgba(233,236,242,.72); white-space: nowrap; min-width: 0; overflow: hidden; }
 .ss-stage .l { overflow: hidden; text-overflow: ellipsis; }
 @media (min-width: 641px) { .ss-stage { flex-direction: column; align-items: flex-start; gap: 7px; padding: 13px 16px 14px; } }
 .ss-stage::after { top: auto; bottom: -1px; }
+.ss-stage .n { font-size: 10.5px; display: inline-flex; align-items: center; gap: 8px; }
+.ss-stage[aria-selected="true"] .n::before { content: ''; width: 6px; height: 6px; background: var(--accent); }
 .ss-stage[aria-selected="true"] { background: rgba(255,255,255,.035); }
 .ss-center { grid-column: auto !important; grid-row: auto !important; display: grid; place-items: center; min-height: 0; padding: clamp(10px, 2vh, 24px); }
 #compass { width: auto; height: 100%; max-width: 100%; max-height: clamp(280px, calc(100vh - 430px), 640px); max-height: clamp(280px, calc(100svh - 430px), 640px); aspect-ratio: 1; display: block; overflow: visible;
   touch-action: none; cursor: grab; user-select: none; }
 #compass.dragging { cursor: grabbing; }
 #compass text { font-family: 'F37 Analog', system-ui, sans-serif; }
-#compass .tk { stroke: rgba(233,236,242,.22); stroke-width: 1; }
-#compass .tk.mj { stroke: rgba(233,236,242,.5); }
-#compass .tk.cd { stroke: rgba(233,236,242,.8); stroke-width: 1.4; }
+#compass .tk { stroke: rgba(233,236,242,.36); stroke-width: 1; }
+#compass .tk.mj { stroke: rgba(233,236,242,.7); }
+#compass .tk.cd { stroke: #fff; stroke-width: 1.6; }
+#compass .rim { fill: none; stroke: rgba(233,236,242,.5); stroke-width: 1.4; }
+#compass .rim.in { stroke: rgba(233,236,242,.2); stroke-width: 1; }
+#compass .cube { fill: var(--accent); }
 #compass .tk.on { stroke: rgba(255,75,31,.55); }
 #compass .tk.mj.on, #compass .tk.cd.on { stroke: var(--accent); }
-#compass .deg { fill: rgba(233,236,242,.55); font-size: 12px; letter-spacing: .08em; font-variant-numeric: tabular-nums; }
-#compass .card { fill: rgba(233,236,242,.85); font-size: 13px; letter-spacing: .14em; }
+#compass .deg { fill: rgba(233,236,242,.78); font-size: 13px; letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+#compass .card { fill: #fff; font-size: 15px; letter-spacing: .14em; }
 #compass .card.n { fill: var(--accent); }
-#compass .guide { fill: none; stroke: var(--line); stroke-width: 1; }
-#compass .track { fill: none; stroke: rgba(233,236,242,.1); stroke-width: 6; stroke-linecap: round; cursor: pointer; transition: stroke .45s linear; }
+#compass .guide { fill: none; stroke: rgba(233,236,242,.2); stroke-width: 1; }
+#compass .track { fill: none; stroke: rgba(233,236,242,.16); stroke-width: 6; stroke-linecap: round; cursor: pointer; transition: stroke .45s linear; }
 #compass .track:hover { stroke: rgba(233,236,242,.28); }
 #compass .track.on { stroke: var(--accent); }
 #compass .glow { fill: none; stroke: var(--accent); stroke-width: 14; stroke-linecap: round; opacity: 0; filter: url(#v4-blur); pointer-events: none; transition: opacity .5s linear; }
 #compass .glow.on { opacity: var(--glow, .5); }
-#compass .arclbl { fill: rgba(233,236,242,.42); font-size: 10.5px; letter-spacing: .22em; text-transform: uppercase; pointer-events: none; transition: fill .45s linear; }
+#compass .arclbl { fill: rgba(233,236,242,.62); font-size: 15px; letter-spacing: .14em; text-transform: uppercase; pointer-events: none; transition: fill .45s linear; }
 #compass .arclbl.on { fill: #fff; }
 #compass .spk { stroke: #e9ecf2; stroke-width: 1.2; stroke-linecap: round; }
-#compass .inner circle { fill: none; stroke: var(--line-2); stroke-dasharray: 1 5; }
+#compass .inner circle { fill: none; stroke: rgba(233,236,242,.34); stroke-dasharray: 1 5; }
 #compass .inner line { stroke: rgba(233,236,242,.3); }
 #compass .needle { fill: url(#v4-needle); }
 #compass .tail { fill: rgba(233,236,242,.18); }
 #compass .bug { fill: var(--accent); }
 #compass .hub { fill: #000; stroke: var(--accent); stroke-width: 1.4; }
-.v4-strip { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; border-top: 1px solid var(--line); }
+.v4-strip { display: grid; grid-template-columns: 1.15fr 1fr 1.25fr; border-top: 1px solid var(--line); }
 .v4-strip > div { padding: 12px 18px 13px; border-right: 1px solid var(--line); min-width: 0; }
 .v4-strip > div:last-child { border-right: 0; }
-.v4-strip span { display: block; font-size: 9.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
-.v4-strip b { display: block; margin-top: 6px; color: #fff; font-weight: 400; font-size: 15px; letter-spacing: .02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.v4-strip span { display: block; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+.v4-strip b { display: block; margin-top: 6px; color: #fff; font-weight: 400; font-size: clamp(16px, 1.25vw, 19px); overflow: hidden; text-overflow: ellipsis; letter-spacing: .02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .v4-strip .big b { font-size: clamp(20px, 1.7vw, 26px); letter-spacing: -.01em; margin-top: 4px; }
 .v4-strip .acc { color: var(--accent); }
 
 /* ── the stage, said as a statement ────────────────────────────────────── */
 .v4-state { grid-column: 2 / span 2; grid-row: 2; }
-.v4-state .k { display: flex; align-items: center; gap: 12px; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+.v4-state .k { display: flex; align-items: center; gap: 12px; font-size: clamp(13px, .95vw, 15px); letter-spacing: .16em; text-transform: uppercase; color: #fff; }
+.v4-state .k::before { content: ''; flex: 0 0 auto; width: 9px; height: 9px; background: var(--accent); }
 .v4-state .k b { color: var(--accent); font-weight: 400; }
+.v4-state .k span { color: #fff; }
 .v4-state .k i { flex: 0 0 40px; height: 1px; background: var(--line-2); }
 .v4-state .ss-blurb { margin-top: 14px; max-width: 34ch; text-align: left; min-height: 2.5em; color: #fff; font-size: clamp(20px, 1.9vw, 32px); line-height: 1.22; letter-spacing: -.02em; }
 
@@ -108,6 +115,18 @@
 .ss-col.left { grid-column: 2; grid-row: 3; } .ss-col.right { grid-column: 3; grid-row: 3; }
 .ssb-head { font-size: 10.5px; letter-spacing: .2em; color: var(--ink-mute); padding-bottom: 12px; border-bottom: 1px solid var(--line); align-items: center; }
 .ssb-head b { font-size: 11px; font-weight: 400; letter-spacing: .12em; }
+.ssb-head > span { display: inline-flex; align-items: center; gap: 10px; }
+.ssb-head > span::before { content: ''; width: 6px; height: 6px; background: var(--accent); }
+.ssb .ix::after { content: ''; position: absolute; right: -1px; top: -1px; width: 7px; height: 7px; background: var(--accent); transform: scale(0); transition: transform .3s cubic-bezier(.22,.9,.3,1); }
+.ssb:hover .ix::after { transform: scale(1); }
+/* the grid line between the two ledgers: a hairline down the gutter, from
+   the statement's foot to the page's, with a cube where it meets the
+   heading rule */
+.ss-page { --cg: clamp(24px, 2.6vw, 56px); }
+.ss-col.right { position: relative; }
+.ss-col.right::before { content: ''; position: absolute; left: calc(var(--cg) / -2); top: -14px; bottom: calc(-1 * clamp(28px, 5vh, 56px)); width: 1px;
+  background: linear-gradient(180deg, var(--line-2), var(--line) 70%, rgba(233,236,242,0)); }
+.ss-col.right::after { content: ''; position: absolute; left: calc(var(--cg) / -2 - 3px); top: calc(1.05em + 9px); width: 7px; height: 7px; background: var(--accent); }
 .ssb-list { margin-top: clamp(14px, 2.2vh, 24px); }
 .ssb { align-self: flex-start; width: 88%; min-width: 0; max-width: none; display: grid; grid-template-columns: 38px 1fr; column-gap: 10px;
   padding: clamp(12px, 1.5vh, 16px) 16px clamp(12px, 1.5vh, 16px) 12px; border-color: var(--line-2); background: #000; }
@@ -133,22 +152,29 @@
 }
 /* ── phones: one viewport ──────────────────────────────────────────────── */
 @media (max-width: 640px) {
-  .ss-page { height: 100vh; height: 100svh; min-height: 0; overflow: hidden; padding: 60px 14px 12px;
-    grid-template-columns: 1fr 1fr; grid-template-rows: auto minmax(0, 1fr) auto; row-gap: 10px; column-gap: 8px; }
-  .ss-title { padding-bottom: 8px; } .ss-title h1 { font-size: 22px; margin-top: 6px; } .ss-title .eyebrow { font-size: 10px; } .ss-title .note { display: none; }
-  .v4-card { grid-column: 1 / -1; grid-row: 2; }
-  .ss-stage { justify-content: center; padding: 10px 4px; font-size: 11px; } .ss-stage .n { display: none; }
-  .ss-center { padding: 6px; }
-  #compass { max-height: 100%; }
-  .v4-strip { grid-template-columns: repeat(3, 1fr); } .v4-strip > div:last-child { display: none; } .v4-strip > div:nth-child(3) { border-right: 0; }
-  .v4-strip > div { padding: 7px 10px 8px; } .v4-strip span { font-size: 8.5px; } .v4-strip b, .v4-strip .big b { font-size: 12.5px; margin-top: 3px; }
-  .v4-state { display: none; }
-  .ss-col.left, .ss-col.right { grid-row: 3 !important; }
-  .ss-col.left { grid-column: 1 !important; } .ss-col.right { grid-column: 2 !important; }
-  .ssb-head { font-size: 9px; letter-spacing: .12em; padding-bottom: 6px; } .ssb-list { margin-top: 6px; }
-  .ssb { width: 100%; grid-template-columns: 1fr; padding: 5px 8px; }
-  .ssb .ix, .ssb .ds { display: none; }
-  .ssb .nm, .ss-col.right .ssb .nm { font-size: 11px; line-height: 1.25; }
+  /* the services are the subject here; the compass is a small delight
+     beside its readout, and the page scrolls like any other */
+  .ss-page { padding: 64px 16px 32px; grid-template-columns: 1fr; grid-template-rows: none; row-gap: 22px; --cg: 0px; }
+  .ss-title { padding-bottom: 14px; } .ss-title h1 { font-size: 27px; margin-top: 8px; } .ss-title .eyebrow { font-size: 10.5px; } .ss-title .note { display: none; }
+  .v4-card { grid-column: 1; grid-row: auto; grid-template-columns: 44% 1fr; grid-template-rows: auto auto; }
+  .ss-foot { grid-column: 1 / -1; }
+  .ss-stage { justify-content: center; align-items: center; padding: 10px 6px; font-size: 13.5px; line-height: 1.2; white-space: normal; text-align: center; } .ss-stage .n { display: none; } .ss-stage .l { overflow: visible; font-size: 13.5px; }
+  .ss-center { grid-column: 1; grid-row: 2; padding: 12px 6px 12px 10px; }
+  #compass { width: 100%; height: auto; max-height: none; }
+  .v4-strip { grid-column: 2; grid-row: 2; grid-template-columns: 1fr; border-top: 0; border-left: 1px solid var(--line); }
+  .v4-strip > div { border-right: 0; border-bottom: 1px solid var(--line); padding: 10px 14px; display: flex; flex-direction: column; justify-content: center; }
+  .v4-strip > div:last-child { border-bottom: 0; }
+  .v4-strip span { font-size: 9.5px; letter-spacing: .16em; } .v4-strip b, .v4-strip .big b { font-size: 16px; margin-top: 4px; }
+  .v4-state { grid-column: 1; grid-row: auto; }
+  .v4-state .k { font-size: 12.5px; } .v4-state .ss-blurb { font-size: 20px; min-height: 0; }
+  .ss-col.left, .ss-col.right { grid-column: 1 !important; grid-row: auto !important; }
+  .ss-col.right::before { left: 0; right: 0; top: -12px; bottom: auto; width: auto; height: 1px; background: var(--line-2); }
+  .ss-col.right::after { left: -3px; top: -15px; }
+  .ss-col.right { padding-top: 10px; }
+  .ssb-head { font-size: 11.5px; letter-spacing: .16em; } .ssb-list { margin-top: 12px; }
+  .ssb { width: 92%; grid-template-columns: 32px 1fr; padding: 11px 12px 12px 10px; }
+  .ssb .ds { display: none; }
+  .ssb .nm, .ss-col.right .ssb .nm { font-size: 16px; line-height: 1.25; }
 }
 </style>
 <link rel="stylesheet" href="assets/tune.css">
@@ -167,13 +193,12 @@
   <section class="v4-card" aria-label="Compass">
     <footer class="ss-foot"><div class="ss-stages" role="tablist" aria-label="Company stage"></div></footer>
     <div class="ss-center">
-      <svg id="compass" viewBox="-340 -340 680 680" role="img" aria-label="Compass: drag or click a stage to set the heading"></svg>
+      <svg id="compass" viewBox="-350 -350 700 700" role="img" aria-label="Compass: drag or click a stage to set the heading"></svg>
     </div>
     <div class="v4-strip" aria-live="off">
-      <div class="big"><span>Heading</span><b id="rd-hdg">060.00°</b></div>
-      <div><span>To turn</span><b class="acc" id="hud-d">+000.0°</b></div>
-      <div><span>Segment</span><b id="rd-seg">01 / 03</b></div>
-      <div><span>Elapsed</span><b id="hud-t">0.00</b></div>
+      <div class="big"><span>Your bearing</span><b id="rd-hdg">060.00°</b></div>
+      <div><span>Turn to stage</span><b class="acc" id="hud-d">On course</b></div>
+      <div><span>You are</span><b id="rd-seg">01 · Early-stage</b></div>
     </div>
   </section>
 
@@ -198,6 +223,7 @@
   /* the three stages: 120° each, centred on 060, 180 and 300 */
   const SEG = [0, 1, 2].map(i => ({ from: i * 120 + 7, to: i * 120 + 113, mid: i * 120 + 60 }));
   const LBL = ['Early-stage startup', 'Mid-size company', 'Established company'];
+  const SHORT = ['Early-stage', 'Mid-size', 'Established'];
   /* COMPASS_V4 — the panel writes here */
   const C = { stiffness: 42, drift: 1, glow: .5, reach: 22 };
 
@@ -210,7 +236,7 @@
   el('stop', { offset: 1, 'stop-color': '#FF4B1F', 'stop-opacity': 1 }, grad);
 
   /* ── the bearing scale ─────────────────────────────────────────────── */
-  const R = { tick: 300, deg: 270, card: 322, guide: 244, track: 226, lbl: 202, spA: 150, spB: 176, inner: 112 };
+  const R = { rim: 340, tick: 300, deg: 270, card: 321, guide: 244, track: 226, lbl: 202, spA: 150, spB: 176, inner: 112 };
   const segOf = d => Math.min(2, Math.floor((((d % 360) + 360) % 360) / 120));
   const ticks = [];
   for (let i = 0; i < 144; i++) {
@@ -228,6 +254,11 @@
     el('text', { class: 'card' + (i ? '' : ' n'), x, y, 'text-anchor': 'middle', 'dominant-baseline': 'middle' }).textContent = p;
   });
   el('circle', { class: 'guide', r: R.guide });
+  /* the rim: one solid circle round the whole instrument, so it reads as a
+     compass rather than a dial, and a cube on it at each stage's heading */
+  el('circle', { class: 'rim', r: R.rim });
+  const cubes = SEG.map(sg => { const [x, y] = P(R.rim, sg.mid);
+    return el('rect', { class: 'cube', x: x - 5, y: y - 5, width: 10, height: 10, transform: `rotate(${sg.mid} ${x} ${y})` }); });
 
   /* the stage track: three rounded arcs, a glow under the live one, and
      each stage's name set along the inside of its arc */
@@ -266,7 +297,7 @@
   /* ── the heading: followed, critically damped ──────────────────────── */
   let heading = SEG[0].mid, target = heading, vel = 0, dragging = false, t0 = performance.now(), moveStart = t0, lastLive = -1;
   const $ = id => document.getElementById(id);
-  const hdg = $('rd-hdg'), seg = $('rd-seg'), hudT = $('hud-t'), hudD = $('hud-d');
+  const hdg = $('rd-hdg'), seg = $('rd-seg'), hudD = $('hud-d');
   const norm = d => ((d % 360) + 360) % 360;
   const angDist = (a, b) => { const x = Math.abs(norm(a) - norm(b)); return Math.min(x, 360 - x); };
 
@@ -277,7 +308,8 @@
       lastLive = live;
       arcs.forEach((o, i) => [o.a, o.g, o.t].forEach(n => n.classList.toggle('on', i === live)));
       ticks.forEach(t => t.n.classList.toggle('on', segOf(t.d) === live && t.d % 120 > 4 && t.d % 120 < 116));
-      seg.textContent = `${pad(live + 1)} / 03`;
+      seg.textContent = `${pad(live + 1)} · ${SHORT[live]}`;
+      cubes.forEach((c, i) => c.setAttribute('opacity', i === live ? 1 : .32));
     }
     spokes.forEach(s => {
       const on = segOf(s.d) === live, near = Math.exp(-Math.pow(angDist(s.d, heading) / C.reach, 2));
@@ -286,7 +318,7 @@
     });
     hdg.textContent = norm(heading).toFixed(2).padStart(6, '0') + '°';
     const dd = target - heading;
-    hudD.textContent = (dd >= 0 ? '+' : '−') + Math.abs(dd).toFixed(1).padStart(5, '0') + '°';
+    hudD.textContent = Math.abs(dd) < 0.05 ? 'On course' : (dd >= 0 ? '+' : '−') + Math.abs(dd).toFixed(1).padStart(5, '0') + '°';
   }
 
   let last = performance.now();
@@ -303,7 +335,6 @@
       }
     }
     if (!REDUCED) inner.setAttribute('transform', `rotate(${((now - t0) / 1000 * 4 * C.drift) % 360})`);
-    hudT.textContent = ((now - moveStart) / 1000).toFixed(2);
     paint();
   }
 

@@ -212,6 +212,7 @@
       n.removeAttribute('hidden');
       bodyEl.appendChild(n);
     });
+    found.forEach(attachBake);
     /* the page's own show/hide affordances now describe nothing */
     ['#toggle', '#tune-hide', '#k-close'].forEach(function (sel) {
       var n = document.querySelector(sel);
@@ -231,6 +232,79 @@
       if (empty) empty.remove();
     }
     return found.length;
+  }
+
+  /* ═══ bake ═════════════════════════════════════════════════════════
+     Every panel gets "Bake settings": the Polaroids idea, for any page.
+     A page that bakes its own config (assets/bake.js — it has #bk-bake)
+     is left alone. For every other panel the dock snapshots the controls
+     themselves — each slider, select, colour, checkbox, and which button
+     of each .seg row is on — into this browser, per page; on the next
+     load it plays them back into the panel, firing the same input and
+     change events a hand on the control would, so the page applies them
+     exactly as if they had been set by hand. "Clear baked" drops them. */
+  function attachBake(panel) {
+    if (panel.dataset.wbBake || panel.querySelector('#bk-bake')) return;
+    panel.dataset.wbBake = '1';
+    var KEY = 'tibba.wbbake.' + location.pathname;
+    var box = document.createElement('div');
+    box.className = 'wb-bake';
+    box.innerHTML = '<p class="tune-sub">Layout</p><div class="tune-acts">' +
+      '<button class="tune-btn" type="button" data-wb="bake">Bake settings</button>' +
+      '<button class="tune-btn" type="button" data-wb="clear">Clear baked</button></div><p class="why"></p>';
+    panel.appendChild(box);
+    var why = box.querySelector('.why');
+    function controls() {
+      return Array.prototype.filter.call(panel.querySelectorAll('input, select, textarea'), function (c) {
+        return !box.contains(c) && c.type !== 'file' && c.type !== 'button' && c.type !== 'submit';
+      });
+    }
+    function segs() {
+      return Array.prototype.filter.call(panel.querySelectorAll('.seg'), function (g) { return !box.contains(g); });
+    }
+    var keyOf = function (c, i) { return c.id ? '#' + c.id : 'n' + i; };
+    function snapshot() {
+      var out = { v: {}, s: {} };
+      controls().forEach(function (c, i) {
+        out.v[keyOf(c, i)] = (c.type === 'checkbox' || c.type === 'radio') ? c.checked : c.value;
+      });
+      segs().forEach(function (g, i) {
+        var on = Array.prototype.indexOf.call(g.children, g.querySelector('.on'));
+        if (on >= 0) out.s[g.id ? '#' + g.id : 'g' + i] = on;
+      });
+      return out;
+    }
+    function restore(b) {
+      controls().forEach(function (c, i) {
+        var k = keyOf(c, i);
+        if (!(k in b.v)) return;
+        if (c.type === 'checkbox' || c.type === 'radio') { if (c.checked === b.v[k]) return; c.checked = b.v[k]; }
+        else { if (c.value === b.v[k]) return; c.value = b.v[k]; }
+        c.dispatchEvent(new Event('input', { bubbles: true }));
+        c.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+      segs().forEach(function (g, i) {
+        var k = g.id ? '#' + g.id : 'g' + i, want = b.s[k];
+        if (want == null || !g.children[want] || g.children[want].classList.contains('on')) return;
+        g.children[want].click();
+      });
+    }
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) {}
+    why.textContent = saved ? 'This browser is showing baked settings.' : "Showing the page's defaults.";
+    box.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-wb]'); if (!b) return;
+      if (b.dataset.wb === 'bake') {
+        try { localStorage.setItem(KEY, JSON.stringify(snapshot())); } catch (err) {}
+        why.textContent = 'Baked — they load on the next refresh.';
+      } else { try { localStorage.removeItem(KEY); } catch (err) {} location.reload(); }
+    });
+    /* play the bake back once the page has finished wiring its panel */
+    if (saved) {
+      var go = function () { setTimeout(function () { restore(saved); }, 120); };
+      if (document.readyState === 'complete') requestAnimationFrame(function () { requestAnimationFrame(go); });
+      else window.addEventListener('load', go, { once: true });
+    }
   }
 
   /* Some pages own the wheel outright — topo-peaks moves focus between summits

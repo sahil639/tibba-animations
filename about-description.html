@@ -14,24 +14,18 @@
 
 <style>
 /* ══════════════════════════════════════════════════════════════════════════
-   About us — description, revealed on scroll
+   About us — description, the trailing fill
    ─────────────────────────────────────────────────────────────────────────
    The studio in prose (the same three paragraphs as about.html), set large
-   and left-aligned across most of the viewport's width, and brought up out
-   of the dark as the page scrolls — word by word, line by line or
-   paragraph by paragraph.
+   and held in place while the page scrolls past it. Scrolling fills the
+   text letter by letter from a dim gray to white, the fill's front edge
+   trailing off over a few letters, so the words seem to be written in as
+   you go. When the passage is taller than the screen, it glides up to keep
+   the line being filled near the middle; the lines above stay lit.
+   Scrolling back empties it again in reverse.
 
-   The text is not pinned: at this size it is taller than a screen, so it
-   scrolls as ordinary copy and the reveal is a scrub over its own passage.
-   The reveal starts when the top of the text reaches START_AT of the
-   viewport, and is complete after DISTANCE of scroll — by default (auto)
-   the height of the text plus a third of a screen, so each line lights
-   roughly as it passes the middle of the viewport. Scrolling back returns it to the dark in reverse.
-   Only opacity, a hair of blur and a few pixels of rise are animated, so
-   the paragraphs are laid out once and never reflow.
-
-   Tunables: DESCRIPTION_CONFIG in the script (max text width, reveal
-   distance, where it starts, and the unit / timing / look dials).
+   Tunables: DESCRIPTION_CONFIG in the script, all on the panel, with
+   Bake settings to keep them on the next refresh.
    ═════════════════════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
@@ -39,32 +33,39 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
 .lead { min-height: 60vh; display: flex; align-items: flex-end; padding: 0 var(--gut) 8vh; }
 .lead p { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
 
-#reveal-scope { position: relative; padding: clamp(40px, 8vh, 96px) var(--gut) 0; }
-.side { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 16px 40px;
-  max-width: var(--copy-max, 92vw); margin-bottom: clamp(36px, 6vh, 72px); }
+/* the scope is as tall as the scroll the fill takes; the stage is held */
+#reveal-scope { position: relative; height: var(--scope-h, 400vh); }
+#reveal-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; display: grid; grid-template-rows: auto minmax(0, 1fr);
+  padding: clamp(72px, 11vh, 120px) var(--gut) 0; }
+.side { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 40px;
+  max-width: var(--copy-max, 92vw); padding-bottom: clamp(18px, 3vh, 32px); }
 .side .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
-.side h2 { margin-top: 14px; color: #fff; font-weight: 400; font-size: clamp(18px, 1.5vw, 24px); line-height: 1.15; letter-spacing: -.02em; }
-.side .meter { position: sticky; top: 20px; display: flex; align-items: center; gap: 12px; font-size: 10px; letter-spacing: .18em; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+.side h2 { margin-top: 12px; color: #fff; font-weight: 400; font-size: clamp(18px, 1.5vw, 24px); line-height: 1.15; letter-spacing: -.02em; }
+.side .meter { display: flex; align-items: center; gap: 12px; font-size: 10px; letter-spacing: .18em; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
 .side .meter i { position: relative; display: block; width: 160px; height: 1px; background: rgba(255,255,255,.12); }
 .side .meter i::after { content: ''; position: absolute; inset: 0; background: var(--accent); transform-origin: left; transform: scaleX(var(--p, 0)); }
+.side .meter::before { content: ''; width: 6px; height: 6px; background: var(--accent); }
 
-/* the copy: left-aligned and large — a measure of ~14 words at desktop */
-#copy { max-width: var(--copy-max, 92vw); }
-#copy p {
-  color: #fff; font-size: clamp(26px, 3.55vw, 64px); line-height: 1.16; letter-spacing: -.025em; font-weight: 300;
-}
-#copy p + p { margin-top: .7em; }
-#copy .u { --q: 0; opacity: calc(var(--dim) + (1 - var(--dim)) * var(--q));
-  filter: blur(calc((1 - var(--q)) * var(--blur) * 1px));
-  display: inline-block; transform: translateY(calc((1 - var(--q)) * var(--rise) * 1px)); will-change: opacity, transform; }
-#copy .hl { color: var(--accent); }
-.after { height: 70vh; }
+/* the window the text moves in: a soft fade at its top and foot */
+.win { position: relative; min-height: 0; overflow: hidden;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 var(--fade, 9%), #000 calc(100% - var(--fade, 9%)), transparent 100%);
+          mask-image: linear-gradient(180deg, transparent 0, #000 var(--fade, 9%), #000 calc(100% - var(--fade, 9%)), transparent 100%); }
+#copy { max-width: var(--copy-max, 92vw); padding: 4vh 0 30vh; will-change: transform; }
+#copy p { color: #fff; font-size: var(--size, clamp(28px, 3.9vw, 68px)); line-height: 1.12; letter-spacing: -.03em; font-weight: var(--weight, 500); }
+#copy p + p { margin-top: .75em; }
+#copy .w { display: inline-block; white-space: nowrap; }
+/* each letter: lit by --q, 0 → the resting gray, 1 → white (or orange in a highlight) */
+#copy .c { --q: 0; color: color-mix(in srgb, var(--lit, #fff) calc(var(--q) * 100%), var(--rest, #3a3a3a)); }
+#copy .hl .c { --lit: var(--accent); }
+.after { height: 60vh; }
+@media (max-width: 640px) { #copy p { line-height: 1.16; } .side .meter i { width: 90px; } }
+@media (prefers-reduced-motion: reduce) { #copy .c { --q: 1 !important; } }
 </style>
 <link rel="stylesheet" href="assets/tune.css">
 </head>
 <body>
 
-<div class="lead"><p>About us — description · scroll to reveal</p></div>
+<div class="lead"><p>About us — description · scroll to fill</p></div>
 
 <section id="reveal-scope" aria-labelledby="who-h">
   <div id="reveal-stage">
@@ -75,6 +76,7 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
       </div>
       <p class="meter"><i></i><span id="pct">000</span></p>
     </div>
+    <div class="win">
     <div id="copy">
       <p>We are Tibba, a lean design team based out of India. Tibba is a young studio
          founded in 2023, but it comes with over a decade of experience. Our team has
@@ -87,160 +89,143 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
          listening to a client's needs and modifying our processes accordingly — rather
          than arriving with a process and fitting the client into it.</p>
     </div>
+    </div>
   </div>
 </section>
 <div class="after"></div>
 
-<script>
-(function () {
-  /* ── DESCRIPTION_CONFIG — layout and reveal ─────────────────────────── */
-  const DESCRIPTION_CONFIG = {
-    maxWidth: 92,          // vw — the text's measure (capped at 1640px)
-    distance: null,        // vh of scroll for the full reveal; null = auto (the text's own height)
-    startAt: 0.82,         // the reveal starts when the text's top reaches this fraction of the viewport
-  };
-  const L = DESCRIPTION_CONFIG;
+<script type="module">
+  import { applyBaked, bakeControls } from './assets/bake.js';
 
-  /* ── the dials ─────────────────────────────────────────────────────── */
-  const R = {
-    unit: 'word',          // word · line · para
-    speed: 1,              // how much of the scroll the reveal uses; >1 finishes sooner
-    window: 0.1,           // how long one unit takes, as a share of the scroll
-    stagger: 0.8,          // 0 = everything at once, 1 = strictly one after another
-    ease: [0.65, 0, 0.35, 1],
-    dim: 0.12, blur: 3, rise: 6,
+  /* ── DESCRIPTION_CONFIG — every tunable ─────────────────────────────── */
+  const DESCRIPTION_CONFIG = {
+    length: 380,          // vh of scroll the whole fill takes (the text is held for this long)
+    trail: 9,             // letters over which the front edge fades from gray to white
+    rest: 0.22,           // how bright unfilled letters sit (0 = gone, 1 = white)
+    size: 3.9,            // vw — the text size (clamped 28–68px... and up with it)
+    weight: 500,          // 300 · 400 · 500 · 600
+    follow: 0.42,         // where the line being filled is held, as a share of the window's height
+    glide: 8,             // how quickly the text follows (higher = tighter)
+    maxWidth: 92,         // vw — the text's measure (capped at 1640px)
+    unit: 'letter',       // letter · word — what the fill steps through
   };
+  const C = DESCRIPTION_CONFIG;
+  const BAKE_KEY = 'tibba.bake.about-description';
+  applyBaked(BAKE_KEY, C);
   const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  function bezier(x1, y1, x2, y2) {
-    const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
-    const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
-    const X = t => ((ax * t + bx) * t + cx) * t, Y = t => ((ay * t + by) * t + cy) * t;
-    return x => {
-      if (x <= 0) return 0; if (x >= 1) return 1;
-      let lo = 0, hi = 1, t = x;
-      for (let i = 0; i < 22; i++) { const v = X(t); if (Math.abs(v - x) < 1e-5) break; if (v < x) lo = t; else hi = t; t = (lo + hi) / 2; }
-      return Y(t);
-    };
-  }
-  let ease = bezier(...R.ease);
-
-  /* ── split into words, keeping the highlights ──────────────────────── */
+  /* ── split into words (kept whole across the wrap) and letters ───────── */
   const copy = document.getElementById('copy');
-  const words = [];
-  copy.querySelectorAll('p').forEach((p, pi) => {
-    const walk = node => {
-      [...node.childNodes].forEach(n => {
-        if (n.nodeType === 3) {
-          const frag = document.createDocumentFragment();
-          n.textContent.split(/(\s+)/).forEach(tok => {
-            if (!tok) return;
-            if (/^\s+$/.test(tok)) { frag.appendChild(document.createTextNode(' ')); return; }
-            const s = document.createElement('span'); s.className = 'u'; s.textContent = tok; s.dataset.p = pi;
-            frag.appendChild(s); words.push(s);
-          });
-          n.replaceWith(frag);
-        } else if (n.nodeType === 1) walk(n);
-      });
-    };
+  const letters = [];             // every letter, in reading order
+  const wordOf = [];              // the word index of each letter
+  let wi = 0;
+  copy.querySelectorAll('p').forEach(p => {
+    const walk = node => [...node.childNodes].forEach(n => {
+      if (n.nodeType === 3) {
+        const frag = document.createDocumentFragment();
+        n.textContent.split(/(\s+)/).forEach(tok => {
+          if (!tok) return;
+          if (/^\s+$/.test(tok)) { frag.appendChild(document.createTextNode(' ')); return; }
+          const w = document.createElement('span'); w.className = 'w';
+          for (const ch of tok) { const c = document.createElement('span'); c.className = 'c'; c.textContent = ch; w.appendChild(c); letters.push(c); wordOf.push(wi); }
+          wi++; frag.appendChild(w);
+        });
+        n.replaceWith(frag);
+      } else if (n.nodeType === 1) walk(n);
+    });
     walk(p);
   });
-
-  /* ── the units: words as they are, or grouped into lines / paragraphs.
-     Lines are read off the laid-out page, so they follow the real wrap. */
-  let groups = [];
-  function group() {
-    if (R.unit === 'word') groups = words.map(w => [w]);
-    else if (R.unit === 'para') {
-      const m = new Map(); words.forEach(w => { const k = w.dataset.p; if (!m.has(k)) m.set(k, []); m.get(k).push(w); });
-      groups = [...m.values()];
-    } else {
-      groups = []; let top = null, cur = null;
-      words.forEach(w => {
-        const t = Math.round(w.offsetTop);
-        if (t !== top) { cur = []; groups.push(cur); top = t; }
-        cur.push(w);
-      });
-    }
-  }
+  const N = letters.length, W = wi;
 
   const scope = document.getElementById('reveal-scope');
+  const win = document.querySelector('.win');
   const pct = document.getElementById('pct');
   const meter = document.querySelector('.side .meter i');
+
   function layout() {
-    scope.style.setProperty('--copy-max', `min(${L.maxWidth}vw, 1640px)`);
+    scope.style.setProperty('--scope-h', (C.length + 100) + 'vh');
+    scope.style.setProperty('--copy-max', `min(${C.maxWidth}vw, 1640px)`);
+    copy.style.setProperty('--size', `clamp(28px, ${C.size}vw, ${Math.round(C.size * 17.5)}px)`);
+    copy.style.setProperty('--weight', C.weight);
+    const g = Math.round(C.rest * 255);
+    copy.style.setProperty('--rest', `rgb(${g},${g},${g})`);
   }
-  /* how much scroll the whole reveal takes, in px */
-  const distancePx = () => L.distance == null ? copy.offsetHeight + innerHeight * 0.3 : L.distance / 100 * innerHeight;
-  function apply() {
-    copy.style.setProperty('--dim', R.dim);
-    copy.style.setProperty('--blur', R.blur);
-    copy.style.setProperty('--rise', R.rise);
-    /* scrolled past the start line, as a share of the reveal distance */
-    const past = innerHeight * L.startAt - copy.getBoundingClientRect().top;
-    const raw = Math.min(1, Math.max(0, past / distancePx()));
-    const t = Math.min(1, raw * R.speed);
-    const n = groups.length;
-    /* where each unit starts: spread across whatever the window leaves */
-    const span = Math.max(0, 1 - R.window);
-    groups.forEach((g, i) => {
-      const start = n > 1 ? (i / (n - 1)) * span * R.stagger : 0;
-      const q = REDUCED ? 1 : ease(Math.min(1, Math.max(0, (t - start) / Math.max(1e-4, R.window + (1 - R.stagger) * span))));
-      for (const w of g) w.style.setProperty('--q', q.toFixed(4));
-    });
+
+  /* progress through the held stretch, 0 → 1 */
+  function progress() {
+    const r = scope.getBoundingClientRect(), span = r.height - innerHeight;
+    return span > 0 ? Math.min(1, Math.max(0, -r.top / span)) : 1;
+  }
+
+  let shown = -1, y = 0, yT = 0, last = performance.now();
+  function paint(t) {
+    /* the front runs from before the first letter to past the last, so the
+       trail fully enters and fully leaves */
+    const byWord = C.unit === 'word';
+    const total = byWord ? W : N, trail = byWord ? Math.max(1, C.trail / 5) : C.trail;
+    const front = t * (total + trail);
+    let lead = 0;
+    for (let i = 0; i < N; i++) {
+      const k = byWord ? wordOf[i] : i;
+      const q = REDUCED ? 1 : Math.min(1, Math.max(0, (front - k) / trail));
+      const s = q.toFixed(3);
+      if (letters[i]._q !== s) { letters[i]._q = s; letters[i].style.setProperty('--q', s); }
+      if (q > 0) lead = i;
+    }
     meter.style.setProperty('--p', t.toFixed(3));
     pct.textContent = String(Math.round(t * 100)).padStart(3, '0');
+    /* hold the line being filled at C.follow of the window */
+    const wh = win.clientHeight, ch = copy.scrollHeight;
+    const lineTop = letters[lead].offsetTop - copy.offsetTop;
+    yT = Math.min(Math.max(0, ch - wh), Math.max(0, lineTop - wh * C.follow));
   }
-  addEventListener('scroll', apply, { passive: true });
-  addEventListener('resize', () => { group(); apply(); });
-  document.fonts && document.fonts.ready.then(() => { group(); apply(); });
-  layout(); group(); apply();
+  function loop(now) {
+    requestAnimationFrame(loop);
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    const t = progress();
+    if (t !== shown) { shown = t; paint(t); }
+    y += (yT - y) * (REDUCED ? 1 : 1 - Math.exp(-C.glide * dt));
+    copy.style.transform = `translateY(${(-y).toFixed(2)}px)`;
+  }
+  layout();
+  requestAnimationFrame(loop);
+  addEventListener('resize', () => { shown = -1; });
 
   /* ── the panel ─────────────────────────────────────────────────────── */
   const el = document.createElement('div');
   el.id = 'tune';
+  const R = (id, label, min, max, step, val, unit = '') => `<div class="row"><label>${label}<i id="v-${id}">${val}${unit}</i></label><input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}" data-unit="${unit}"></div>`;
   el.innerHTML = `
-    <div id="tune-head"><b>Text reveal</b><button id="tune-hide" title="Hide (H)">–</button></div>
-    <p class="tune-sub">Layout</p>
-    <div class="row"><label>Max text width<i id="v-mw">${L.maxWidth}vw</i></label><input type="range" id="r-mw" min="40" max="100" value="${L.maxWidth}"></div>
-    <div class="row"><label>Reveal distance<i id="v-ds">auto</i></label><input type="range" id="r-ds" min="0" max="400" value="0"></div>
-    <div class="row"><label>Starts at<i id="v-sa">${L.startAt}</i></label><input type="range" id="r-sa" min="30" max="100" value="${L.startAt * 100}"></div>
-    <p class="tune-sub">Unit</p>
-    <div class="seg" id="r-unit"><button data-u="word" class="on">Word</button><button data-u="line">Line</button><button data-u="para">Paragraph</button></div>
-    <p class="tune-sub">Timing</p>
-    <div class="row"><label>Reveal speed<i id="v-sp">1.00×</i></label><input type="range" id="r-sp" min="50" max="250" value="100"></div>
-    <div class="row"><label>Unit duration<i id="v-wn">0.10</i></label><input type="range" id="r-wn" min="2" max="60" value="10"></div>
-    <div class="row"><label>Stagger<i id="v-st">0.80</i></label><input type="range" id="r-st" min="0" max="100" value="80"></div>
-    <p class="tune-sub">Easing</p>
-    <div class="seg" id="r-ease">
-      <button data-b="0.65,0,0.35,1" class="on">In-out</button><button data-b="0.22,1,0.36,1">Out</button>
-      <button data-b="0.55,0,1,0.45">In</button><button data-b="0,0,1,1">Linear</button></div>
-    <p class="tune-sub">Look</p>
-    <div class="row"><label>Resting opacity<i id="v-dm">0.12</i></label><input type="range" id="r-dm" min="0" max="60" value="12"></div>
-    <div class="row"><label>Blur<i id="v-bl">3px</i></label><input type="range" id="r-bl" min="0" max="12" value="3"></div>
-    <div class="row"><label>Rise<i id="v-rs">6px</i></label><input type="range" id="r-rs" min="0" max="30" value="6"></div>`;
+    <div id="tune-head"><b>Text fill</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <p class="tune-sub">Fill</p>
+    <div class="seg" id="s-unit"><button data-u="letter">Letter</button><button data-u="word">Word</button></div>
+    ${R('ln', 'Scroll length', 120, 900, 10, C.length, 'vh')}
+    ${R('tr', 'Trail', 1, 40, 1, C.trail, ' letters')}
+    ${R('rs', 'Unfilled brightness', 0, 0.6, 0.01, C.rest)}
+    <p class="tune-sub">Type</p>
+    ${R('sz', 'Text size', 2, 6, 0.05, C.size, 'vw')}
+    <div class="seg" id="s-wt">${[300, 400, 500, 600].map(w => `<button data-w="${w}">${w}</button>`).join('')}</div>
+    ${R('mw', 'Max text width', 40, 100, 1, C.maxWidth, 'vw')}
+    <p class="tune-sub">Follow</p>
+    ${R('fo', 'Held at', 0.1, 0.8, 0.01, C.follow)}
+    ${R('gl', 'Glide', 1, 30, 0.5, C.glide)}
+    ${bakeControls.html}`;
   document.body.appendChild(el);
   const q = id => el.querySelector('#' + id);
-  const seg = (id, fn) => q(id).addEventListener('click', e => {
-    const b = e.target.closest('button'); if (!b) return;
-    [...q(id).children].forEach(c => c.classList.toggle('on', c === b)); fn(b);
+  const bind = (id, key) => q('s-' + id).addEventListener('input', e => {
+    C[key] = +e.target.value; q('v-' + id).textContent = e.target.value + e.target.dataset.unit; layout(); shown = -1;
   });
-  seg('r-unit', b => { R.unit = b.dataset.u; group(); apply(); });
-  seg('r-ease', b => { R.ease = b.dataset.b.split(',').map(Number); ease = bezier(...R.ease); apply(); });
-  const bind = (sid, vid, map, fmt, key) => q(sid).addEventListener('input', e => {
-    const v = map(+e.target.value); R[key] = v; q(vid).textContent = fmt(v); apply();
-  });
-  bind('r-sp', 'v-sp', n => n / 100, v => v.toFixed(2) + '×', 'speed');
-  bind('r-wn', 'v-wn', n => n / 100, v => v.toFixed(2), 'window');
-  bind('r-st', 'v-st', n => n / 100, v => v.toFixed(2), 'stagger');
-  bind('r-dm', 'v-dm', n => n / 100, v => v.toFixed(2), 'dim');
-  bind('r-bl', 'v-bl', n => n, v => v + 'px', 'blur');
-  bind('r-rs', 'v-rs', n => n, v => v + 'px', 'rise');
-  q('r-mw').addEventListener('input', e => { L.maxWidth = +e.target.value; q('v-mw').textContent = L.maxWidth + 'vw'; layout(); group(); apply(); });
-  q('r-ds').addEventListener('input', e => { const v = +e.target.value; L.distance = v ? v : null; q('v-ds').textContent = v ? v + 'vh' : 'auto'; apply(); });
-  q('r-sa').addEventListener('input', e => { L.startAt = +e.target.value / 100; q('v-sa').textContent = L.startAt.toFixed(2); apply(); });
+  bind('ln', 'length'); bind('tr', 'trail'); bind('rs', 'rest'); bind('sz', 'size'); bind('mw', 'maxWidth'); bind('fo', 'follow'); bind('gl', 'glide');
+  const seg = (id, attr, key, cast = v => v) => {
+    const g = q(id);
+    [...g.children].forEach(b => b.classList.toggle('on', String(C[key]) === b.dataset[attr]));
+    g.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+      [...g.children].forEach(c => c.classList.toggle('on', c === b)); C[key] = cast(b.dataset[attr]); layout(); shown = -1; });
+  };
+  seg('s-unit', 'u', 'unit'); seg('s-wt', 'w', 'weight', Number);
+  bakeControls.bind(el, BAKE_KEY, C, 'DESCRIPTION_CONFIG');
   q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
-})();
+  if (window.wb && window.wb.adopt) window.wb.adopt();
 </script>
 </body>
 </html>

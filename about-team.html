@@ -13,156 +13,130 @@
 <script src="assets/workbench.js" defer></script>
 
 
-<!-- the shared control-panel design; last in the head so it wins over
-     whatever styling this page declared for its own panel -->
 <style>
+/* ══════════════════════════════════════════════════════════════════════════
+   About us — team, as Metrics plates
+   ─────────────────────────────────────────────────────────────────────────
+   Each member on a plate set the way the Metrics section sets its numbers:
+   glass and a hairline, the four sharing edges in a row, corner brackets,
+   an index row, and the orange cube in the corner. Behind each person a
+   contour field drifts — every card its own ground (assets/card-topo.js),
+   each with its own settings on the panel. The mountains are gone.
+
+   The plates open as the metric boxes do, once, the first time the row
+   comes into view. On hover the portrait still dissolves into a one-bit
+   ordered dither, and the contours behind come up a little.
+
+   Every value: TEAM_CONFIG in the script, on the panel, and bakeable.
+   ═════════════════════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
-.team { --ground: #0d0d0f; padding: clamp(80px, 14vh, 150px) var(--gut) clamp(80px, 12vh, 140px); max-width: 1600px; margin: 0 auto; }
-.head .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.team { padding: clamp(80px, 14vh, 150px) var(--gut) clamp(80px, 12vh, 140px); max-width: 1600px; margin: 0 auto; }
+.head .eyebrow { display: flex; align-items: center; gap: 10px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.head .eyebrow::before { content: ''; width: 7px; height: 7px; background: var(--accent); }
 .head h2 { margin-top: 16px; color: #fff; font-weight: 300; font-size: clamp(30px, 3.6vw, 60px); line-height: 1.04; letter-spacing: -.035em; max-width: 18ch; }
 .head p { margin-top: 18px; max-width: 52ch; color: var(--ink-mute); font-size: clamp(14px, 1.05vw, 16px); line-height: 1.7; }
 
-.people { margin-top: clamp(40px, 7vh, 80px); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(12px, 1.4vw, 22px); }
-.member { outline: none; cursor: default; }
-.member .scene { position: relative; aspect-ratio: 3 / 4; overflow: hidden; background: var(--ground);
-  border: 1px solid rgba(255,255,255,.08); transition: border-color .4s linear; }
-.member.hot .scene, .member:focus-visible .scene { border-color: rgba(255,255,255,.2); }
-/* the two mountains: sized and placed off TEAM_CONFIG (--w, --x, --y) */
-.mtn { position: absolute; left: 50%; bottom: calc(var(--y) * 100%); width: calc(var(--w) * 100%);
-  transform: translate(calc(-50% + var(--x) * 100% / var(--w)), var(--shift, 0px)); transition: transform var(--dur, .55s) cubic-bezier(.22,1,.36,1); pointer-events: none; }
-.mtn svg { display: block; width: 100%; height: auto; overflow: visible; }
-.mtn.back { z-index: 1; }
-.mtn.front { z-index: 3; }
-.member.hot .mtn.back { --shift: calc(var(--part) * -1); }
-.member.hot .mtn.front { --shift: var(--part); }
-/* the person, standing between them */
-.who { position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--ph) * 100%); z-index: 2; }
+.people { margin-top: clamp(40px, 7vh, 80px); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; }
+.member { position: relative; margin-left: -1px; outline: none; cursor: default; display: flex; flex-direction: column; }
+.member:first-child { margin-left: 0; }
+.member .plate { position: absolute; inset: 0; border: 1px solid rgba(255,255,255,.16); background: rgba(10,10,12,.78); clip-path: inset(50% 0 50% 0); transition: border-color .4s linear; }
+.member.hot .plate, .member:focus-visible .plate { border-color: rgba(255,75,31,.5); z-index: 1; }
+.member .hl { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--accent); transform: scaleX(0); opacity: 0; pointer-events: none; z-index: 2; }
+.member .cn { position: absolute; width: 10px; height: 10px; border-color: #fff; border-style: solid; opacity: 0; z-index: 2; }
+.member .cn.tl { left: -1px; top: -1px; border-width: 1px 0 0 1px; }
+.member .cn.tr { right: -1px; top: -1px; border-width: 1px 1px 0 0; }
+.member .cn.bl { left: -1px; bottom: -1px; border-width: 0 0 1px 1px; }
+.member .cn.br { right: -1px; bottom: -1px; border-width: 0 1px 1px 0; }
+.member .pin { position: absolute; right: -1px; top: -1px; width: 8px; height: 8px; background: var(--accent); transform: scale(0); z-index: 3; }
+.member .in { position: relative; z-index: 1; display: flex; flex-direction: column; padding: clamp(14px, 1.4vw, 22px) clamp(14px, 1.5vw, 24px) clamp(16px, 1.6vw, 24px); }
+.member .k { display: flex; justify-content: space-between; font-size: 9.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); opacity: 0; }
+.member .k b { color: var(--accent); font-weight: 400; }
+/* the window the person stands in, over their own contours */
+.member .scene { position: relative; margin-top: 14px; aspect-ratio: 4 / 5; overflow: hidden; opacity: 0; }
+.member .scene::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(10,10,12,0) 55%, rgba(10,10,12,.85) 100%); }
+.who { position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--ph) * 100%); z-index: 1; }
 .who img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%; user-select: none; }
 .who canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.member .name { margin-top: 14px; color: #fff; font-size: clamp(15px, 1.15vw, 18px); letter-spacing: -.01em; }
-.member .role { margin-top: 4px; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); }
-@media (max-width: 900px) { .people { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.member .name { margin-top: 16px; color: #fff; font-weight: 300; font-size: clamp(20px, 1.7vw, 30px); line-height: 1; letter-spacing: -.03em; opacity: 0; }
+.member .role { margin-top: 8px; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-mute); opacity: 0; }
+@media (max-width: 900px) {
+  .people { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .member:nth-child(odd) { margin-left: 0; } .member:nth-child(n+3) { margin-top: -1px; }
+}
+@media (prefers-reduced-motion: reduce) { .member .plate { clip-path: none; } .member .k, .member .scene, .member .name, .member .role { opacity: 1; } .member .pin { transform: none; } }
 </style>
 <link rel="stylesheet" href="assets/tune.css">
 </head>
 <body>
 
-<!-- ─────────────────────────────────────────────────────────────────────────
-     About us — team
-
-     Each member stands between two small mountains drawn in the site's
-     contour line — a larger one behind, a smaller one in front — so the card
-     reads as a little landscape with a person in it. On hover the portrait
-     dissolves into a one-bit ordered dither (and back), the dissolve itself
-     stepping through the Bayer matrix so even the transition is dithered,
-     and the two mountains part a few pixels.
-
-     Everything tunable is TEAM_CONFIG in the script, and on the panel.
-
-     The site menu and the index read this page from assets/manifest.js by its
-     id. Change the label there freely; change the id and it shows as New
-     again for everyone.
-     ───────────────────────────────────────────────────────────────────── -->
-
 <section class="team" aria-labelledby="team-h">
   <div class="head">
-    <p class="eyebrow">[ &nbsp;Our team&nbsp; ]</p>
+    <p class="eyebrow">Our team</p>
     <h2 id="team-h">The people, and the ones beside them</h2>
     <p>In addition to our team, we work with a number of collaborators and advisors,
        depending on the needs of a project.</p>
   </div>
   <div class="people" id="people"></div>
 </section>
+<div style="height: 20vh"></div>
 
-<script>
-/* ══════════════════════════════════════════════════════════════════════════
-   TEAM_CONFIG — the mountains, the portrait, the dither
-   Mountain sizes and positions are fractions of the card's width: x from
-   the card's centre (− left, + right), y up from the card's bottom edge.
-   ═════════════════════════════════════════════════════════════════════════ */
-const TEAM_CONFIG = {
-  person: { height: 0.86 },                    // portrait height, fraction of the portrait window
-  back:  { width: 1.25, x: 0.2, y: 0.24, peak: 0.95, levels: 15 },
-  front: { width: 0.9, x: -0.26, y: -0.03, peak: 0.72, levels: 10 },
-  line:  { width: 1.1, ink: '#9FB0E8', summitRings: 2, accent: '#FF4B1F' },
-  hover: { part: 8 },                          // px each mountain moves apart on hover
-  dither: {
-    intensity: 1,        // 0 = none, 1 = the whole portrait goes one-bit
-    cell: 2,             // px per dither dot
-    duration: 0.55,      // s for the dissolve, in and out
-    contrast: 1.25,      // tone curve before dithering
-    ink: '#E8E3DC',      // the lit dots
-    ground: '#34322e',   // the unlit dots — a dim warm tone, so the figure holds together
-  },
-};
-const TEAM = [
-  { name: 'Rahul Beniwal',  role: 'Founder, designer', img: 'assets/people/rahul.png', seed: 3 },
-  { name: 'Neel Lakhwani',  role: 'Designer',          img: 'assets/people/neel.png',  seed: 7 },
-  { name: 'Riya Pandey',    role: 'Designer',          img: 'assets/people/riya.png',  seed: 11 },
-  { name: 'Sahil Pednekar', role: 'Designer',          img: 'assets/people/sahil.png', seed: 17 },
-];
-</script>
-<script>
-(function () {
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="assets/card-topo.js"></script>
+<script type="module">
+  import { applyBaked, bakeControls } from './assets/bake.js';
+  import { topoPanel } from './assets/topo-panel.js';
+
+  /* ══ TEAM_CONFIG ═════════════════════════════════════════════════════ */
+  const TEAM_CONFIG = {
+    person: { height: 0.92 },                  // portrait height, fraction of the window it stands in
+    entrance: { duration: 1.1, stagger: 0.14, ease: 'power1.inOut' },   // as Metrics' open — plays once
+    hoverLift: 1.6,                            // the contours' strength on hover, × their resting opacity
+    dither: {
+      intensity: 1,        // 0 = none, 1 = the whole portrait goes one-bit
+      cell: 2,             // px per dither dot
+      duration: 0.55,      // s for the dissolve, in and out
+      contrast: 1.25,      // tone curve before dithering
+      ink: '#E8E3DC',      // the lit dots
+      ground: '#34322e',   // the unlit dots
+    },
+    /* one contour field per member — see assets/card-topo.js */
+    topo: [
+      { on: true, pattern: 'peak',  seed: 3,  speed: 0.4,  levels: 12, scale: 1,   opacity: 0.5, width: 1, colour: '#FF4B1F', tint: 0.3 },
+      { on: true, pattern: 'ridge', seed: 7,  speed: 0.35, levels: 11, scale: 1.1, opacity: 0.5, width: 1, colour: '#7B8FF5', tint: 0.35 },
+      { on: true, pattern: 'twin',  seed: 11, speed: 0.45, levels: 12, scale: 1,   opacity: 0.5, width: 1, colour: '#4DD9C0', tint: 0.3 },
+      { on: true, pattern: 'basin', seed: 17, speed: 0.3,  levels: 10, scale: 1.2, opacity: 0.5, width: 1, colour: '#E05555', tint: 0.3 },
+    ],
+  };
+  const TEAM = [
+    { name: 'Rahul Beniwal',  role: 'Founder, designer', img: 'assets/people/rahul.png' },
+    { name: 'Neel Lakhwani',  role: 'Designer',          img: 'assets/people/neel.png' },
+    { name: 'Riya Pandey',    role: 'Designer',          img: 'assets/people/riya.png' },
+    { name: 'Sahil Pednekar', role: 'Designer',          img: 'assets/people/sahil.png' },
+  ];
   const C = TEAM_CONFIG;
+  const BAKE_KEY = 'tibba.bake.about-team';
+  applyBaked(BAKE_KEY, C);
   const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const host = document.getElementById('people');
-
-  /* ── a mountain in contour line ─────────────────────────────────────────
-     Rings stacked bottom to top, each a slightly irregular ellipse, each
-     filled with the card's ground so every ring hides the back of the one
-     below it — the stacked-contour look of the hero, drawn flat in SVG.
-     Ink ramps from dim at the foot to pale at the top; the top rings go
-     orange, as the summits do everywhere else. */
-  const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
-  function mountain(o, seed) {
-    const Wv = 200, Hv = 130, base = 118, N = Math.max(2, Math.round(o.levels));
-    const peakH = o.peak * 110, R0 = 96, RY = 15;
-    const ink = hex(C.line.ink);
-    let out = '';
-    for (let k = 0; k <= N; k++) {
-      const t = k / N, cy = base - peakH * Math.pow(t, 0.92);
-      const rx = R0 * Math.pow(1 - t, 1.08) + 2.5, ry = RY * (1 - t * 0.72) * (rx / R0) + 1.2;
-      const pts = [];
-      for (let a = 0; a <= 64; a++) {
-        const th = a / 64 * Math.PI * 2;
-        const w = 1 + 0.07 * Math.sin(th * 3 + seed + k * 0.45) + 0.045 * Math.sin(th * 5 - seed * 1.3 + k * 0.8) + 0.03 * Math.sin(th * 9 + k);
-        pts.push((100 + Math.cos(th) * rx * w).toFixed(1) + ' ' + (cy + Math.sin(th) * ry * w).toFixed(1));
-      }
-      const top = k > N - C.line.summitRings;
-      const l = 0.35 + 0.65 * Math.sqrt(t);
-      const col = top ? C.line.accent : `rgb(${ink.map(v => Math.round(v * l + 40 * (1 - l))).join(',')})`;
-      out += `<path d="M${pts.join('L')}Z" fill="var(--ground)" stroke="${col}" stroke-width="${C.line.width}" vector-effect="non-scaling-stroke"/>`;
-    }
-    return `<svg viewBox="0 0 ${Wv} ${Hv}" aria-hidden="true">${out}</svg>`;
-  }
+  const pad = i => String(i + 1).padStart(2, '0');
 
   host.innerHTML = TEAM.map((m, i) => `
     <article class="member" data-i="${i}" tabindex="0">
-      <div class="scene">
-        <div class="mtn back"></div>
-        <div class="who"><img src="${m.img}" alt="${m.name}" draggable="false"><canvas></canvas></div>
-        <div class="mtn front"></div>
+      <div class="plate" aria-hidden="true"></div>
+      <span class="hl"></span><span class="cn tl"></span><span class="cn tr"></span><span class="cn bl"></span><span class="cn br"></span><span class="pin"></span>
+      <div class="in">
+        <p class="k"><b>${pad(i)} / ${pad(TEAM.length - 1)}</b><span>Team</span></p>
+        <div class="scene"><div class="who"><img src="${m.img}" alt="${m.name}" draggable="false"><canvas></canvas></div></div>
+        <p class="name">${m.name}</p>
+        <p class="role">${m.role}</p>
       </div>
-      <p class="name">${m.name}</p>
-      <p class="role">${m.role}</p>
     </article>`).join('');
   const cards = [...host.querySelectorAll('.member')];
-
-  function layout() {
-    cards.forEach((card, i) => {
-      const m = TEAM[i];
-      [['back', C.back], ['front', C.front]].forEach(([k, o]) => {
-        const el = card.querySelector('.mtn.' + k);
-        el.innerHTML = mountain(o, m.seed + (k === 'front' ? 5 : 0));
-        el.style.setProperty('--w', o.width); el.style.setProperty('--x', o.x); el.style.setProperty('--y', o.y);
-      });
-      card.style.setProperty('--ph', C.person.height);
-      card.style.setProperty('--part', C.hover.part + 'px');
-      card.style.setProperty('--dur', C.dither.duration + 's');
-    });
-  }
+  const topos = cards.map((c, i) => CardTopo.attach(c.querySelector('.scene'), Object.assign({}, C.topo[i])));
+  const syncTopo = i => { Object.assign(topos[i].settings, C.topo[i], { opacity: C.topo[i].opacity * (cards[i].classList.contains('hot') ? C.hoverLift : 1) }); topos[i].reseed(); };
+  function layout() { cards.forEach(card => card.style.setProperty('--ph', C.person.height)); }
+  layout();
 
   /* ── the dither ─────────────────────────────────────────────────────────
      Each portrait is dithered once, into a grid of on/off cells, from its
@@ -176,7 +150,7 @@ const TEAM = [
   const state = cards.map(() => ({ p: 0, target: 0, raf: 0, grid: null }));
 
   function prepare(i) {
-    const card = cards[i], img = card.querySelector('img'), cv = card.querySelector('canvas');
+    const card = cards[i], img = card.querySelector('img'), cv = card.querySelector('.who canvas');
     const r = img.getBoundingClientRect();
     if (!r.width || !img.naturalWidth) return;
     const cell = Math.max(1, C.dither.cell), dpr = Math.min(2, devicePixelRatio || 1);
@@ -202,7 +176,7 @@ const TEAM = [
   }
   function draw(i) {
     const S = state[i], G = S.grid; if (!G) return;
-    const cv = cards[i].querySelector('canvas'), g = cv.getContext('2d');
+    const cv = cards[i].querySelector('.who canvas'), g = cv.getContext('2d');
     g.clearRect(0, 0, cv.width, cv.height);
     const reach = S.p * C.dither.intensity;
     if (reach <= 0) return;
@@ -228,7 +202,11 @@ const TEAM = [
     S.raf = requestAnimationFrame(step);
   }
   cards.forEach((card, i) => {
-    const on = v => { card.classList.toggle('hot', v); state[i].target = v ? 1 : 0; animate(i); };
+    const on = v => {
+      card.classList.toggle('hot', v); state[i].target = v ? 1 : 0; animate(i);
+      /* the ground comes up a little under the pointer */
+      gsap.to(topos[i].settings, { opacity: C.topo[i].opacity * (v ? C.hoverLift : 1), duration: .5, ease: 'power2.out' });
+    };
     card.addEventListener('pointerenter', () => on(true));
     card.addEventListener('pointerleave', () => on(false));
     card.addEventListener('focus', () => on(true));
@@ -238,24 +216,44 @@ const TEAM = [
   });
   let rz = 0;
   addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => cards.forEach((_, i) => prepare(i)), 150); });
-  layout();
 
-  /* ── the panel: writes into TEAM_CONFIG ─────────────────────────────── */
+  /* ── the open: Metrics' sequence, once ─────────────────────────────── */
+  let tl;
+  function build() {
+    if (tl) tl.kill();
+    tl = gsap.timeline({ paused: true });
+    cards.forEach((card, i) => {
+      const q = s => card.querySelectorAll(s), o = i * C.entrance.stagger / C.entrance.duration;
+      const sx = [-8, 8, -8, 8], sy = [-8, -8, 8, 8];
+      tl.fromTo(q('.hl'), { scaleX: 0, opacity: 1 }, { scaleX: 1, duration: .28, ease: 'power3.inOut' }, o)
+        .fromTo(q('.plate'), { clipPath: 'inset(50% 0% 50% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: .34, ease: 'power3.inOut' }, o + .24)
+        .to(q('.hl'), { opacity: 0, duration: .16, ease: 'none' }, o + .52)
+        .fromTo(q('.cn'), { opacity: 0, x: k => sx[k], y: k => sy[k] }, { opacity: .9, x: 0, y: 0, duration: .22, ease: 'expo.out' }, o + .52)
+        .fromTo(q('.k'), { opacity: 0 }, { opacity: 1, duration: .2, ease: 'none' }, o + .6)
+        .fromTo(q('.scene'), { opacity: 0 }, { opacity: 1, duration: .3, ease: 'none' }, o + .6)
+        .fromTo(q('.name'), { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .24, ease: 'power2.out' }, o + .68)
+        .fromTo(q('.role'), { opacity: 0 }, { opacity: 1, duration: .2, ease: 'none' }, o + .76)
+        .fromTo(q('.pin'), { scale: 0 }, { scale: 1, duration: .1, ease: 'none' }, o + .9);
+    });
+  }
+  const play = () => { build(); gsap.to(tl, { progress: 1, duration: REDUCED ? 0.01 : tl.duration() * C.entrance.duration, ease: C.entrance.ease }); };
+  build();
+  if (REDUCED) tl.progress(1);
+  else new IntersectionObserver(([e], io) => { if (e.isIntersecting) { io.disconnect(); play(); } }, { threshold: 0.25 }).observe(host);
+
+  /* ── the panel ─────────────────────────────────────────────────────── */
   const el = document.createElement('div');
   el.id = 'tune';
   const R = (id, label, min, max, step, val, unit = '') => `<div class="row"><label>${label}<i id="v-${id}">${val}${unit}</i></label><input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}" data-unit="${unit}"></div>`;
+  const tp = topoPanel({ names: TEAM.map(m => m.name.split(' ')[0]), list: C.topo, onChange: syncTopo });
   el.innerHTML = `
     <div id="tune-head"><b>Team</b><button id="tune-hide" title="Hide (H)">–</button></div>
-    <p class="tune-sub">Mountain behind</p>
-    ${R('bw', 'Size', .4, 1.8, .01, C.back.width, '× card')}
-    ${R('bp', 'Peak height', .1, 1, .01, C.back.peak)}
-    ${R('bx', 'X', -.6, .6, .01, C.back.x)}
-    ${R('by', 'Y', -.2, .8, .01, C.back.y)}
-    <p class="tune-sub">Mountain in front</p>
-    ${R('fw', 'Size', .2, 1.4, .01, C.front.width, '× card')}
-    ${R('fp', 'Peak height', .1, 1, .01, C.front.peak)}
-    ${R('fx', 'X', -.6, .6, .01, C.front.x)}
-    ${R('fy', 'Y', -.3, .5, .01, C.front.y)}
+    <p class="tune-sub">Entrance (plays once)</p>
+    ${R('ed', 'Duration', .3, 3, .05, C.entrance.duration, 's')}
+    ${R('es', 'Stagger', 0, .8, .02, C.entrance.stagger, 's')}
+    <div class="row inline"><label>Entrance<i></i></label><button class="tune-btn" id="s-rp">Replay</button></div>
+    ${tp.html}
+    ${R('hl', 'Contours on hover', 1, 3, .05, C.hoverLift, '×')}
     <p class="tune-sub">Portrait</p>
     ${R('ph', 'Height', .5, 1, .01, C.person.height)}
     <p class="tune-sub">Dither on hover</p>
@@ -263,29 +261,23 @@ const TEAM = [
     ${R('dc', 'Dot size', 1, 8, 1, C.dither.cell, 'px')}
     ${R('dd', 'Duration', .05, 2, .05, C.dither.duration, 's')}
     ${R('dk', 'Contrast', .5, 2.5, .05, C.dither.contrast)}
-    <div class="row inline"><label>Config<i></i></label><button class="tune-btn" id="s-cp">Copy config</button></div>`;
+    ${bakeControls.html}`;
   document.body.appendChild(el);
   const q = id => el.querySelector('#' + id);
-  const bind = (id, fn) => q('s-' + id).addEventListener('input', e => {
-    const v = +e.target.value; q('v-' + id).textContent = v + e.target.dataset.unit; fn(v); layout();
-  });
-  bind('bw', v => { C.back.width = v; });  bind('bp', v => { C.back.peak = v; });
-  bind('bx', v => { C.back.x = v; });      bind('by', v => { C.back.y = v; });
-  bind('fw', v => { C.front.width = v; }); bind('fp', v => { C.front.peak = v; });
-  bind('fx', v => { C.front.x = v; });     bind('fy', v => { C.front.y = v; });
-  bind('ph', v => { C.person.height = v; requestAnimationFrame(() => cards.forEach((_, i) => prepare(i))); });
+  const bind = (id, fn) => q('s-' + id).addEventListener('input', e => { const v = +e.target.value; q('v-' + id).textContent = v + e.target.dataset.unit; fn(v); });
+  bind('ed', v => { C.entrance.duration = v; }); bind('es', v => { C.entrance.stagger = v; });
+  q('s-rp').addEventListener('click', play);
+  tp.bind(el);
+  bind('hl', v => { C.hoverLift = v; });
+  bind('ph', v => { C.person.height = v; layout(); requestAnimationFrame(() => cards.forEach((_, i) => prepare(i))); });
   bind('di', v => { C.dither.intensity = v; cards.forEach((_, i) => draw(i)); });
   bind('dc', v => { C.dither.cell = v; cards.forEach((_, i) => prepare(i)); });
   bind('dd', v => { C.dither.duration = v; });
   bind('dk', v => { C.dither.contrast = v; cards.forEach((_, i) => prepare(i)); });
-  q('s-cp').addEventListener('click', async () => {
-    const txt = 'const TEAM_CONFIG = ' + JSON.stringify(C, null, 2) + ';';
-    try { await navigator.clipboard.writeText(txt); } catch { console.log(txt); }
-  });
+  bakeControls.bind(el, BAKE_KEY, C, 'TEAM_CONFIG');
   q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
-  addEventListener('DOMContentLoaded', () => { if (window.wb && window.wb.adopt) window.wb.adopt(); });
+  if (window.wb && window.wb.adopt) window.wb.adopt();
   window.tibba = { CONFIG: C, preview: i => { state[i].target = 1; cards[i].classList.add('hot'); animate(i); } };
-})();
 </script>
 
 </body>

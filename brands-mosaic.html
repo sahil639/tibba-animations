@@ -108,24 +108,25 @@ a { color: inherit; text-decoration: none; }
    Under 760px the mosaic gives way to #mosaic-m: the heading, then four
    rows of bordered tiles in a brick bond that run off both edges, each row
    drifting slowly (alternate rows the other way) so the cut-off logos come
-   round into view. Row height is whatever the viewport leaves after the
-   heading, split four ways — the whole section is exactly one screen.
-   MOBILE_BRANDS in the script: the rows, tile spans, drift speed. */
+   round into view. No gutters anywhere: the tiles share their hairlines
+   edge to edge, row on row.
+   MOBILE_BRANDS in the script: rows, logos per row, row height, speed —
+   all on the panel under "Mobile". */
 #mosaic-m { display: none; }
 @media (max-width: 760px) {
   #mosaic { display: none; }
-  #mosaic-m { display: flex; flex-direction: column; height: 100vh; height: 100svh; overflow: hidden; background: #000; }
+  #mosaic-m { display: flex; flex-direction: column; overflow: hidden; background: #000; }
   #mosaic-m .head { padding: 22px 16px 18px; flex: none; }
   #mosaic-m .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
   #mosaic-m h1 { margin-top: 12px; color: #fff; font-weight: 400; font-size: clamp(26px, 8.4vw, 40px); line-height: 1.02; letter-spacing: -.035em; max-width: 13ch; }
   #mosaic-m .head p { margin-top: 14px; color: var(--ink-mute); font-size: 13.5px; line-height: 1.6; max-width: 44ch; }
-  #mosaic-m .rows { flex: 1; min-height: 0; display: grid; grid-template-rows: repeat(4, 1fr); gap: 2px; border-top: 1px solid rgba(255,255,255,.12); padding-top: 10px; }
-  #mosaic-m .row { position: relative; overflow: hidden; min-height: 0; }
-  #mosaic-m .track { position: absolute; top: 0; bottom: 0; left: 0; display: flex; gap: 2px; will-change: transform;
+  #mosaic-m .rows { display: grid; gap: 0; border-top: 1px solid rgba(255,255,255,.16); }
+  #mosaic-m .row { position: relative; overflow: hidden; height: var(--row-h, 22vw); border-bottom: 1px solid rgba(255,255,255,.16); }
+  #mosaic-m .track { position: absolute; top: 0; bottom: 0; left: 0; display: flex; gap: 0; will-change: transform;
     transform: translateX(var(--start, 0)); animation: bm-drift var(--dur, 60s) linear infinite var(--dir, normal); }
   @keyframes bm-drift { from { transform: translateX(var(--start, 0)); } to { transform: translateX(calc(var(--start, 0px) - 50%)); } }
-  #mosaic-m .t { flex: none; width: calc(var(--span) * 1vw); height: 100%; display: grid; place-items: center;
-    border: 1px solid rgba(255,255,255,.14); background: #000; }
+  #mosaic-m .t { flex: none; width: var(--tile-w, 40vw); height: 100%; display: grid; place-items: center;
+    border-right: 1px solid rgba(255,255,255,.16); background: #000; }
   #mosaic-m .t .wordmark { color: #fff; font-size: 22px; letter-spacing: .02em; font-weight: 700; text-transform: uppercase; }
 }
 @media (max-width: 760px) and (prefers-reduced-motion: reduce) { #mosaic-m .track { animation: none; } }
@@ -165,18 +166,17 @@ a { color: inherit; text-decoration: none; }
 </section>
 
 <script>
-/* MOBILE_BRANDS — the one-viewport mobile layout. Each row is a list of
-   [logo key or name, span in vw]; `start` shifts the row so tiles are cut
-   by the edges, `dur` is seconds for one full drift, alternate rows run
-   the other way. */
+/* MOBILE_BRANDS — the mobile layout (under 760px). Rows of equal tiles
+   with no gutters, alternate rows set half a tile over (brick bond) and
+   drifting the other way. Every value is on the panel under "Mobile". */
 const MOBILE_BRANDS = {
-  logo: { size: 0.52, maxWidth: 0.8, maxHeight: 0.34, maxWidthPx: 220, maxHeightPx: 56 },   // LOGO_CONFIG overrides for these tiles
-  rows: [
-    { start: -18, dur: 70, tiles: [['shyft', 34], ['paytm', 34], ['groww', 42], ['Firstpost', 38]] },
-    { start: -8, dur: 84, tiles: [['the-indian-express', 58], ['zomato', 52], ['apnaklub', 44]] },
-    { start: -22, dur: 76, tiles: [['hdfc-bank', 56], ['breatheesg', 58], ['the-times-of-india', 62]] },
-    { start: -10, dur: 90, tiles: [['policybazaar', 52], ['simsim', 34], ['urban-company', 52], ['bombay-shirt-company', 62]] },
-  ],
+  logo: { size: 0.52, maxWidth: 0.7, maxHeight: 0.34, maxWidthPx: 200, maxHeightPx: 48 },   // LOGO_CONFIG overrides for these tiles
+  rows: 6,            // how many rows
+  perRow: 2.5,        // logos across the screen in each row
+  rowHeight: 20,      // vw — the height of a row (of every box)
+  speed: 2.4,         // vw per second each row drifts
+  order: ['shyft', 'paytm', 'groww', 'Firstpost', 'the-indian-express', 'zomato', 'apnaklub', 'hdfc-bank',
+          'breatheesg', 'the-times-of-india', 'policybazaar', 'simsim', 'urban-company', 'bombay-shirt-company'],
 };
 </script>
 <script>
@@ -223,12 +223,28 @@ const MOBILE_BRANDS = {
   /* the mobile rows: each track holds its tiles twice, so drifting it by
      half its width comes round seamlessly */
   const rowsEl = document.getElementById('mosaic-rows');
-  rowsEl.innerHTML = MOBILE_BRANDS.rows.map((r, i) => {
-    const tiles = r.tiles.map(([k, span]) => `<div class="t" data-logo-host style="--span:${span}">${
-      window.BrandLogos.LOGOS[k] ? window.BrandLogos.img(k) : `<span class="wordmark">${esc(k)}</span>`}</div>`).join('');
-    return `<div class="row"><div class="track" style="--start:${r.start}vw;--dur:${r.dur}s;--dir:${i % 2 ? 'reverse' : 'normal'}">${tiles}${tiles}</div></div>`;
-  }).join('');
-  window.BrandLogos.size(rowsEl, MOBILE_BRANDS.logo);
+  const M = MOBILE_BRANDS;
+  function buildRows() {
+    const tileW = 100 / M.perRow, list = M.order, n = Math.max(Math.ceil(M.perRow) + 2, 5);
+    rowsEl.style.setProperty('--tile-w', tileW + 'vw');
+    rowsEl.style.setProperty('--row-h', M.rowHeight + 'vw');
+    rowsEl.innerHTML = Array.from({ length: M.rows }, (_, i) => {
+      /* each row starts a few brands further along, so no two rows read alike */
+      const keys = Array.from({ length: n }, (_, k) => list[(i * 3 + k) % list.length]);
+      const tiles = keys.map(k => `<div class="t" data-logo-host>${
+        window.BrandLogos.LOGOS[k] ? window.BrandLogos.img(k) : `<span class="wordmark">${esc(k)}</span>`}</div>`).join('');
+      const start = -(i % 2 ? tileW * 0.5 : 0) - tileW * 0.25;            // brick bond
+      const dur = (n * tileW) / Math.max(0.05, M.speed);                 // one set's width at speed
+      return `<div class="row"><div class="track" style="--start:${start}vw;--dur:${dur.toFixed(2)}s;--dir:${i % 2 ? 'reverse' : 'normal'}">${tiles}${tiles}</div></div>`;
+    }).join('');
+    window.BrandLogos.size(rowsEl, M.logo);
+  }
+  /* speed alone only retimes the drift, so the rows don't jump */
+  function retime() {
+    const tileW = 100 / M.perRow, n = Math.max(Math.ceil(M.perRow) + 2, 5);
+    rowsEl.querySelectorAll('.track').forEach(t => t.style.setProperty('--dur', ((n * tileW) / Math.max(0.05, M.speed)).toFixed(2) + 's'));
+  }
+  buildRows();
 
   /* the arrival order: reading order through the grid, measured off the
      laid-out boxes so it holds at the narrow breakpoint too */
@@ -251,9 +267,19 @@ const MOBILE_BRANDS = {
   el.id = 'tune';
   el.innerHTML = `<div id="tune-head"><b>Brands mosaic</b><button id="tune-hide" title="Hide (H)">–</button></div>
     <p class="tune-sub">Load-in</p><div class="row inline"><label>Arrival<i></i></label><button class="tune-btn" id="b-rp">Replay</button></div>
+    <p class="tune-sub">Mobile (under 760px)</p>
+    <div class="row"><label>Box height<i id="v-mh">${M.rowHeight}vw</i></label><input type="range" id="s-mh" min="12" max="40" step="0.5" value="${M.rowHeight}" data-u="vw"></div>
+    <div class="row"><label>Logos per row<i id="v-mp">${M.perRow}</i></label><input type="range" id="s-mp" min="1.5" max="5" step="0.5" value="${M.perRow}" data-u=""></div>
+    <div class="row"><label>Rows<i id="v-mr">${M.rows}</i></label><input type="range" id="s-mr" min="2" max="8" step="1" value="${M.rows}" data-u=""></div>
+    <div class="row"><label>Speed<i id="v-ms">${M.speed}vw/s</i></label><input type="range" id="s-ms" min="0" max="12" step="0.1" value="${M.speed}" data-u="vw/s"></div>
     ${window.logoPanel()}`;
   document.body.appendChild(el);
   window.bindLogoPanel(el);
+  [['mh', 'rowHeight', () => rowsEl.style.setProperty('--row-h', M.rowHeight + 'vw')], ['mp', 'perRow', buildRows], ['mr', 'rows', buildRows], ['ms', 'speed', retime]]
+    .forEach(([id, key, fn]) => el.querySelector('#s-' + id).addEventListener('input', e => {
+      M[key] = +e.target.value; el.querySelector('#v-' + id).textContent = e.target.value + e.target.dataset.u; fn();
+      if (id === 'mh') window.BrandLogos.size(rowsEl);
+    }));
   el.querySelector('#b-rp').addEventListener('click', play);
   el.querySelector('#tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
 })();

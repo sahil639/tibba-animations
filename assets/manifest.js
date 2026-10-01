@@ -69,7 +69,7 @@ window.TIBBA_SITE = {
       note: 'The logo wall.',
       pages: [ { id: 'brands-01', updated: '2026-09-29T12:00:00+07:00', change: "The clients' colour logos, gray until hovered", label: 'Brands', file: 'brands.html',
                  note: 'Fourteen tiles and a title filling the viewport; each plays its own contour field on hover', state: 'live' },
-               { id: 'brands-mosaic', updated: '2026-09-30T12:00:00+07:00', change: 'Mobile: one screen of drifting brick-bond rows', label: 'Brands — mosaic', file: 'brands-mosaic.html',
+               { id: 'brands-mosaic', updated: '2026-10-01T12:00:00+07:00', change: 'Mobile: no gutters, shorter boxes; height, logos-per-row, rows and speed controls', label: 'Brands — mosaic', file: 'brands-mosaic.html',
                  note: 'The same brands in boxes of composed, varied sizes on a written six-by-five grid', state: 'live' } ] },
 
     { id: 'summits', label: 'Our summits',
@@ -85,7 +85,7 @@ window.TIBBA_SITE = {
           note: 'One summit centred at a time, the camera walking between them; each trail draws base-to-peak once. Title top-left, the case bottom-left; a Depth control sets how far the rest recedes', state: 'live' },
         { id: 'summits-v2', updated: '2026-09-30T12:00:00+07:00', change: 'New: a country round the summits, Three Summits camera, cards', label: 'Summits v2', file: 'summits-v2.html',
           note: 'The four summits in a connected range, the Three Summits camera, winding shadowed trails, a rail and editorial cards', state: 'live' },
-        { id: 'summits-v3', updated: '2026-09-30T12:00:00+07:00', change: 'New: v2 without cards, copy bottom-left', label: 'Summits v3', file: 'summits-v3.html',
+        { id: 'summits-v3', updated: '2026-10-01T12:00:00+07:00', change: 'More country round the peaks; topography controls', label: 'Summits v3', file: 'summits-v3.html',
           note: 'Summits v2 with no cards: the copy bottom-left names the summit in focus', state: 'live' },
       ] },
 
@@ -125,7 +125,7 @@ window.TIBBA_SITE = {
                  note: 'Services as boxed brick bonds either side of a compass that never moves', state: 'live' },
                { id: 'services-compass-v3', updated: '2026-09-30T12:00:00+07:00', change: 'New: tabs and compass left, services right; one-screen mobile', label: 'Compass v3', file: 'services-compass-v3.html',
                  note: 'Tabs, blurb and compass on the left, the service columns on the right; fits one phone screen', state: 'live' },
-               { id: 'services-compass-v4', updated: '2026-09-30T18:00:00+07:00', change: 'New: v3 refined — framed instrument, stage statement, service ledgers', label: 'Compass v4', file: 'services-compass-v4.html',
+               { id: 'services-compass-v4', updated: '2026-10-01T12:00:00+07:00', change: 'Bigger stage names, clearer readouts, a rim and orange cubes; small compass on mobile', label: 'Compass v4', file: 'services-compass-v4.html',
                  note: 'The instrument in a framed card with tabs and a readout strip, a finer compass; the stage as a statement over two brick-bond ledgers that open on hover', state: 'live' } ] },
 
     { id: 'testimonials', label: 'Our testimonials',
@@ -160,12 +160,12 @@ window.TIBBA_SITE = {
 
     { id: 'about-description', label: 'About us — description',
       note: 'The studio in prose.',
-      pages: [ { id: 'about-description-01', updated: '2026-09-29T12:00:00+07:00', change: 'Large, left-aligned, revealed as it scrolls past', label: 'About us — description', file: 'about-description.html',
-                 note: 'The studio in prose, large and left-aligned, revealed word by word as it scrolls past', state: 'live' } ] },
+      pages: [ { id: 'about-description-01', updated: '2026-10-01T12:00:00+07:00', change: 'New effect: held text that fills letter by letter as you scroll', label: 'About us — description', file: 'about-description.html',
+                 note: "The studio's three paragraphs held in place and filled from gray to white as you scroll, the front edge trailing over a few letters", state: 'live' } ] },
 
     { id: 'about-team', label: 'About us — team',
       note: 'The people.',
-      pages: [ { id: 'about-team-01', updated: '2026-09-29T12:00:00+07:00', change: 'New: each member between two contour mountains', label: 'About us — team', file: 'about-team.html', note: 'Each member between two contour mountains; the portrait dithers on hover', state: 'live' } ] },
+      pages: [ { id: 'about-team-01', updated: '2026-10-01T12:00:00+07:00', change: 'Mountains gone: Metrics plates over live contours per member', label: 'About us — team', file: 'about-team.html', note: "Each member on a Metrics-style plate over their own drifting contours; the portrait dithers on hover", state: 'live' } ] },
 
     { id: 'about', label: 'About us',
       note: 'The whole about page, its sections assembled.',
@@ -182,7 +182,7 @@ window.TIBBA_SITE = {
 
     { id: 'about-foundations', label: 'About us — foundations',
       note: 'What the studio is built on.',
-      pages: [ { id: 'about-foundations-01', updated: '2026-09-29T12:00:00+07:00', change: 'New: the two foundation cards, in 3D', label: 'About us — foundations', file: 'about-foundations.html', note: 'Agile and Creating value as two 3D cards that tilt toward the pointer, layered over their contours', state: 'live' } ] },
+      pages: [ { id: 'about-foundations-01', updated: '2026-10-01T12:00:00+07:00', change: 'Rebuilt as Metrics plates: open once, live contours per card', label: 'About us — foundations', file: 'about-foundations.html', note: "Agile and Creating value as Metrics-style plates that open once, each over its own drifting contours (per-card controls)", state: 'live' } ] },
 
     { id: 'contact', label: 'Contact page',
       note: 'The way in.',

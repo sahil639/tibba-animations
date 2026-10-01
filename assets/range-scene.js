@@ -384,8 +384,11 @@ const peakLitT   = PEAKS.map(() => 0);
    held to `height` × the lowest client summit, so the four stay the
    tallest things on the sheet. */
 const FILL = [];
-if (MODE_RANGE && opts.fill) {
-  const F = { count: 16, seed: 7, height: 0.55, ridges: true, ...(typeof opts.fill === 'object' ? opts.fill : {}) };
+const FILL_OPTS = { count: 16, seed: 7, height: 0.55, ridges: true, spacing: 26, ...(typeof opts.fill === 'object' ? opts.fill : {}) };
+/* (re)generates the fill from FILL_OPTS — setTerrain() calls it again live */
+function genFill() {
+  FILL.length = 0;
+  const F = FILL_OPTS;
   let a = (F.seed * 2654435761) >>> 0;
   const rnd = () => { a ^= a << 13; a >>>= 0; a ^= a >>> 17; a ^= a << 5; a >>>= 0; return a / 4294967296; };
   const between = (lo, hi) => lo + (hi - lo) * rnd();
@@ -403,7 +406,7 @@ if (MODE_RANGE && opts.fill) {
   while (FILL.length < F.count + (F.ridges ? 3 : 0) && tries++ < 400) {
     const x = between(-178, 178), z = between(-188, -18);
     if (tops.some(p => Math.hypot(p.x - x, p.z - z) < p.spread * 1.15)) continue;
-    if (FILL.some(p => Math.hypot(p.x - x, p.z - z) < 26)) continue;
+    if (FILL.some(p => Math.hypot(p.x - x, p.z - z) < F.spacing)) continue;
     const spread = between(11, 26);
     FILL.push(land(x, z, cap * between(0.3, 1), spread, between(1, 1.8), between(-Math.PI, Math.PI)));
   }
@@ -416,6 +419,7 @@ if (MODE_RANGE && opts.fill) {
     p._cut = reach + p.warp; p._cut2 = p._cut * p._cut;
   });
 }
+if (MODE_RANGE && opts.fill) genFill();
 function coneAt(p, x, z){
   const qx = x - p.x, qz = z - p.z;
   if (qx*qx + qz*qz > p._cut2) return 0;
@@ -474,7 +478,7 @@ function coneAt(p, x, z){
    summits are where it bunches up. Raising it puts folds, spurs and small
    basins across the ground between the tops, which is most of what reads as
    country rather than as objects on a table. */
-const GROUND_RELIEF = opts.backdrop === 'behind' ? 16.0 : (FILL.length ? 9.0 : 6.0);
+let GROUND_RELIEF = opts.backdrop === 'behind' ? 16.0 : (FILL.length ? (FILL_OPTS.relief ?? 9.0) : 6.0);
 
 /* How high the plain sits before any landform is added to it.
 
@@ -534,7 +538,8 @@ studioOff = !!opts.noStudio;
    in the table — enough that a route aimed at the nominal centre finishes just
    past the peak and hooks back, and a camera aimed there frames it off-centre. */
 const PEAK_TOP = [];
-const PEAK_H = PEAKS.map((p, pi) => {
+const PEAK_H = PEAKS.map(measurePeak);
+function measurePeak(p, pi) {
   let m = 0, bx = p.x, bz = p.z;
   /* Only peak 0's summit has to be found precisely — the accent rings and the
      camera are both aimed at it. The rest need a height for the palette and
@@ -549,9 +554,9 @@ const PEAK_H = PEAKS.map((p, pi) => {
       const h = mh(p.x+a, p.z+b);
       if (h > m) { m = h; bx = p.x+a; bz = p.z+b; }
     }
-  PEAK_TOP.push({ x: bx, z: bz });
+  PEAK_TOP[pi] = { x: bx, z: bz };
   return m;
-});
+}
 PEAK_H[0] = MAX_H;      // keep the hero's palette mapping exactly where it was
 
 /* Height the palette is measured against, which is not the same as the height
@@ -1204,6 +1209,12 @@ const CT = {
   ACCENT_TOP: 3,     // rings down from the summit that wear the accent
   RING_LIFT: 1.15,   // world units the hovered ring rises
 };
+/* opts.terrain { levels, width } — contour density and line weight from the
+   start, so a page that wants a denser sheet does not build twice */
+if (opts.terrain) {
+  if (opts.terrain.levels) CT.LEVELS = Math.max(6, Math.min(90, opts.terrain.levels | 0));
+  if (opts.terrain.width) { CT.W_MINOR *= opts.terrain.width; CT.W_INDEX *= opts.terrain.width; }
+}
 
 /* One field across the entire range rather than a box per summit. Local boxes
    are cheaper, but they stop at their own edges: the contours die out in the
@@ -2950,6 +2961,22 @@ return {
      this is the single number that decides how densely the country is
      surveyed. A rebuild, like the other two. */
   setLevels(n) { CT.LEVELS = Math.max(6, Math.min(80, n | 0)); rebuildContours(); },
+  /** The country round the summits, live (range mode with opts.fill):
+      { count, height, spacing, seed, ridges } regenerate the landforms,
+      relief is the ground's noise, levels the contour density, width a
+      multiplier on line weight. Anything left out keeps its value. */
+  setTerrain(o = {}) {
+    const fillKeys = ['count', 'height', 'spacing', 'seed', 'ridges'];
+    let refill = false;
+    fillKeys.forEach(k => { if (o[k] != null && o[k] !== FILL_OPTS[k]) { FILL_OPTS[k] = o[k]; refill = true; } });
+    if (refill && MODE_RANGE && opts.fill) genFill();
+    if (o.relief != null) GROUND_RELIEF = o.relief;
+    if (o.levels != null) CT.LEVELS = Math.max(6, Math.min(90, o.levels | 0));
+    if (o.width != null) { CT.W_MINOR = 1.35 * o.width; CT.W_INDEX = 2.70 * o.width; }
+    /* the country adds to the summits' own heights, so re-find the tops */
+    if (refill || o.relief != null) PEAKS.forEach((p, pi) => { if (pi) PEAK_H[pi] = measurePeak(p, pi); });
+    rebuildTerrain();
+  },
 
   /* ── the sheet ────────────────────────────────────────────────────────
      Uniform writes, all of them, so they land on the next frame. */

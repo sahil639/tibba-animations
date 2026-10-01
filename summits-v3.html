@@ -92,6 +92,10 @@
   import { applyBaked, bakeControls } from './assets/bake.js';
   /* baked settings (the panel's Bake button) load over the defaults before anything mounts */
   const BAKE_KEY = 'tibba.bake.summits-v3';
+  /* v3's own ground: more country round the four summits than v2 — more and
+     closer landforms, livelier ground and a denser contour sheet */
+  Object.assign(C.fill, { count: 46, height: 0.72, spacing: 18, relief: 14 });
+  C.terrain = { levels: 44, width: 1 };
   applyBaked(BAKE_KEY, C);
   const s = mountSummitsV2({ layout: 'text' });
   window.tibba = s;
@@ -116,6 +120,14 @@
     ${R('sw', 'Shadow width', 0, 20, .5, C.path.shadow.width, 'px')}
     ${R('so', 'Shadow opacity', 0, 1, .02, C.path.shadow.opacity)}
     <div class="row inline"><label>Trails<i></i></label><button class="tune-btn" id="s-rp">Replay</button></div>
+    <p class="tune-sub">Topography (rebuilds on release)</p>
+    ${R('tl', 'Contour density', 16, 90, 1, C.terrain.levels)}
+    ${R('tw', 'Line thickness', .4, 2.5, .05, C.terrain.width, '×')}
+    ${R('tc', 'Landforms round the peaks', 0, 90, 1, C.fill.count)}
+    ${R('th', 'Landform height', .2, .95, .01, C.fill.height)}
+    ${R('tsp', 'Landform spacing', 8, 40, 1, C.fill.spacing)}
+    ${R('tr', 'Ground noise', 0, 30, .5, C.fill.relief)}
+    <div class="row inline"><label>Ground<i></i></label><button class="tune-btn" id="s-tg">New ground</button></div>
     ${bakeControls.html}`;
   document.body.appendChild(el);
   const q = id => el.querySelector('#' + id);
@@ -126,6 +138,11 @@
   bind('pd', v => { C.path.duration = v; }); bind('pf', v => { C.path.fadeIn = v; });
   bind('sw', v => { C.path.shadow.width = v; }); bind('so', v => { C.path.shadow.opacity = v; });
   q('s-rp').addEventListener('click', () => s.replay());
+  /* the ground rebuilds once the slider is let go — it is a full re-survey */
+  const terr = (id, key) => q('s-' + id).addEventListener('change', e => s.setTerrain({ [key]: +e.target.value }));
+  ['tl', 'tw', 'tc', 'th', 'tsp', 'tr'].forEach(id => q('s-' + id).addEventListener('input', e => { q('v-' + id).textContent = e.target.value + e.target.dataset.unit; }));
+  terr('tl', 'levels'); terr('tw', 'width'); terr('tc', 'count'); terr('th', 'height'); terr('tsp', 'spacing'); terr('tr', 'relief');
+  q('s-tg').addEventListener('click', () => s.setTerrain({ seed: Math.floor(Math.random() * 999) }));
   bakeControls.bind(el, BAKE_KEY, C, 'SUMMITS2_CONFIG');
   q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
   if (window.wb && window.wb.adopt) window.wb.adopt();

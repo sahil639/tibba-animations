@@ -16,247 +16,185 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap">
 <style>
 /* ══════════════════════════════════════════════════════════════════════════
-   About us — foundations, as two 3D cards
+   About us — foundations, as Metrics plates
    ─────────────────────────────────────────────────────────────────────────
-   The two cards from the reference, with their own copy: AGILE and CREATING
-   VALUE, each on a field of contour lines (rust on the first, teal on the
-   second), the body in mono, the disciplines as chips at the foot, and the
-   second card set a little higher than the first.
+   The two foundations — AGILE and CREATING VALUE — set the way the Metrics
+   section sets its numbers: glass plates with a hairline, sharing an edge
+   in a brick bond, corner brackets, a small index row, and the orange cube
+   in the corner. They open exactly as the metric boxes do — an accent line
+   draws across the middle, the plate opens from that line, the corners
+   lock on, the copy comes up, the cube lands — once, the first time the
+   cards come into view, and never again. No tilt, no 3D.
 
-   Made physical rather than decorated: each card is a small stack in 3D.
-   The contour field sits back behind the card's face, the title and the
-   chips stand forward of it, and the whole card tilts toward the pointer —
-   so the layers slide past one another the way a real object's would. A
-   soft glare follows the pointer across the face, and the shadow falls
-   away on the side opposite the tilt. On first reveal the cards rise and
-   settle. Nothing ever turns far enough to make the copy hard to read.
+   Behind each plate's glass a contour field drifts (assets/card-topo.js),
+   each card with its own ground and its own settings on the panel.
 
-   Every value: FOUNDATION_CONFIG in the script, and on the panel.
+   Every value: FOUNDATION_CONFIG in the script, on the panel, and bakeable.
    ═════════════════════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #1a1a1a; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
 .mono { font-family: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace; }
 .found { padding: clamp(80px, 14vh, 150px) var(--gut); max-width: 1600px; margin: 0 auto; }
-.found h2 { display: flex; gap: .45em; color: #fff; font-weight: 400; font-size: clamp(30px, 3.4vw, 54px); line-height: 1; letter-spacing: -.01em; text-transform: uppercase; }
-.found h2 .br { color: rgba(255,255,255,.55); font-weight: 300; }
-.found .sub { margin-top: 12px; font-size: 13px; letter-spacing: .02em; color: rgba(255,255,255,.62); }
+.found .eyebrow { display: flex; align-items: center; gap: 10px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.found .eyebrow::before { content: ''; width: 7px; height: 7px; background: var(--accent); }
+.found h2 { margin-top: 16px; color: #fff; font-weight: 400; font-size: clamp(30px, 3.6vw, 60px); line-height: 1; letter-spacing: -.035em; }
+.found .sub { margin-top: 14px; max-width: 46ch; font-size: 14px; line-height: 1.65; color: var(--ink-mute); }
 
-.cards { margin-top: clamp(48px, 8vh, 90px); display: grid; grid-template-columns: 1fr 1fr; gap: clamp(16px, 2vw, 32px); align-items: start;
-  perspective: var(--persp, 1100px); }
-.card3d { --rx: 0deg; --ry: 0deg; --gx: 50%; --gy: 50%; --glare: 0; --sx: 0px; --sy: 18px; --in: 0;
-  position: relative; transform-style: preserve-3d; will-change: transform;
-  transform: translateY(calc((1 - var(--in)) * 60px)) rotateX(calc(var(--rx) + (1 - var(--in)) * 16deg)) rotateY(var(--ry));
-  opacity: var(--in); }
-.card3d[data-i="1"] { margin-top: -38px; }
-.card3d .face { position: relative; transform-style: preserve-3d; min-height: clamp(520px, 44vw, 700px);
-  padding: clamp(24px, 2.4vw, 34px) clamp(24px, 2.4vw, 32px); display: flex; flex-direction: column; }
-.card3d[data-i="1"] .face { min-height: calc(clamp(520px, 44vw, 700px) + 38px); }
-/* the card's ground and its contours are ONE recessed layer, scaled so that
-   at rest it lines up with the face exactly: the copy floats in front of it */
-.card3d .topo { position: absolute; inset: 0; overflow: hidden; background: #262626; pointer-events: none;
-  transform: translateZ(var(--z-topo, -30px)) scale(var(--z-fit, 1.027));
-  box-shadow: var(--sx) var(--sy) var(--sblur, 60px) rgba(0,0,0,var(--sop, .5)); }
-.card3d .topo svg { width: 100%; height: 100%; display: block; }
-.card3d .glare { position: absolute; inset: 0; pointer-events: none; transform: translateZ(1px);
-  background: radial-gradient(60% 50% at var(--gx) var(--gy), rgba(255,255,255,calc(var(--glare) * .9)), rgba(255,255,255,0) 70%); mix-blend-mode: soft-light; }
-.card3d h3 { position: relative; transform: translateZ(var(--z-title, 50px)); color: #fff; font-weight: 500; font-size: clamp(34px, 3.6vw, 60px); line-height: 1; letter-spacing: -.02em; text-transform: uppercase; }
-.card3d .body { position: relative; transform: translateZ(var(--z-body, 26px)); margin-top: clamp(18px, 2vw, 28px); font-size: clamp(14px, 1.3vw, 19px); line-height: 1.85; letter-spacing: .01em; color: rgba(255,255,255,.86); max-width: 44ch; }
-.card3d .tags { position: relative; transform: translateZ(var(--z-tags, 36px)); margin-top: auto; padding-top: 40px; display: flex; flex-wrap: wrap; gap: 14px 14px; }
-.card3d .tags span { padding: 12px 15px; background: #333333; font-size: clamp(13px, 1.15vw, 17px); letter-spacing: .02em; color: rgba(255,255,255,.9); transition: background .3s linear; }
-.card3d .tags span:hover { background: #3d3d3d; }
-@media (max-width: 860px) { .cards { grid-template-columns: 1fr; } .card3d[data-i="1"] { margin-top: 0; } }
-@media (prefers-reduced-motion: reduce) { .card3d { transform: none !important; opacity: 1 !important; } }
+/* ── the plates, in a brick bond ─────────────────────────────────────── */
+.cards { margin-top: clamp(48px, 8vh, 90px); display: grid; grid-template-columns: 1fr 1fr; gap: 0; align-items: start; }
+.fcard { position: relative; min-height: clamp(460px, 40vw, 620px); padding: clamp(22px, 2.2vw, 34px) clamp(22px, 2.4vw, 36px);
+  display: flex; flex-direction: column; }
+.fcard[data-i="1"] { margin-left: -1px; margin-top: clamp(40px, 6vh, 72px); }
+.fcard .plate { position: absolute; inset: 0; border: 1px solid rgba(255,255,255,.16); background: rgba(10,10,12,.78); overflow: hidden;
+  clip-path: inset(50% 0 50% 0); }
+.fcard .plate::after { content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(10,10,12,.55) 0%, rgba(10,10,12,.15) 45%, rgba(10,10,12,.7) 100%); }
+.fcard .hl { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--accent); transform: scaleX(0); opacity: 0; pointer-events: none; }
+.fcard .cn { position: absolute; width: 10px; height: 10px; border-color: #fff; border-style: solid; opacity: 0; }
+.fcard .cn.tl { left: -1px; top: -1px; border-width: 1px 0 0 1px; }
+.fcard .cn.tr { right: -1px; top: -1px; border-width: 1px 1px 0 0; }
+.fcard .cn.bl { left: -1px; bottom: -1px; border-width: 0 0 1px 1px; }
+.fcard .cn.br { right: -1px; bottom: -1px; border-width: 0 1px 1px 0; }
+.fcard .pin { position: absolute; right: -1px; top: -1px; width: 9px; height: 9px; background: var(--accent); transform: scale(0); }
+.fcard .in { position: relative; flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.fcard .k { display: flex; justify-content: space-between; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); opacity: 0; }
+.fcard .k b { color: var(--accent); font-weight: 400; }
+.fcard .v { margin-top: clamp(28px, 5vh, 56px); color: #fff; font-weight: 300; font-size: clamp(44px, 5vw, 92px); line-height: .9; letter-spacing: -.045em; opacity: 0; }
+.fcard .body { margin-top: clamp(18px, 2.4vh, 28px); max-width: 44ch; font-size: clamp(13.5px, 1.05vw, 16px); line-height: 1.75; color: rgba(233,236,242,.78); opacity: 0; }
+.fcard .tags { margin-top: auto; padding-top: 36px; display: flex; flex-wrap: wrap; gap: 0; opacity: 0; }
+.fcard .tags span { margin: 0 -1px -1px 0; padding: 9px 13px; border: 1px solid rgba(255,255,255,.18); background: rgba(0,0,0,.45);
+  font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-mute); transition: color .25s linear, border-color .25s linear; }
+.fcard .tags span:hover { color: #fff; border-color: rgba(255,75,31,.6); position: relative; }
+@media (max-width: 860px) {
+  .cards { grid-template-columns: 1fr; }
+  .fcard[data-i="1"] { margin: -1px 0 0 0; }
+  .fcard { min-height: 0; }
+  .fcard .v { font-size: 44px; }
+}
+@media (prefers-reduced-motion: reduce) { .fcard .plate { clip-path: none; } .fcard .k, .fcard .v, .fcard .body, .fcard .tags { opacity: 1; } .fcard .pin { transform: none; } }
 </style>
-
-<!-- the shared control-panel design; last in the head so it wins over
-     whatever styling this page declared for its own panel -->
 <link rel="stylesheet" href="assets/tune.css">
 </head>
 <body>
 
-<!-- ─────────────────────────────────────────────────────────────────────────
-     About us — foundations
-
-     The two foundation cards, made 3D — see the note in the <style> block.
-
-     The site menu and the index read this page from assets/manifest.js by its
-     id. Change the label there freely; change the id and it shows as New
-     again for everyone.
-     ───────────────────────────────────────────────────────────────────── -->
-
 <section class="found" aria-labelledby="found-h">
-  <h2 id="found-h"><span class="br">[</span><span>Our foundation</span><span class="br">]</span></h2>
-  <p class="sub mono">what our clients say about us</p>
+  <p class="eyebrow">Our foundation</p>
+  <h2 id="found-h">Two things we hold to</h2>
+  <p class="sub">How we work with every client, whatever the size of the brief.</p>
 
   <div class="cards" id="cards">
-    <article class="card3d" data-i="0" style="--tone:#a8574a">
-      <div class="face">
-        <div class="topo" aria-hidden="true"></div>
-        <div class="glare" aria-hidden="true"></div>
-        <h3>Agile</h3>
-        <p class="body mono">Different clients require different approaches. We're comfortable working as a support function to your internal design team, launching keystone projects and chasing KPIs</p>
-        <p class="tags mono"><span>User Feedback</span><span>Rapid prototyping</span><span>Quick turnarounds</span><span>Collaborative</span><span>Iterative</span><span>Sprint planning</span></p>
+    <article class="fcard" data-i="0">
+      <div class="plate" aria-hidden="true"></div>
+      <span class="hl"></span><span class="cn tl"></span><span class="cn tr"></span><span class="cn bl"></span><span class="cn br"></span><span class="pin"></span>
+      <div class="in">
+        <p class="k"><b>01</b><span>Foundation</span></p>
+        <h3 class="v">Agile</h3>
+        <p class="body">Different clients require different approaches. We're comfortable working as a support function to your internal design team, launching keystone projects and chasing KPIs.</p>
+        <p class="tags"><span>User feedback</span><span>Rapid prototyping</span><span>Quick turnarounds</span><span>Collaborative</span><span>Iterative</span><span>Sprint planning</span></p>
       </div>
     </article>
-    <article class="card3d" data-i="1" style="--tone:#3f8088">
-      <div class="face">
-        <div class="topo" aria-hidden="true"></div>
-        <div class="glare" aria-hidden="true"></div>
-        <h3>Creating value</h3>
-        <p class="body mono">We work on two tracks - the delivery track and the discovery track. The former focuses on immediate client needs and deadlines whilst the latter seeks opportunities for our clients that we can help them capitalise on</p>
-        <p class="tags mono"><span>Value-driven solutions</span><span>Client ROI focus</span><span>Strategic impact</span><span>Client investment mindset</span><span>Design excellence</span><span>Maximum outcomes</span></p>
+    <article class="fcard" data-i="1">
+      <div class="plate" aria-hidden="true"></div>
+      <span class="hl"></span><span class="cn tl"></span><span class="cn tr"></span><span class="cn bl"></span><span class="cn br"></span><span class="pin"></span>
+      <div class="in">
+        <p class="k"><b>02</b><span>Foundation</span></p>
+        <h3 class="v">Creating value</h3>
+        <p class="body">We work on two tracks — the delivery track and the discovery track. The former focuses on immediate client needs and deadlines, whilst the latter seeks opportunities for our clients that we can help them capitalise on.</p>
+        <p class="tags"><span>Value-driven solutions</span><span>Client ROI focus</span><span>Strategic impact</span><span>Investment mindset</span><span>Design excellence</span><span>Maximum outcomes</span></p>
       </div>
     </article>
   </div>
 </section>
+<div style="height: 30vh"></div>
 
-<script>
-/* ══════════════════════════════════════════════════════════════════════════
-   FOUNDATION_CONFIG — the 3D cards
-   ═════════════════════════════════════════════════════════════════════════ */
-const FOUNDATION_CONFIG = {
-  tilt: {
-    max: 7,              // degrees — the most a card turns toward the pointer
-    responsiveness: 0.1, // 0–1 per frame: how quickly the card follows the pointer
-    perspective: 1100,   // px — lower = deeper, more dramatic
-  },
-  depth: { topo: -30, body: 26, title: 50, tags: 36 },   // px each layer stands off the face
-  shadow: {
-    depth: 34,           // px the shadow falls away opposite the tilt (plus its resting drop)
-    blur: 60,            // px
-    opacity: 0.5,
-  },
-  glare: 0.14,           // 0 = none
-  entrance: {
-    duration: 1.1,       // s
-    ease: [0.22, 1, 0.36, 1],   // cubic-bezier
-    stagger: 0.14,       // s between the two cards
-  },
-};
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="assets/card-topo.js"></script>
+<script type="module">
+  import { applyBaked, bakeControls } from './assets/bake.js';
+  import { topoPanel } from './assets/topo-panel.js';
 
-(function () {
+  /* ══ FOUNDATION_CONFIG ═══════════════════════════════════════════════ */
+  const FOUNDATION_CONFIG = {
+    entrance: {
+      duration: 1.1,     // s for ONE card's full sequence (as Metrics' open.duration)
+      stagger: 0.18,     // s between the two cards
+      ease: 'power1.inOut',
+      topoFade: 1.4,     // s the contours take to come up once the plate is open
+    },
+    /* one contour field per card — see assets/card-topo.js */
+    topo: [
+      { on: true, pattern: 'twin', seed: 4, speed: 0.45, levels: 11, scale: 1, opacity: 0.7, width: 1, colour: '#C8644F', tint: 0.4 },
+      { on: true, pattern: 'ridge', seed: 9, speed: 0.35, levels: 12, scale: 1.1, opacity: 0.7, width: 1, colour: '#4FA3AD', tint: 0.4 },
+    ],
+  };
   const C = FOUNDATION_CONFIG;
+  const BAKE_KEY = 'tibba.bake.about-foundations';
+  applyBaked(BAKE_KEY, C);
   const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const wrap = document.getElementById('cards');
-  const cards = [...wrap.querySelectorAll('.card3d')];
 
-  /* ── the contour fields: rings round two or three off-card summits,
-     in each card's own tone, with the reference's faint crosshairs ─── */
-  function topo(i, tone) {
-    const W = 600, H = 700, seeds = i ? [[520, 90], [80, 640], [360, 420]] : [[430, 520], [60, 110], [560, 60]];
-    let d = '';
-    seeds.forEach(([cx, cy], s) => {
-      for (let r = 0; r < 9; r++) {
-        const R = 30 + r * 54 + s * 8, pts = [];
-        for (let a = 0; a <= 90; a++) {
-          const t = a / 90 * Math.PI * 2;
-          const w = 1 + 0.16 * Math.sin(t * 3 + r * 0.45 + i * 2 + s) + 0.08 * Math.sin(t * 5 - r * 0.7 + s * 3) + 0.05 * Math.sin(t * 9 + r);
-          pts.push((cx + Math.cos(t) * R * 1.15 * w).toFixed(1) + ' ' + (cy + Math.sin(t) * R * 0.9 * w).toFixed(1));
-        }
-        d += `M${pts.join('L')}Z`;
-      }
-    });
-    const plus = (x, y) => `<path d="M${x - 9} ${y}H${x + 9}M${x} ${y - 9}V${y + 9}" stroke="rgba(255,255,255,.14)" stroke-width="1"/>`;
-    return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice"><path d="${d}" fill="none" stroke="${tone}" stroke-opacity=".4" stroke-width="1.2"/>
-      ${i ? plus(470, 120) + plus(90, 560) + plus(555, 610) : plus(420, 90) + plus(110, 610) + plus(560, 420)}</svg>`;
-  }
-  cards.forEach((c, i) => { c.querySelector('.topo').innerHTML = topo(i, c.style.getPropertyValue('--tone')); });
+  const cards = [...document.querySelectorAll('.fcard')];
+  const topos = cards.map((c, i) => CardTopo.attach(c.querySelector('.plate'), Object.assign({}, C.topo[i], { fade: REDUCED ? 1 : 0 })));
+  /* the panel edits C.topo[i]; the field reads its own settings, so copy across */
+  const syncTopo = i => { Object.assign(topos[i].settings, C.topo[i]); topos[i].reseed(); };
 
-  function applyVars() {
-    wrap.style.setProperty('--persp', C.tilt.perspective + 'px');
-    cards.forEach(c => {
-      c.style.setProperty('--z-topo', C.depth.topo + 'px'); c.style.setProperty('--z-body', C.depth.body + 'px');
-      c.style.setProperty('--z-title', C.depth.title + 'px'); c.style.setProperty('--z-tags', C.depth.tags + 'px');
-      c.style.setProperty('--sblur', C.shadow.blur + 'px'); c.style.setProperty('--sop', C.shadow.opacity);
-      /* a layer pushed back by z looks P/(P−z) smaller; this undoes it */
-      c.style.setProperty('--z-fit', ((C.tilt.perspective - C.depth.topo) / C.tilt.perspective).toFixed(4));
-    });
-  }
-  applyVars();
-
-  /* ── the tilt: chased, so it never snaps ───────────────────────────── */
-  const st = cards.map(() => ({ rx: 0, ry: 0, tx: 0, ty: 0, g: 0, tg: 0, gx: 50, gy: 50, inT: 0, in: REDUCED ? 1 : 0, t0: 0 }));
-  cards.forEach((card, i) => {
-    card.addEventListener('pointermove', e => {
-      const r = card.getBoundingClientRect(), u = (e.clientX - r.left) / r.width, v = (e.clientY - r.top) / r.height;
-      st[i].ty = (u - 0.5) * 2 * C.tilt.max; st[i].tx = -(v - 0.5) * 2 * C.tilt.max;
-      st[i].gx = u * 100; st[i].gy = v * 100; st[i].tg = 1;
-    });
-    card.addEventListener('pointerleave', () => { st[i].tx = 0; st[i].ty = 0; st[i].tg = 0; });
-  });
-
-  function bezier(x1, y1, x2, y2) {
-    const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx, cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
-    const X = t => ((ax * t + bx) * t + cx) * t, Y = t => ((ay * t + by) * t + cy) * t;
-    return x => { if (x <= 0) return 0; if (x >= 1) return 1; let lo = 0, hi = 1, t = x; for (let k = 0; k < 20; k++) { const v = X(t); if (v < x) lo = t; else hi = t; t = (lo + hi) / 2; } return Y(t); };
-  }
-  let entered = false, tEnter = 0;
-  new IntersectionObserver(([e], io) => { if (e.isIntersecting) { entered = true; tEnter = performance.now(); io.disconnect(); } }, { threshold: 0.2 }).observe(wrap);
-
-  (function loop(now) {
-    requestAnimationFrame(loop);
-    const k = REDUCED ? 1 : C.tilt.responsiveness, ease = bezier(...C.entrance.ease);
+  /* ── the open: Metrics' sequence, per card ─────────────────────────── */
+  let tl;
+  function build() {
+    if (tl) tl.kill();
+    tl = gsap.timeline({ paused: true });
     cards.forEach((card, i) => {
-      const s = st[i];
-      if (entered && !REDUCED) s.in = ease(Math.min(1, Math.max(0, (now - tEnter) / 1000 - i * C.entrance.stagger) / C.entrance.duration));
-      s.rx += (s.tx - s.rx) * k; s.ry += (s.ty - s.ry) * k; s.g += (s.tg - s.g) * k;
-      card.style.setProperty('--rx', s.rx.toFixed(3) + 'deg'); card.style.setProperty('--ry', s.ry.toFixed(3) + 'deg');
-      card.style.setProperty('--in', s.in.toFixed(4));
-      card.style.setProperty('--gx', s.gx.toFixed(1) + '%'); card.style.setProperty('--gy', s.gy.toFixed(1) + '%');
-      card.style.setProperty('--glare', (s.g * C.glare / 0.14 * 0.14).toFixed(3));
-      /* the shadow falls away from the raised edge */
-      const m = Math.max(1, C.tilt.max), D = C.shadow.depth;
-      card.style.setProperty('--sx', (-s.ry / m * D * 0.6).toFixed(1) + 'px');
-      card.style.setProperty('--sy', (18 + s.rx / m * D * 0.6 + s.g * D * 0.3).toFixed(1) + 'px');
+      const q = s => card.querySelectorAll(s), o = i * C.entrance.stagger / C.entrance.duration;
+      const cn = q('.cn'), sx = [-8, 8, -8, 8], sy = [-8, -8, 8, 8];
+      tl.fromTo(q('.hl'), { scaleX: 0, opacity: 1 }, { scaleX: 1, duration: .28, ease: 'power3.inOut' }, o)
+        .fromTo(q('.plate'), { clipPath: 'inset(50% 0% 50% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: .34, ease: 'power3.inOut' }, o + .24)
+        .to(q('.hl'), { opacity: 0, duration: .16, ease: 'none' }, o + .52)
+        .fromTo(cn, { opacity: 0, x: k => sx[k], y: k => sy[k] }, { opacity: .9, x: 0, y: 0, duration: .22, ease: 'expo.out' }, o + .52)
+        .fromTo(q('.k'), { opacity: 0 }, { opacity: 1, duration: .2, ease: 'none' }, o + .6)
+        .fromTo(q('.v'), { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .24, ease: 'power2.out' }, o + .64)
+        .fromTo(q('.body'), { opacity: 0 }, { opacity: 1, duration: .22, ease: 'none' }, o + .72)
+        .fromTo(q('.tags'), { opacity: 0 }, { opacity: 1, duration: .22, ease: 'none' }, o + .78)
+        .fromTo(q('.pin'), { scale: 0 }, { scale: 1, duration: .1, ease: 'none' }, o + .9);
     });
-  })(performance.now());
+  }
+  function play() {
+    build();
+    topos.forEach(t => { t.settings.fade = 0; });
+    gsap.to(tl, { progress: 1, duration: REDUCED ? 0.01 : tl.duration() * C.entrance.duration, ease: C.entrance.ease });
+    /* the contours come up once each plate has opened */
+    topos.forEach((t, i) => gsap.to(t.settings, { fade: 1, duration: REDUCED ? 0.01 : C.entrance.topoFade,
+      delay: REDUCED ? 0 : (i * C.entrance.stagger + 0.55 * C.entrance.duration), ease: 'power1.out' }));
+  }
+  build();
+  if (REDUCED) { tl.progress(1); }
+  else {
+    /* once: the first time the cards come into view */
+    new IntersectionObserver(([e], io) => { if (e.isIntersecting) { io.disconnect(); play(); } }, { threshold: 0.25 })
+      .observe(document.getElementById('cards'));
+  }
 
-  /* ── the panel: writes into FOUNDATION_CONFIG ─────────────────────── */
+  /* ── the panel ─────────────────────────────────────────────────────── */
   const el = document.createElement('div');
   el.id = 'tune';
   const R = (id, label, min, max, step, val, unit = '') => `<div class="row"><label>${label}<i id="v-${id}">${val}${unit}</i></label><input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}" data-unit="${unit}"></div>`;
+  const tp = topoPanel({ names: ['Agile', 'Creating value'], list: C.topo, onChange: syncTopo });
   el.innerHTML = `
     <div id="tune-head"><b>Foundations</b><button id="tune-hide" title="Hide (H)">–</button></div>
-    <p class="tune-sub">Tilt</p>
-    ${R('mx', 'Max tilt', 0, 25, .5, C.tilt.max, '°')}
-    ${R('rs', 'Responsiveness', .02, .5, .01, C.tilt.responsiveness)}
-    ${R('pp', 'Perspective', 400, 2400, 20, C.tilt.perspective, 'px')}
-    <p class="tune-sub">Depth</p>
-    ${R('zt', 'Title', 0, 120, 1, C.depth.title, 'px')}
-    ${R('zg', 'Tags', 0, 120, 1, C.depth.tags, 'px')}
-    ${R('zc', 'Contours', -120, 0, 1, C.depth.topo, 'px')}
-    <p class="tune-sub">Shadow & light</p>
-    ${R('sd', 'Shadow depth', 0, 100, 1, C.shadow.depth, 'px')}
-    ${R('sb', 'Shadow blur', 0, 140, 1, C.shadow.blur, 'px')}
-    ${R('so', 'Shadow opacity', 0, 1, .01, C.shadow.opacity)}
-    ${R('gl', 'Glare', 0, .6, .01, C.glare)}
-    <p class="tune-sub">Entrance</p>
-    ${R('ed', 'Duration', .2, 3, .05, C.entrance.duration, 's')}
+    <p class="tune-sub">Entrance (plays once)</p>
+    ${R('ed', 'Duration', .3, 3, .05, C.entrance.duration, 's')}
     ${R('es', 'Stagger', 0, 1, .02, C.entrance.stagger, 's')}
-    <div class="seg" id="s-ee"><button data-b="0.22,1,0.36,1" class="on">Out</button><button data-b="0.65,0,0.35,1">In-out</button><button data-b="0.34,1.56,0.64,1">Back</button><button data-b="0,0,1,1">Linear</button></div>
+    ${R('tf', 'Contours fade in', 0, 4, .1, C.entrance.topoFade, 's')}
     <div class="row inline"><label>Entrance<i></i></label><button class="tune-btn" id="s-rp">Replay</button></div>
-    <div class="row inline"><label>Config<i></i></label><button class="tune-btn" id="s-cp">Copy config</button></div>`;
+    ${tp.html}
+    ${bakeControls.html}`;
   document.body.appendChild(el);
   const q = id => el.querySelector('#' + id);
-  const bind = (id, fn) => q('s-' + id).addEventListener('input', e => { const v = +e.target.value; q('v-' + id).textContent = v + e.target.dataset.unit; fn(v); applyVars(); });
-  bind('mx', v => { C.tilt.max = v; }); bind('rs', v => { C.tilt.responsiveness = v; }); bind('pp', v => { C.tilt.perspective = v; });
-  bind('zt', v => { C.depth.title = v; }); bind('zg', v => { C.depth.tags = v; }); bind('zc', v => { C.depth.topo = v; });
-  bind('sd', v => { C.shadow.depth = v; }); bind('sb', v => { C.shadow.blur = v; }); bind('so', v => { C.shadow.opacity = v; });
-  bind('gl', v => { C.glare = v; });
-  bind('ed', v => { C.entrance.duration = v; }); bind('es', v => { C.entrance.stagger = v; });
-  q('s-ee').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
-    [...q('s-ee').children].forEach(c => c.classList.toggle('on', c === b)); C.entrance.ease = b.dataset.b.split(',').map(Number); });
-  q('s-rp').addEventListener('click', () => { entered = true; tEnter = performance.now(); });
-  q('s-cp').addEventListener('click', async () => {
-    const txt = 'const FOUNDATION_CONFIG = ' + JSON.stringify(C, null, 2) + ';';
-    try { await navigator.clipboard.writeText(txt); } catch { console.log(txt); }
-  });
+  const bind = (id, fn) => q('s-' + id).addEventListener('input', e => { const v = +e.target.value; q('v-' + id).textContent = v + e.target.dataset.unit; fn(v); });
+  bind('ed', v => { C.entrance.duration = v; }); bind('es', v => { C.entrance.stagger = v; }); bind('tf', v => { C.entrance.topoFade = v; });
+  q('s-rp').addEventListener('click', play);
+  tp.bind(el);
+  bakeControls.bind(el, BAKE_KEY, C, 'FOUNDATION_CONFIG');
   q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
-  addEventListener('DOMContentLoaded', () => { if (window.wb && window.wb.adopt) window.wb.adopt(); });
-})();
+  if (window.wb && window.wb.adopt) window.wb.adopt();
 </script>
-
-<!-- ─────────────────────────────────────────────────────────────────────── -->
-
 </body>
 </html>
