@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Footer — fire diagram</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<link rel="stylesheet" href="assets/footer-kit.css">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Footer — fire diagram
+   ─────────────────────────────────────────────────────────────────────────
+   After Cult: three columns on black. A table of contents and sectors on
+   the left; in the middle the campfire set inside a thin axis diagram —
+   heat up, light across, smoke away — the reference's planes and dotted
+   diagonals drawn round the flame; on the right, messages from the studio
+   as a carousel with a framed portrait; newsletter, coordinates and © along
+   the foot.
+   Phones: diagram first, then the columns.
+   Shared parts: assets/footer-kit.js / .css. Every value: the CONFIG object
+   in the script, on the panel, and bakeable.
+   ═════════════════════════════════════════════════════════════════════════ */
+.cu { min-height: 100svh; padding: 56px clamp(24px, 9vw, 180px) 36px; display: grid; grid-template-columns: 1fr 1.25fr 1fr; grid-template-rows: auto 1fr auto; column-gap: 32px; }
+.cu .nav-t { grid-column: 1 / -1; text-align: center; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: #fff; }
+.cu .c { padding-top: 52px; display: flex; flex-direction: column; gap: 56px; }
+.cu .big { margin-top: 30px; list-style: none; color: #fff; font-weight: 600; font-size: clamp(30px, 2.4vw, 42px); line-height: 1.04; letter-spacing: -.02em; }
+.cu .big a:hover { color: var(--acc); }
+.cu .sm { list-style: none; margin-top: 14px; display: grid; gap: 8px; font-size: 14px; color: #fff; }
+.cu .sm a:hover { color: var(--acc); }
+.cu .sm .on a { border-bottom: 1px solid #fff; }
+.cu .k { color: #fff; font-size: 13px; letter-spacing: .12em; }
+.dia { position: relative; min-height: 460px; }
+.dia canvas.fire { position: absolute; inset: 0; }
+.dia svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.dia svg .ln { fill: none; stroke: #e8e3dc; stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.dia svg .dot { stroke-dasharray: 2 4; }
+.dia svg text { fill: #e8e3dc; font: 400 13px 'F37 Analog', system-ui, sans-serif; letter-spacing: .06em; }
+.dia svg .core { fill: #fff; }
+.dia svg .spin { transform-origin: 300px 300px; animation: spin 40s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.msg { text-align: center; display: grid; justify-items: center; }
+.msg .car { margin-top: 40px; display: grid; grid-template-columns: 40px auto 40px; align-items: center; gap: 30px; }
+.msg .car button { background: none; border: 0; color: #fff; font-size: 26px; cursor: pointer; }
+.msg .car button:hover { color: var(--acc); }
+.msg .pic { width: 170px; padding: 8px 8px 0; background: #f1eee7; color: #111; }
+.msg .pic p { font-size: 9px; letter-spacing: .14em; text-transform: uppercase; text-align: center; line-height: 1.2; padding-bottom: 6px; }
+.msg .pic img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; object-position: 50% 15%; background: #b9b2a6; filter: grayscale(1) contrast(1.1); }
+.msg .pic .frame { position: relative; } .msg .pic .frame::after { content: ''; position: absolute; left: 30%; right: 30%; top: 14%; bottom: 46%; border: 1px solid rgba(255,255,255,.75); }
+.msg h3 { margin-top: 30px; max-width: 20ch; color: #fff; font-weight: 600; font-size: clamp(20px, 1.6vw, 27px); line-height: 1.12; letter-spacing: -.015em; }
+.msg .lis { margin-top: 18px; display: inline-flex; align-items: center; gap: 9px; font-size: 14px; color: #fff; } .msg .lis::before { content: ''; width: 13px; height: 13px; border-radius: 50%; background: #fff; }
+.msg .lis:hover::before { background: var(--acc); }
+.msg .soc { margin-top: auto; padding-top: 40px; display: flex; gap: 26px; font-size: 14px; color: #fff; }
+.cu .foot-row { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: end; padding-top: 36px; }
+.nl p { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: #fff; }
+.nl form { margin-top: 12px; display: flex; gap: 20px; align-items: center; }
+.nl input { flex: 1; min-width: 0; max-width: 300px; background: none; border: 0; outline: none; font-size: 14px; color: #fff; }
+.nl input::placeholder { color: var(--ink-faint); }
+.nl button { display: inline-flex; align-items: center; gap: 9px; background: none; border: 0; color: #fff; cursor: pointer; font-size: 14px; }
+.nl button::before { content: ''; width: 13px; height: 13px; border-radius: 50%; background: #fff; }
+.coords { text-align: center; font-size: 14px; letter-spacing: .06em; color: #fff; font-variant-numeric: tabular-nums; }
+.copy { text-align: right; font-size: 14px; color: #fff; }
+@media (max-width: 900px) {
+  .cu { grid-template-columns: 1fr; padding: 40px 16px 28px; }
+  .dia { order: 1; min-height: 100vw; } .cu .nav-t { order: 0; }
+  .cu .c.l { order: 2; } .msg { order: 3; padding-top: 40px; }
+  .cu .foot-row { order: 4; grid-template-columns: 1fr; gap: 22px; } .coords, .copy { text-align: left; }
+}
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<footer class="foot cu" aria-label="Footer">
+  <p class="nav-t">Navigate the studio</p>
+  <div class="c l">
+    <div><p class="k">Table of contents</p><ul class="big"><li><a href="summits-v3.html">Work</a></li><li><a href="services-compass-v4.html">Services</a></li><li><a href="about-landing.html">Philosophy</a></li></ul>
+      <ul class="sm"><li><a href="#">Workshops [coming soon]</a></li><li><a href="studio-polaroids.html">Studio</a></li><li><a href="mailto:hello@tibba.design">Contact</a></li></ul></div>
+    <div><p class="k">Sectors of operation</p><ul class="sm" style="margin-top:34px"><li class="on"><a href="#">Fintech</a></li><li><a href="#">News &amp; media</a></li><li><a href="#">Foodtech</a></li><li><a href="#">SaaS &amp; ESG</a></li></ul></div>
+  </div>
+  <div class="dia" id="dia"><canvas class="fire" aria-hidden="true"></canvas>
+    <svg viewBox="0 0 600 600" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <g class="spin"><path class="ln" d="M210 150 L390 150 L390 420 L210 420 Z" opacity=".6"/></g>
+      <path class="ln" d="M255 470 L390 395 L390 90 L255 165 Z" opacity=".75"/>
+      <path class="ln" d="M150 330 L265 250 L470 250 L355 330 Z" opacity=".75"/>
+      <path class="ln" d="M300 70 V530 M296 78 L300 70 L304 78 M296 522 L300 530 L304 522"/>
+      <path class="ln" d="M120 300 H480 M128 296 L120 300 L128 304 M472 296 L480 300 L472 304"/>
+      <path class="ln" d="M170 410 L440 220 M180 410 L170 410 L174 400 M430 220 L440 220 L436 230"/>
+      <path class="ln dot" d="M150 330 L470 250 M265 250 L355 330"/>
+      <text x="300" y="58" text-anchor="middle">HEAT</text><text x="492" y="304">LIGHT</text><text x="140" y="430" text-anchor="end">SMOKE</text>
+      <circle class="core" id="core" cx="300" cy="300" r="5"/>
+    </svg></div>
+  <div class="c msg"><p class="k">Important messages</p>
+    <div class="car"><button type="button" data-d="-1" aria-label="Previous">‹</button>
+      <figure class="pic"><p id="m-name">Rahul Beniwal<br><small>Founder</small></p><div class="frame"><img id="m-img" src="assets/people/rahul.png" alt=""></div></figure>
+      <button type="button" data-d="1" aria-label="Next">›</button></div>
+    <h3 id="m-h">Rahul on why every climb ends around a fire.</h3>
+    <a class="lis" href="https://medium.com/@tibbadesignstudio">Read on Medium</a>
+    <p class="soc"><a href="https://www.instagram.com/tibba.design/">Instagram</a><a href="https://medium.com/@tibbadesignstudio">Medium</a><a href="https://www.linkedin.com/company/tibba-design-studio/">LinkedIn</a></p>
+  </div>
+  <div class="foot-row">
+    <div class="nl"><p>Sign up for field notes</p><form id="nl"><input type="email" required placeholder="Enter your email" aria-label="Email"><button>Sign up</button></form></div>
+    <p class="coords">28° 35′ 50.4″ N, 77° 12′ 32.6″ E</p>
+    <p class="copy">© <span class="yr"></span></p>
+  </div>
+</footer>
+<script type="module">
+  import { fire, draggable, clocks, ticker, barWord, panel, slider, applyBaked, pad, year, LINE } from './assets/footer-kit.js';
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  $$('.yr').forEach(e => { e.textContent = year(); });
+  const CONFIG = { fire: { mode: 'dither', palette: 'mono', cell: 4, dot: .8, contrast: 1.2, flame: 1, embers: .8, speed: .9, scale: .62, wood: .7 } };
+  const KEY = 'tibba.bake.footer-cult'; applyBaked(KEY, CONFIG);
+  const f = fire($('#dia canvas'), { ...CONFIG.fire, x: .5, y: .62 });
+  const MSG = [['Rahul Beniwal', 'Founder', 'assets/people/rahul.png', 'Rahul on why every climb ends around a fire.'],
+    ['Neel Lakhwani', 'Designer', 'assets/people/neel.png', 'Neel on research as the map before the climb.'],
+    ['Riya Pandey', 'Designer', 'assets/people/riya.png', 'Riya on shipping the first version, then the next.'],
+    ['Sahil Pednekar', 'Designer', 'assets/people/sahil.png', 'Sahil on motion as the shortest route to meaning.']];
+  let mi = 0;
+  const show = i => { mi = (i + MSG.length) % MSG.length; const [n, r, img, h] = MSG[mi]; $('#m-name').innerHTML = `${n}<br><small>${r}</small>`; $('#m-img').src = img; $('#m-h').textContent = h; };
+  $('.car').addEventListener('click', e => { const b = e.target.closest('button'); if (b) show(mi + +b.dataset.d); });
+  $('#nl').addEventListener('submit', e => { e.preventDefault(); e.target.querySelector('input').value = ''; e.target.querySelector('input').placeholder = 'Noted.'; });
+  panel({ title: 'Footer — fire diagram', key: KEY, config: CONFIG, name: 'CONFIG', fires: [{ fire: f, cfg: CONFIG.fire }] });
+</script>
+</body>
+</html>

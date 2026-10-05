@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Footer — split screen</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<link rel="stylesheet" href="assets/footer-kit.css">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Footer — split screen
+   ─────────────────────────────────────────────────────────────────────────
+   After Hackfirst: one screen split by a hairline — the wordmark huge on
+   the left over the fire, which burns soft and large in the dark like the
+   reference's blurred light; About on the right; socials and navigation on
+   square-bullet rows; a big section number; a base bar with three squares
+   and a live reading.
+   Phones: one column, the fire behind the wordmark.
+   Shared parts: assets/footer-kit.js / .css. Every value: the CONFIG object
+   in the script, on the panel, and bakeable.
+   ═════════════════════════════════════════════════════════════════════════ */
+.hf { position: relative; min-height: 100svh; display: grid; grid-template-columns: 56% 1fr; grid-template-rows: 1fr auto; overflow: hidden;
+  background: radial-gradient(40% 50% at 24% 38%, rgba(255,255,255,.07), transparent 70%), radial-gradient(36% 46% at 80% 70%, rgba(255,255,255,.06), transparent 70%), #080808; }
+.hf .blob { position: absolute; border-radius: 50%; filter: blur(60px); background: rgba(255,255,255,.07); pointer-events: none; animation: drift 14s ease-in-out infinite alternate; }
+.hf .blob.a { width: 40vw; height: 40vw; left: 0; top: 10%; } .hf .blob.b { width: 34vw; height: 34vw; right: 4%; bottom: 0; animation-delay: -6s; }
+@keyframes drift { to { transform: translate(4vw, -3vw) scale(1.1); } }
+.hf .l, .hf .r { position: relative; z-index: 2; padding: clamp(40px, 7vh, 72px) clamp(28px, 3vw, 56px) 28px; display: flex; flex-direction: column; }
+.hf .r { border-left: 1px solid var(--line); }
+.hf canvas.fire { position: absolute; left: 0; top: 22%; width: 56%; height: 62%; z-index: 1; opacity: .8; filter: blur(.4px) drop-shadow(0 0 22px rgba(255,180,120,.25)); }
+.hf h2 { color: #eef3f3; font-weight: 300; font-size: clamp(80px, 12.5vw, 240px); line-height: .82; letter-spacing: -.045em; text-transform: uppercase; }
+.hf .about { margin-top: 20px; max-width: 40ch; font-size: clamp(14px, 1.15vw, 18px); line-height: 1.5; letter-spacing: .08em; text-transform: uppercase; color: #dfe4e4; }
+.row { margin-top: auto; }
+.row ul { list-style: none; margin-top: 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 26px; font-size: 15px; letter-spacing: .14em; text-transform: uppercase; color: #fff; }
+.row li { display: flex; align-items: center; gap: 26px; }
+.row li + li::before { content: ''; width: 7px; height: 7px; background: #fff; }
+.row a:hover { color: var(--acc); }
+.hf .num { position: absolute; right: clamp(28px, 3vw, 56px); bottom: 70px; z-index: 3; color: #fff; font-weight: 300; font-size: clamp(56px, 4.6vw, 80px); line-height: 1; letter-spacing: -.03em; }
+.basebar { grid-column: 1 / -1; position: relative; z-index: 3; display: flex; justify-content: space-between; align-items: center; padding: 18px clamp(28px, 3vw, 56px); border-top: 1px solid var(--line); background: rgba(10,10,10,.6); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-mute); }
+.basebar .sq { display: flex; align-items: center; gap: 3px; } .basebar .sq i { width: 8px; height: 8px; background: #fff; } .basebar .sq i:nth-child(n+2) { opacity: .45; }
+.basebar .sq span { margin-left: 10px; color: #fff; font-variant-numeric: tabular-nums; }
+@media (max-width: 860px) {
+  .hf { grid-template-columns: 1fr; }
+  .hf .r { border-left: 0; border-top: 1px solid var(--line); }
+  .hf .l { min-height: 92vw; }
+  .hf canvas.fire { width: 100%; height: 92vw; top: 70px; bottom: auto; opacity: .75; }
+  .hf h2 { font-size: 24vw; }
+  .hf .num { position: static; margin-top: 30px; }
+}
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<footer class="foot hf" aria-label="Footer">
+  <i class="blob a"></i><i class="blob b"></i>
+  <canvas class="fire" aria-hidden="true"></canvas>
+  <div class="l"><h2>Tibba</h2>
+    <div class="row"><p class="k">Socials</p><ul><li><a href="https://www.instagram.com/tibba.design/">Instagram</a></li><li><a href="https://www.linkedin.com/company/tibba-design-studio/">LinkedIn</a></li><li><a href="https://medium.com/@tibbadesignstudio">Medium</a></li></ul></div></div>
+  <div class="r"><p class="k">About</p><p class="about">Tibba: a higher place. A lean design team out of India — we don’t just design, we climb with you.</p>
+    <div class="row"><p class="k">Navigation</p><ul><li><a href="final-website-v2.html">Home</a></li><li><a href="services-compass-v4.html">Services</a></li><li><a href="about-landing.html">About</a></li><li><a href="mailto:hello@tibba.design">Contact</a></li></ul></div></div>
+  <p class="num">06</p>
+  <div class="basebar"><p class="sq"><i></i><i></i><i></i><span id="heat">— %</span></p><p>Built around a campfire · © <span class="yr"></span></p></div>
+</footer>
+<script type="module">
+  import { fire, draggable, clocks, ticker, barWord, panel, slider, applyBaked, pad, year, LINE } from './assets/footer-kit.js';
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  $$('.yr').forEach(e => { e.textContent = year(); });
+  const CONFIG = { fire: { mode: 'dither', palette: 'mono', cell: 5, dot: .78, contrast: 1.1, flame: 1.15, embers: 1, speed: .8, scale: 1, wood: .6 } };
+  const KEY = 'tibba.bake.footer-hackfirst'; applyBaked(KEY, CONFIG);
+  const f = fire($('canvas.fire'), { ...CONFIG.fire, x: .5, y: .8 });
+  /* the base bar reads the fire's heat, as the reference reads its progress */
+  setInterval(() => { $('#heat').textContent = Math.round(70 + f.features().heat() * 30) + '% heat'; }, 600);
+  panel({ title: 'Footer — split screen', key: KEY, config: CONFIG, name: 'CONFIG', fires: [{ fire: f, cfg: CONFIG.fire }] });
+</script>
+</body>
+</html>

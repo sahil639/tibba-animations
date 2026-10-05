@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Footer — fires that grow</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<link rel="stylesheet" href="assets/footer-kit.css">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Footer — fires that grow
+   ─────────────────────────────────────────────────────────────────────────
+   After Sylvan: the mark and © top left, four quiet link columns top right,
+   and along the foot a row of ASCII campfires growing from a spark to a
+   full blaze, left to right — Sylvan's saplings-to-tree, as fires — each
+   standing on a line of ground characters.
+   Phones: the columns two-up, three fires.
+   Shared parts: assets/footer-kit.js / .css. Every value: the CONFIG object
+   in the script, on the panel, and bakeable.
+   ═════════════════════════════════════════════════════════════════════════ */
+.sy { position: relative; min-height: 100svh; padding: clamp(56px, 9vh, 120px) clamp(24px, 5.5vw, 110px) 0; display: grid; grid-template-rows: auto 1fr; background: #0d0e0d; }
+.sy .top { display: grid; grid-template-columns: 1fr 2.2fr; gap: 32px; }
+.sy .brand { display: flex; align-items: center; gap: 12px; color: #fff; font-weight: 500; font-size: 40px; letter-spacing: -.03em; }
+.sy .brand svg { width: 34px; height: 30px; }
+.sy .cp { margin-top: 14px; font-size: 15px; line-height: 1.55; color: var(--ink-mute); }
+.sy .cols { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+.sy .cols .k { font-size: 11px; letter-spacing: .08em; }
+.sy .cols ul { list-style: none; margin-top: 22px; display: grid; gap: 12px; font-size: 16px; color: #e8e3dc; }
+.sy .cols a:hover { color: var(--acc); }
+.grove { position: relative; margin: 0 calc(-1 * clamp(24px, 5.5vw, 110px)); height: clamp(380px, 56vh, 640px); }
+.grove canvas.fire { position: absolute; bottom: 0; }
+@media (max-width: 860px) {
+  .sy { padding: 48px 16px 0; }
+  .sy .top { grid-template-columns: 1fr; }
+  .sy .cols { grid-template-columns: 1fr 1fr; row-gap: 34px; }
+  .grove { margin: 32px -16px 0; height: 340px; }
+  .grove canvas:nth-child(-n+2) { display: none; }
+}
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<footer class="foot sy" aria-label="Footer">
+  <div class="top">
+    <div><p class="brand"><svg viewBox="0 0 48 27" aria-hidden="true"><path d="M2 25 L16 9 L22 15 L30 4 L46 25 Z" fill="#fff"/><rect x="2" y="24" width="44" height="2" fill="#FF4B1F"/></svg>tibba</p>
+      <p class="cp">© <span class="yr"></span> Tibba Design Studio.<br>All rights reserved.</p></div>
+    <div class="cols">
+      <div><p class="k">Services</p><ul><li><a href="services-compass-v4.html">Research</a></li><li><a href="services-compass-v4.html">Product design</a></li><li><a href="services-compass-v4.html">Design systems</a></li><li><a href="services-compass-v4.html">Prototyping</a></li></ul></div>
+      <div><p class="k">Studio</p><ul><li><a href="about-landing.html">About</a></li><li><a href="summits-v3.html">How we climb</a></li><li><a href="studio-polaroids.html">Team</a></li><li><a href="mailto:hello@tibba.design">Contact</a></li></ul></div>
+      <div><p class="k">Legal</p><ul><li><a href="#">Privacy policy</a></li><li><a href="#">Terms</a></li></ul></div>
+      <div><p class="k">Socials</p><ul><li><a href="https://www.linkedin.com/company/tibba-design-studio/">LinkedIn</a></li><li><a href="https://www.instagram.com/tibba.design/">Instagram</a></li><li><a href="https://medium.com/@tibbadesignstudio">Medium</a></li></ul></div>
+    </div>
+  </div>
+  <div class="grove" id="grove"></div>
+</footer>
+<script type="module">
+  import { fire, draggable, clocks, ticker, barWord, panel, slider, applyBaked, pad, year, LINE } from './assets/footer-kit.js';
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  $$('.yr').forEach(e => { e.textContent = year(); });
+  /* five fires along the ground, a spark at the left to a blaze at the right:
+     [left %, width %, height %, flame, embers] */
+  const CONFIG = { fire: { mode: 'ascii', palette: 'mono', cell: 10, dot: .8, contrast: 1.15, flame: 1, embers: .8, speed: .9, scale: 1, wood: .85 },
+    grove: [[2, 11, 22, .3, .1], [12, 13, 34, .5, .3], [24, 16, 48, .7, .5], [39, 22, 70, .9, .8], [58, 40, 100, 1.1, 1.2]] };
+  const KEY = 'tibba.bake.footer-sylvan'; applyBaked(KEY, CONFIG);
+  const grove = $('#grove');
+  const fires = CONFIG.grove.map(([l, w, h, fl, em]) => {
+    const c = document.createElement('canvas'); c.className = 'fire'; c.setAttribute('aria-hidden', 'true');
+    Object.assign(c.style, { left: l + '%', width: w + '%', height: h + '%' }); grove.appendChild(c);
+    return fire(c, { ...CONFIG.fire, flame: fl, embers: em, x: .5, y: .86 });
+  });
+  panel({ title: 'Footer — fires that grow', key: KEY, config: CONFIG, name: 'CONFIG', fires: [{ label: 'Every fire', fire: fires[4], list: fires, cfg: CONFIG.fire }] });
+</script>
+</body>
+</html>

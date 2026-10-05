@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Footer — blueprint grid</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<link rel="stylesheet" href="assets/footer-kit.css">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Footer — blueprint grid
+   ─────────────────────────────────────────────────────────────────────────
+   After Heron AI: the footer as a sheet of hairline cells — statement,
+   link columns, subscribe, address, inboxes, socials — with the campfire in
+   the tall cell on the right where Heron keeps its mark, then the wordmark
+   drawn as a blueprint between ruler marks, and a bar of legal cells.
+   Phones: the cells stack two-up, the fire leads.
+   Shared parts: assets/footer-kit.js / .css. Every value: the CONFIG object
+   in the script, on the panel, and bakeable.
+   ═════════════════════════════════════════════════════════════════════════ */
+.he { margin: 10px; border: 1px solid var(--line-2); }
+.g1 { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr 1.25fr; grid-template-rows: auto auto; }
+.g1 > div { border-right: 1px solid var(--line-2); border-bottom: 1px solid var(--line-2); padding: 18px; min-width: 0; }
+.g1 .stmt { grid-row: 1; }
+.g1 .stmt h2 { color: #fff; font-weight: 500; font-size: clamp(26px, 2.4vw, 40px); line-height: .98; letter-spacing: -.035em; text-transform: uppercase; }
+.g1 ul { list-style: none; margin-top: 26px; display: grid; gap: 12px; font-size: 18px; color: #fff; }
+.g1 ul a:hover, .g1 ul a.on { color: var(--acc); }
+.g1 .mark { grid-column: 5; grid-row: 1 / span 2; border-right: 0; position: relative; padding: 0; min-height: 420px; }
+.g1 .mark canvas { position: absolute; inset: 0; }
+.g1 .mark .k { position: absolute; left: 18px; top: 18px; z-index: 2; }
+.g1 .row2 { min-height: 210px; display: flex; flex-direction: column; }
+.g1 .row2 p.t { margin-top: 22px; font-size: 16px; line-height: 1.45; color: #fff; }
+.sub { margin: auto -18px -18px; display: flex; border-top: 1px solid var(--line-2); }
+.sub input { flex: 1; min-width: 0; padding: 16px 18px; background: none; border: 0; outline: none; font-size: 15px; }
+.sub input::placeholder { color: var(--ink-faint); }
+.sub button { width: 54px; border: 0; border-left: 1px solid var(--line-2); background: none; color: #fff; cursor: pointer; font-size: 18px; }
+.sub button:hover { background: var(--acc); color: #000; }
+.split { padding: 0 !important; display: grid; grid-template-rows: 1fr 1fr; }
+.split > div { padding: 18px; } .split > div + div { border-top: 1px solid var(--line-2); }
+.soc { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 18px; margin-top: auto; font-size: 17px; color: #fff; }
+.soc a:hover { color: var(--acc); }
+.bp { position: relative; padding: 42px 24px; border-bottom: 1px solid var(--line-2); }
+.bp .rule { position: absolute; left: 12px; right: 12px; height: 10px; background: repeating-linear-gradient(90deg, rgba(233,236,242,.35) 0 1px, transparent 1px 10px); }
+.bp .rule.t { top: 12px; } .bp .rule.b { bottom: 12px; }
+.bp .pl { position: absolute; width: 13px; height: 13px; } .bp .pl::before, .bp .pl::after { content: ''; position: absolute; background: #e8e3dc; }
+.bp .pl::before { left: 6px; width: 1px; height: 13px; } .bp .pl::after { top: 6px; height: 1px; width: 13px; }
+.bp .pl.a { left: 6px; top: 10px; } .bp .pl.b { right: 6px; top: 10px; } .bp .pl.c { left: 6px; bottom: 10px; } .bp .pl.d { right: 6px; bottom: 10px; }
+.bp svg { display: block; width: 100%; height: auto; overflow: visible; }
+.bp svg text { font: 500 220px 'F37 Analog', system-ui, sans-serif; letter-spacing: -.02em; fill: none; stroke: #e8e3dc; stroke-width: 1.2; stroke-dasharray: 3000; stroke-dashoffset: 3000; }
+.bp.on svg text { animation: draw 3.2s cubic-bezier(.65,0,.35,1) forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.bp svg .tk { stroke: #e8e3dc; stroke-width: 1; }
+.bp svg .tk.o { stroke: var(--acc); }
+.g3 { display: grid; grid-template-columns: 1fr auto auto auto; }
+.g3 > * { padding: 20px 22px; border-right: 1px solid var(--line-2); font-size: 15px; color: #fff; }
+.g3 > *:last-child { border-right: 0; }
+.g3 p { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-mute); }
+.g3 p a { color: #fff; border-bottom: 1px solid currentColor; }
+.g3 a:hover { color: var(--acc); }
+@media (max-width: 900px) {
+  .he { margin: 6px; }
+  .g1 { grid-template-columns: 1fr 1fr; }
+  .g1 > div { grid-column: auto !important; grid-row: auto !important; }
+  .g1 .mark { grid-column: 1 / -1 !important; order: -1; min-height: 88vw; }
+  .g1 .stmt, .g1 .subc { grid-column: 1 / -1 !important; }
+  .g3 { grid-template-columns: 1fr 1fr 1fr; }
+  .g3 p { grid-column: 1 / -1; border-right: 0; border-bottom: 1px solid var(--line-2); }
+  .g3 > * { padding: 14px; font-size: 13px; }
+}
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<footer class="foot he" aria-label="Footer">
+  <section class="g1">
+    <div class="stmt"><h2>A design studio that climbs with you</h2></div>
+    <div><p class="k">Studio</p><ul><li><a class="on" href="final-website-v2.html">Home</a></li><li><a href="about-landing.html">About us</a></li><li><a href="mailto:hello@tibba.design">Contact us</a></li></ul></div>
+    <div><p class="k">Work</p><ul><li><a href="summits-v3.html">Summits</a></li><li><a href="case-studies-reel.html">Case studies</a></li><li><a href="services-compass-v4.html">Services</a></li></ul></div>
+    <div><p class="k">Resources</p><ul><li><a href="https://medium.com/@tibbadesignstudio">Field notes</a></li><li><a href="#">Process</a></li><li><a href="#">Workshops</a></li></ul></div>
+    <div class="mark"><p class="k">The fire</p><canvas class="fire" aria-hidden="true"></canvas></div>
+    <div class="row2 subc"><p class="k">Subscribe</p><p class="t">Want field notes from the climb?<br>Sign up for occasional updates from Tibba.</p>
+      <form class="sub" id="sub"><input type="email" required placeholder="Enter your email" aria-label="Email"><button aria-label="Subscribe">→</button></form></div>
+    <div class="row2"><p class="k">Base</p><p class="t">Tibba Design Studio,<br>India — and remote</p><p class="t" style="margin-top:auto"><a href="#">Direction</a></p></div>
+    <div class="row2 split"><div><p class="k">New business</p><p class="t"><a href="mailto:hello@tibba.design?subject=New%20project">hello@tibba.design</a></p></div>
+      <div><p class="k">General inquiries</p><p class="t"><a href="mailto:hello@tibba.design">hello@tibba.design</a></p></div></div>
+    <div class="row2"><p class="k">Social</p><div class="soc"><a href="https://www.instagram.com/tibba.design/">Instagram</a><a href="https://www.linkedin.com/company/tibba-design-studio/">LinkedIn</a><a href="https://medium.com/@tibbadesignstudio">Medium</a><a href="mailto:hello@tibba.design">Email</a></div></div>
+  </section>
+  <section class="bp" id="bp" aria-label="Tibba">
+    <i class="rule t"></i><i class="rule b"></i><i class="pl a"></i><i class="pl b"></i><i class="pl c"></i><i class="pl d"></i>
+    <svg viewBox="0 0 1000 240" aria-hidden="true"><text x="500" y="200" text-anchor="middle" textLength="900" lengthAdjust="spacingAndGlyphs">TIBBA</text><g id="ticks"></g></svg>
+  </section>
+  <section class="g3"><p>© <span class="yr"></span> Tibba Design Studio. All rights reserved. Built around a <a href="#">campfire</a>.</p><a href="#">Privacy policy</a><a href="#">Terms &amp; conditions</a><a href="#">Cookie policy</a></section>
+</footer>
+<script type="module">
+  import { fire, draggable, clocks, ticker, barWord, panel, slider, applyBaked, pad, year, LINE } from './assets/footer-kit.js';
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  $$('.yr').forEach(e => { e.textContent = year(); });
+  const CONFIG = { fire: { mode: 'ascii', palette: 'mono', cell: 9, dot: .8, contrast: 1.2, flame: 1, embers: .8, speed: .9, scale: 1.7, wood: .8 } };
+  const KEY = 'tibba.bake.footer-heron'; applyBaked(KEY, CONFIG);
+  const f = fire($('.mark canvas'), { ...CONFIG.fire, x: .5, y: .72 });
+  $('#sub').addEventListener('submit', e => { e.preventDefault(); e.target.querySelector('input').value = ''; e.target.querySelector('input').placeholder = 'Noted — see you at camp'; });
+  /* blueprint construction ticks along the letters' guide lines */
+  let t = ''; [40, 120, 200].forEach((y, k) => { for (let x = 60; x <= 940; x += 88) t += `<path class="tk${k === 1 && x === 500 ? ' o' : ''}" d="M${x - 5} ${y}H${x + 5}M${x} ${y - 5}V${y + 5}"/>`; });
+  $('#ticks').innerHTML = t;
+  new IntersectionObserver(([e], io) => { if (e.isIntersecting) { io.disconnect(); $('#bp').classList.add('on'); } }, { threshold: .3 }).observe($('#bp'));
+  panel({ title: 'Footer — blueprint grid', key: KEY, config: CONFIG, name: 'CONFIG', fires: [{ fire: f, cfg: CONFIG.fire }] });
+</script>
+</body>
+</html>

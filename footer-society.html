@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Footer — window cards</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<link rel="stylesheet" href="assets/footer-kit.css">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Footer — window cards
+   ─────────────────────────────────────────────────────────────────────────
+   After The Design Society: a big centred title, two draggable window cards
+   floating over it, a running line, and letters built from bars in three
+   bordered cells — on our black, with a faint scan-line screen, and the
+   campfire burning under the title.
+   Phones: title, one window, the fire, the ticker, the three cells.
+   Shared parts: assets/footer-kit.js / .css. Every value: the CONFIG object
+   in the script, on the panel, and bakeable.
+   ═════════════════════════════════════════════════════════════════════════ */
+.sc { position: relative; height: 100svh; min-height: 640px; overflow: hidden; display: grid; place-items: center;
+  background: radial-gradient(90% 70% at 50% 60%, #151313 0%, #0a0a0b 70%); }
+.sc::after { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 6;
+  background: repeating-linear-gradient(180deg, rgba(255,255,255,.035) 0 1px, transparent 1px 3px); mix-blend-mode: screen; }
+.sc canvas.fire { position: absolute; inset: 0; z-index: 1; }
+.sc h2 { position: relative; z-index: 3; margin-top: -40vh; text-align: center; color: #fff; font-weight: 400; font-size: clamp(56px, 9vw, 168px); line-height: .9; letter-spacing: -.045em;
+  text-shadow: 0 0 30px rgba(0,0,0,.9); }
+.sc h2 span { display: block; }
+.sc .w1 { left: 5%; top: 9%; } .sc .w2 { right: 18%; top: 46%; }
+.tick { position: relative; z-index: 7; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 14px 0;
+  font-size: 15px; letter-spacing: .12em; text-transform: uppercase; color: #fff; }
+.cells { display: grid; grid-template-columns: repeat(3, 1fr); }
+.cells > div { padding: clamp(28px, 4vw, 56px) clamp(28px, 5vw, 90px); border-right: 1px solid var(--line); }
+.cells > div:last-child { border-right: 0; }
+.cells canvas { display: block; width: 100%; aspect-ratio: .82; }
+@media (max-width: 760px) {
+  .sc { display: block; height: auto; min-height: 0; padding: 96px 0 0; }
+  .sc h2 { margin: 0; font-size: 15vw; }
+  .sc canvas.fire { position: relative; height: 92vw; }
+  .sc .win { position: relative; left: auto !important; right: auto !important; top: auto !important; width: auto; margin: 28px 16% 0; }
+  .sc .w2 { display: none; }
+  .tick { font-size: 12px; }
+  .cells > div { padding: 18px 14px; }
+}
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<footer class="foot" aria-label="Footer">
+  <section class="sc" id="sc">
+    <canvas class="fire" aria-hidden="true"></canvas>
+    <h2><span>Tibba Design</span><span>Studio</span></h2>
+    <div class="win w1"><div class="bar" data-drag><i></i><i></i><i></i><i></i></div>
+      <div class="in"><p class="hd">Social <button type="button" data-toggle>[–]</button></p><ul><li><a href="https://www.instagram.com/tibba.design/">Instagram</a></li><li><a href="https://www.linkedin.com/company/tibba-design-studio/">LinkedIn</a></li><li><a href="https://medium.com/@tibbadesignstudio">Medium</a></li></ul></div></div>
+    <div class="win w2"><div class="bar" data-drag><i></i><i></i><i></i><i></i></div>
+      <div class="in"><p class="hd">Website <button type="button" data-toggle>[–]</button></p><ul><li><a href="final-website-v2.html">Home</a></li><li><a href="summits-v3.html">Work</a></li><li><a href="services-compass-v4.html">Services</a></li><li><a href="about-landing.html">About</a></li><li><a href="mailto:hello@tibba.design">Contact</a></li></ul></div></div>
+  </section>
+  <div class="tick tk" id="tick" aria-hidden="true"></div>
+  <section class="cells" aria-label="Tibba Design Studio"><div id="c1"></div><div id="c2"></div><div id="c3"></div></section>
+</footer>
+<script type="module">
+  import { fire, draggable, clocks, ticker, barWord, panel, slider, applyBaked, pad, year, LINE } from './assets/footer-kit.js';
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  $$('.yr').forEach(e => { e.textContent = year(); });
+  const CONFIG = { fire: { mode: 'dither', palette: 'warm', cell: 5, dot: .8, contrast: 1.15, flame: 1.05, embers: 1, speed: 1, scale: .66, wood: .9 },
+    bars: { rows: 16, bar: .5, speed: 1 }, ticker: 40 };
+  const KEY = 'tibba.bake.footer-society'; applyBaked(KEY, CONFIG);
+  const f = fire($('#sc canvas'), { ...CONFIG.fire, x: .5, y: .94 });
+  const mq = matchMedia('(max-width: 760px)');
+  $$('.sc .win').forEach(w => draggable(w, $('#sc'), { off: () => mq.matches }));
+  const tk = ticker($('#tick'), 'Tibba Design Studio is a lean design team based out of India — and every climb ends around a fire', CONFIG.ticker);
+  const words = ['T', 'D', 'S'].map((L, i) => barWord($('#c' + (i + 1)), [L], { ...CONFIG.bars, colour: '#e8e3dc' }));
+  panel({ title: 'Footer — window cards', key: KEY, config: CONFIG, name: 'CONFIG', fires: [{ fire: f, cfg: CONFIG.fire }],
+    extra: `<p class="tune-sub">Bars &amp; ticker</p>${slider('rw', 'Bars per letter', 8, 30, 1, CONFIG.bars.rows)}${slider('bt', 'Bar thickness', .2, .95, .01, CONFIG.bars.bar)}${slider('tk', 'Ticker pass', 10, 120, 1, CONFIG.ticker, 's')}`,
+    bind: (q, on) => { on('rw', v => { CONFIG.bars.rows = v; words.forEach(w => { w.O.rows = v; w.remeasure(); }); });
+      on('bt', v => { CONFIG.bars.bar = v; words.forEach(w => { w.O.bar = v; w.play(); }); }); on('tk', v => { CONFIG.ticker = v; tk.speed(v); }); } });
+</script>
+</body>
+</html>

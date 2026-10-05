@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Footer — glowing fire</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<link rel="stylesheet" href="assets/footer-kit.css">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Footer — glowing fire
+   ─────────────────────────────────────────────────────────────────────────
+   After VCA Secondary School: the studio's details in a quiet column on
+   the left — links, the wordmark set heavy and stacked, address, round
+   social buttons, a pill button, small print — and the campfire on the
+   right, large and glowing, as the one object on the page.
+   Phones: the fire as a banner on top, then the column.
+   Shared parts: assets/footer-kit.js / .css. Every value: the CONFIG object
+   in the script, on the panel, and bakeable.
+   ═════════════════════════════════════════════════════════════════════════ */
+.vc { display: grid; grid-template-columns: minmax(340px, 38%) 1fr; min-height: 100svh; }
+.vc .col { padding: clamp(40px, 6vh, 64px) var(--gut) clamp(32px, 5vh, 56px); display: flex; flex-direction: column; }
+.vc .top { display: flex; gap: 28px; padding-bottom: 22px; border-bottom: 1px solid var(--line); font-weight: 700; font-size: 15px; letter-spacing: .02em; text-transform: uppercase; color: #fff; }
+.vc .top a:hover { color: var(--acc); }
+.vc h2 { margin-top: clamp(40px, 8vh, 80px); color: #e8e3dc; font-weight: 700; font-size: clamp(40px, 4vw, 66px); line-height: .92; letter-spacing: -.035em; text-transform: uppercase; }
+.vc .addr { margin-top: 40px; font-size: 17px; line-height: 1.6; color: var(--ink-warm); }
+.circles { margin-top: 32px; display: flex; gap: 10px; }
+.circles a { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 50%; background: #e8e3dc; color: #0b0b0c; font-weight: 700; font-size: 14px; transition: background .25s, transform .25s; }
+.circles a:hover { background: var(--acc); transform: translateY(-3px); }
+.pill { align-self: flex-start; margin-top: 32px; display: inline-flex; align-items: center; gap: 22px; padding: 7px 7px 7px 28px; border-radius: 999px; background: #2a2a2b; color: #fff; font-weight: 700; font-size: 16px; text-transform: uppercase; letter-spacing: .01em; }
+.pill i { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: #e8e3dc; color: #0b0b0c; font-style: normal; font-size: 20px; transition: transform .3s; }
+.pill:hover i { transform: rotate(-45deg); background: var(--acc); }
+.vc .small { margin-top: 36px; max-width: 46ch; font-size: 12.5px; line-height: 1.45; color: var(--ink-mute); }
+.vc .legal { margin-top: 22px; display: flex; gap: 18px; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.vc .legal a { border-bottom: 1px solid currentColor; }
+.vc .est { margin-top: 18px; font-size: 13px; color: var(--ink-mute); }
+.vc .made { margin-top: auto; padding-top: 22px; border-top: 1px solid var(--line); font-size: 15px; color: var(--ink-warm); }
+.vc .made b { color: #fff; }
+.art { position: relative; overflow: hidden; }
+.art .glow { position: absolute; left: 50%; top: 52%; width: 92%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255,140,60,.34), rgba(255,75,31,.14) 45%, rgba(255,75,31,0) 75%); filter: blur(16px); animation: vg 3.4s ease-in-out infinite; }
+@keyframes vg { 50% { opacity: .75; transform: translate(-50%, -50%) scale(.95); } }
+.art canvas.fire { position: absolute; inset: 0; }
+@media (max-width: 860px) {
+  .vc { grid-template-columns: 1fr; }
+  .art { order: -1; height: 74vw; max-height: 520px; }
+  .vc .col { padding: 32px 16px 36px; }
+  .vc h2 { font-size: 13vw; margin-top: 40px; }
+  .circles a { width: 64px; height: 64px; }
+}
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<footer class="foot vc" aria-label="Footer">
+  <div class="col">
+    <nav class="top"><a href="#">Policy page</a><a href="mailto:hello@tibba.design">Contact us</a></nav>
+    <h2>Tibba<br>Design<br>Studio</h2>
+    <p class="addr">A lean design team based out of India<br><a href="mailto:hello@tibba.design">hello@tibba.design</a></p>
+    <div class="circles"><a href="https://www.linkedin.com/company/tibba-design-studio/" aria-label="LinkedIn">in</a><a href="https://www.instagram.com/tibba.design/" aria-label="Instagram">ig</a><a href="https://medium.com/@tibbadesignstudio" aria-label="Medium">md</a></div>
+    <a class="pill" href="mailto:hello@tibba.design">Start a project <i>→</i></a>
+    <p class="small">Tibba Design Studio partners with founders and design leaders to turn ambitious ideas into shipped, high-impact work. Over 25 products shipped and $400M+ in revenue generated for our clients since 2013.</p>
+    <p class="legal"><a href="#">Privacy policy</a><a href="#">Terms and conditions</a></p>
+    <p class="est">Est. 2023 · a decade of climbs before it</p>
+    <p class="made">Built around a campfire <b>in India</b></p>
+  </div>
+  <div class="art"><i class="glow" aria-hidden="true"></i><canvas class="fire" aria-hidden="true"></canvas></div>
+</footer>
+<script type="module">
+  import { fire, draggable, clocks, ticker, barWord, panel, slider, applyBaked, pad, year, LINE } from './assets/footer-kit.js';
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  $$('.yr').forEach(e => { e.textContent = year(); });
+  const CONFIG = { fire: { mode: 'dither', palette: 'warm', cell: 6, dot: .82, contrast: 1.2, flame: 1.1, embers: 1.2, speed: 1, scale: 1, wood: .95, light: 1.2 }, glow: .34 };
+  const KEY = 'tibba.bake.footer-vca'; applyBaked(KEY, CONFIG);
+  const f = fire($('.art canvas'), { ...CONFIG.fire, x: .5, y: .8 });
+  const glow = $('.art .glow');
+  const g = () => { glow.style.background = `radial-gradient(closest-side, rgba(255,140,60,${CONFIG.glow}), rgba(255,75,31,${CONFIG.glow * .4}) 45%, rgba(255,75,31,0) 75%)`; };
+  g();
+  panel({ title: 'Footer — glowing fire', key: KEY, config: CONFIG, name: 'CONFIG', fires: [{ fire: f, cfg: CONFIG.fire }],
+    extra: `<p class="tune-sub">Light</p>${slider('gl', 'Glow', 0, .8, .01, CONFIG.glow)}`, bind: (q, on) => on('gl', v => { CONFIG.glow = v; g(); }) });
+</script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Footer — flame band</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<link rel="stylesheet" href="assets/footer-kit.css">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Footer — flame band
+   ─────────────────────────────────────────────────────────────────────────
+   After Breaver Studios: a band of orange flames rising out of the dark,
+   and in the middle of them a campfire drawn as one thick orange line — logs,
+   a big flame and a spark, peeking over the edge — then three columns on
+   orange (navigation, say hi, socials) and the wordmark set huge and heavy
+   across the full width.
+   Phones: the band, then one column, then the wordmark.
+   Shared parts: assets/footer-kit.js / .css. Every value: the CONFIG object
+   in the script, on the panel, and bakeable.
+   ═════════════════════════════════════════════════════════════════════════ */
+.br { background: var(--acc); color: #0b0b0c; }
+.band { position: relative; height: clamp(300px, 44vw, 640px); background: #121110; overflow: hidden; }
+.band svg { position: absolute; left: 0; bottom: -1px; width: 100%; height: 100%; }
+.band .fl { fill: var(--acc); }
+.band .lick { transform-box: fill-box; transform-origin: 50% 100%; animation: lk 2.4s ease-in-out infinite; }
+.band .lick:nth-child(2n) { animation-duration: 3.1s; animation-delay: -.7s; } .band .lick:nth-child(3n) { animation-duration: 1.9s; animation-delay: -1.3s; }
+@keyframes lk { 50% { transform: scaleY(1.09) skewX(2deg); } }
+.band .camp { fill: none; stroke: var(--acc); stroke-width: 15; stroke-linecap: round; stroke-linejoin: round; }
+.band .camp .flame { transform-box: fill-box; transform-origin: 50% 100%; animation: fl 2.2s ease-in-out infinite; }
+@keyframes fl { 30% { transform: scale(1.03, .97) rotate(-1.5deg); } 70% { transform: scale(.98, 1.04) rotate(1.2deg); } }
+.band .camp .spark { transform-box: fill-box; transform-origin: 50% 100%; animation: sp 1.6s ease-in-out infinite; }
+@keyframes sp { 50% { transform: rotate(7deg) translateY(-6px); } }
+.band .camp .logs { fill: #121110; }
+.cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; padding: clamp(36px, 5vw, 64px) var(--gut) 0; }
+.cols h4 { font-weight: 700; font-size: clamp(22px, 1.7vw, 30px); letter-spacing: -.01em; }
+.cols ul { list-style: none; margin-top: 14px; display: grid; gap: 14px; font-size: clamp(17px, 1.3vw, 22px); }
+.cols ul a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.cols .hi { text-align: center; } .cols .hi p { margin-top: 14px; font-size: clamp(16px, 1.25vw, 20px); }
+.pill { display: inline-block; margin-top: 22px; padding: 22px 44px; border-radius: 999px; background: #121110; color: var(--acc); font-weight: 700; font-size: 18px; transition: transform .3s; }
+.pill:hover { transform: rotate(-3deg) scale(1.04); }
+.cols .soc { display: grid; justify-items: end; align-content: start; gap: 18px; }
+.circ { display: flex; gap: 12px; } .circ a { display: grid; place-items: center; width: 50px; height: 50px; border-radius: 50%; background: #121110; color: var(--acc); font-weight: 700; font-size: 14px; transition: transform .25s; }
+.circ a:hover { transform: translateY(-3px); }
+.cols .copy { font-weight: 700; font-size: 18px; } .cols .built { border: 2px solid #121110; border-radius: 10px; padding: 8px 14px; font-size: 15px; }
+.word { padding: clamp(40px, 6vw, 80px) var(--gut) clamp(20px, 2vw, 32px); }
+.word svg { display: block; width: 100%; height: auto; }
+.word text { font: 900 200px 'F37 Analog', system-ui, sans-serif; fill: #121110; letter-spacing: -.03em; }
+@media (max-width: 760px) {
+  .band { height: 92vw; }
+  .cols { grid-template-columns: 1fr; padding: 32px 16px 0; gap: 36px; }
+  .cols .hi { text-align: left; } .cols .soc { justify-items: start; }
+  .word { padding: 40px 16px 20px; }
+}
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<footer class="foot br" aria-label="Footer">
+  <section class="band" aria-hidden="true"><svg viewBox="0 0 1440 640" preserveAspectRatio="xMidYMax slice" id="flames"></svg></section>
+  <section class="cols">
+    <div><h4>Navigation</h4><ul><li><a href="about-landing.html">About</a></li><li><a href="services-compass-v4.html">Services</a></li><li><a href="summits-v3.html">Projects</a></li><li><a href="studio-polaroids.html">Studio</a></li><li><a href="#">Privacy policy</a></li></ul></div>
+    <div class="hi"><h4>Say hi!</h4><p>Interested in climbing with us?</p><a class="pill" href="mailto:hello@tibba.design">Let’s talk!</a></div>
+    <div class="soc"><div class="circ"><a href="https://www.linkedin.com/company/tibba-design-studio/" aria-label="LinkedIn">in</a><a href="https://www.instagram.com/tibba.design/" aria-label="Instagram">ig</a><a href="https://medium.com/@tibbadesignstudio" aria-label="Medium">md</a><a href="mailto:hello@tibba.design" aria-label="Email">@</a></div>
+      <p class="copy">© <span class="yr"></span> Tibba Design Studio</p><p class="built">Built around a campfire in India</p></div>
+  </section>
+  <section class="word" aria-label="Tibba Studio"><svg viewBox="0 0 1400 190"><text x="0" y="168" textLength="1400" lengthAdjust="spacingAndGlyphs">TIBBA STUDIO</text></svg></section>
+</footer>
+<script type="module">
+  import { fire, draggable, clocks, ticker, barWord, panel, slider, applyBaked, pad, year, LINE } from './assets/footer-kit.js';
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  $$('.yr').forEach(e => { e.textContent = year(); });
+  const CONFIG = { flames: 9, height: 1, speed: 1 };
+  const KEY = 'tibba.bake.footer-breaver'; applyBaked(KEY, CONFIG);
+  const svg = $('#flames');
+  function build() {
+    /* the orange rises from the bottom in curling tongues */
+    let d = `<rect class="fl" x="0" y="560" width="1440" height="80"/>`, N = Math.round(CONFIG.flames);
+    for (let i = 0; i < N; i++) {
+      if (Math.abs((i + .5) / N - .5) < .2) continue;            // the middle is the campfire's
+      const w = 1440 / N, x = i * w, h = (230 + ((i * 71) % 170)) * CONFIG.height, cx = x + w * (.35 + ((i * 37) % 30) / 100), top = 600 - h;
+      d += `<path class="fl lick" d="M${x - 10} 640 C${x + w * .1} 560 ${cx - w * .45} ${top + h * .55} ${cx - w * .15} ${top + h * .3} C${cx - w * .05} ${top + h * .15} ${cx - w * .25} ${top + 30} ${cx - w * .05} ${top} C${cx + w * .05} ${top + h * .2} ${cx + w * .45} ${top + h * .4} ${cx + w * .3} ${top + h * .62} C${cx + w * .55} ${top + h * .5} ${cx + w * .4} ${top + h * .3} ${cx + w * .55} ${top + h * .25} C${cx + w * .75} ${top + h * .6} ${x + w * 1.05} 560 ${x + w + 10} 640 Z"/>`;
+    }
+    /* the campfire, in one thick line: a big flame, a spark, two logs */
+    d += `<g class="camp"><g class="flame"><path style="fill:#121110" d="M600 560 C560 470 640 450 620 380 C605 330 660 300 650 250 C700 300 690 350 720 330 C750 300 740 250 770 220 C780 290 820 320 850 330 C870 280 860 240 890 230 C920 300 850 340 860 400 C900 400 900 460 880 560"/>
+      <path d="M690 470 C700 450 720 450 728 466 M770 466 C778 450 800 450 808 470"/></g>
+      <g class="spark"><path d="M930 160 L990 180 L950 290 Z"/><circle cx="938" cy="320" r="18"/></g>
+      <path class="logs" d="M560 540 L660 528 L668 600 L578 614 Z M840 528 L940 540 L922 614 L832 600 Z"/></g>`;
+    svg.innerHTML = d;
+    svg.style.setProperty('--sp', CONFIG.speed);
+    svg.querySelectorAll('.lick').forEach((p, i) => { p.style.animationDuration = ((2 + (i % 3) * .55) / CONFIG.speed) + 's'; });
+  }
+  build();
+  panel({ title: 'Footer — flame band', key: KEY, config: CONFIG, name: 'CONFIG',
+    extra: `<p class="tune-sub">Flames</p>${slider('fn', 'Tongues', 5, 17, 1, CONFIG.flames)}${slider('fh', 'Height', .5, 1.5, .01, CONFIG.height)}${slider('fs', 'Speed', .2, 3, .05, CONFIG.speed)}`,
+    bind: (q, on) => { on('fn', v => { CONFIG.flames = v; build(); }); on('fh', v => { CONFIG.height = v; build(); }); on('fs', v => { CONFIG.speed = v; build(); }); } });
+</script>
+</body>
+</html>

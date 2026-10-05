@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Footer — dusk</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<link rel="stylesheet" href="assets/footer-kit.css">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Footer — dusk
+   ─────────────────────────────────────────────────────────────────────────
+   After Jijo.fyi: an evening sky over base camp, dark at the top and warm at
+   the horizon, with soft clouds drifting; the campfire in the middle made
+   of warm ASCII characters; // links on the left; a "Swing by!" card of
+   hanging tabs top right; a crackle player at the top; a big line along the
+   foot, © on the left and the studio's local time on the right; a paper
+   plane drifting across.
+   Phones: one column, the fire first.
+   Shared parts: assets/footer-kit.js / .css. Every value: the CONFIG object
+   in the script, on the panel, and bakeable.
+   ═════════════════════════════════════════════════════════════════════════ */
+.jj { position: relative; min-height: 100svh; overflow: hidden; color: #fff;
+  background: linear-gradient(180deg, #0a0b10 0%, #1a1420 34%, #4a2218 64%, #c4552a 92%, #ff7a3e 100%); }
+.jj .cloud { position: absolute; border-radius: 50%; background: rgba(255,230,210,.16); filter: blur(46px); pointer-events: none; animation: cl 26s ease-in-out infinite alternate; }
+@keyframes cl { to { transform: translateX(6vw) scale(1.08); } }
+.jj canvas.fire { position: absolute; left: 22%; top: 10%; width: 56%; height: 66%; z-index: 2; }
+.jj .links { position: absolute; z-index: 3; left: clamp(24px, 8vw, 160px); top: clamp(80px, 12vh, 140px); list-style: none; display: grid; gap: 22px; font-size: clamp(20px, 1.6vw, 28px); }
+.jj .links a { color: #ffd2b8; } .jj .links a::before { content: '// '; color: var(--acc); } .jj .links a:hover { color: #fff; }
+.crackle { position: absolute; z-index: 3; left: 50%; top: 26px; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; padding: 6px 18px 6px 6px; border-radius: 999px;
+  background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.3); backdrop-filter: blur(10px); cursor: pointer; color: #fff; font-size: 13px; }
+.crackle i { width: 32px; height: 32px; border-radius: 50%; background: var(--acc); display: grid; place-items: center; font-style: normal; }
+.swing { position: absolute; z-index: 3; right: clamp(24px, 7vw, 140px); top: 14px; width: 330px; background: #eceae4; color: #111; border-radius: 2px; box-shadow: 0 14px 40px rgba(0,0,0,.35); }
+.swing header { position: relative; padding: 18px 16px 14px; text-align: center; }
+.swing header::before, .swing header::after { content: ''; position: absolute; top: 8px; width: 7px; height: 7px; border-radius: 50%; background: #777; } .swing header::before { left: 8px; } .swing header::after { right: 8px; }
+.swing h4 { font-weight: 400; font-size: 30px; letter-spacing: -.02em; }
+.swing p { margin-top: 6px; font-size: 12px; letter-spacing: .04em; color: #444; }
+.swing .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 0 0 2px; background: #2c2c34; }
+.swing .tab { display: flex; flex-direction: column; align-items: center; gap: 14px; height: 300px; padding: 22px 0; background: #eceae4; transform-origin: 50% 0; transition: background .2s; }
+.swing .tab b { font-size: 22px; } .swing .tab span { writing-mode: vertical-rl; font-size: 14px; border-left: 1px dotted #555; padding-left: 2px; }
+.swing .tab:hover { background: #fff; animation: sw 1.3s cubic-bezier(.36,.07,.19,.97); }
+@keyframes sw { 15% { transform: rotate(8deg); } 35% { transform: rotate(-6deg); } 55% { transform: rotate(3deg); } 100% { transform: rotate(0); } }
+.jj .line { position: absolute; z-index: 3; left: 0; right: 0; bottom: clamp(40px, 7vh, 80px); text-align: center; font-weight: 300; font-size: clamp(36px, 4vw, 72px); line-height: 1.04; letter-spacing: -.03em; color: #fff7ef; text-shadow: 0 2px 30px rgba(120,40,10,.5); }
+.jj .cp { position: absolute; z-index: 3; left: clamp(24px, 8vw, 160px); bottom: 42px; font-size: 14px; color: rgba(255,255,255,.75); }
+.jj .clock { position: absolute; z-index: 3; right: clamp(24px, 8vw, 160px); bottom: 34px; display: flex; gap: 14px; align-items: center; padding: 10px 22px; border-radius: 999px; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.35); backdrop-filter: blur(10px); font-size: 14px; font-variant-numeric: tabular-nums; }
+.jj .clock span { opacity: .7; }
+.plane { position: absolute; z-index: 3; width: 120px; pointer-events: none; animation: pl 18s linear infinite; }
+@keyframes pl { 0% { transform: translate(-10vw, 70vh) rotate(-18deg); } 100% { transform: translate(110vw, 20vh) rotate(-10deg); } }
+@media (max-width: 900px) {
+  .jj { display: flex; flex-direction: column; padding: 90px 16px 32px; gap: 28px; }
+  .jj > *:not(.cloud):not(.plane) { position: relative !important; left: auto !important; right: auto !important; top: auto !important; bottom: auto !important; transform: none !important; }
+  .plane { display: none; }
+  .jj canvas.fire { order: -1; width: 100%; height: 96vw; }
+  .crackle { position: absolute !important; top: 20px !important; left: 16px !important; align-self: flex-start; }
+  .swing { width: 100%; } .swing .tab { height: 220px; }
+  .jj .line { font-size: 34px; }
+  .jj .clock { align-self: flex-start; }
+}
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<footer class="foot jj" aria-label="Footer">
+  <i class="cloud" style="width:60vw;height:30vw;left:-6vw;top:26%"></i><i class="cloud" style="width:50vw;height:26vw;right:-8vw;top:40%;animation-delay:-9s"></i><i class="cloud" style="width:40vw;height:16vw;left:30%;top:58%;animation-delay:-4s"></i>
+  <canvas class="fire" aria-hidden="true"></canvas>
+  <ul class="links"><li><a href="summits-v3.html">Summits</a></li><li><a href="case-studies-reel.html">Cases</a></li><li><a href="services-compass-v4.html">Services</a></li><li><a href="studio-polaroids.html">Studio</a></li></ul>
+  <button class="crackle" type="button" id="crackle" aria-pressed="false"><i>▶</i><span>Crackle</span></button>
+  <aside class="swing"><header><h4>Swing by!</h4><p>Reach out once you have warmed up</p></header>
+    <div class="tabs"><a class="tab" href="https://www.linkedin.com/company/tibba-design-studio/"><b>in</b><span>tibba-design-studio</span></a><a class="tab" href="https://www.instagram.com/tibba.design/"><b>ig</b><span>tibba.design</span></a><a class="tab" href="https://medium.com/@tibbadesignstudio"><b>md</b><span>tibbadesignstudio</span></a><a class="tab" href="mailto:hello@tibba.design"><b>@</b><span>hello@tibba.design</span></a></div></aside>
+  <p class="line">Pouring head, hands and heart<br>into every climb</p>
+  <p class="cp">© <span class="yr"></span> Tibba Design Studio. All rights reserved.</p>
+  <p class="clock"><b id="date"></b><b id="time"></b><span>in India</span></p>
+  <svg class="plane" viewBox="0 0 120 70" aria-hidden="true"><path d="M2 40 L118 2 L60 66 L50 44 Z" fill="#f4f1ea"/><path d="M50 44 L118 2 L58 50 Z" fill="#d9d4ca"/></svg>
+</footer>
+<script type="module">
+  import { fire, draggable, clocks, ticker, barWord, panel, slider, applyBaked, pad, year, LINE } from './assets/footer-kit.js';
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  $$('.yr').forEach(e => { e.textContent = year(); });
+  const CONFIG = { fire: { mode: 'ascii', palette: 'warm', cell: 9, dot: .8, contrast: 1.2, flame: 1.1, embers: 1.2, speed: 1, scale: 1.15, wood: .85 }, volume: .5 };
+  const KEY = 'tibba.bake.footer-jijo'; applyBaked(KEY, CONFIG);
+  const f = fire($('canvas.fire'), { ...CONFIG.fire, x: .5, y: .78 });
+  const D = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', month: 'short', day: 'numeric' }), Tm = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Kolkata', hour: 'numeric', minute: '2-digit' });
+  const clk = () => { const n = new Date(); $('#date').textContent = D.format(n) + ' ·'; $('#time').textContent = Tm.format(n); }; clk(); setInterval(clk, 10000);
+  /* the crackle: synthesised, no file — a low hiss and random pops */
+  let ac = null, gain = null, timer = 0;
+  function pop() {
+    const n = ac.createBufferSource(), len = .02 + Math.random() * .05, b = ac.createBuffer(1, ac.sampleRate * len, ac.sampleRate), d = b.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 3);
+    n.buffer = b; const g = ac.createGain(); g.gain.value = .3 + Math.random() * .7; n.connect(g).connect(gain); n.start();
+    timer = setTimeout(pop, 40 + Math.random() * 260);
+  }
+  $('#crackle').addEventListener('click', e => {
+    const b = e.currentTarget, on = b.getAttribute('aria-pressed') !== 'true';
+    b.setAttribute('aria-pressed', on); b.querySelector('i').textContent = on ? '❚❚' : '▶';
+    if (on) {
+      if (!ac) { ac = new (window.AudioContext || window.webkitAudioContext)(); gain = ac.createGain(); gain.connect(ac.destination);
+        const hiss = ac.createBufferSource(), hb = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate), hd = hb.getChannelData(0);
+        for (let i = 0; i < hd.length; i++) hd[i] = (Math.random() * 2 - 1) * .04; hiss.buffer = hb; hiss.loop = true;
+        const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; hiss.connect(lp).connect(gain); hiss.start(); }
+      ac.resume(); gain.gain.value = CONFIG.volume; pop();
+    } else { clearTimeout(timer); if (ac) ac.suspend(); }
+  });
+  panel({ title: 'Footer — dusk', key: KEY, config: CONFIG, name: 'CONFIG', fires: [{ fire: f, cfg: CONFIG.fire }],
+    extra: `<p class="tune-sub">Sound</p>${slider('vo', 'Crackle volume', 0, 1, .01, CONFIG.volume)}`, bind: (q, on) => on('vo', v => { CONFIG.volume = v; if (gain) gain.gain.value = v; }) });
+</script>
+</body>
+</html>

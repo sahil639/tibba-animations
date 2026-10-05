@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Footer — timeline of fires</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<link rel="stylesheet" href="assets/footer-kit.css">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Footer — timeline of fires
+   ─────────────────────────────────────────────────────────────────────────
+   After "Step Into The Timeline": a giant line, then the studio's climbs as
+   cards along a timeline with Past / Future and a tick scrubber, and a row
+   of contact cells. Every card's picture is a campfire at a different point
+   in its life — kindling, blaze, embers — and the last one, Your project,
+   is the fire still to be lit.
+   Phones: the cards swipe; the contact row wraps.
+   Shared parts: assets/footer-kit.js / .css. Every value: the CONFIG object
+   in the script, on the panel, and bakeable.
+   ═════════════════════════════════════════════════════════════════════════ */
+.tl { padding: clamp(72px, 12vh, 140px) 0 clamp(28px, 4vh, 48px); }
+.tl h2 { padding: 0 var(--gut); color: #fff; font-weight: 400; font-size: clamp(56px, 9.6vw, 190px); line-height: .92; letter-spacing: -.05em; }
+.tl h2 span { display: block; } .tl h2 span:last-child { color: var(--acc); }
+.reel { margin-top: clamp(48px, 9vh, 120px); display: flex; gap: clamp(28px, 3vw, 48px); overflow-x: auto; padding: 0 var(--gut) 8px; scroll-snap-type: x mandatory; scrollbar-width: none; cursor: grab; }
+.reel::-webkit-scrollbar { display: none; }
+.cc { flex: 0 0 clamp(300px, 30vw, 460px); scroll-snap-align: start; }
+.cc .box { position: relative; border: 1.5px solid #e8e3dc; margin-left: 52px; padding: 0 16px 18px 0; display: grid; grid-template-columns: 1.1fr 1fr; gap: 16px; }
+.cc .ttl { grid-column: 1 / -1; padding: 16px 18px 6px; color: #fff; font-size: 22px; letter-spacing: -.01em; }
+.cc .img { position: relative; margin-left: -52px; aspect-ratio: 4 / 3.2; border: 1.5px solid #e8e3dc; background: #050505; overflow: hidden; }
+.cc .img canvas { position: absolute; inset: 0; }
+.cc .ds { font-size: 13px; line-height: 1.5; color: var(--ink-warm); }
+.cc .yr2 { margin-top: 14px; text-align: right; color: #fff; font-size: 26px; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+.cc.future .box, .cc.future .img { border-color: var(--acc); border-style: dashed; }
+.cc.future .ds { letter-spacing: .06em; word-break: break-all; color: var(--acc); }
+.scrub { margin: 26px var(--gut) 0; display: grid; grid-template-columns: auto 1fr auto; gap: 20px; align-items: center; }
+.scrub button { display: inline-flex; gap: 12px; align-items: center; height: 44px; padding: 0 18px; border: 1.5px solid #e8e3dc; background: none; color: #fff; cursor: pointer; font-size: 16px; }
+.scrub button:hover { border-color: var(--acc); color: var(--acc); }
+.ticks { display: flex; justify-content: space-between; align-items: center; height: 44px; overflow: hidden; }
+.ticks i { flex: none; width: 9px; height: 34px; border: 1.5px solid rgba(233,236,242,.5); transition: background .25s, border-color .25s; }
+.ticks i.on { background: var(--acc); border-color: var(--acc); }
+.touch { margin-top: clamp(56px, 10vh, 120px); padding: 0 var(--gut); }
+.touch p { font-size: 17px; color: #fff; }
+.trow { margin-top: 14px; display: flex; justify-content: space-between; align-items: stretch; gap: 24px; flex-wrap: wrap; }
+.trow .mail, .trow .links a, .trow .links span { display: inline-flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1.5px solid #e8e3dc; font-size: 17px; color: #fff; }
+.trow .mail:hover, .trow .links a:hover { background: #e8e3dc; color: #0b0b0c; }
+.trow .links { display: flex; flex-wrap: wrap; }
+.trow .links > * { margin-left: -1.5px; }
+.trow .heat { display: flex; } .trow .heat i { width: 36px; border: 0 !important; }
+@media (max-width: 760px) {
+  .tl h2 { font-size: 15vw; }
+  .reel { padding: 0 16px 8px; } .cc { flex-basis: 84vw; }
+  .scrub { margin: 22px 16px 0; gap: 10px; } .scrub button { padding: 0 10px; font-size: 13px; }
+  .ticks i { width: 6px; height: 24px; }
+  .touch { padding: 0 16px; } .trow .links a, .trow .links span { font-size: 14px; padding: 9px 10px; } .trow .heat { display: none; }
+}
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<footer class="foot tl" aria-label="Footer">
+  <h2><span>Step back</span><span>to the fire</span></h2>
+  <div class="reel" id="reel"></div>
+  <div class="scrub"><button type="button" id="past">← Past</button><div class="ticks" id="ticks"></div><button type="button" id="fut">Future →</button></div>
+  <div class="touch"><p>Keep in touch:</p>
+    <div class="trow"><a class="mail" href="mailto:hello@tibba.design">hello@tibba.design ↗</a>
+      <div class="links"><a href="https://www.linkedin.com/company/tibba-design-studio/">LinkedIn ↗</a><a href="https://www.instagram.com/tibba.design/">Instagram ↗</a><a href="https://medium.com/@tibbadesignstudio">Medium ↗</a><span>© Tibba <span class="yr"></span></span><span class="heat" aria-hidden="true"></span></div></div></div>
+</footer>
+<script type="module">
+  import { fire, draggable, clocks, ticker, barWord, panel, slider, applyBaked, pad, year, LINE } from './assets/footer-kit.js';
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  $$('.yr').forEach(e => { e.textContent = year(); });
+  /* one fire per card: the fire's life, kindling to embers, then the one still to be lit */
+  const CONFIG = { fire: { mode: 'dither', palette: 'warm', cell: 4, dot: .82, contrast: 1.2, flame: 1, embers: 1, speed: 1, scale: 1.1, wood: .9 } };
+  const KEY = 'tibba.bake.footer-timeline'; applyBaked(KEY, CONFIG);
+  const CARDS = [
+    ['Zomato', 'Designed the first version of the food delivery app — the kindling.', '2015', { flame: .5, embers: .3 }],
+    ['Urban Company', 'The first market versions of the apps, with research in the workflow.', '2016', { flame: .8, embers: .7 }],
+    ['Firstpost', 'A strategic redesign of a newsroom that doubled its traffic.', '2023', { flame: 1.3, embers: 1.6 }],
+    ['Groww', 'App and website for a fintech serving millions — the coals still glowing.', '2024', { flame: .62, embers: 1.2, palette: 'mono' }],
+    ['Your project', '////////////////////////////////////////////////////////////', 'Future', { flame: .05, embers: 0 }],
+  ];
+  const reel = $('#reel');
+  reel.innerHTML = CARDS.map(([t, d, y], i) => `<article class="cc${i === CARDS.length - 1 ? ' future' : ''}"><div class="box"><p class="ttl">${t}</p><div class="img"><canvas class="fire" aria-hidden="true"></canvas></div><p class="ds">${d}</p></div><p class="yr2">${y}</p></article>`).join('');
+  const fires = [...reel.querySelectorAll('canvas')].map((c, i) => fire(c, { ...CONFIG.fire, ...CARDS[i][3], x: .5, y: .78 }));
+  const heat = $('.heat'); heat.innerHTML = ['#3a1308', '#6e200c', '#a42f12', '#d63f19', '#FF4B1F', '#ff8a4a', '#ffd9a0'].map(c => `<i style="background:${c}"></i>`).join('');
+  const ticks = $('#ticks');
+  const sync = () => { const max = reel.scrollWidth - reel.clientWidth, p = max > 0 ? reel.scrollLeft / max : 0; [...ticks.children].forEach((t, k, a) => t.classList.toggle('on', k <= Math.round(p * (a.length - 1)))); };
+  const draw = () => { ticks.innerHTML = '<i></i>'.repeat(Math.max(12, Math.floor(ticks.clientWidth / 30))); sync(); };
+  reel.addEventListener('scroll', sync, { passive: true }); draw(); addEventListener('resize', draw);
+  const step = d => reel.scrollBy({ left: d * (reel.children[0].offsetWidth + 40), behavior: 'smooth' });
+  $('#past').addEventListener('click', () => step(-1)); $('#fut').addEventListener('click', () => step(1));
+  { let dx = null, sl = 0; reel.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') return; dx = e.clientX; sl = reel.scrollLeft; reel.style.scrollSnapType = 'none'; });
+    addEventListener('pointermove', e => { if (dx != null) reel.scrollLeft = sl - (e.clientX - dx); }); addEventListener('pointerup', () => { if (dx == null) return; dx = null; reel.style.scrollSnapType = ''; }); }
+  /* the shared dials apply to every card's fire, each keeping its own stage */
+  panel({ title: 'Footer — timeline of fires', key: KEY, config: CONFIG, name: 'CONFIG', fires: [{ label: 'Every card’s fire', fire: fires[0], list: fires, cfg: CONFIG.fire }] });
+</script>
+</body>
+</html>
