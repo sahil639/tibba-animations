@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Footer Design — campfire versions</title>
+<title>Footer — analytical campfire</title>
 <link rel="stylesheet" href="assets/type.css">
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/workbench.css">
@@ -13,7 +13,9 @@
 <script src="assets/workbench.js" defer></script>
 <style>
 /* ══════════════════════════════════════════════════════════════════════════
-   Footer Design — three campfire footers
+   Footer — analytical campfire
+   Footer C: a monochrome pixel fire on a grid, scanned and annotated in the brand orange.
+   (One of three campfire footers built from one source; the page keeps only its own version:)
    ─────────────────────────────────────────────────────────────────────────
      A  Campfire, dithered    the fire as a one-bit dot / ASCII drawing in
                               the site's ink and orange (assets/campfire-
@@ -125,11 +127,12 @@ body.single .fd .tag { display: none; }
     c: { cell: 4, dot: 0.82, contrast: 1.25, flame: 1, embers: 0.7, speed: 0.9, scale: 0.84, wood: 0.62, overlay: true, scan: 1, grid: 0.05 },
   };
   const C = FOOTER_DESIGN;
-  const BAKE_KEY = 'tibba.bake.footer-design';
+  const BAKE_KEY = 'tibba.bake.footer-analytical';
   applyBaked(BAKE_KEY, C);
 
   /* ?v=a|b|c: one version, on its own */
-  const only = (new URLSearchParams(location.search).get('v') || '').toLowerCase();
+  /* this page shows one version only: C */
+  const only = 'c';
   if (/^[abc]$/.test(only)) {
     document.body.classList.add('single');
     document.querySelectorAll('.fd').forEach(s => { if (s.dataset.v !== only) s.remove(); });

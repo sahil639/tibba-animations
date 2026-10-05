@@ -42,9 +42,9 @@ export const HOME_SECTIONS = [
     variants: [{ file: 'footer.html', label: 'Footer — skyline' }, { file: 'footer-meadow.html', label: 'Footer — green range' },
                { file: 'footer-mountain.html', label: 'Footer — snow peak' },
                { file: 'footer-campfire.html', label: 'Footer — campfire (all references)' },
-               { file: 'footer-design.html?v=a', label: 'Footer A — campfire, dithered' },
-               { file: 'footer-design.html?v=b', label: 'Footer B — contour ridge fire' },
-               { file: 'footer-design.html?v=c', label: 'Footer C — analytical campfire' }] },
+               { file: 'footer-dithered.html', label: 'Footer A — campfire, dithered' },
+               { file: 'footer-contour-fire.html', label: 'Footer B — contour ridge fire' },
+               { file: 'footer-analytical.html', label: 'Footer C — analytical campfire' }] },
 ];
 
 export const ABOUT_SECTIONS = [
@@ -60,9 +60,9 @@ export const ABOUT_SECTIONS = [
     variants: [{ file: 'footer.html', label: 'Footer — skyline' }, { file: 'footer-meadow.html', label: 'Footer — green range' },
                { file: 'footer-mountain.html', label: 'Footer — snow peak' },
                { file: 'footer-campfire.html', label: 'Footer — campfire (all references)' },
-               { file: 'footer-design.html?v=a', label: 'Footer A — campfire, dithered' },
-               { file: 'footer-design.html?v=b', label: 'Footer B — contour ridge fire' },
-               { file: 'footer-design.html?v=c', label: 'Footer C — analytical campfire' }] },
+               { file: 'footer-dithered.html', label: 'Footer A — campfire, dithered' },
+               { file: 'footer-contour-fire.html', label: 'Footer B — contour ridge fire' },
+               { file: 'footer-analytical.html', label: 'Footer C — analytical campfire' }] },
 ];
 
 /* F37 everywhere, and only the landing's own navbar */
