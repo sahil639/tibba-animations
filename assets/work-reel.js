@@ -127,6 +127,15 @@ export function mountWorkReel(root, opts = {}) {
     P.startX = Math.round(clamp(vw * 0.048, 18, 70));
     P.labelW = Math.round(clamp(vw * 0.104, 96, 230));
     P.imageW = Math.round(clamp(vw * 0.335, 240, 760));
+    /* narrow windows: a smaller label slot and a wider plate, so the plate
+       keeps the desktop's proportion instead of becoming a tall sliver; the
+       page can size the plate's height off --reel-shot-w */
+    if (vw < 1024) {
+      P.startX = Math.round(clamp(vw * 0.04, 12, 40));
+      P.labelW = Math.round(clamp(vw * 0.12, 48, 110));
+      P.imageW = Math.round(clamp(vw * 0.64, 220, 600));
+    }
+    root.style.setProperty('--reel-shot-w', P.imageW + 'px');
     /* the advance the last plate can afford, and the drift that produces it */
     const steps = Math.max(1, ITEMS.length - 1);
     const advance = (vw - margin - P.startX - P.labelW - P.imageW) / steps;

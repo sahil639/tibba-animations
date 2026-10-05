@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Footer — Campfire</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Footer — Campfire
+   ─────────────────────────────────────────────────────────────────────────
+   One footer built from every reference, in the site's own language (black,
+   ink, the orange accent, F37 throughout, hairlines and the orange cube),
+   with the campfire at the centre of it. Top to bottom:
+
+     statement   the big line on the left, an about blurb, next availability
+                 and underlined links on the right            (Hackfirst,
+                                                               Yellow, Timeline)
+     the fire    the white dithered campfire (assets/campfire-dither.js, no
+                 boxes, no scan line) in a soft glow, the contents down the
+                 left as // links, field notes and hanging social tabs on the
+                 right, two draggable window cards over the fire, and the
+                 base camp's coordinates beneath it          (VCA, Sylvan,
+                                                               Cult, Jijo, DSoc)
+     the climbs  past work as cards on a timeline, with Past / Future and a
+                 tick scrubber                                (Timeline)
+     the grid    subscribe, base, live clocks, new business, status, in
+                 hairline cells                               (Heron, Pengon)
+     ticker      the studio's line, running                   (Design Society)
+     flame band  orange under a flame edge: navigation, say hi, socials, and
+                 the wordmark built from bars, set between blueprint marks
+                                                              (Breaver, DSoc, Heron)
+     base bar    progress squares, ©, the line of meta, page number
+                                                              (Hackfirst, Pengon)
+
+   Phones get their own composition (DSoc / VCA mobile): one column, the
+   fire full width with one window under it, round social buttons and a
+   pill CTA, and the wordmark's letters each in a cell.
+
+   Every value: FOOTER_CAMPFIRE in the script, on the panel, bakeable.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --line: rgba(233,236,242,.12); --line-2: rgba(233,236,242,.22); --acc: #FF4B1F; }
+body { background: #0a0a0b; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+button, input { font: inherit; color: inherit; }
+.k { font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+.k.acc { color: var(--acc); display: flex; align-items: center; gap: 10px; }
+.k.acc::before { content: ''; width: 7px; height: 7px; background: var(--acc); }
+.foot { position: relative; overflow: hidden; }
+
+/* ── 1 · the statement ─────────────────────────────────────────────── */
+.st { display: grid; grid-template-columns: 1.35fr 1fr; border-bottom: 1px solid var(--line); }
+.st .big { padding: clamp(84px, 12vh, 140px) var(--gut) clamp(36px, 6vh, 64px); border-right: 1px solid var(--line); }
+.st h2 { margin-top: 22px; color: #fff; font-weight: 300; font-size: clamp(48px, 7.4vw, 136px); line-height: .9; letter-spacing: -.055em; }
+.st h2 em { font-style: normal; position: relative; white-space: nowrap; }
+.st h2 em::after { content: ''; position: absolute; left: .04em; right: .1em; bottom: .06em; height: .09em; background: var(--acc); z-index: -1; }
+.st .side { padding: clamp(84px, 12vh, 140px) var(--gut) clamp(36px, 6vh, 64px) clamp(24px, 3vw, 48px); display: grid; align-content: space-between; gap: 32px; }
+.st .about { max-width: 46ch; font-size: 12.5px; line-height: 1.75; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-warm); }
+.st .avail { display: grid; grid-template-columns: auto 1fr; gap: 6px 40px; align-items: start; }
+.st .avail b { display: block; margin-top: 6px; color: #fff; font-weight: 300; font-size: clamp(22px, 1.8vw, 30px); letter-spacing: -.02em; }
+.st .ul { display: grid; gap: 8px; justify-items: start; }
+.st .ul a { font-size: clamp(17px, 1.3vw, 21px); color: #fff; background: linear-gradient(var(--acc), var(--acc)) 0 100% / 100% 2px no-repeat; padding-bottom: 3px; transition: background-size .35s cubic-bezier(.22,1,.36,1), color .2s linear; }
+.st .ul a:hover { color: var(--acc); background-size: 30% 2px; }
+
+/* ── 2 · the fire ──────────────────────────────────────────────────── */
+.fire { position: relative; display: grid; grid-template-columns: minmax(220px, 1fr) minmax(0, 2.1fr) minmax(240px, 1fr); min-height: clamp(560px, 92vh, 900px); border-bottom: 1px solid var(--line); }
+.fire .col { position: relative; z-index: 2; padding: clamp(36px, 6vh, 64px) var(--gut); display: flex; flex-direction: column; gap: 40px; }
+.fire .col.l { border-right: 1px solid var(--line); }
+.fire .col.r { border-left: 1px solid var(--line); padding-left: clamp(20px, 2vw, 36px); }
+.toc { list-style: none; margin-top: 14px; display: grid; gap: 6px; }
+.toc a { display: inline-flex; gap: 10px; color: #fff; font-size: clamp(22px, 1.9vw, 32px); letter-spacing: -.02em; line-height: 1.1; transition: color .2s linear, transform .3s cubic-bezier(.22,1,.36,1); }
+.toc a i { font-style: normal; color: var(--acc); }
+.toc a:hover { color: var(--acc); transform: translateX(6px); }
+.sectors { list-style: none; margin-top: 14px; display: grid; gap: 8px; font-size: 13.5px; color: var(--ink-mute); }
+.sectors li:first-child { color: #fff; text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--acc); }
+
+.pit { position: relative; overflow: hidden;
+  background: linear-gradient(rgba(233,236,242,.035) 1px, transparent 1px) 0 0 / 24px 24px,
+              linear-gradient(90deg, rgba(233,236,242,.035) 1px, transparent 1px) 0 0 / 24px 24px; }
+.pit .glow { position: absolute; left: 50%; top: 58%; width: 70%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255,255,255,.12), rgba(255,255,255,.04) 45%, rgba(255,255,255,0) 72%); filter: blur(10px); animation: glow 3.2s ease-in-out infinite; }
+@keyframes glow { 50% { opacity: .7; transform: translate(-50%, -50%) scale(.96); } }
+.pit canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.pit .coords { position: absolute; z-index: 3; left: 0; right: 0; bottom: 22px; text-align: center; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-mute); font-variant-numeric: tabular-nums; }
+.pit .coords b { color: #fff; font-weight: 400; }
+.pit .hint { position: absolute; z-index: 3; left: 0; right: 0; top: 22px; text-align: center; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+
+/* the window cards, dragged by their handle */
+.win { position: absolute; z-index: 5; width: clamp(220px, 17vw, 280px); background: #e8e3dc; color: #111; border-radius: 3px; box-shadow: 0 18px 40px rgba(0,0,0,.45);
+  background-image: repeating-linear-gradient(180deg, rgba(0,0,0,.035) 0 1px, transparent 1px 3px); user-select: none; touch-action: none; }
+.win .bar { height: 22px; display: flex; align-items: center; gap: 4px; padding: 0 9px; cursor: grab; }
+.win.drag .bar { cursor: grabbing; }
+.win .bar i { width: 3px; height: 3px; background: rgba(0,0,0,.3); }
+.win .in { margin: 0 8px 8px; border: 1px solid rgba(0,0,0,.14); }
+.win .hd { display: flex; justify-content: space-between; align-items: center; padding: 11px 12px; border-bottom: 1px solid rgba(0,0,0,.12); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-weight: 500; }
+.win .hd button { border: 0; background: none; cursor: pointer; font-size: 11px; letter-spacing: .06em; color: var(--acc); }
+.win ul { list-style: none; padding: 12px; display: grid; gap: 5px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+.win ul a::before { content: '['; } .win ul a::after { content: ']'; }
+.win ul a:hover { color: var(--acc); }
+.win.shut ul { display: none; }
+.win::after { content: ''; position: absolute; right: -1px; top: -1px; width: 7px; height: 7px; background: var(--acc); }
+
+/* field notes, with arrows */
+.notes { margin-top: 14px; }
+.note-card { position: relative; border: 1px solid var(--line-2); padding: 18px 18px 16px; min-height: 196px; display: flex; flex-direction: column; gap: 14px; }
+.note-card .q { color: #fff; font-size: clamp(16px, 1.2vw, 19px); line-height: 1.3; letter-spacing: -.01em; transition: opacity .3s linear; }
+.note-card .who { margin-top: auto; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); }
+.note-card .who b { color: var(--acc); font-weight: 400; }
+.note-nav { margin-top: -1px; display: flex; }
+.note-nav button { flex: 1; margin-left: -1px; height: 38px; border: 1px solid var(--line-2); background: none; cursor: pointer; font-size: 15px; color: #fff; }
+.note-nav button:hover { border-color: var(--acc); position: relative; }
+.note-nav span { flex: 2; margin-left: -1px; display: grid; place-items: center; border: 1px solid var(--line-2); font-size: 10.5px; letter-spacing: .18em; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+
+/* hanging tabs: the socials, swinging on their pins */
+.tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 14px; }
+.tab { position: relative; display: flex; flex-direction: column; align-items: center; gap: 14px; height: 168px; padding: 16px 0; background: #e8e3dc; color: #111;
+  transform-origin: 50% -10px; border-radius: 2px; transition: background .2s linear; }
+.tab::before { content: ''; position: absolute; top: -8px; left: 50%; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--ink-faint); }
+.tab b { font-size: 13px; font-weight: 600; letter-spacing: .04em; }
+.tab span { writing-mode: vertical-rl; font-size: 12px; letter-spacing: .08em; border-left: 1px dotted rgba(0,0,0,.4); padding-left: 2px; }
+.tab:hover { background: var(--acc); animation: swing 1.4s cubic-bezier(.36,.07,.19,.97); }
+@keyframes swing { 15% { transform: rotate(9deg); } 35% { transform: rotate(-7deg); } 55% { transform: rotate(4deg); } 75% { transform: rotate(-2deg); } 100% { transform: rotate(0); } }
+
+/* ── 3 · the climbs ────────────────────────────────────────────────── */
+.climbs { border-bottom: 1px solid var(--line); padding: clamp(48px, 8vh, 88px) 0 clamp(36px, 6vh, 56px); }
+.climbs .head { padding: 0 var(--gut); display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; }
+.climbs h3 { margin-top: 14px; color: #fff; font-weight: 300; font-size: clamp(36px, 4.6vw, 80px); line-height: .95; letter-spacing: -.045em; }
+.reel { margin-top: clamp(32px, 5vh, 48px); display: flex; gap: clamp(24px, 3vw, 44px); overflow-x: auto; padding: 0 var(--gut) 8px; scroll-snap-type: x mandatory; scrollbar-width: none; cursor: grab; }
+.reel::-webkit-scrollbar { display: none; }
+.cc { flex: 0 0 clamp(300px, 32vw, 460px); scroll-snap-align: start; }
+.cc .box { position: relative; border: 1px solid var(--line-2); display: grid; grid-template-columns: 1.1fr 1fr; gap: 16px; padding: 0 16px 16px 0; margin-left: 28px; }
+.cc .ttl { grid-column: 1 / -1; padding: 16px 16px 4px 18px; color: #fff; font-size: 19px; letter-spacing: -.01em; }
+.cc .img { margin-left: -28px; aspect-ratio: 4 / 3; border: 1px solid var(--line-2); background: #050506; overflow: hidden; }
+.cc .img svg { display: block; width: 100%; height: 100%; }
+.cc .ds { font-size: 12.5px; line-height: 1.55; color: var(--ink-mute); }
+.cc .yr { margin-top: 12px; text-align: right; color: #fff; font-size: 20px; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+.cc.future .box { border-style: dashed; border-color: rgba(255,75,31,.6); }
+.cc.future .ds { font-family: inherit; letter-spacing: .06em; color: var(--ink-faint); word-break: break-all; }
+.cc.future .yr { color: var(--acc); }
+.scrub { margin: 24px var(--gut) 0; display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: center; }
+.scrub button { display: inline-flex; align-items: center; gap: 10px; height: 40px; padding: 0 16px; border: 1px solid var(--line-2); background: none; cursor: pointer; font-size: 13px; color: #fff; }
+.scrub button:hover { border-color: var(--acc); }
+.ticks { display: flex; justify-content: space-between; height: 40px; align-items: center; overflow: hidden; }
+.ticks i { flex: none; width: 8px; height: 30px; border: 1px solid rgba(233,236,242,.35); transition: background .25s linear, border-color .25s linear; }
+.ticks i.on { background: var(--acc); border-color: var(--acc); }
+
+/* ── 4 · the grid ──────────────────────────────────────────────────── */
+.grid { display: grid; grid-template-columns: 1.3fr 1fr 1.6fr 1fr; border-bottom: 1px solid var(--line); }
+.grid > div { padding: 22px var(--gut) 24px; border-right: 1px solid var(--line); min-width: 0; }
+.grid > div:last-child { border-right: 0; }
+.grid > div:not(:first-child) { padding-left: clamp(18px, 2vw, 28px); }
+.grid p.t { margin-top: 18px; color: #fff; font-size: 15px; line-height: 1.5; }
+.sub { margin-top: 18px; display: flex; border: 1px solid var(--line-2); }
+.sub input { flex: 1; min-width: 0; padding: 12px 14px; background: none; border: 0; outline: none; font-size: 14px; color: #fff; }
+.sub input::placeholder { color: var(--ink-faint); }
+.sub button { width: 46px; border: 0; border-left: 1px solid var(--line-2); background: none; cursor: pointer; color: #fff; font-size: 16px; }
+.sub button:hover { background: var(--acc); color: #000; }
+.sub-ok { margin-top: 8px; font-size: 12px; color: var(--acc); min-height: 1em; }
+.clocks { margin-top: 18px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.clocks b { display: block; color: #fff; font-weight: 400; font-size: 16px; letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+.clocks span { display: block; margin-top: 3px; font-size: 12.5px; color: var(--ink-mute); }
+.clocks small { display: block; margin-top: 3px; font-size: 9.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+.mail { margin-top: 18px; display: grid; gap: 14px; }
+.mail a { color: #fff; font-size: 15px; border-bottom: 1px solid var(--line-2); padding-bottom: 6px; display: flex; justify-content: space-between; }
+.mail a:hover { border-color: var(--acc); color: var(--acc); }
+
+/* ── 5 · ticker ────────────────────────────────────────────────────── */
+.ticker { overflow: hidden; border-bottom: 1px solid var(--line); padding: 14px 0; }
+.ticker .tr { display: flex; width: max-content; animation: tick 46s linear infinite; }
+.ticker span { flex: none; padding: 0 22px; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: #fff; display: inline-flex; align-items: center; gap: 22px; }
+.ticker span::before { content: ''; width: 8px; height: 8px; background: var(--acc); }
+@keyframes tick { to { transform: translateX(-50%); } }
+
+/* ── 6 · the flame band ────────────────────────────────────────────── */
+.band { position: relative; background: var(--acc); color: #0b0b0c; padding-top: clamp(90px, 13vw, 200px); }
+.band .flames { position: absolute; left: 0; right: 0; top: -1px; height: clamp(100px, 14vw, 220px); pointer-events: none; }
+.band .flames svg { display: block; width: 100%; height: 100%; }
+.band .flames path { fill: #0a0a0b; }
+.band .flames .lick { transform-box: fill-box; transform-origin: 50% 0; animation: lick 2.6s ease-in-out infinite; }
+.band .flames .lick:nth-child(2n) { animation-duration: 3.3s; animation-delay: -.8s; }
+.band .flames .lick:nth-child(3n) { animation-duration: 2.1s; animation-delay: -1.4s; }
+@keyframes lick { 50% { transform: scaleY(1.12) translateX(1%); } }
+.band .cols { position: relative; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; padding: 0 var(--gut); }
+.band h4 { font-weight: 600; font-size: clamp(20px, 1.6vw, 26px); letter-spacing: -.01em; }
+.band .nav { list-style: none; margin-top: 14px; display: grid; gap: 8px; font-size: clamp(16px, 1.25vw, 19px); }
+.band .nav a { border-bottom: 1px solid transparent; }
+.band .nav a:hover { border-color: #0b0b0c; }
+.band .hi { text-align: center; }
+.band .hi p { margin-top: 12px; font-size: clamp(15px, 1.15vw, 18px); }
+.pill { display: inline-flex; align-items: center; gap: 14px; margin-top: 18px; padding: 8px 8px 8px 24px; border-radius: 999px; background: #0b0b0c; color: #fff; font-weight: 600; font-size: 15px; letter-spacing: .02em; transition: transform .3s cubic-bezier(.22,1,.36,1); }
+.pill i { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: #e8e3dc; color: #0b0b0c; font-style: normal; font-size: 17px; transition: transform .3s cubic-bezier(.22,1,.36,1); }
+.pill:hover i { transform: rotate(-45deg); }
+.band .soc { display: grid; justify-items: end; align-content: start; gap: 14px; }
+.circles { display: flex; gap: 10px; }
+.circles a { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: #0b0b0c; color: #e8e3dc; font-size: 12px; font-weight: 600; letter-spacing: .02em; transition: transform .25s cubic-bezier(.22,1,.36,1); }
+.circles a:hover { transform: translateY(-3px); }
+.band .copy { font-weight: 600; font-size: 16px; }
+.band .built { border: 1.5px solid #0b0b0c; border-radius: 8px; padding: 6px 12px; font-size: 13px; }
+/* the wordmark, built from bars, between blueprint marks */
+.word { position: relative; margin: clamp(40px, 6vh, 72px) var(--gut) 0; padding: clamp(18px, 2.4vw, 34px) 0; display: grid; grid-template-columns: repeat(5, 1fr); }
+.word::before, .word::after { content: ''; position: absolute; left: -12px; right: -12px; height: 9px;
+  background: repeating-linear-gradient(90deg, rgba(11,11,12,.45) 0 1px, transparent 1px 9px); }
+.word::before { top: 0; } .word::after { bottom: 0; }
+.word .plus { position: absolute; width: 13px; height: 13px; }
+.word .plus::before, .word .plus::after { content: ''; position: absolute; background: #0b0b0c; }
+.word .plus::before { left: 6px; top: 0; width: 1px; height: 13px; } .word .plus::after { top: 6px; left: 0; height: 1px; width: 13px; }
+.word .plus.a { left: -18px; top: -6px; } .word .plus.b { right: -18px; top: -6px; } .word .plus.c { left: -18px; bottom: -6px; } .word .plus.d { right: -18px; bottom: -6px; }
+.word canvas { display: block; width: 100%; aspect-ratio: .92; }
+/* ── 7 · the base bar ──────────────────────────────────────────────── */
+.basebar { display: grid; grid-template-columns: auto 1fr auto; align-items: end; gap: 24px; padding: 22px var(--gut) 20px; margin-top: clamp(28px, 4vh, 48px); border-top: 1.5px solid rgba(11,11,12,.85); }
+.basebar .prog { display: flex; align-items: center; gap: 4px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+.basebar .prog i { width: 8px; height: 8px; background: #0b0b0c; }
+.basebar .prog i.dim { opacity: .35; }
+.basebar .prog span { margin-left: 8px; }
+.basebar .meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; }
+.basebar .meta a { border-bottom: 1px solid #0b0b0c; }
+.basebar .meta .dot { display: inline-flex; align-items: center; gap: 7px; }
+.basebar .meta .dot::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #0b0b0c; animation: blink 2s steps(1) infinite; }
+@keyframes blink { 50% { opacity: .25; } }
+.basebar .num { font-weight: 300; font-size: clamp(40px, 4vw, 64px); line-height: .8; letter-spacing: -.04em; }
+
+/* ── phones and small tablets ──────────────────────────────────────── */
+@media (max-width: 900px) {
+  .st { grid-template-columns: 1fr; }
+  .st .big { border-right: 0; padding: 80px 16px 20px; }
+  .st h2 { font-size: clamp(44px, 13vw, 76px); }
+  .st .side { padding: 8px 16px 36px; }
+  .fire { grid-template-columns: 1fr; min-height: 0; }
+  .fire .col { padding: 28px 16px; }
+  .fire .col.l { order: 2; border-right: 0; border-top: 1px solid var(--line); }
+  .fire .col.r { order: 3; border-left: 0; border-top: 1px solid var(--line); padding-left: 16px; }
+  .pit { order: 0; height: 112vw; max-height: 620px; }
+  .pit .hint { display: none; }
+  .win { position: relative; left: auto !important; top: auto !important; width: auto; margin: 0 16px 0; }
+  .win.w2 { display: none; }
+  .wins-m { order: 1; padding: 0 0 28px; position: relative; z-index: 4; }
+  .tabs .tab { height: 176px; } .tab span { font-size: 11px; }
+  .climbs .head { flex-direction: column; align-items: flex-start; padding: 0 16px; }
+  .reel { padding: 0 16px 8px; }
+  .cc { flex-basis: 84vw; }
+  .scrub { margin: 20px 16px 0; grid-template-columns: auto 1fr auto; gap: 10px; }
+  .scrub button { padding: 0 10px; font-size: 12px; }
+  .ticks i { width: 6px; height: 22px; }
+  .grid { grid-template-columns: 1fr 1fr; }
+  .grid > div { padding: 20px 16px !important; border-bottom: 1px solid var(--line); }
+  .grid > div:nth-child(2n) { border-right: 0; }
+  .grid .g-sub, .grid .g-clock { grid-column: 1 / -1; border-right: 0; }
+  .clocks { grid-template-columns: repeat(2, 1fr); row-gap: 16px; }
+  .band .cols { grid-template-columns: 1fr; gap: 34px; padding: 0 16px; }
+  .band .hi { text-align: left; }
+  .band .soc { justify-items: start; }
+  .word { margin: 44px 16px 0; grid-template-columns: repeat(5, 1fr); border-left: 1px solid rgba(11,11,12,.4); }
+  .word canvas { border-right: 1px solid rgba(11,11,12,.4); }
+  .basebar { grid-template-columns: 1fr auto; padding: 18px 16px; }
+  .basebar .meta { grid-column: 1 / -1; grid-row: 2; justify-content: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) { .ticker .tr, .band .flames .lick, .pit .glow, .tab:hover { animation: none !important; } }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<footer class="foot" aria-label="Footer">
+
+  <!-- 1 · the statement -->
+  <section class="st">
+    <div class="big">
+      <p class="k acc">Around the fire</p>
+      <h2>Every climb ends around a <em>fire.</em></h2>
+    </div>
+    <div class="side">
+      <div><p class="k">About</p><p class="about" style="margin-top:14px">Tibba is a lean design team based out of India — a higher place, and where we aim to take you and your business. Over 25 products shipped.</p></div>
+      <div class="avail">
+        <div><p class="k">Next climb starts</p><b id="avail">Jan 2027</b></div>
+        <nav class="ul" aria-label="Get in touch"><a href="mailto:hello@tibba.design">Email us</a><a href="https://www.linkedin.com/company/tibba-design-studio/">Connect on LinkedIn</a><a href="https://www.instagram.com/tibba.design/">Follow on Instagram</a><a href="https://medium.com/@tibbadesignstudio">Read on Medium</a></nav>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 · the fire -->
+  <section class="fire" id="fire">
+    <div class="col l">
+      <div><p class="k">Table of contents</p>
+        <ul class="toc"><li><a href="final-website-v2.html"><i>//</i>Work</a></li><li><a href="services-compass-v4.html"><i>//</i>Services</a></li><li><a href="studio-polaroids.html"><i>//</i>Studio</a></li><li><a href="about-landing.html"><i>//</i>About</a></li></ul></div>
+      <div><p class="k">Sectors we climb</p>
+        <ul class="sectors"><li>Fintech</li><li>News &amp; media</li><li>Foodtech</li><li>SaaS &amp; ESG</li><li>Health &amp; fitness</li></ul></div>
+    </div>
+    <div class="pit" id="pit">
+      <i class="glow" aria-hidden="true"></i>
+      <canvas aria-hidden="true"></canvas>
+      <p class="hint">Drag the windows · bring the cursor near the flames</p>
+      <div class="win w1" id="w1" style="left: 6%; top: 12%;">
+        <div class="bar" data-drag><i></i><i></i><i></i><i></i></div>
+        <div class="in"><p class="hd">Social <button type="button" aria-label="Collapse">[–]</button></p>
+          <ul><li><a href="https://www.instagram.com/tibba.design/">Instagram</a></li><li><a href="https://www.linkedin.com/company/tibba-design-studio/">LinkedIn</a></li><li><a href="https://medium.com/@tibbadesignstudio">Medium</a></li></ul></div>
+      </div>
+      <div class="win w2" id="w2" style="right: 6%; top: 52%;">
+        <div class="bar" data-drag><i></i><i></i><i></i><i></i></div>
+        <div class="in"><p class="hd">Website <button type="button" aria-label="Collapse">[–]</button></p>
+          <ul><li><a href="final-website-v2.html">Home</a></li><li><a href="services-compass-v4.html">Services</a></li><li><a href="about-landing.html">About</a></li><li><a href="mailto:hello@tibba.design">Contact</a></li></ul></div>
+      </div>
+      <p class="coords">Base camp · <b>28°00′N 86°51′E</b> · <span id="alt">5,364</span> m</p>
+    </div>
+    <div class="col r">
+      <div><p class="k">Field notes</p>
+        <div class="notes"><div class="note-card"><p class="q" id="note-q"></p><p class="who" id="note-w"></p></div>
+          <div class="note-nav"><button type="button" data-d="-1" aria-label="Previous note">←</button><span id="note-n">01 / 03</span><button type="button" data-d="1" aria-label="Next note">→</button></div></div></div>
+      <div><p class="k">Swing by</p>
+        <div class="tabs">
+          <a class="tab" href="https://www.linkedin.com/company/tibba-design-studio/"><b>in</b><span>tibba-design-studio</span></a>
+          <a class="tab" href="https://www.instagram.com/tibba.design/"><b>ig</b><span>tibba.design</span></a>
+          <a class="tab" href="https://medium.com/@tibbadesignstudio"><b>md</b><span>tibbadesignstudio</span></a>
+          <a class="tab" href="mailto:hello@tibba.design"><b>@</b><span>hello@tibba.design</span></a>
+        </div></div>
+    </div>
+  </section>
+
+  <!-- 3 · the climbs -->
+  <section class="climbs" aria-label="Past climbs">
+    <div class="head"><div><p class="k acc">The climbs</p><h3>Step into the timeline</h3></div><p class="k" id="cl-n">01 / 05</p></div>
+    <div class="reel" id="reel"></div>
+    <div class="scrub"><button type="button" id="cl-past">← Past</button><div class="ticks" id="ticks"></div><button type="button" id="cl-fut">Future →</button></div>
+  </section>
+
+  <!-- 4 · the grid -->
+  <section class="grid">
+    <div class="g-sub"><p class="k">Subscribe</p><p class="t">Field notes from the climb — now and then, never spam.</p>
+      <form class="sub" id="sub"><input type="email" required placeholder="Enter your email" aria-label="Email"><button type="submit" aria-label="Subscribe">→</button></form><p class="sub-ok" id="sub-ok"></p></div>
+    <div><p class="k">Base</p><p class="t">India<br>Remote, everywhere</p></div>
+    <div class="g-clock"><p class="k">Camps</p><div class="clocks" id="clocks"></div></div>
+    <div><p class="k">Write to us</p><div class="mail"><a href="mailto:hello@tibba.design">hello@tibba.design <span>↗</span></a><a href="mailto:hello@tibba.design?subject=New%20project">New project <span>↗</span></a></div></div>
+  </section>
+
+  <!-- 5 · ticker -->
+  <div class="ticker" aria-hidden="true"><div class="tr" id="tr"></div></div>
+
+  <!-- 6 · the flame band -->
+  <section class="band">
+    <div class="flames" aria-hidden="true"><svg viewBox="0 0 1440 220" preserveAspectRatio="none" id="flames"></svg></div>
+    <div class="cols">
+      <div><h4>Navigation</h4><ul class="nav"><li><a href="final-website-v2.html">Home</a></li><li><a href="services-compass-v4.html">Services</a></li><li><a href="summits-v3.html">Work</a></li><li><a href="about-landing.html">About</a></li><li><a href="#">Privacy policy</a></li></ul></div>
+      <div class="hi"><h4>Say hi!</h4><p>Got a summit in mind?</p><a class="pill" href="mailto:hello@tibba.design">Let's climb <i>→</i></a></div>
+      <div class="soc"><div class="circles"><a href="https://www.linkedin.com/company/tibba-design-studio/" aria-label="LinkedIn">in</a><a href="https://www.instagram.com/tibba.design/" aria-label="Instagram">ig</a><a href="https://medium.com/@tibbadesignstudio" aria-label="Medium">md</a><a href="mailto:hello@tibba.design" aria-label="Email">@</a></div>
+        <p class="copy">© <span class="yr"></span> Tibba Design Studio</p><p class="built">Built around a campfire in India</p></div>
+    </div>
+    <div class="word" id="word" aria-label="Tibba"><i class="plus a"></i><i class="plus b"></i><i class="plus c"></i><i class="plus d"></i></div>
+    <div class="basebar">
+      <p class="prog"><i></i><i></i><i></i><span>100% · summit reached</span></p>
+      <p class="meta"><span>© <span class="yr"></span> Tibba</span><a href="mailto:hello@tibba.design">hello@tibba.design</a><span>Built in India</span><span class="dot">All fires lit</span><a href="#">Privacy</a><a href="#">Terms</a></p>
+      <p class="num">06</p>
+    </div>
+  </section>
+</footer>
+
+<script type="module">
+  import { mountDitherFire } from './assets/campfire-dither.js';
+  import { applyBaked, bakeControls } from './assets/bake.js';
+
+  /* ══ FOOTER_CAMPFIRE ══════════════════════════════════════════════════ */
+  const FOOTER_CAMPFIRE = {
+    fire: { mode: 'dither', cell: 4, dot: 0.82, contrast: 1.25, flame: 1, embers: 0.9, speed: 0.9, scale: 0.9, wood: 0.66 },
+    glow: 0.12,          // the soft light behind the fire
+    word: { rows: 15, bar: 0.56, speed: 1 },   // the bar wordmark: rows per letter, bar thickness, reveal speed
+    ticker: 46,          // s for one pass
+  };
+  const C = FOOTER_CAMPFIRE;
+  const BAKE_KEY = 'tibba.bake.footer-campfire';
+  applyBaked(BAKE_KEY, C);
+  const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = s => document.querySelector(s), pad = n => String(n).padStart(2, '0');
+  document.querySelectorAll('.yr').forEach(e => { e.textContent = new Date().getFullYear(); });
+
+  /* ── the fire: white, dithered, nothing laid over it ──────────────── */
+  const fire = mountDitherFire($('#pit canvas'), { ...C.fire, palette: 'mono', x: 0.5, y: 0.7 });
+  const glow = $('.pit .glow');
+  const applyGlow = () => { glow.style.background = `radial-gradient(closest-side, rgba(255,255,255,${C.glow}), rgba(255,255,255,${C.glow / 3}) 45%, rgba(255,255,255,0) 72%)`; };
+  applyGlow();
+  /* the altitude, breathing a little */
+  setInterval(() => { $('#alt').textContent = (5364 + Math.round(Math.sin(Date.now() / 2400) * 3)).toLocaleString(); }, 1200);
+
+  /* ── the windows: drag by the handle, collapse with [–] / [+] ─────── */
+  const pit = $('#pit'), MQ = matchMedia('(max-width: 900px)');
+  document.querySelectorAll('.win').forEach(w => {
+    const btn = w.querySelector('.hd button');
+    btn.addEventListener('click', () => { const shut = w.classList.toggle('shut'); btn.textContent = shut ? '[+]' : '[–]'; });
+    const bar = w.querySelector('[data-drag]');
+    let d = null;
+    bar.addEventListener('pointerdown', e => {
+      if (MQ.matches) return;
+      const r = w.getBoundingClientRect(), pr = pit.getBoundingClientRect();
+      d = { dx: e.clientX - r.left, dy: e.clientY - r.top, pr }; w.classList.add('drag'); bar.setPointerCapture(e.pointerId);
+      w.style.right = 'auto'; w.style.zIndex = 6;
+    });
+    bar.addEventListener('pointermove', e => {
+      if (!d) return;
+      const x = Math.min(d.pr.width - 60, Math.max(-w.offsetWidth + 60, e.clientX - d.pr.left - d.dx));
+      const y = Math.min(d.pr.height - 30, Math.max(0, e.clientY - d.pr.top - d.dy));
+      w.style.left = x + 'px'; w.style.top = y + 'px';
+    });
+    const up = () => { d = null; w.classList.remove('drag'); w.style.zIndex = ''; };
+    bar.addEventListener('pointerup', up); bar.addEventListener('pointercancel', up);
+  });
+  /* phones: the first window sits under the fire, in the flow */
+  function placeWins() {
+    const w1 = $('#w1');
+    if (MQ.matches) { let box = $('.wins-m'); if (!box) { box = document.createElement('div'); box.className = 'wins-m'; $('#fire').insertBefore(box, $('#fire .col.l')); } box.appendChild(w1); }
+    else if (w1.parentElement !== pit) { pit.insertBefore(w1, pit.querySelector('.coords')); }
+  }
+  placeWins(); MQ.addEventListener('change', placeWins);
+
+  /* ── field notes ──────────────────────────────────────────────────── */
+  const NOTES = [
+    ['The website captures the essence of our brand and resonates with our audience.', 'Milan Sachdeva', 'Firstpost'],
+    ['Collaborating on our critical design sprint was transformative for Breathe ESG.', 'Shaayak Chaterjee', 'Breathe ESG'],
+    ['Over 25 products shipped and $400M+ unlocked — for start-ups and market leaders alike.', 'The studio', 'Since 2013'],
+  ];
+  let ni = 0;
+  function note(i) {
+    ni = (i + NOTES.length) % NOTES.length; const [q, w, c] = NOTES[ni];
+    const qe = $('#note-q'); qe.style.opacity = 0;
+    setTimeout(() => { qe.textContent = '“' + q + '”'; $('#note-w').innerHTML = `${w} · <b>${c}</b>`; qe.style.opacity = 1; }, REDUCED ? 0 : 200);
+    $('#note-n').textContent = `${pad(ni + 1)} / ${pad(NOTES.length)}`;
+  }
+  document.querySelector('.note-nav').addEventListener('click', e => { const b = e.target.closest('button'); if (b) note(ni + +b.dataset.d); });
+  note(0);
+
+  /* ── the climbs: a timeline of cards ──────────────────────────────── */
+  const CLIMBS = [
+    ['Zomato', 'Designed the first version of the food delivery app.', '2015', '#3b3526'],
+    ['Urban Company', 'The first market versions of the apps, with research in the workflow.', '2016', '#3a2d2d'],
+    ['Firstpost', 'A strategic redesign that doubled their traffic.', '2023', '#3a2a2a'],
+    ['Groww', 'App and website for a fintech serving millions.', '2024', '#23383a'],
+    ['Your project', '/////////////////////////////////////////////////////////', 'Future', null],
+  ];
+  const plate = (tone, i) => {
+    if (!tone) { let g = ''; for (let k = 1; k <= 7; k++) { const s = k * 13; g += `<rect x="${100 - s}" y="${75 - s * .75}" width="${s * 2}" height="${s * 1.5}" fill="none" stroke="rgba(255,75,31,${(.15 + k * .08).toFixed(2)})"/>`; }
+      for (let k = 0; k < 9; k++) g += `<line x1="100" y1="75" x2="${k * 25}" y2="0" stroke="rgba(255,75,31,.18)"/><line x1="100" y1="75" x2="${k * 25}" y2="150" stroke="rgba(255,75,31,.18)"/>`;
+      return `<svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice">${g}<rect x="96" y="71" width="8" height="8" fill="#FF4B1F"/></svg>`; }
+    let r = ''; const cx = 60 + (i * 37) % 80, cy = 60 + (i * 23) % 40;
+    for (let k = 0; k < 12; k++) { const R = 8 + k * 11, pts = []; for (let a = 0; a <= 40; a++) { const t = a / 40 * Math.PI * 2, w = 1 + .1 * Math.sin(t * 3 + k + i); pts.push((cx + Math.cos(t) * R * 1.2 * w).toFixed(1) + ' ' + (cy + Math.sin(t) * R * .8 * w).toFixed(1)); } r += `<path d="M${pts.join('L')}Z" fill="none" stroke="rgba(233,236,242,${k < 2 ? .5 : .14})"/>`; }
+    return `<svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice"><rect width="200" height="150" fill="${tone}"/>${r}<rect x="${cx - 4}" y="${cy - 4}" width="8" height="8" fill="#FF4B1F"/></svg>`;
+  };
+  const reel = $('#reel');
+  reel.innerHTML = CLIMBS.map(([t, d, y, tone], i) => `<article class="cc${tone ? '' : ' future'}"><div class="box"><p class="ttl">${t}</p><div class="img">${plate(tone, i)}</div><p class="ds">${d}</p></div><p class="yr">${y}</p></article>`).join('');
+  const ticks = $('#ticks');
+  function drawTicks() { const n = Math.max(12, Math.floor(ticks.clientWidth / 26)); ticks.innerHTML = '<i></i>'.repeat(n); syncTicks(); }
+  function syncTicks() {
+    const max = reel.scrollWidth - reel.clientWidth, p = max > 0 ? reel.scrollLeft / max : 0, ts = [...ticks.children];
+    ts.forEach((t, k) => t.classList.toggle('on', k <= Math.round(p * (ts.length - 1))));
+    const cards = [...reel.children], i = Math.min(cards.length - 1, Math.round(p * (cards.length - 1)));
+    $('#cl-n').textContent = `${pad(i + 1)} / ${pad(cards.length)}`;
+  }
+  reel.addEventListener('scroll', syncTicks, { passive: true });
+  const stepBy = d => reel.scrollBy({ left: d * (reel.children[0].offsetWidth + 40), behavior: REDUCED ? 'auto' : 'smooth' });
+  $('#cl-past').addEventListener('click', () => stepBy(-1)); $('#cl-fut').addEventListener('click', () => stepBy(1));
+  /* drag to scroll, with the mouse too */
+  { let dx = null, sl = 0; reel.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') return; dx = e.clientX; sl = reel.scrollLeft; reel.style.scrollSnapType = 'none'; });
+    addEventListener('pointermove', e => { if (dx == null) return; reel.scrollLeft = sl - (e.clientX - dx); });
+    addEventListener('pointerup', () => { if (dx == null) return; dx = null; reel.style.scrollSnapType = ''; }); }
+  drawTicks(); addEventListener('resize', drawTicks);
+
+  /* ── clocks ───────────────────────────────────────────────────────── */
+  const CAMPS = [['Asia/Kolkata', 'India', 'Base'], ['Europe/London', 'London', 'Europe'], ['America/New_York', 'New York', 'N. America'], ['Asia/Singapore', 'Singapore', 'Asia']];
+  const fmt = tz => new Intl.DateTimeFormat('en-GB', { timeZone: tz, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  const F = CAMPS.map(([tz]) => fmt(tz));
+  const clocks = $('#clocks');
+  clocks.innerHTML = CAMPS.map(([, n, r]) => `<div><b>--:--:--</b><span>${n}</span><small>${r}</small></div>`).join('');
+  const tickClocks = () => { const now = new Date(); [...clocks.children].forEach((c, i) => { c.querySelector('b').textContent = F[i].format(now); }); };
+  tickClocks(); setInterval(tickClocks, 1000);
+  $('#sub').addEventListener('submit', e => { e.preventDefault(); $('#sub-ok').textContent = 'Noted — see you at the next camp.'; e.target.reset(); });
+
+  /* ── ticker ───────────────────────────────────────────────────────── */
+  const LINE = 'Tibba — a higher place · Every climb ends around a fire · Design for founders who climb · 30+ products shipped · Now taking on new climbs for 2027';
+  $('#tr').innerHTML = Array(4).fill(`<span>${LINE}</span>`).join('');
+  const applyTicker = () => { $('#tr').style.animationDuration = C.ticker + 's'; };
+  applyTicker();
+
+  /* ── the flame edge ───────────────────────────────────────────────── */
+  {
+    const svg = $('#flames'); let d = '';
+    /* the dark comes down in tongues: a row of licks, each its own path */
+    const N = 11;
+    for (let i = 0; i < N; i++) {
+      const x0 = i / N * 1440 - 20, w = 1440 / N + 40, tip = 150 + ((i * 53) % 60), base = 40 + ((i * 29) % 30);
+      d += `<path class="lick" d="M${x0} 0 L${x0 + w} 0 L${x0 + w} ${base} C${x0 + w * .78} ${base + 20} ${x0 + w * .74} ${tip - 40} ${x0 + w * .58} ${tip} C${x0 + w * .52} ${tip - 50} ${x0 + w * .28} ${tip - 20} ${x0 + w * .22} ${base + 50} C${x0 + w * .16} ${base + 26} ${x0 + w * .06} ${base + 10} ${x0} ${base} Z"/>`;
+    }
+    svg.innerHTML = `<path d="M0 0 H1440 V40 H0 Z"/>${d}`;
+  }
+
+  /* ── the wordmark, built from bars ────────────────────────────────── */
+  const word = $('#word'), LETTERS = ['T', 'I', 'B', 'B', 'A'];
+  const cvs = LETTERS.map(() => { const c = document.createElement('canvas'); word.appendChild(c); return c; });
+  let wordT0 = 0, wordRaf = 0, bars = [];
+  function measureLetters() {
+    const R = Math.round(C.word.rows);
+    bars = LETTERS.map(L => {
+      const W = 120, H = 154, off = document.createElement('canvas'); off.width = W; off.height = H;
+      const g = off.getContext('2d'); g.fillStyle = '#000'; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+      g.font = "700 172px 'F37 Analog', system-ui, sans-serif"; g.fillText(L, W / 2, H - 14);
+      const px = g.getImageData(0, 0, W, H).data, rows = [];
+      for (let r = 0; r < R; r++) {
+        const y = Math.round((r + .5) / R * H), runs = []; let start = -1;
+        for (let x = 0; x <= W; x++) { const on = x < W && px[(y * W + x) * 4 + 3] > 110; if (on && start < 0) start = x; if (!on && start >= 0) { runs.push([start / W, x / W]); start = -1; } }
+        rows.push(runs);
+      }
+      return rows;
+    });
+  }
+  function drawWord(now) {
+    const k = REDUCED ? 99 : (now - wordT0) / 1000 * C.word.speed;
+    let busy = false;
+    cvs.forEach((c, li) => {
+      const r = c.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1);
+      if (c.width !== Math.round(r.width * dpr)) { c.width = Math.round(r.width * dpr); c.height = Math.round(r.height * dpr); }
+      const g = c.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, r.width, r.height);
+      const rows = bars[li] || [], R = rows.length, rh = r.height / R, pw = r.width * .86, ox = r.width * .07;
+      g.fillStyle = '#0b0b0c';
+      rows.forEach((runs, ri) => runs.forEach(([a, b]) => {
+        const t = Math.min(1, Math.max(0, (k - li * .12 - ri * .035) / .45)), e = 1 - Math.pow(1 - t, 3);
+        if (t < 1) busy = true;
+        if (e <= 0) return;
+        g.fillRect(ox + a * pw, ri * rh + rh * (1 - C.word.bar) / 2, (b - a) * pw * e, rh * C.word.bar);
+      }));
+    });
+    wordRaf = busy ? requestAnimationFrame(drawWord) : 0;
+  }
+  const playWord = () => { cancelAnimationFrame(wordRaf); wordT0 = performance.now(); wordRaf = requestAnimationFrame(drawWord); };
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => {
+    measureLetters();
+    new IntersectionObserver(([e], io) => { if (e.isIntersecting) { io.disconnect(); playWord(); } }, { threshold: .3 }).observe(word);
+    addEventListener('resize', () => { if (!wordRaf) requestAnimationFrame(t => { wordT0 = -1e9; drawWord(t); }); });
+  });
+
+  /* ── the panel ────────────────────────────────────────────────────── */
+  const el = document.createElement('div');
+  el.id = 'tune';
+  const Rg = (id, label, min, max, step, val, unit = '') => `<div class="row"><label>${label}<i id="v-${id}">${val}${unit}</i></label><input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}" data-unit="${unit}"></div>`;
+  el.innerHTML = `<div id="tune-head"><b>Footer — campfire</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <p class="tune-sub">The fire</p>
+    <div class="seg" id="f-mode"><button data-v="dither">Dither</button><button data-v="ascii">ASCII</button></div>
+    ${Rg('cell', 'Pixel size', 3, 12, 1, C.fire.cell, 'px')}${Rg('con', 'Contrast', .6, 2.2, .01, C.fire.contrast)}
+    ${Rg('fl', 'Flame height', .5, 1.6, .01, C.fire.flame)}${Rg('em', 'Embers', 0, 2, .05, C.fire.embers)}
+    ${Rg('sp', 'Speed', 0, 2.5, .05, C.fire.speed)}${Rg('sc', 'Fire size', .5, 1.4, .01, C.fire.scale)}
+    ${Rg('wd', 'Wood brightness', .2, 1.2, .01, C.fire.wood)}${Rg('gl', 'Glow', 0, .4, .01, C.glow)}
+    <p class="tune-sub">Wordmark &amp; ticker</p>
+    ${Rg('rw', 'Bars per letter', 8, 30, 1, C.word.rows)}${Rg('bt', 'Bar thickness', .2, .95, .01, C.word.bar)}
+    ${Rg('ws', 'Reveal speed', .3, 3, .05, C.word.speed)}${Rg('tk', 'Ticker pass', 10, 120, 1, C.ticker, 's')}
+    <div class="row inline"><label>Wordmark<i></i></label><button class="tune-btn" id="w-rp">Replay</button></div>
+    ${bakeControls.html}`;
+  document.body.appendChild(el);
+  const q = id => el.querySelector('#' + id);
+  const bind = (id, fn) => q('s-' + id).addEventListener('input', e => { const v = +e.target.value; q('v-' + id).textContent = v + e.target.dataset.unit; fn(v); });
+  const setF = (k, v) => { C.fire[k] = v; fire.K[k] = v; };
+  { const g = q('f-mode'); [...g.children].forEach(b => b.classList.toggle('on', b.dataset.v === C.fire.mode));
+    g.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; [...g.children].forEach(c => c.classList.toggle('on', c === b));
+      setF('mode', b.dataset.v); if (b.dataset.v === 'ascii' && C.fire.cell < 8) { setF('cell', 9); } }); }
+  bind('cell', v => setF('cell', v)); bind('con', v => setF('contrast', v)); bind('fl', v => setF('flame', v)); bind('em', v => setF('embers', v));
+  bind('sp', v => setF('speed', v)); bind('sc', v => { setF('scale', v); fire.relayout(); }); bind('wd', v => setF('wood', v));
+  bind('gl', v => { C.glow = v; applyGlow(); });
+  bind('rw', v => { C.word.rows = v; measureLetters(); playWord(); }); bind('bt', v => { C.word.bar = v; playWord(); });
+  bind('ws', v => { C.word.speed = v; }); bind('tk', v => { C.ticker = v; applyTicker(); });
+  q('w-rp').addEventListener('click', playWord);
+  bakeControls.bind(el, BAKE_KEY, C, 'FOOTER_CAMPFIRE');
+  q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+  if (window.wb && window.wb.adopt) window.wb.adopt();
+  window.tibba = { fire, CONFIG: C };
+</script>
+</body>
+</html>

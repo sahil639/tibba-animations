@@ -26,11 +26,14 @@ body:not(.ld-gone) { overflow: hidden; }
 #scope { position: relative; height: 270vh; }
 #stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
 #peak-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* the foot of the section melts into the black of the next one */
+.foot-fade { position: absolute; left: 0; right: 0; bottom: 0; height: 30vh; z-index: 4; pointer-events: none;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.55) 45%, #000 100%); opacity: calc(.35 + var(--lock, 0) * .65); }
 #stage::after { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 1;
   background: linear-gradient(270deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.5) 34%, rgba(0,0,0,0) 56%); opacity: var(--lock, 0); }
 
 /* ── 1 · the loader's readout ─────────────────────────────────────────── */
-.ld { position: absolute; z-index: 5; inset: 0; pointer-events: none; transition: opacity .7s cubic-bezier(.22,1,.36,1), transform .9s cubic-bezier(.22,1,.36,1); }
+.ld { position: absolute; z-index: 5; inset: 0; pointer-events: none; transition: opacity .4s cubic-bezier(.22,1,.36,1), transform .55s cubic-bezier(.22,1,.36,1); }
 .ld-gone .ld { opacity: 0; transform: translateY(-14px); }
 .ld-top { position: absolute; top: clamp(110px, 15vh, 150px); left: var(--gut); }
 .ld-top .k { font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
@@ -50,7 +53,13 @@ body:not(.ld-gone) { overflow: hidden; }
 
 /* ── 2 · the hero copy ────────────────────────────────────────────────── */
 .hero-copy { position: absolute; z-index: 3; inset: 0; pointer-events: none; opacity: calc(1 - var(--hero-out, 0)); }
-.hero-title { position: absolute; left: var(--gut); top: 50%; transform: translateY(-50%); }
+.hero-title { position: absolute; left: var(--gut); top: 50%; transform: translateY(-50%); isolation: isolate; }
+/* a soft dark pool behind each block of copy, so the contours never run through the type */
+.hero-title::before, .hero-side::before { content: ''; position: absolute; z-index: -1; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(0,0,0,.82) 0%, rgba(0,0,0,.6) 45%, rgba(0,0,0,0) 100%); }
+.hero-title::before { inset: -22% -30% -22% -40%; }
+.hero-side::before { inset: -35% -18% -30% -22%; }
+.hero-title h1, .hero-title .eyebrow, .hero-side p, .hero-cue { text-shadow: 0 1px 2px rgba(0,0,0,.9), 0 0 18px rgba(0,0,0,.85); }
 .hero-title .eyebrow { display: flex; align-items: center; gap: 10px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
 .hero-title .eyebrow::before { content: ''; width: 7px; height: 7px; background: var(--accent); }
 .hero-title h1 { margin-top: 18px; color: #fff; font-weight: 300; font-size: clamp(40px, 6vw, 108px); line-height: .92; letter-spacing: -.045em; text-transform: uppercase; }
@@ -60,7 +69,7 @@ body:not(.ld-gone) { overflow: hidden; }
 .hero-in .hero-title h1 span > i { transform: none; }
 .hero-title .eyebrow, .hero-side, .hero-cue { opacity: 0; transform: translateY(10px); transition: opacity .8s linear .25s, transform 1s cubic-bezier(.22,1,.36,1) .25s; }
 .hero-in .hero-title .eyebrow, .hero-in .hero-side, .hero-in .hero-cue { opacity: 1; transform: none; }
-.hero-side { position: absolute; right: var(--gut); bottom: clamp(28px, 6vh, 64px); max-width: 360px; text-align: left; transition-delay: .4s; }
+.hero-side { position: absolute; right: var(--gut); bottom: clamp(28px, 6vh, 64px); max-width: 360px; text-align: left; transition-delay: .4s; isolation: isolate; }
 .hero-side .lede { color: #fff; font-size: clamp(17px, 1.45vw, 23px); line-height: 1.3; letter-spacing: -.015em; }
 .hero-side .sub { margin-top: 12px; color: var(--ink-mute); font-size: 13.5px; line-height: 1.65; }
 .hero-side .def { margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.14); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); }
@@ -158,6 +167,7 @@ body:not(.ld-gone) { overflow: hidden; }
 
     <p class="m-head"><span>The numbers</span></p>
     <div id="metrics"></div>
+    <i class="foot-fade" aria-hidden="true"></i>
   </div>
 </section>
 

@@ -89,9 +89,32 @@ a { color: inherit; text-decoration: none; }
 .count { position: absolute; z-index: 2; right: var(--gut); bottom: clamp(28px, 5vh, 56px); font-size: 11px; letter-spacing: .14em; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
 .count b { color: #fff; font-weight: 400; }
 
-@media (max-width: 860px) {
-  #stage { grid-template-columns: 1fr; grid-template-rows: auto 1fr; row-gap: 20px; }
-  .idx ol { display: none; }
+/* the prev / next pair — tablets and phones only */
+.tnav { display: none; }
+
+/* ── tablets and phones: a section, not a screen ────────────────────────
+   No pinned scroll and no full-screen stage: the section is as tall as its
+   copy, and the reader moves through the quotes themselves — the client
+   chips, the arrows, or a swipe across the quote. */
+@media (max-width: 1024px) {
+  #scope { height: auto; }
+  #stage { position: relative; height: auto; min-height: 0; display: block; padding: clamp(72px, 10vh, 110px) var(--gut) 48px; }
+  .idx { display: block; }
+  .idx ol { margin-top: 22px; display: flex; gap: 0; overflow-x: auto; scrollbar-width: none; }
+  .idx ol::-webkit-scrollbar { display: none; }
+  .idx li { flex: none; display: flex; gap: 8px; align-items: baseline; margin-left: -1px; padding: 10px 14px; border: 1px solid rgba(255,255,255,.14); }
+  .idx li::after, .idx li i { display: none; }
+  .idx li.on { border-color: var(--c); position: relative; }
+  .q { margin-top: 36px; touch-action: pan-y; }
+  .q blockquote { font-size: clamp(22px, 4.6vw, 34px); min-height: calc(1.16em * 7); }
+  .q .mark { font-size: 110px; }
+  .q .who { flex-wrap: wrap; }
+  .q .who .go { margin-left: 0; }
+  .count { position: static; margin-top: 26px; }
+  .tnav { display: flex; gap: 0; position: absolute; right: var(--gut); bottom: 44px; }
+  .tnav button { margin-left: -1px; width: 46px; height: 40px; border: 1px solid rgba(255,255,255,.2); background: none; color: #fff; font-size: 16px; cursor: pointer; }
+  .tnav button:hover { border-color: var(--accent); position: relative; }
+  .field.on { opacity: .3; }
 }
 @media (prefers-reduced-motion: reduce) { .q .w > span { transform: none !important; animation: none !important; } .q .who * { animation: none !important; opacity: 1 !important; transform: none !important; } }
 </style>
@@ -116,6 +139,7 @@ a { color: inherit; text-decoration: none; }
       <figcaption class="who"><i class="rule"></i><i class="sq"></i><p></p><a class="go" href="#">View case study<i></i></a></figcaption>
     </figure>
     <p class="count"><b>01</b>&thinsp;/&thinsp;03</p>
+    <div class="tnav"><button type="button" data-d="-1" aria-label="Previous quote">←</button><button type="button" data-d="1" aria-label="Next quote">→</button></div>
   </section>
 </div>
 
@@ -165,7 +189,10 @@ a { color: inherit; text-decoration: none; }
       q.classList.remove('out'); void q.offsetWidth; q.classList.add('in');
     }, first ? 0 : 360);
   }
+  const MQ = matchMedia('(max-width: 1024px)');
+  const narrow = () => MQ.matches;
   items.forEach((li, k) => li.addEventListener('click', () => {
+    if (narrow()) { show(k); return; }
     const scope = $('#scope'), travel = scope.offsetHeight - innerHeight;
     scrollTo({ top: scope.offsetTop + travel * ((k + 0.5) / T.length), behavior: REDUCED ? 'auto' : 'smooth' });
   }));
@@ -174,6 +201,7 @@ a { color: inherit; text-decoration: none; }
   const scope = $('#scope');
   let scrollT = 0;
   function onScroll() {
+    if (narrow()) return;
     const travel = scope.offsetHeight - innerHeight;
     scrollT = travel > 0 ? Math.min(1, Math.max(0, -scope.getBoundingClientRect().top / travel)) : 0;
     const band = scrollT * T.length;
@@ -182,16 +210,26 @@ a { color: inherit; text-decoration: none; }
     items.forEach((li, k) => li.style.setProperty('--fill', Math.min(1, Math.max(0, band - k)).toFixed(3)));
   }
   addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
+  /* tablets and phones: arrows and swipes */
+  const step = d => show((cur + d + T.length) % T.length);
+  document.querySelector('.tnav').addEventListener('click', e => { const b = e.target.closest('button'); if (b) step(+b.dataset.d); });
+  let sx = null, sy = 0;
+  stage.addEventListener('pointerdown', e => { if (narrow()) { sx = e.clientX; sy = e.clientY; } });
+  stage.addEventListener('pointerup', e => {
+    if (sx == null) return; const dx = e.clientX - sx, dy = e.clientY - sy; sx = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) step(dx < 0 ? 1 : -1);
+  });
+  MQ.addEventListener('change', () => { if (narrow()) { idx.style.transform = q.style.transform = mark.style.transform = ''; } else onScroll(); });
+  if (narrow()) show(0); else onScroll();
 
   /* parallax: three layers at three rates, pointer and scroll */
   const P = { depth: 1 };
   const ptr = { x: 0, y: 0, sx: 0, sy: 0 };
   addEventListener('pointermove', e => { ptr.x = e.clientX / innerWidth - .5; ptr.y = e.clientY / innerHeight - .5; }, { passive: true });
-  const idx = $('.idx'), mark = q.querySelector('.mark');
+  var idx = $('.idx'), mark = q.querySelector('.mark');
   (function loop() {
     requestAnimationFrame(loop);
-    if (REDUCED) return;
+    if (REDUCED || narrow()) return;
     ptr.sx += (ptr.x - ptr.sx) * .06; ptr.sy += (ptr.y - ptr.sy) * .06;
     const band = (scrollT * T.length) % 1 - .5;
     idx.style.transform = `translate3d(${(ptr.sx * -6 * P.depth).toFixed(2)}px, ${(ptr.sy * -4 * P.depth).toFixed(2)}px, 0)`;

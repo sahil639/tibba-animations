@@ -16,6 +16,8 @@ html.site-locked { overflow: hidden; }
 .site-block[style*="75vh"] .sticky { border-top: 1px solid rgba(255,255,255,.08); border-bottom: 1px solid rgba(255,255,255,.08); }
 
 /* the navbar: the About hero's pill, in F37, above everything */
+/* 12px from the top at every width */
+.ca.ca-header.site-nav { padding-top: 12px; }
 .ca.site-nav { z-index: 60; --ca-mono: 'F37 Analog', system-ui, sans-serif; --ca-accent: #FF4B1F; }
 .site-nav .ca-link { letter-spacing: .08em; }
 .site-nav .ca-link[aria-current] { color: #fff; }

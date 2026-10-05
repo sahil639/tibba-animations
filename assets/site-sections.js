@@ -26,7 +26,7 @@ export const HOME_SECTIONS = [
     variants: [{ file: 'site-hero.html', label: 'Loader, Active Peak and Metrics as one scene' },
                { file: 'site-hero.html?noloader', label: 'Same, without the loader' }] },
   { id: 'brands', label: 'Brands', folder: 'Brands section', frame: '75vh',
-    variants: [{ file: 'brands-mosaic.html', label: 'Brands — mosaic' }, { file: 'brands.html', label: 'Brands' }] },
+    variants: [{ file: 'brands.html', label: 'Brands' }, { file: 'brands-mosaic.html', label: 'Brands — mosaic' }] },
   { id: 'summits', label: 'Our summits', folder: 'Our summits', nav: 'Work',
     variants: [{ file: 'summits-v3.html', label: 'Summits v3' }, { file: 'summits-v2.html', label: 'Summits v2' }, { file: 'summits-four.html', label: 'Four Summits' }] },
   { id: 'cases', label: 'Extra case studies', folder: 'Extra case studies', nav: 'Cases', navMinor: true,
@@ -41,6 +41,7 @@ export const HOME_SECTIONS = [
   { id: 'footer', label: 'Footer', folder: 'Footer', nav: 'Contact',
     variants: [{ file: 'footer.html', label: 'Footer — skyline' }, { file: 'footer-meadow.html', label: 'Footer — green range' },
                { file: 'footer-mountain.html', label: 'Footer — snow peak' },
+               { file: 'footer-campfire.html', label: 'Footer — campfire (all references)' },
                { file: 'footer-design.html?v=a', label: 'Footer A — campfire, dithered' },
                { file: 'footer-design.html?v=b', label: 'Footer B — contour ridge fire' },
                { file: 'footer-design.html?v=c', label: 'Footer C — analytical campfire' }] },
@@ -58,6 +59,7 @@ export const ABOUT_SECTIONS = [
   { id: 'footer', label: 'Footer', folder: 'Footer', nav: 'Contact',
     variants: [{ file: 'footer.html', label: 'Footer — skyline' }, { file: 'footer-meadow.html', label: 'Footer — green range' },
                { file: 'footer-mountain.html', label: 'Footer — snow peak' },
+               { file: 'footer-campfire.html', label: 'Footer — campfire (all references)' },
                { file: 'footer-design.html?v=a', label: 'Footer A — campfire, dithered' },
                { file: 'footer-design.html?v=b', label: 'Footer B — contour ridge fire' },
                { file: 'footer-design.html?v=c', label: 'Footer C — analytical campfire' }] },
@@ -77,6 +79,8 @@ export const PAGE_CSS = {
   'footer-meadow.html': `.panel-tab, .panel-veil, .panel { display: none !important; }`,
   'footer-mountain.html': `.panel-tab, .panel-veil, .panel { display: none !important; }`,
   'case-studies-reel.html': `.after { display: none !important; }`,
+  /* the plain grid, fitted to the section's 75vh window */
+  'brands.html': `#brands { height: 75vh !important; min-height: 0 !important; }`,
   'studio-polaroids.html': `#reset { display: none !important; }`,
 };
 

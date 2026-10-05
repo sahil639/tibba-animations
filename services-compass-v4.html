@@ -147,6 +147,7 @@
   .ss-page { grid-template-columns: 1fr 1fr; grid-template-rows: auto auto auto auto; }
   .v4-card { grid-column: 1 / -1; grid-row: 2; }
   #compass { height: auto; width: min(100%, 58vh); }
+  .v4-strip { display: none; }
   .v4-state { grid-column: 1 / -1; grid-row: 3; }
   .ss-col.left { grid-column: 1; grid-row: 4; } .ss-col.right { grid-column: 2; grid-row: 4; }
 }
@@ -156,11 +157,12 @@
      beside its readout, and the page scrolls like any other */
   .ss-page { padding: 64px 16px 32px; grid-template-columns: 1fr; grid-template-rows: none; row-gap: 22px; --cg: 0px; }
   .ss-title { padding-bottom: 14px; } .ss-title h1 { font-size: 27px; margin-top: 8px; } .ss-title .eyebrow { font-size: 10.5px; } .ss-title .note { display: none; }
-  .v4-card { grid-column: 1; grid-row: auto; grid-template-columns: 44% 1fr; grid-template-rows: auto auto; }
+  .v4-card { grid-column: 1; grid-row: auto; grid-template-columns: 1fr; grid-template-rows: auto auto; }
+  .v4-strip { display: none !important; }
   .ss-foot { grid-column: 1 / -1; }
   .ss-stage { justify-content: center; align-items: center; padding: 10px 6px; font-size: 13.5px; line-height: 1.2; white-space: normal; text-align: center; } .ss-stage .n { display: none; } .ss-stage .l { overflow: visible; font-size: 13.5px; }
-  .ss-center { grid-column: 1; grid-row: 2; padding: 12px 6px 12px 10px; }
-  #compass { width: 100%; height: auto; max-height: none; }
+  .ss-center { grid-column: 1; grid-row: 2; padding: 14px; }
+  #compass { width: min(62vw, 250px); height: auto; max-height: none; }
   .v4-strip { grid-column: 2; grid-row: 2; grid-template-columns: 1fr; border-top: 0; border-left: 1px solid var(--line); }
   .v4-strip > div { border-right: 0; border-bottom: 1px solid var(--line); padding: 10px 14px; display: flex; flex-direction: column; justify-content: center; }
   .v4-strip > div:last-child { border-bottom: 0; }

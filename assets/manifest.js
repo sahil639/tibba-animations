@@ -30,7 +30,7 @@ window.TIBBA_SITE = {
     pages: [
       { id: 'final-website', label: 'Final website', file: 'final-website.html',
         note: 'Loader, hero and its three scroll states, metrics, brands, the four-summit walk, services, testimonials', state: 'live' },
-      { id: 'final-website-v2', updated: '2026-10-01T18:00:00+07:00', change: 'New: every section stitched into one site', label: 'Final Website v2', file: 'final-website-v2.html',
+      { id: 'final-website-v2', updated: '2026-10-05T18:00:00+07:00', change: "Nav 12px down, quicker hero, Metrics fade, plain Brands, phone and tablet fixes", label: 'Final Website v2', file: 'final-website-v2.html',
         note: 'The live sections as one website: loader into Active Peak into Metrics, Brands, Summits v3, case reel, Compass v4, testimonials, polaroids, footer; one navbar, refresh bottom left', state: 'live' },
       { id: 'about-landing', updated: '2026-10-01T18:00:00+07:00', change: 'New: the About landing, stitched the same way', label: 'About us — landing', file: 'about-landing.html',
         note: 'About hero, description, foundations, team and footer as one page, with the same navbar and transitions as the home landing', state: 'live' },
@@ -93,14 +93,14 @@ window.TIBBA_SITE = {
           note: 'One summit centred at a time, the camera walking between them; each trail draws base-to-peak once. Title top-left, the case bottom-left; a Depth control sets how far the rest recedes', state: 'live' },
         { id: 'summits-v2', updated: '2026-09-30T12:00:00+07:00', change: 'New: a country round the summits, Three Summits camera, cards', label: 'Summits v2', file: 'summits-v2.html',
           note: 'The four summits in a connected range, the Three Summits camera, winding shadowed trails, a rail and editorial cards', state: 'live' },
-        { id: 'summits-v3', updated: '2026-10-01T12:00:00+07:00', change: 'More country round the peaks; topography controls', label: 'Summits v3', file: 'summits-v3.html',
+        { id: 'summits-v3', updated: '2026-10-05T18:00:00+07:00', change: "Title top-left; the summit in focus named large, bottom-left", label: 'Summits v3', file: 'summits-v3.html',
           note: 'Summits v2 with no cards: the copy bottom-left names the summit in focus', state: 'live' },
       ] },
 
     { id: 'case-studies', label: 'Extra case studies',
       note: 'The work that does not get a summit.',
       pages: [ { id: 'case-studies-01', label: 'Extra case studies', file: 'case-studies.html', note: '', state: 'stub' },
-               { id: 'case-studies-reel', updated: '2026-09-29T12:00:00+07:00', change: 'One title, inside the active plate only', label: 'Case reel', file: 'case-studies-reel.html',
+               { id: 'case-studies-reel', updated: '2026-10-05T18:00:00+07:00', change: "Tablets and phones: plates keep the desktop proportion", label: 'Case reel', file: 'case-studies-reel.html',
                  note: 'The six extra cases on the Work Reel, in black, with an altitude tape that slides with the scroll', state: 'live' } ] },
 
     /* The four summits, each at full length. All four are one template and four
@@ -133,13 +133,13 @@ window.TIBBA_SITE = {
                  note: 'Services as boxed brick bonds either side of a compass that never moves', state: 'live' },
                { id: 'services-compass-v3', updated: '2026-09-30T12:00:00+07:00', change: 'New: tabs and compass left, services right; one-screen mobile', label: 'Compass v3', file: 'services-compass-v3.html',
                  note: 'Tabs, blurb and compass on the left, the service columns on the right; fits one phone screen', state: 'live' },
-               { id: 'services-compass-v4', updated: '2026-10-01T12:00:00+07:00', change: 'Bigger stage names, clearer readouts, a rim and orange cubes; small compass on mobile', label: 'Compass v4', file: 'services-compass-v4.html',
+               { id: 'services-compass-v4', updated: '2026-10-05T18:00:00+07:00', change: "Readout boxes off on tablets and phones; smaller compass", label: 'Compass v4', file: 'services-compass-v4.html',
                  note: 'The instrument in a framed card with tabs and a readout strip, a finer compass; the stage as a statement over two brick-bond ledgers that open on hover', state: 'live' } ] },
 
     { id: 'testimonials', label: 'Our testimonials',
       note: 'What clients say.',
       pages: [ { id: 'testimonials-01', label: 'Our testimonials', file: 'testimonials.html', note: '', state: 'stub' },
-               { id: 'testimonials-topo', updated: '2026-09-28T19:09:00+07:00', change: 'New: masked quote reveals over a live contour field', label: 'Testimonials — topo', file: 'testimonials-topo.html',
+               { id: 'testimonials-topo', updated: '2026-10-05T18:00:00+07:00', change: "Tablets and phones: a compact section you tap or swipe through", label: 'Testimonials — topo', file: 'testimonials-topo.html',
                  note: "The final site's quotes, one pinned scene: masked word reveals, a live contour field per client, parallax", state: 'live' } ] },
 
     { id: 'studio', label: 'Our studio',
@@ -158,6 +158,8 @@ window.TIBBA_SITE = {
           note: 'The footer on the generated paper skyline', state: 'live' },
         { id: 'footer-meadow', updated: '2026-09-29T12:00:00+07:00', change: 'New: the reference layout over a mossy green range', label: 'Footer — green range', file: 'footer-meadow.html',
           note: 'Form, sections and links in three columns over a range of moss-grown mountains that part under the cursor', state: 'live' },
+        { id: 'footer-campfire', updated: '2026-10-05T18:00:00+07:00', change: 'New: one footer from every reference, campfire at its centre', label: 'Footer — campfire', file: 'footer-campfire.html',
+          note: 'The white dithered fire with draggable windows, field notes and hanging tabs; a timeline of climbs, clocks and subscribe, a ticker, and an orange flame band with the bar-built wordmark. Its own phone layout', state: 'live' },
         { id: 'footer-design', updated: '2026-10-01T22:00:00+07:00', change: 'New: three campfire footers — dithered, contour ridge, analytical', label: 'Footer Design', file: 'footer-design.html',
           note: 'A: the fire as a one-bit dot / ASCII drawing. B: the contour ridge fire, sticks by hand, free angle, no smoke. C: a scanned, annotated pixel fire. Footer on the right of each', state: 'live' },
         { id: 'footer-peak', updated: '2026-09-28T19:09:00+07:00', change: 'Layered depth, survey lines, new layout; no load-in', label: 'Footer — snow peak', file: 'footer-mountain.html',

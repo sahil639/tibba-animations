@@ -54,17 +54,28 @@
 /* LAYOUT:START */
 /* no cards: the section's copy bottom-left, naming the summit in focus */
 #stage::after { opacity: 1; background: linear-gradient(0deg, rgba(0,0,0,.8) 0%, rgba(0,0,0,.35) 22%, rgba(0,0,0,0) 40%),
-  linear-gradient(90deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,0) 34%); }
+  linear-gradient(180deg, rgba(0,0,0,.75) 0%, rgba(0,0,0,.3) 18%, rgba(0,0,0,0) 32%),
+  linear-gradient(90deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,0) 34%); }
+/* the section's title, top left */
+.tx-top { position: absolute; z-index: 3; left: var(--gut); top: clamp(96px, 14vh, 150px); max-width: 640px; pointer-events: none; }
+.tx-top .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.tx-top h1 { margin-top: 14px; color: #fff; font-weight: 400; font-size: clamp(30px, 3.4vw, 56px); line-height: 1.02; letter-spacing: -.035em; }
 .tx { position: absolute; z-index: 3; left: var(--gut); bottom: clamp(28px, 6vh, 64px); max-width: 520px; pointer-events: none; }
 .tx .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
 .tx h1 { margin-top: 14px; color: #fff; font-weight: 400; font-size: clamp(28px, 3.2vw, 52px); line-height: 1.02; letter-spacing: -.03em; }
 .tx .now { margin-top: 22px; display: flex; align-items: baseline; gap: 16px; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
 .tx .now b { color: #fff; font-weight: 400; }
 .tx .nmw { display: block; overflow: hidden; }
-.tx .nmw #tx-name { display: block; font-size: 13px; letter-spacing: .14em; }
+.tx .nmw { margin-top: 10px; }
+.tx .nmw #tx-name { display: block; font-size: clamp(34px, 4.2vw, 72px); line-height: 1; letter-spacing: -.035em; text-transform: none; }
+.tx .now { display: block; }
 .tx .nmw.swap #tx-name { animation: tx-rise .8s cubic-bezier(.22,.9,.3,1) both; }
 @keyframes tx-rise { from { transform: translateY(110%); } to { transform: none; } }
 .tx .hint { margin-top: 10px; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-faint); }
+@media (max-width: 820px) {
+  .tx-top { top: 84px; right: var(--gut); } .tx-top h1 { font-size: 28px; }
+  .tx .nmw #tx-name { font-size: 38px; }
+}
 /* LAYOUT:END */
 </style>
 <link rel="stylesheet" href="assets/tune.css">
@@ -74,9 +85,11 @@
   <div id="stage">
     <canvas id="peak-canvas"></canvas>
     <!-- MARKUP:START -->
-    <div class="tx">
+    <div class="tx-top">
       <p class="eyebrow">[ &nbsp;Our summits&nbsp; ]</p>
       <h1>Four climbs, and what they were for</h1>
+    </div>
+    <div class="tx">
       <p class="now"><span id="tx-count"><b>01</b>&thinsp;/&thinsp;04</span><span class="nmw"><span id="tx-name"></span></span></p>
       <p class="hint">Click a summit to open its case</p>
     </div>

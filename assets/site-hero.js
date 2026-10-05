@@ -33,8 +33,8 @@ const ACCENT = '#FF4B1F';
 const SKIP = /[?&]noloader\b/.test(location.search);
 
 export const SITE_HERO_CONFIG = {
-  loader: { duration: 5.2, hold: 0.45, stutter: 0.35, band: 3.0, ghost: 0.1, glow: 0.55 },
-  intro: { duration: 2.6 },          // s: the flight from the plan down into the hero
+  loader: { duration: 5.2, hold: 0.15, stutter: 0.35, band: 3.0, ghost: 0.1, glow: 0.55 },
+  intro: { duration: 1.5 },          // s: the flight from the plan down into the hero
   lock: { from: 0.1, to: 0.62 },     // share of the scroll the turn-aside takes
   metrics: { openAt: 0.5, closeBelow: 0.34, stagger: 0.16, open: 1.1, close: 0.7 },
 };
@@ -99,7 +99,7 @@ function loaderFrame(now) {
     phase = 'intro'; introAt = now;
     document.body.classList.add('ld-gone');
     clearInterval(coordTimer);
-    setTimeout(() => document.body.classList.add('hero-in'), C.intro.duration * 420);
+    setTimeout(() => document.body.classList.add('hero-in'), C.intro.duration * 300);
     tellShell();
   }
 }
