@@ -58,6 +58,11 @@ export function mountDitherFire(canvas, opts = {}) {
   let W = 0, H = 0, dpr = 1, gw = 0, gh = 0, S = new Float32Array(0), L = new Float32Array(0), HT = new Float32Array(0);
   let cellUsed = 0, geo = null;
   const ptr = { x: -1e4, y: -1e4, k: 0, kt: 0 };
+  /* a click on the flame blows it apart: it scatters as sparks, goes out,
+     and then lights again from nothing — G is how much fire there is */
+  const LIFE = { scatter: 0.9, dark: 0.7, regrow: 2.4 };
+  let G = 1, out = null;                       // out: seconds since the click, while it relights
+  const BURST = Array.from({ length: 160 }, () => ({ x: 0, y: 0, vx: 0, vy: 0, life: 1, max: 1 }));
 
   /* the fire's frame, in CSS px */
   function layout() {
@@ -142,8 +147,16 @@ export function mountDitherFire(canvas, opts = {}) {
     if (K.cell !== cellUsed) { layout(); drawStatic(); }
     const g = geo, C = K.cell;
     ptr.k += (ptr.kt - ptr.k) * (1 - Math.exp(-dt * 3));
+    if (out !== null) {
+      out += dt;
+      const a = LIFE.scatter, b = a + LIFE.dark, c = b + LIFE.regrow;
+      if (out < a) G = Math.pow(1 - out / a, 2);
+      else if (out < b) G = 0;
+      else if (out < c) { const q = (out - b) / LIFE.regrow; G = q * q * (3 - 2 * q); }
+      else { G = 1; out = null; }
+    }
     const flick = 0.82 + 0.1 * Math.sin(t * 9.1) * Math.sin(t * 5.3 + 1) + 0.08 * Math.sin(t * 21);
-    const fh = g.s * 1.55 * K.flame * (1 + ptr.k * 0.25) * (0.94 + 0.06 * flick);
+    const fh = g.s * 1.55 * K.flame * (1 + ptr.k * 0.25) * (0.94 + 0.06 * flick) * Math.max(0.02, G);
     const lightR2 = Math.pow(g.s * 1.25, 2);
     /* the wood, lit by the fire */
     const fy = g.base - g.s * 0.35;
@@ -152,7 +165,7 @@ export function mountDitherFire(canvas, opts = {}) {
       for (let i = 0; i < gw; i++) {
         const k = j * gw + i, x = (i + 0.5) * C;
         const d2 = (x - g.cx) ** 2 + ((y - fy) * 1.4) ** 2;
-        const lit = 0.62 + K.light * 0.7 * flick * Math.exp(-d2 / lightR2);
+        const lit = 0.62 + K.light * 0.7 * flick * G * Math.exp(-d2 / lightR2);
         L[k] = S[k] * lit * K.wood; HT[k] = 0;
       }
     }
@@ -172,6 +185,7 @@ export function mountDitherFire(canvas, opts = {}) {
         const d = Math.abs(u - sway) / w;
         let F = Math.pow(clamp01(1 - d), 0.7) * clamp01((v + 0.08) / 0.16);
         F *= 0.62 + 0.62 * fbm(u * 3.6 - 5, vv * 4.4 - t * 3.3);
+        if (G < 1) F *= clamp01(G * 1.6 - (1 - G) * (n - 0.3));          // breaking up as it goes
         /* licks: detached tongues near the top */
         if (vv > 0.55) F *= clamp01(1.4 - (vv - 0.55) * 2.2 + (fbm(u * 5, vv * 6 - t * 4) - 0.5) * 1.6);
         if (F <= 0.01) continue;
@@ -182,7 +196,17 @@ export function mountDitherFire(canvas, opts = {}) {
       }
     }
     /* embers */
-    const nE = Math.round(EMB.length * clamp01(K.embers / 2));
+    const nE = Math.round(EMB.length * clamp01(K.embers / 2) * G);
+    /* the scattered sparks */
+    BURST.forEach(e => {
+      if (e.life >= e.max) return;
+      e.life += dt; e.vy += 30 * dt; e.vx *= 1 - dt * 1.4; e.vy *= 1 - dt * 1.2;
+      e.x += e.vx * dt; e.y += e.vy * dt;
+      const i = Math.floor(e.x / C), j = Math.floor(e.y / C);
+      if (i < 0 || j < 0 || i >= gw || j >= gh) return;
+      const k = j * gw + i, a = clamp01(1 - e.life / e.max);
+      L[k] = Math.max(L[k], a); HT[k] = Math.max(HT[k], a * (0.5 + 0.5 * a));
+    });
     EMB.forEach((e, n) => {
       if (n >= nE) return;
       e.life += dt * K.speed;
@@ -239,7 +263,23 @@ export function mountDitherFire(canvas, opts = {}) {
     const d = Math.hypot(x - geo.cx, (y - geo.base + geo.s * 0.6) * 1.2) / (geo.s * 1.4);
     ptr.kt = clamp01(1 - d);
   }, { passive: true });
-  host.addEventListener('pointerleave', () => { ptr.kt = 0; });
+  host.addEventListener('pointerleave', () => { ptr.kt = 0; canvas.style.cursor = ''; });
+  const onFlame = e => {
+    const r = canvas.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top, g = geo;
+    return Math.abs(x - g.cx) < g.s * 0.75 && y < g.base + g.s * 0.2 && y > g.base - g.s * 1.9;
+  };
+  host.addEventListener('pointermove', e => { canvas.style.cursor = onFlame(e) && G > 0.5 ? 'pointer' : ''; }, { passive: true });
+  host.addEventListener('click', e => {
+    if (out !== null || !onFlame(e) || e.target.closest('a, button, input')) return;
+    out = 0;
+    const g = geo, fh = g.s * 1.55 * K.flame;
+    BURST.forEach(p => {
+      const a = Math.random() * Math.PI * 2, sp = (60 + Math.random() * 220) * (g.s / 160);
+      p.x = g.cx + (Math.random() - 0.5) * g.s * 0.5; p.y = g.base - g.s * 0.1 - Math.random() * fh * 0.7;
+      p.vx = Math.cos(a) * sp; p.vy = Math.sin(a) * sp - 40; p.life = 0; p.max = 0.6 + Math.random() * 1.1;
+    });
+    kick();
+  });
 
   const kick = () => { if (!raf) { last = 0; raf = requestAnimationFrame(frame); } };
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) kick(); }, { rootMargin: '60px' }).observe(canvas);

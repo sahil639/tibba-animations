@@ -203,7 +203,7 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
     locked = on;
     document.documentElement.classList.toggle('site-locked', on);
     /* the navbar drops in only once the loader has handed over */
-    if (!on) requestAnimationFrame(() => document.documentElement.classList.add('site-nav-in'));
+    if (!on) { requestAnimationFrame(() => document.documentElement.classList.add('site-nav-in')); if (blocks.length) sync(true); }
     else document.documentElement.classList.remove('site-nav-in');
     clearTimeout(gateTimer);
     if (on) gateTimer = setTimeout(() => lock(false), C.gateTimeout * 1000);
@@ -287,7 +287,9 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
       const r = b.sec.getBoundingClientRect();
       const near = r.bottom > -vh * C.loadAhead && r.top < vh * (1 + C.loadAhead);
       const far = r.bottom < -vh * C.unloadBeyond || r.top > vh * (1 + C.unloadBeyond);
-      if (near) load(b); else if (far) unload(b);
+      /* while the loader holds the page, nothing else loads: it would take
+         the main thread from the loader and the loader would play unseen */
+      if (near && (!locked || b === blocks[0])) load(b); else if (far) unload(b);
       if (r.top <= vh * 0.5 && r.bottom > vh * 0.5) now = b;
       /* the seam: the incoming edge is soft while it travels up the screen */
       b.seam.style.opacity = r.top > 0 && r.top < vh ? clamp01((r.top - vh * (1 - C.seam * 2.6)) / (vh * C.seam * 1.6)).toFixed(3) : '0';

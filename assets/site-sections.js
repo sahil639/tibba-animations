@@ -23,6 +23,27 @@
    standalone pages' lead-in spacers taken out so sections meet edge to
    edge.
    ═════════════════════════════════════════════════════════════════════════ */
+/* one footer for every landing: the About landing shows whichever the home
+   page shows (see about-landing.html) */
+const FOOTER = { id: 'footer', label: 'Footer', folder: 'Footer', nav: 'Contact',
+    variants: [{ file: 'footer.html', label: 'Footer — skyline' }, { file: 'footer-meadow.html', label: 'Footer — green range' },
+               { file: 'footer-mountain.html', label: 'Footer — snow peak' },
+               { file: 'footer-campfire.html', label: 'Footer — campfire (all references)' },
+               { file: 'footer-society.html', label: 'Footer — window cards' },
+               { file: 'footer-vca.html', label: 'Footer — glowing fire' },
+               { file: 'footer-heron.html', label: 'Footer — blueprint grid' },
+               { file: 'footer-timeline.html', label: 'Footer — timeline of fires' },
+               { file: 'footer-hackfirst.html', label: 'Footer — split screen' },
+               { file: 'footer-cult.html', label: 'Footer — fire diagram' },
+               { file: 'footer-human.html', label: 'Footer — orange field' },
+               { file: 'footer-sylvan.html', label: 'Footer — fires that grow' },
+               { file: 'footer-breaver.html', label: 'Footer — flame band' },
+               { file: 'footer-jijo.html', label: 'Footer — dusk' },
+               { file: 'footer-pengon.html', label: 'Footer — halftone camp' },
+               { file: 'footer-dithered.html', label: 'Footer A — campfire, dithered' },
+               { file: 'footer-contour-fire.html', label: 'Footer B — contour ridge fire' },
+               { file: 'footer-analytical.html', label: 'Footer C — analytical campfire' }] };
+
 export const HOME_SECTIONS = [
   { id: 'opening', label: 'Loader → Hero → Metrics', folder: 'Loader · Hero section · Metrics', nav: null, gate: true,
     variants: [{ file: 'site-hero.html', label: 'Loader, Active Peak and Metrics as one scene' },
@@ -42,24 +63,7 @@ export const HOME_SECTIONS = [
     variants: [{ file: 'testimonials-topo.html', label: 'Testimonials — topo' }] },
   { id: 'studio', label: 'Our studio', folder: 'Our studio', nav: 'Studio', navMinor: true,
     variants: [{ file: 'studio-polaroids.html', label: 'Polaroids' }] },
-  { id: 'footer', label: 'Footer', folder: 'Footer', nav: 'Contact',
-    variants: [{ file: 'footer.html', label: 'Footer — skyline' }, { file: 'footer-meadow.html', label: 'Footer — green range' },
-               { file: 'footer-mountain.html', label: 'Footer — snow peak' },
-               { file: 'footer-campfire.html', label: 'Footer — campfire (all references)' },
-               { file: 'footer-society.html', label: 'Footer — window cards' },
-               { file: 'footer-vca.html', label: 'Footer — glowing fire' },
-               { file: 'footer-heron.html', label: 'Footer — blueprint grid' },
-               { file: 'footer-timeline.html', label: 'Footer — timeline of fires' },
-               { file: 'footer-hackfirst.html', label: 'Footer — split screen' },
-               { file: 'footer-cult.html', label: 'Footer — fire diagram' },
-               { file: 'footer-human.html', label: 'Footer — orange field' },
-               { file: 'footer-sylvan.html', label: 'Footer — fires that grow' },
-               { file: 'footer-breaver.html', label: 'Footer — flame band' },
-               { file: 'footer-jijo.html', label: 'Footer — dusk' },
-               { file: 'footer-pengon.html', label: 'Footer — halftone camp' },
-               { file: 'footer-dithered.html', label: 'Footer A — campfire, dithered' },
-               { file: 'footer-contour-fire.html', label: 'Footer B — contour ridge fire' },
-               { file: 'footer-analytical.html', label: 'Footer C — analytical campfire' }] },
+  FOOTER,
 ];
 
 export const ABOUT_SECTIONS = [
@@ -71,24 +75,7 @@ export const ABOUT_SECTIONS = [
     variants: [{ file: 'about-foundations.html', label: 'About us — foundations' }] },
   { id: 'about-team', label: 'Team', folder: 'About us — team', nav: 'Team',
     variants: [{ file: 'about-team.html', label: 'About us — team' }] },
-  { id: 'footer', label: 'Footer', folder: 'Footer', nav: 'Contact',
-    variants: [{ file: 'footer.html', label: 'Footer — skyline' }, { file: 'footer-meadow.html', label: 'Footer — green range' },
-               { file: 'footer-mountain.html', label: 'Footer — snow peak' },
-               { file: 'footer-campfire.html', label: 'Footer — campfire (all references)' },
-               { file: 'footer-society.html', label: 'Footer — window cards' },
-               { file: 'footer-vca.html', label: 'Footer — glowing fire' },
-               { file: 'footer-heron.html', label: 'Footer — blueprint grid' },
-               { file: 'footer-timeline.html', label: 'Footer — timeline of fires' },
-               { file: 'footer-hackfirst.html', label: 'Footer — split screen' },
-               { file: 'footer-cult.html', label: 'Footer — fire diagram' },
-               { file: 'footer-human.html', label: 'Footer — orange field' },
-               { file: 'footer-sylvan.html', label: 'Footer — fires that grow' },
-               { file: 'footer-breaver.html', label: 'Footer — flame band' },
-               { file: 'footer-jijo.html', label: 'Footer — dusk' },
-               { file: 'footer-pengon.html', label: 'Footer — halftone camp' },
-               { file: 'footer-dithered.html', label: 'Footer A — campfire, dithered' },
-               { file: 'footer-contour-fire.html', label: 'Footer B — contour ridge fire' },
-               { file: 'footer-analytical.html', label: 'Footer C — analytical campfire' }] },
+  FOOTER,
 ];
 
 /* F37 everywhere, and only the landing's own navbar */

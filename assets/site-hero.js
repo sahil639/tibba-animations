@@ -33,7 +33,7 @@ const ACCENT = '#FF4B1F';
 const SKIP = /[?&]noloader\b/.test(location.search);
 
 export const SITE_HERO_CONFIG = {
-  loader: { duration: 2.6, hold: 0.1, stutter: 0.3, band: 3.0, ghost: 0.1, glow: 0.7 },
+  loader: { duration: 2.4, hold: 0.1, stutter: 0.3, band: 3.0, ghost: 0.1, glow: 0.7 },
   intro: { duration: 1.2 },          // s: the flight from the plan down into the hero
   lock: { from: 0.0, to: 0.55 },     // share of the scroll the turn-aside takes
   /* the boxes open as soon as the turn is under way — no empty beat between
@@ -88,8 +88,16 @@ function tellShell() {
 }
 if (phase === 'hero') { document.body.classList.add('ld-gone', 'hero-in'); scene.setFill(null); clearInterval(coordTimer); tellShell(); }
 
+/* the loader's clock starts on its first drawn frame, not when the script
+   ran: building the terrain takes a moment, and a clock started before it
+   would have spent most of the 2.4s on a blank screen */
+let clockStarted = false, ldClock = 0, ldLast = 0;
 function loaderFrame(now) {
-  const e = (now - t0) / 1000;
+  if (!clockStarted) { clockStarted = true; t0 = now; ldClock = 0; ldLast = now; }
+  /* and it only counts time it was on screen for: a stalled frame (the
+     page busy elsewhere) advances it by one frame, not by the stall */
+  ldClock += Math.min(1 / 30, (now - ldLast) / 1000); ldLast = now;
+  const e = ldClock;
   const p = surge(clamp01(e / C.loader.duration));
   scene.setFill(p, { band: C.loader.band, ghost: C.loader.ghost, glow: C.loader.glow });
   const pct = Math.round(p * 100);
@@ -268,7 +276,7 @@ requestAnimationFrame(frame);
   bind('in', v => { C.intro.duration = v; }); bind('oa', v => { C.metrics.openAt = v; C.metrics.closeBelow = Math.max(0, v - .04); });
   bind('lt', v => { C.lock.to = v; });
   q('s-rp').addEventListener('click', () => {
-    scrollTo(0, 0); phase = 'loading'; t0 = performance.now(); intro = 0; closeCard();
+    scrollTo(0, 0); phase = 'loading'; clockStarted = false; t0 = performance.now(); intro = 0; closeCard();
     document.body.classList.remove('ld-gone', 'hero-in', 'ld-done');
     clearInterval(coordTimer); coordTimer = setInterval(pushCoord, 260);
   });

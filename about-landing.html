@@ -32,9 +32,12 @@
 
 <script type="module">
   import { mountSite } from './assets/site-shell.js';
-  import { ABOUT_SECTIONS, ABOUT_LINKS, resolveLayout, sectionsFor } from './assets/site-sections.js';
+  import { ABOUT_SECTIONS, ABOUT_LINKS, HOME_SECTIONS, loadLayout, resolveLayout, sectionsFor } from './assets/site-sections.js';
+  /* the same footer as the home page: whichever one it is set to show */
+  const homeFooter = loadLayout(HOME_SECTIONS).find(e => e.id === 'footer');
+  const layout = resolveLayout(null, ABOUT_SECTIONS).map(e => e.id === 'footer' && homeFooter ? { ...e, variant: homeFooter.variant } : e);
   window.tibba = mountSite({
-    sections: sectionsFor(resolveLayout(null, ABOUT_SECTIONS), ABOUT_SECTIONS),
+    sections: sectionsFor(layout, ABOUT_SECTIONS),
     home: 'final-website-v2.html',
     links: ABOUT_LINKS,
   });

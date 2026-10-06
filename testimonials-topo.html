@@ -118,6 +118,8 @@ a { color: inherit; text-decoration: none; }
   /* the quotes as a row of cards the hand drags across — the primary way
      through them; chips and arrows follow along and move the row too */
   .q { display: none; }
+  /* no client switcher: the cards are the way through */
+  .idx ol { display: none; }
   .qtrack { position: relative; z-index: 2; margin: 30px calc(var(--gut) * -1) 0; padding: 0 var(--gut); display: flex; gap: 12px;
     overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 var(--gut); overscroll-behavior-x: contain;
     -webkit-overflow-scrolling: touch; scrollbar-width: none; touch-action: pan-x pan-y; }
