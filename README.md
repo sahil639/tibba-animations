@@ -373,7 +373,7 @@ ready-to-paste literal — paste it over the object to make them the defaults.
 | Polaroids | `POLAROID_CONFIG` (`studio-polaroids.html`) | `scale`, `baseWidth`, `shadow`, `spring` (stiffness, damping, stagger, travel, spin), `cards[i]` = x / y / r. **Bake layout** saves to `localStorage` (`tibba.polaroids.layout`) and copies the literal |
 | Footer — green range | `MEADOW_CONFIG` (`assets/footer-meadow.js`) | `mountains` (height, subdivisions, peaks, noise, variation, seed), `moss`, `interaction` (intensity, radius, follow, parallax), `animation` (speed, wind) |
 | About — description | `DESCRIPTION_CONFIG` + `R` (`about-description.html`) | `maxWidth` (vw), `distance` (vh; `null` = auto), `startAt`; the unit / timing / look dials |
-| About — hero | `HERO_CONFIG` (`about-hero.html`) | the aim line's word reveal: delay, duration, stagger, and the resting look |
+| About — hero | `STONE` (`assets/about-stone.js`), `AIM` (`about-hero.html`) | the stone: cut depth, rough sides, grain, lean to pointer, raking light, idle float; the aim line's word reveal |
 | About — team | `TEAM_CONFIG` (`about-team.html`) | `back` / `front` mountain width, x, y, peak, levels; `person.height`; `dither` intensity, cell, duration, contrast, colours; `hover.part` |
 | About — campsite | `CAMPSITE_CONFIG` (`assets/campsite.js`) | `smoke` (height, speed, spiral, spread, opacity, count), `loops` (flicker, tent breath, embers, wind), `scene` (scale, offsetX/Y), `interaction`, `overflow` |
 | About — foundations | `FOUNDATION_CONFIG` (`about-foundations.html`) | `tilt` (max, responsiveness, perspective), `depth` per layer, `shadow` (depth, blur, opacity), `glare`, `entrance` (duration, ease, stagger) |

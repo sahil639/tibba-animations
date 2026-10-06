@@ -270,7 +270,8 @@ export function mountSummitsV2({ layout = 'cards' } = {}) {
 
     const fi = Math.max(0, Math.min(N - 1.0001, focus)), i0 = Math.floor(fi), i1 = Math.min(N - 1, i0 + 1);
     const ft = fi - i0, fs = ft * ft * (3 - 2 * ft);
-    const idx = Math.round(focus);
+    if (!Number.isFinite(focus)) focus = focusTarget = 0;   // never index past the four
+    const idx = Math.max(0, Math.min(N - 1, Math.round(focus)));
     if (idx !== shown) {
       shown = idx; showCase(idx); scene.light(idx);
       trails.forEach((t, k) => { t.alphaT = k === idx ? 1 : C.path.dim; if (k !== idx && t.state === 'waiting') t.state = 'idle'; });

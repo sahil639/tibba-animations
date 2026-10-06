@@ -39,7 +39,7 @@ export const SITE_HERO_CONFIG = {
   /* the boxes open as soon as the turn is under way — no empty beat between
      the peak stepping aside and the numbers arriving — and close fast, and
      fade with the turn, when scrolling back */
-  metrics: { openAt: 0.1, closeBelow: 0.06, stagger: 0.09, open: 0.75, close: 0.3 },
+  metrics: { openAt: 0.14, closeBelow: 0.1, stagger: 0.09, open: 0.75, close: 0.3 },
 };
 const C = SITE_HERO_CONFIG;
 
@@ -234,10 +234,10 @@ function frame(now) {
   scene.lockTo(k);
   stage.style.setProperty('--lock', k.toFixed(3));
   /* the hero copy gives way as the peak turns aside */
-  stage.style.setProperty('--hero-out', clamp01(k * 4).toFixed(3));
+  stage.style.setProperty('--hero-out', clamp01(k * 5).toFixed(3));
   /* the boxes are only ever there once the hero copy has gone: they fade
      with the turn, so scrolling back never leaves them over the hero */
-  stage.style.setProperty('--m-on', clamp01((k - 0.08) / 0.22).toFixed(3));
+  stage.style.setProperty('--m-on', clamp01((k - 0.2) / 0.2).toFixed(3));
   scene.setHover(intro > 0.6);
   ringsLive = intro >= 1 && k < 0.25;
   if (!ringsLive && cardOpen) closeCard();

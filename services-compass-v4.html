@@ -439,6 +439,10 @@
     if (phone.matches) {
       const r = foot.getBoundingClientRect(), pr = page.getBoundingClientRect(), g = gap();
       dock = r.top < g && pr.bottom > g + bar.offsetHeight + 60;
+      /* in the site the page stops scrolling at its foot and the frame
+         itself slides away: let go as soon as it starts to */
+      let fe = null; try { fe = window.frameElement; } catch (e) {}
+      if (dock && fe) dock = fe.getBoundingClientRect().top > -24;
       document.documentElement.style.setProperty('--dock-top', g + 'px');
     }
     if (dock === foot.classList.contains('docked')) return;
@@ -447,6 +451,7 @@
   }
   addEventListener('scroll', check, { passive: true });
   addEventListener('resize', check);
+  try { if (window.parent !== window) window.parent.addEventListener('scroll', check, { passive: true }); } catch (e) {}
   check();
 })();
 </script>
