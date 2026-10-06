@@ -280,7 +280,11 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
   addEventListener('resize', () => { blocks.forEach(b => b.loaded && measure(b)); sync(true); });
 
   /* ── build, and rebuild (the Modular hub) ────────────────────────── */
+  /* a phone takes a section's `mobile` page in place of its default one */
+  const forPhone = list => !matchMedia('(max-width: 760px)').matches ? list : list.map(s =>
+    s.mobile && s.variants && s.file === s.variants[0].file ? { ...s, file: s.mobile.file, frame: s.mobile.frame || s.frame } : s);
   function build(list) {
+    list = forPhone(list);
     sections = list;
     blocks.forEach(b => { if (b.ro) b.ro.disconnect(); });
     stack.innerHTML = '';

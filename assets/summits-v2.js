@@ -231,6 +231,8 @@ export function mountSummitsV2({ layout = 'cards' } = {}) {
     const nm = $('#tx-name'), ct = $('#tx-count');
     if (nm) { nm.textContent = c.name; nm.style.color = c.colour; nm.parentElement.classList.remove('swap'); void nm.offsetWidth; nm.parentElement.classList.add('swap'); }
     if (ct) ct.innerHTML = `<b>${pad(i)}</b>&thinsp;/&thinsp;${pad(N - 1)}`;
+    const tt = $('#tx-title');
+    if (tt) { tt.innerHTML = c.title; tt.style.setProperty('--c', c.colour); tt.parentElement.classList.remove('swap'); void tt.offsetWidth; tt.parentElement.classList.add('swap'); }
   }
 
   /* ── the focus: chased, and settling on a summit when the scroll rests ── */

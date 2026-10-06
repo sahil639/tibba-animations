@@ -12,7 +12,9 @@
      folder    the playground folder it comes from
      variants  [{ file, label }] — the page(s) that can fill it
      frame     the height of the window it is shown in (default 100vh);
-               Brands sits in 75vh so it reads as contained, not a screen
+               Brands sits in 85vh so it reads as contained, not a screen
+     mobile    { file, frame } used in place of the default variant on a
+               phone (≤760px), where that variant's layout does not fit
      nav       the navbar label that scrolls to it (optional)
      gate      true: scrolling waits for the page's "ready" (the loader)
 
@@ -25,7 +27,9 @@ export const HOME_SECTIONS = [
   { id: 'opening', label: 'Loader → Hero → Metrics', folder: 'Loader · Hero section · Metrics', nav: null, gate: true,
     variants: [{ file: 'site-hero.html', label: 'Loader, Active Peak and Metrics as one scene' },
                { file: 'site-hero.html?noloader', label: 'Same, without the loader' }] },
-  { id: 'brands', label: 'Brands', folder: 'Brands section', frame: '75vh',
+  { id: 'brands', label: 'Brands', folder: 'Brands section', frame: '85vh',
+    /* a phone gets the mosaic's own rows (the grid does not fit one) */
+    mobile: { file: 'brands-mosaic.html', frame: '100vh' },
     variants: [{ file: 'brands.html', label: 'Brands' }, { file: 'brands-mosaic.html', label: 'Brands — mosaic' }] },
   { id: 'summits', label: 'Our summits', folder: 'Our summits', nav: 'Work',
     variants: [{ file: 'summits-v3.html', label: 'Summits v3' }, { file: 'summits-v2.html', label: 'Summits v2' }, { file: 'summits-four.html', label: 'Four Summits' }] },
@@ -101,8 +105,10 @@ export const PAGE_CSS = {
   'footer-meadow.html': `.panel-tab, .panel-veil, .panel { display: none !important; }`,
   'footer-mountain.html': `.panel-tab, .panel-veil, .panel { display: none !important; }`,
   'case-studies-reel.html': `.after { display: none !important; }`,
-  /* the plain grid, fitted to the section's 75vh window */
-  'brands.html': `#brands { height: 75vh !important; min-height: 0 !important; }`,
+  /* the plain grid, fitted to the section's 85vh window; the closing
+     question on a grey tile */
+  'brands.html': `#brands { height: 85vh !important; min-height: 0 !important; }
+    .tile.cta { background: #1d1d20 !important; } .tile.cta:hover { background: #232327 !important; }`,
   'studio-polaroids.html': `#reset { display: none !important; }`,
 };
 

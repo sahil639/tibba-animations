@@ -333,19 +333,33 @@
          on body would, once html's overflow is set) or sticky stages break */
       'body{overflow:visible!important}';
     document.head.appendChild(st);
-    window.wb = { adopt: function () {} };
     var up = window.parent;
+    /* scrollTo(y) in the page's own coordinates: inside the site shell the
+       outer page is what scrolls, so the request is passed up, offset by
+       where this page's block starts */
+    window.wb = { adopt: function () {}, scrollTo: function (y, smooth) {
+      var fe = null; try { fe = window.frameElement; } catch (e) {}
+      var sec = fe && fe.closest && fe.closest('.site-block');
+      var how = smooth === false ? 'auto' : 'smooth';
+      if (sec && up && up !== window) up.scrollTo({ top: sec.offsetTop + y, behavior: how });
+      else window.scrollTo({ top: y, behavior: how });
+    } };
     if (!up || up === window) return;
     window.addEventListener('wheel', function (e) {
       if (e.ctrlKey) return;
       e.preventDefault();
       up.scrollBy(0, e.deltaMode === 1 ? e.deltaY * 32 : e.deltaY);
     }, { passive: false, capture: true });
-    var ty = null;
-    window.addEventListener('touchstart', function (e) { ty = e.touches[0].clientY; }, { passive: true, capture: true });
+    /* a gesture that sets off sideways (a swipe through a row of cards)
+       stays this page's; one that sets off up or down scrolls the site */
+    var ty = null, tx = 0, ty0 = 0, axis = null;
+    window.addEventListener('touchstart', function (e) { ty = ty0 = e.touches[0].clientY; tx = e.touches[0].clientX; axis = null; }, { passive: true, capture: true });
     window.addEventListener('touchmove', function (e) {
       if (ty === null) return;
-      var y = e.touches[0].clientY; up.scrollBy(0, ty - y); ty = y;
+      var y = e.touches[0].clientY, x = e.touches[0].clientX;
+      if (!axis && (Math.abs(x - tx) > 8 || Math.abs(y - ty0) > 8)) axis = Math.abs(x - tx) > Math.abs(y - ty0) ? 'x' : 'y';
+      if (axis !== 'x') up.scrollBy(0, ty - y);
+      ty = y;
     }, { passive: true, capture: true });
     window.addEventListener('touchend', function () { ty = null; }, { passive: true, capture: true });
   }

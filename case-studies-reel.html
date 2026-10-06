@@ -112,6 +112,23 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
   .reel-cap .ds { font-size: 12px; max-width: 34ch; }
 }
 @media (max-width: 600px) { .reel-cap .ds { display: none; } .cs-head h1 { font-size: 22px; } }
+/* ── phones and tablets: the case's title in the open room between the
+   section's heading and the reel, not inside the plate. Where that room
+   is too short for it (a short landscape screen), it goes back inside. */
+.cs-mid { display: none; }
+@media (max-width: 1023px) {
+  .cs-mid { display: block; position: absolute; z-index: 3; left: var(--gut); right: var(--gut); top: var(--mid-top, 40%); pointer-events: none; }
+  .cs-mid .nm { color: #fff; font-size: clamp(26px, 7.4vw, 40px); letter-spacing: -.03em; line-height: 1.02; }
+  .cs-mid .ds { margin-top: 10px; color: var(--ink-warm); font-size: 13px; line-height: 1.5; max-width: 40ch; opacity: .78; }
+  .cs-mid .tg { margin-top: 10px; font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); }
+  .cs-mid > * { overflow: hidden; }
+  .cs-mid.swap > * > span { display: block; animation: mid-in .6s cubic-bezier(.16,.62,.36,1) both; }
+  .cs-mid.swap .ds > span { animation-delay: .05s; } .cs-mid.swap .tg > span { animation-delay: .1s; }
+  #reel:not(.cap-inside) .reel-cap { display: none; }
+  #reel.cap-inside .cs-mid { display: none; }
+  .reel-item { cursor: pointer; }
+}
+@keyframes mid-in { from { transform: translateY(105%); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .reel-cap, .reel-cap > * { transition: none !important; } }
 </style>
 <link rel="stylesheet" href="assets/tune.css">
@@ -127,6 +144,7 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
       </div>
       <p class="cs-count"><b id="cs-n">01</b>of <span id="cs-t">06</span></p>
     </header>
+    <div class="cs-mid" aria-hidden="true"><p class="nm"><span></span></p><p class="ds"><span></span></p><p class="tg"><span></span></p></div>
     <div class="reel-strip"></div>
     <p class="reel-live" role="status" aria-live="polite"></p>
     <div class="tape" aria-hidden="true"><svg></svg></div>
@@ -249,8 +267,14 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
   sizeCaps(); addEventListener('resize', sizeCaps);
 
   /* ── the counter and the camp follow the active plate ────────────────── */
+  const mid = document.querySelector('.cs-mid');
   function showCase(i) {
     if (i === shown) return; shown = i;
+    const c = CASES[i];
+    mid.querySelector('.nm span').textContent = c.label;
+    mid.querySelector('.ds span').textContent = c.ds;
+    mid.querySelector('.tg span').textContent = c.tg;
+    mid.classList.remove('swap'); void mid.offsetWidth; mid.classList.add('swap');
     document.getElementById('cs-n').textContent = pad(i);
     camps.forEach((g, k) => g.classList.toggle('on', k === i));
   }
@@ -296,11 +320,33 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
     svg.style.transform = `translate3d(${shift.toFixed(1)}px, 0, 0)`;
     altEl.textContent = String(Math.round(alt)).padStart(4, '0');
   }
+  /* the room between the heading and the reel: the title is set in it,
+     centred, when it fits; otherwise back inside the plate */
+  function placeMid() {
+    if (innerWidth > 1023) return;
+    const head = document.querySelector('.cs-head').getBoundingClientRect();
+    const strip = root.querySelector('.reel-strip').getBoundingClientRect();
+    const shot = root.querySelector('.reel-shot');
+    const top = strip.bottom - (shot ? shot.offsetHeight : strip.height);
+    const room = top - head.bottom, h = mid.offsetHeight || 120;
+    const fits = room >= h + 28;
+    root.classList.toggle('cap-inside', !fits);
+    if (fits) root.style.setProperty('--mid-top', Math.round(head.bottom + (room - h) / 2) + 'px');
+  }
+  /* tap a plate (or its label) to travel to it */
+  items.forEach((it, i) => it.addEventListener('click', () => {
+    const travel = scope.offsetHeight - innerHeight;
+    const y = scope.offsetTop + travel * (i / (N - 1));
+    if (window.wb && window.wb.scrollTo) window.wb.scrollTo(y); else scrollTo({ top: y, behavior: 'smooth' });
+  }));
   buildTape();
   addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('resize', placeMid);
   addEventListener('resize', () => { buildTape(); onScroll(); });
   onScroll();
   onFrame(lastA);
+  placeMid(); setTimeout(placeMid, 300);
+  if (document.fonts) document.fonts.ready.then(placeMid);
 
   /* the panel: the reel's own easing presets, and the tape's scale */
   const el = document.createElement('div');
