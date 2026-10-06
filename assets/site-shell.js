@@ -70,10 +70,10 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
   /* ── the navbar ───────────────────────────────────────────────────
      The same pill on every page — Work, Services, About and the mark —
      hung from the top edge, with the black strip carrying the studio's
-     line along its foot. Below 760px the row folds to mark · Menu · toggle,
-     and the toggle opens a drawer: the links, and beside them a wireframe
-     of the whole site that keeps scrolling through it, on a loop, from
-     the section the visitor is in. */
+     line along its foot. Below 760px the pill narrows to mark · Menu ·
+     toggle (the toggle opens the links beneath it), and beside it hangs a
+     second, smaller panel, as tall as the pill: a wireframe of the whole
+     site that scrolls with the page, the section in view marked. */
   const header = document.getElementById('ca-header');
   function navItems() {
     if (links) return links.map(l => ({ label: l.label, href: l.href || '#' + l.target, target: l.target }));
@@ -82,6 +82,7 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
   }
   let logo, wire = null;
   function drawNav() {
+    if (wire) wire.stop();
     mountCaHeader(header, { nav: navItems(), announcement, home, mark: '<span class="site-mark" aria-hidden="true"></span>' });
     header.classList.add('site-nav');
     logo = mountLogoMorph(header.querySelector('.site-mark'), LOGO_MORPH);
@@ -89,22 +90,23 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
     const row = header.querySelector('.ca-row');
     row.insertAdjacentHTML('beforeend', `<button class="site-menu" type="button" aria-expanded="false" aria-controls="site-drawer">
       <span class="site-menu-word">Menu</span><span class="site-menu-tg" aria-hidden="true"><i></i><i></i></span></button>`);
-    /* the drawer: the links, big, and the wireframe */
+    /* the drawer: the links */
     const items = navItems().map((it, i) => `<li><a href="${it.href}"${it.target ? ` data-target="${it.target}"` : ''}><small>0${i + 1}</small>${it.label}</a></li>`).join('');
     row.insertAdjacentHTML('afterend', `<div class="site-drawer" id="site-drawer"><div class="site-drawer-in">
       <ol class="site-drawer-list">${items}</ol>
-      <div class="site-wire" aria-hidden="true"><div class="site-wire-track"></div></div>
     </div></div>`);
-    wire = mountWire(header.querySelector('.site-wire'));
+    /* the wireframe, in its own panel to the pill's right */
+    header.insertAdjacentHTML('beforeend', `<div class="site-wire" title="Where you are on the page"><div class="site-wire-in"><div class="site-wire-track"></div></div></div>`);
+    wire = mountWire(header.querySelector('.site-wire'), header.querySelector('.ca-panel'));
   }
   drawNav();
   const menu = open => {
     header.classList.toggle('open', open);
     const b = header.querySelector('.site-menu'); if (b) b.setAttribute('aria-expanded', open);
-    if (wire) wire.run(open);
   };
   header.addEventListener('click', e => {
     if (e.target.closest('.site-menu')) { menu(!header.classList.contains('open')); return; }
+    if (e.target.closest('.site-wire')) { const id = wire && wire.at(e.clientY); if (id) { menu(false); goTo(id); } return; }
     const a = e.target.closest('[data-target]');
     if (a) { e.preventDefault(); menu(false); goTo(a.dataset.target); return; }
     if (e.target.closest('.ca-home') && home === '#') { e.preventDefault(); menu(false); goTo(null); }
@@ -112,42 +114,67 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
   addEventListener('keydown', e => { if (e.key === 'Escape') menu(false); });
 
   /* the wireframe: one small sketch per section, in the site's order and
-     roughly in its proportions, drawn twice so the loop is seamless */
-  function mountWire(host) {
-    const track = host.querySelector('.site-wire-track');
-    let raf = 0, y = 0, total = 0, last = 0, tops = [];
+     roughly in its proportions. Drawn at 150px wide and scaled into the
+     panel; scrolled so the point of the page at the middle of the screen
+     sits at the middle of the panel — section by section, so a long pinned
+     section and a short one both read at their own pace. */
+  const WIRE_W = 150;
+  function mountWire(host, panel) {
+    const box = host.querySelector('.site-wire-in'), track = host.querySelector('.site-wire-track');
+    let raf = 0, y = 0, ty = 0, scale = .5, total = 0, parts = [], drawn = '';
     function draw() {
       const vh = innerHeight || 800;
-      const one = blocks.map(b => {
+      const key = blocks.map(b => b.s.id + ':' + Math.round((b.H || b.sec.offsetHeight) / 50)).join();
+      if (key === drawn) return; drawn = key;
+      track.innerHTML = blocks.map(b => {
         const H = b.H || b.sec.offsetHeight || vh;
         const k = Math.min(2.4, Math.max(b.s.frame ? .7 : 1, H / vh * .45));
         return `<div class="wf wf-${b.s.id}" data-id="${b.s.id}" style="--k:${k.toFixed(2)}">${WIRES[b.s.id] || WIRES.generic}<b>${b.s.label}</b></div>`;
       }).join('');
-      track.innerHTML = `<div class="wf-run">${one}</div><div class="wf-run">${one}</div>`;
-      const run = track.firstElementChild;
-      total = run.offsetHeight;
-      tops = [...run.children].map(el => [el.dataset.id, el.offsetTop]);
+      total = track.offsetHeight;
+      parts = [...track.children].map(el => ({ id: el.dataset.id, top: el.offsetTop, h: el.offsetHeight }));
+      mark();
     }
     function mark() {
       track.querySelectorAll('.wf').forEach(el => el.classList.toggle('here', !!current && el.dataset.id === current.s.id));
       header.querySelectorAll('.site-drawer-list a').forEach(a => a.toggleAttribute('aria-current', !!current && a.dataset.target === current.s.id));
     }
-    function frame(now) {
-      const dt = Math.min(.05, (now - last) / 1000); last = now;
-      y = (y + dt * 26) % (total || 1);
-      track.style.transform = `translate3d(0,${-y}px,0)`;
-      raf = requestAnimationFrame(frame);
+    /* where the page is, in the wireframe's own pixels */
+    function target() {
+      const c = scrollY + innerHeight / 2, view = box.clientHeight / scale;
+      let w = 0;
+      for (let i = 0; i < blocks.length; i++) {
+        const top = blocks[i].sec.offsetTop, h = blocks[i].sec.offsetHeight || 1, p = parts[i];
+        if (!p) break;
+        if (c < top + h || i === blocks.length - 1) { w = p.top + Math.min(1, Math.max(0, (c - top) / h)) * p.h; break; }
+      }
+      return Math.max(0, Math.min(total - view, w - view / 2));
     }
+    function frame() {
+      raf = 0;
+      y += (ty - y) * .22;
+      if (Math.abs(ty - y) < .3) y = ty; else raf = requestAnimationFrame(frame);
+      track.style.transform = `scale(${scale}) translate3d(0,${(-y).toFixed(1)}px,0)`;
+    }
+    function follow() {
+      if (!host.offsetWidth) return;                          // hidden: wider than a phone
+      scale = box.clientWidth / WIRE_W;
+      draw();
+      ty = target();
+      if (!raf) raf = requestAnimationFrame(frame);
+    }
+    /* as tall as the pill, whatever the pill is doing (the drawer opening) */
+    const ro = new ResizeObserver(() => { host.style.height = panel.offsetHeight + 'px'; follow(); });
+    ro.observe(panel);
     return {
-      run(on) {
-        cancelAnimationFrame(raf);
-        if (!on) return;
-        draw(); mark();
-        const t = current && tops.find(([id]) => id === current.s.id);
-        y = t ? Math.max(0, t[1] - 8) : 0;
-        last = performance.now(); raf = requestAnimationFrame(frame);
+      follow, mark,
+      redraw() { drawn = ''; follow(); },
+      at(clientY) {
+        const r = box.getBoundingClientRect(), wy = (clientY - r.top) / scale + y;
+        const p = parts.find(q => wy >= q.top && wy < q.top + q.h);
+        return p && p.id;
       },
-      mark,
+      stop() { ro.disconnect(); cancelAnimationFrame(raf); },
     };
   }
 
@@ -214,13 +241,14 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
   try { hcache = JSON.parse(localStorage.getItem(HKEY) || '{}'); } catch {}
   const hk = s => s.file.split('?')[0] + '@' + innerWidth + 'x' + innerHeight;
   function remember(b) { hcache[hk(b.s)] = b.H; try { localStorage.setItem(HKEY, JSON.stringify(hcache)); } catch {} }
+  let wireT = 0;
   function frameH(b) { return b.sec.querySelector('.sticky').offsetHeight || innerHeight; }
   function measure(b) {
     try {
       const d = b.frame.contentDocument; if (!d || !d.body) return;
       b.FH = frameH(b);
       const h = Math.max(d.documentElement.scrollHeight, d.body.scrollHeight, b.FH);
-      if (Math.abs(h - b.H) > 2) { b.H = h; b.sec.style.height = h + 'px'; remember(b); }
+      if (Math.abs(h - b.H) > 2) { b.H = h; b.sec.style.height = h + 'px'; remember(b); clearTimeout(wireT); wireT = setTimeout(() => wire && wire.redraw(), 250); }
     } catch {}
   }
   function inject(b) {
@@ -273,6 +301,7 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
       header.querySelectorAll('.ca-link[data-target]').forEach(a => a.toggleAttribute('aria-current', !!now && a.dataset.target === now.s.id));
       if (wire) wire.mark();
     }
+    if (wire) wire.follow();
     if (logo) logo.to(Math.floor(scrollY / (vh * C.logoStep)));
   }
   let ticking = false;
@@ -283,7 +312,9 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
   /* a phone takes a section's `mobile` page in place of its default one */
   const forPhone = list => !matchMedia('(max-width: 760px)').matches ? list : list.map(s =>
     s.mobile && s.variants && s.file === s.variants[0].file ? { ...s, file: s.mobile.file, frame: s.mobile.frame || s.frame } : s);
+  let given = [];
   function build(list) {
+    given = list;
     list = forPhone(list);
     sections = list;
     blocks.forEach(b => { if (b.ro) b.ro.disconnect(); });
@@ -300,6 +331,14 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
     if (!keepScroll) scrollTo(0, 0); else scrollTo(0, Math.min(y, document.documentElement.scrollHeight));
     sync(true);
   }
+
+  /* crossing the phone width (a rotated tablet, the Modular hub's device
+     switch) swaps those sections over, where the page stands, without
+     replaying the loader */
+  matchMedia('(max-width: 760px)').addEventListener('change', () => {
+    if (!given.some(s => s.mobile)) return;
+    rebuild(given.map(s => s.gate && !/noloader/.test(s.file) ? { ...s, file: s.file + (s.file.includes('?') ? '&' : '?') + 'noloader' } : s), true);
+  });
 
   /* ── refresh: every section again, from source, where it stands ──── */
   const rf = document.getElementById('site-refresh');

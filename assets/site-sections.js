@@ -29,7 +29,7 @@ export const HOME_SECTIONS = [
                { file: 'site-hero.html?noloader', label: 'Same, without the loader' }] },
   { id: 'brands', label: 'Brands', folder: 'Brands section', frame: '85vh',
     /* a phone gets the mosaic's own rows (the grid does not fit one) */
-    mobile: { file: 'brands-mosaic.html', frame: '100vh' },
+    mobile: { file: 'brands-mosaic.html', frame: '78vh' },
     variants: [{ file: 'brands.html', label: 'Brands' }, { file: 'brands-mosaic.html', label: 'Brands — mosaic' }] },
   { id: 'summits', label: 'Our summits', folder: 'Our summits', nav: 'Work',
     variants: [{ file: 'summits-v3.html', label: 'Summits v3' }, { file: 'summits-v2.html', label: 'Summits v2' }, { file: 'summits-four.html', label: 'Four Summits' }] },

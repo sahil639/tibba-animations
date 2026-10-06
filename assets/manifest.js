@@ -30,7 +30,7 @@ window.TIBBA_SITE = {
     pages: [
       { id: 'final-website', label: 'Final website', file: 'final-website.html',
         note: 'Loader, hero and its three scroll states, metrics, brands, the four-summit walk, services, testimonials', state: 'live' },
-      { id: 'final-website-v2', updated: '2026-10-06T18:00:00+07:00', change: "Navbar hung from the top with handles, after the loader; phone menu with a site wireframe; hero and stats in one scroll", label: 'Final Website v2', file: 'final-website-v2.html',
+      { id: 'final-website-v2', updated: '2026-10-06T22:00:00+07:00', change: "Phones: narrower navbar with a scroll-synced site wireframe beside it; brands back to the four drifting rows", label: 'Final Website v2', file: 'final-website-v2.html',
         note: 'The live sections as one website: loader into Active Peak into Metrics, Brands, Summits v3, case reel, Compass v4, testimonials, polaroids, footer; one navbar, refresh bottom left', state: 'live' },
       { id: 'about-landing', updated: '2026-10-06T18:00:00+07:00', change: "The new navbar; the stone hero", label: 'About us — landing', file: 'about-landing.html',
         note: 'About hero, description, foundations, team and footer as one page, with the same navbar and transitions as the home landing', state: 'live' },
