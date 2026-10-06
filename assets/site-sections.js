@@ -106,8 +106,12 @@ export const PAGE_CSS = {
   'studio-polaroids.html': `#reset { display: none !important; }`,
 };
 
-/* the ticker along the navbar's foot, in the studio's voice */
-export const TICKER = 'Tibba — a higher place  ·  Design for founders who climb  ·  30+ products shipped  ·  $400M unlocked for our clients  ·  Now taking on new climbs for 2027';
+/* the strip along the navbar's foot: working with the studio */
+export const TICKER = 'Have a summit in mind? Let’s climb it together  ·  Now taking on new projects for 2027  ·  Write to hello@tibba.design  ·  Founders, product teams, first launches and redesigns';
+
+/* the navbar's three links, the same on every page */
+export const HOME_LINKS = [{ label: 'Work', target: 'summits' }, { label: 'Services', target: 'services' }, { label: 'About', href: 'about-landing.html' }];
+export const ABOUT_LINKS = [{ label: 'Work', href: 'final-website-v2.html#summits' }, { label: 'Services', href: 'final-website-v2.html#services' }, { label: 'About', target: 'about-hero' }];
 
 /* the Modular hub's layout, stored per browser: [{ id, on, variant }] */
 export const LAYOUT_KEY = 'tibba.site.home';

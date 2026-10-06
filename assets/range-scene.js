@@ -1533,9 +1533,15 @@ function buildContourGeometry() {
      squares returns nothing for it and counting it leaves two. Picking the
      three highest rings that were actually BUILT takes whatever the field
      gave, and is right whether the summit lands on a level or between two. */
-  const crown = lines.filter(L => L.near0 && L.closed && !opts.noStudio)
-                     .sort((a, b) => b.level - a.level)
-                     .slice(0, CT.ACCENT_TOP);
+  /* Not filtered on `closed`: smoothing an open polyline can pull its two
+     ends a step apart, so a summit ring that plainly reads as a loop can
+     fail that test — and the accent then skipped it, landing on rings 2, 3
+     and 5. One ring per level (the widest), the topmost levels first. */
+  const byLevel = new Map();
+  lines.filter(L => L.near0 && !opts.noStudio).forEach(L => {
+    const o = byLevel.get(L.level); if (!o || L.cr > o.cr) byLevel.set(L.level, L);
+  });
+  const crown = [...byLevel.values()].sort((a, b) => b.level - a.level).slice(0, CT.ACCENT_TOP);
   crown.forEach((L, i) => {
     L.ring = i + 1;                                   // 1 is the topmost
     ACCENT_RINGS[i] = { x: L.cx, z: L.cz, y: L.level, r: L.cr };

@@ -38,12 +38,12 @@
 
 <script type="module">
   import { mountSite } from './assets/site-shell.js';
-  import { HOME_SECTIONS, loadLayout, resolveLayout, sectionsFor } from './assets/site-sections.js';
+  import { HOME_SECTIONS, HOME_LINKS, loadLayout, resolveLayout, sectionsFor } from './assets/site-sections.js';
   const layout = /[?&]default\b/.test(location.search) ? resolveLayout(null) : loadLayout();
   window.tibba = mountSite({
     sections: sectionsFor(layout, HOME_SECTIONS),
     home: '#',
-    extraNav: [{ label: 'About', href: 'about-landing.html' }],
+    links: HOME_LINKS,
   });
 </script>
 </body>

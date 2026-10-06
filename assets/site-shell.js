@@ -43,29 +43,113 @@ export const SITE_CONFIG = {
 };
 const C = SITE_CONFIG;
 
-export function mountSite({ sections, nav = [], home = '#', announcement = TICKER, extraNav = [] }) {
+/* the drawer's wireframe: each section as a few strokes (site-shell.css .wf) */
+const L = (w, cls = '') => `<i class="l ${cls}" style="width:${w}%"></i>`;
+const BX = (n, cls = '') => `<span class="bxs ${cls}">${'<i class="bx"></i>'.repeat(n)}</span>`;
+const WIRES = {
+  opening: `<svg class="pk" viewBox="0 0 100 40" preserveAspectRatio="none"><path d="M0 40 L30 18 L44 26 L62 6 L80 22 L100 14"/><path d="M8 40 L32 24 L46 30 L62 14 L78 28 L96 22"/></svg>${L(62, 'big')}${L(40)}`,
+  brands: BX(8, 'g4'),
+  summits: `${L(34)}${BX(4, 'g2 tall')}`,
+  cases: `${L(42)}${BX(3, 'row')}`,
+  services: `${L(38)}<span class="tabs"><i></i><i></i><i></i></span>${BX(1, 'wide')}`,
+  testimonials: `${L(20, 'acc')}${L(80, 'big')}${L(64, 'big')}${L(30)}`,
+  studio: `${L(30)}<span class="pol"><i></i><i></i><i></i></span>`,
+  footer: `${L(70, 'big')}${L(46, 'big')}<span class="fire"></span>${L(90)}`,
+  'about-hero': `<span class="stone"></span>${L(56, 'big')}${L(36)}`,
+  'about-description': `${L(90)}${L(84)}${L(88)}${L(52)}`,
+  'about-foundations': BX(4, 'g2'),
+  'about-team': `${L(28)}${BX(6, 'g3')}`,
+  generic: `${L(60, 'big')}${L(80)}${L(70)}`,
+};
+
+export function mountSite({ sections, nav = [], home = '#', announcement = TICKER, extraNav = [], links = null }) {
   const stack = document.getElementById('stack');
   let version = Date.now().toString(36);
   let blocks = [];
 
-  /* ── the navbar ───────────────────────────────────────────────────── */
+  /* ── the navbar ───────────────────────────────────────────────────
+     The same pill on every page — Work, Services, About and the mark —
+     hung from the top edge, with the black strip carrying the studio's
+     line along its foot. Below 760px the row folds to mark · Menu · toggle,
+     and the toggle opens a drawer: the links, and beside them a wireframe
+     of the whole site that keeps scrolling through it, on a loop, from
+     the section the visitor is in. */
   const header = document.getElementById('ca-header');
   function navItems() {
+    if (links) return links.map(l => ({ label: l.label, href: l.href || '#' + l.target, target: l.target }));
     const fromSections = sections.filter(s => s.nav).map(s => ({ label: s.nav, href: '#' + s.id, target: s.id, minor: !!s.navMinor }));
     return [...fromSections, ...extraNav];
   }
+  let logo, wire = null;
   function drawNav() {
     mountCaHeader(header, { nav: navItems(), announcement, home, mark: '<span class="site-mark" aria-hidden="true"></span>' });
     header.classList.add('site-nav');
     logo = mountLogoMorph(header.querySelector('.site-mark'), LOGO_MORPH);
+    /* the phone's row: Menu and the toggle */
+    const row = header.querySelector('.ca-row');
+    row.insertAdjacentHTML('beforeend', `<button class="site-menu" type="button" aria-expanded="false" aria-controls="site-drawer">
+      <span class="site-menu-word">Menu</span><span class="site-menu-tg" aria-hidden="true"><i></i><i></i></span></button>`);
+    /* the drawer: the links, big, and the wireframe */
+    const items = navItems().map((it, i) => `<li><a href="${it.href}"${it.target ? ` data-target="${it.target}"` : ''}><small>0${i + 1}</small>${it.label}</a></li>`).join('');
+    row.insertAdjacentHTML('afterend', `<div class="site-drawer" id="site-drawer"><div class="site-drawer-in">
+      <ol class="site-drawer-list">${items}</ol>
+      <div class="site-wire" aria-hidden="true"><div class="site-wire-track"></div></div>
+    </div></div>`);
+    wire = mountWire(header.querySelector('.site-wire'));
   }
-  let logo;
   drawNav();
+  const menu = open => {
+    header.classList.toggle('open', open);
+    const b = header.querySelector('.site-menu'); if (b) b.setAttribute('aria-expanded', open);
+    if (wire) wire.run(open);
+  };
   header.addEventListener('click', e => {
+    if (e.target.closest('.site-menu')) { menu(!header.classList.contains('open')); return; }
     const a = e.target.closest('[data-target]');
-    if (a) { e.preventDefault(); goTo(a.dataset.target); return; }
-    if (e.target.closest('.ca-home') && home === '#') { e.preventDefault(); goTo(null); }
+    if (a) { e.preventDefault(); menu(false); goTo(a.dataset.target); return; }
+    if (e.target.closest('.ca-home') && home === '#') { e.preventDefault(); menu(false); goTo(null); }
   });
+  addEventListener('keydown', e => { if (e.key === 'Escape') menu(false); });
+
+  /* the wireframe: one small sketch per section, in the site's order and
+     roughly in its proportions, drawn twice so the loop is seamless */
+  function mountWire(host) {
+    const track = host.querySelector('.site-wire-track');
+    let raf = 0, y = 0, total = 0, last = 0, tops = [];
+    function draw() {
+      const vh = innerHeight || 800;
+      const one = blocks.map(b => {
+        const H = b.H || b.sec.offsetHeight || vh;
+        const k = Math.min(2.4, Math.max(b.s.frame ? .7 : 1, H / vh * .45));
+        return `<div class="wf wf-${b.s.id}" data-id="${b.s.id}" style="--k:${k.toFixed(2)}">${WIRES[b.s.id] || WIRES.generic}<b>${b.s.label}</b></div>`;
+      }).join('');
+      track.innerHTML = `<div class="wf-run">${one}</div><div class="wf-run">${one}</div>`;
+      const run = track.firstElementChild;
+      total = run.offsetHeight;
+      tops = [...run.children].map(el => [el.dataset.id, el.offsetTop]);
+    }
+    function mark() {
+      track.querySelectorAll('.wf').forEach(el => el.classList.toggle('here', !!current && el.dataset.id === current.s.id));
+      header.querySelectorAll('.site-drawer-list a').forEach(a => a.toggleAttribute('aria-current', !!current && a.dataset.target === current.s.id));
+    }
+    function frame(now) {
+      const dt = Math.min(.05, (now - last) / 1000); last = now;
+      y = (y + dt * 26) % (total || 1);
+      track.style.transform = `translate3d(0,${-y}px,0)`;
+      raf = requestAnimationFrame(frame);
+    }
+    return {
+      run(on) {
+        cancelAnimationFrame(raf);
+        if (!on) return;
+        draw(); mark();
+        const t = current && tops.find(([id]) => id === current.s.id);
+        y = t ? Math.max(0, t[1] - 8) : 0;
+        last = performance.now(); raf = requestAnimationFrame(frame);
+      },
+      mark,
+    };
+  }
 
   /* ── smooth travel to a section ──────────────────────────────────── */
   let tween = 0;
@@ -91,6 +175,9 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
   function lock(on) {
     locked = on;
     document.documentElement.classList.toggle('site-locked', on);
+    /* the navbar drops in only once the loader has handed over */
+    if (!on) requestAnimationFrame(() => document.documentElement.classList.add('site-nav-in'));
+    else document.documentElement.classList.remove('site-nav-in');
     clearTimeout(gateTimer);
     if (on) gateTimer = setTimeout(() => lock(false), C.gateTimeout * 1000);
   }
@@ -183,7 +270,8 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
     });
     if (now !== current) {
       current = now;
-      header.querySelectorAll('[data-target]').forEach(a => a.toggleAttribute('aria-current', !!now && a.dataset.target === now.s.id));
+      header.querySelectorAll('.ca-link[data-target]').forEach(a => a.toggleAttribute('aria-current', !!now && a.dataset.target === now.s.id));
+      if (wire) wire.mark();
     }
     if (logo) logo.to(Math.floor(scrollY / (vh * C.logoStep)));
   }
@@ -223,6 +311,12 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
 
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   scrollTo(0, 0);
+  /* a deep link (#summits, #services …) skips the loader and travels there */
+  const deep = location.hash.slice(1);
+  if (deep && sections.some(s => s.id === deep)) {
+    sections = sections.map(s => s.gate && !/noloader/.test(s.file) ? { ...s, file: s.file + (s.file.includes('?') ? '&' : '?') + 'noloader' } : s);
+    setTimeout(() => goTo(deep), 900);
+  }
   build(sections);
   return { get blocks() { return blocks; }, goTo, rebuild, CONFIG: C };
 }

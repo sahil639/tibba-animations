@@ -33,16 +33,20 @@ const ACCENT = '#FF4B1F';
 const SKIP = /[?&]noloader\b/.test(location.search);
 
 export const SITE_HERO_CONFIG = {
-  loader: { duration: 5.2, hold: 0.15, stutter: 0.35, band: 3.0, ghost: 0.1, glow: 0.55 },
-  intro: { duration: 1.5 },          // s: the flight from the plan down into the hero
-  lock: { from: 0.1, to: 0.62 },     // share of the scroll the turn-aside takes
-  metrics: { openAt: 0.5, closeBelow: 0.34, stagger: 0.16, open: 1.1, close: 0.7 },
+  loader: { duration: 2.6, hold: 0.1, stutter: 0.3, band: 3.0, ghost: 0.1, glow: 0.7 },
+  intro: { duration: 1.2 },          // s: the flight from the plan down into the hero
+  lock: { from: 0.0, to: 0.55 },     // share of the scroll the turn-aside takes
+  /* the boxes open as soon as the turn is under way — no empty beat between
+     the peak stepping aside and the numbers arriving — and close fast, and
+     fade with the turn, when scrolling back */
+  metrics: { openAt: 0.1, closeBelow: 0.06, stagger: 0.09, open: 0.75, close: 0.3 },
 };
 const C = SITE_HERO_CONFIG;
 
 const PLAN = { elev: 90, azim: 0, dist: 248, x: 0, y: 12 };
-const FROM = { elev: 30, azim: 6, dist: 138, x: 2, y: 17 };   // the hero
+const FROM = { elev: 30, azim: 6, dist: 122, x: 2, y: 22 };   // the hero (a closer, larger peak)
 const TO   = { elev: 26, azim: 14, dist: 150, x: 46, y: 20 }; // aside, for the metrics
+const NARROW_TO = { dist: 108, x: -44, y: -20 };                  // a phone: above the metrics
 
 const scene = createRangeScene({
   canvas: $('#peak-canvas'), mode: 'hero', ink: false, palette: 'peak', backdrop: 'behind',
@@ -74,7 +78,7 @@ function pushCoord() {
   coords.prepend(li);
   while (coords.children.length > 4) coords.lastElementChild.remove();
 }
-let coordTimer = setInterval(pushCoord, 900);
+let coordTimer = setInterval(pushCoord, 260);
 for (let i = 0; i < 4; i++) pushCoord();
 
 let phase = SKIP || REDUCED ? 'hero' : 'loading';
@@ -119,7 +123,6 @@ host.innerHTML = `<div class="mcluster">${METRICS.map((m, i) => `
   <article class="mbox" data-i="${i}">
     <span class="plate"></span><span class="hl"></span>
     <span class="cn tl"></span><span class="cn tr"></span><span class="cn bl"></span><span class="cn br"></span>
-    <span class="pin"></span>
     <div class="in"><span class="k"><b>M—${String(i + 1).padStart(2, '0')}</b><span>${m.k}</span></span>
       <span class="v" data-v="${m.v}">${m.v}</span><span class="l">${m.l}</span></div>
   </article>`).join('')}</div>`;
@@ -143,8 +146,7 @@ function build() {
       .fromTo(q('.cn'), { opacity: 0, x: k => sx[k], y: k => sy[k] }, { opacity: .9, x: 0, y: 0, duration: .22, ease: 'expo.out' }, o + .52)
       .fromTo(q('.k'), { opacity: 0 }, { opacity: 1, duration: .2, ease: 'none' }, o + .6)
       .fromTo(q('.v'), { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .24, ease: 'power2.out' }, o + .64)
-      .fromTo(q('.l'), { opacity: 0 }, { opacity: 1, duration: .2, ease: 'none' }, o + .72)
-      .fromTo(q('.pin'), { scale: 0 }, { scale: 1, duration: .1, ease: 'none' }, o + .9);
+      .fromTo(q('.l'), { opacity: 0 }, { opacity: 1, duration: .2, ease: 'none' }, o + .72);
   });
 }
 build();
@@ -219,9 +221,12 @@ function frame(now) {
   const narrow = innerWidth <= 820;
   /* where the scroll says the camera is, eased in from the plan by the intro */
   const cam = {
-    elev: lerp(FROM.elev, TO.elev, k), azim: lerp(FROM.azim, TO.azim, k), dist: lerp(FROM.dist, TO.dist, k),
-    tgtX: narrow ? lerp(FROM.x, TO.x, k) * 0.1 - 46 * k : lerp(FROM.x, TO.x, k),
-    tgtY: lerp(FROM.y, TO.y, k) - (narrow ? 16 * k : 0),
+    elev: lerp(FROM.elev, TO.elev, k), azim: lerp(FROM.azim, TO.azim, k),
+    /* a phone keeps the peak centred and lifts it into the top half, clear
+       of the boxes below it */
+    dist: narrow ? lerp(FROM.dist, NARROW_TO.dist, k) : lerp(FROM.dist, TO.dist, k),
+    tgtX: narrow ? lerp(FROM.x, NARROW_TO.x, k) : lerp(FROM.x, TO.x, k),
+    tgtY: narrow ? lerp(FROM.y, NARROW_TO.y, k) : lerp(FROM.y, TO.y, k),
   };
   const f = intro < 1 ? (intro < .5 ? 4 * intro ** 3 : 1 - (-2 * intro + 2) ** 3 / 2) : 1;   // cubic in-out
   scene.setHeroCam({ elev: lerp(PLAN.elev, cam.elev, f), azim: lerp(PLAN.azim, cam.azim, f), dist: lerp(PLAN.dist, cam.dist, f),
@@ -229,7 +234,10 @@ function frame(now) {
   scene.lockTo(k);
   stage.style.setProperty('--lock', k.toFixed(3));
   /* the hero copy gives way as the peak turns aside */
-  stage.style.setProperty('--hero-out', clamp01(k * 2.4).toFixed(3));
+  stage.style.setProperty('--hero-out', clamp01(k * 4).toFixed(3));
+  /* the boxes are only ever there once the hero copy has gone: they fade
+     with the turn, so scrolling back never leaves them over the hero */
+  stage.style.setProperty('--m-on', clamp01((k - 0.08) / 0.22).toFixed(3));
   scene.setHover(intro > 0.6);
   ringsLive = intro >= 1 && k < 0.25;
   if (!ringsLive && cardOpen) closeCard();
@@ -257,12 +265,12 @@ requestAnimationFrame(frame);
   const q = id => el.querySelector('#' + id);
   const bind = (id, fn) => q('s-' + id).addEventListener('input', e => { const v = +e.target.value; q('v-' + id).textContent = v + e.target.dataset.unit; fn(v); });
   bind('ld', v => { C.loader.duration = v; }); bind('st', v => { C.loader.stutter = v; });
-  bind('in', v => { C.intro.duration = v; }); bind('oa', v => { C.metrics.openAt = v; C.metrics.closeBelow = Math.max(0, v - .16); });
+  bind('in', v => { C.intro.duration = v; }); bind('oa', v => { C.metrics.openAt = v; C.metrics.closeBelow = Math.max(0, v - .04); });
   bind('lt', v => { C.lock.to = v; });
   q('s-rp').addEventListener('click', () => {
     scrollTo(0, 0); phase = 'loading'; t0 = performance.now(); intro = 0; closeCard();
     document.body.classList.remove('ld-gone', 'hero-in', 'ld-done');
-    clearInterval(coordTimer); coordTimer = setInterval(pushCoord, 900);
+    clearInterval(coordTimer); coordTimer = setInterval(pushCoord, 260);
   });
   q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
   if (window.wb && window.wb.adopt) window.wb.adopt();

@@ -32,11 +32,11 @@
 
 <script type="module">
   import { mountSite } from './assets/site-shell.js';
-  import { ABOUT_SECTIONS, resolveLayout, sectionsFor } from './assets/site-sections.js';
+  import { ABOUT_SECTIONS, ABOUT_LINKS, resolveLayout, sectionsFor } from './assets/site-sections.js';
   window.tibba = mountSite({
     sections: sectionsFor(resolveLayout(null, ABOUT_SECTIONS), ABOUT_SECTIONS),
     home: 'final-website-v2.html',
-    extraNav: [{ label: 'Home', href: 'final-website-v2.html' }],
+    links: ABOUT_LINKS,
   });
 </script>
 </body>
