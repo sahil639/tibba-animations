@@ -141,7 +141,7 @@ window.TIBBA_SITE = {
                  note: 'A plainer compass cut in half by the page edge (the foot, on phones); the dial turns so the chosen stage faces the services', state: 'live' },
                { id: 'services-compass-v7', updated: '2026-10-07T18:00:00+07:00', change: 'New: a small compass resting on a stone', label: 'Compass v7 — on a surface', file: 'services-compass-v7.html',
                  note: 'The compass small and laid flat on a contoured stone under the tabs, an accent beside the statement and ledgers', state: 'live' },
-               { id: 'services-gear', updated: '2026-10-07T21:00:00+07:00', change: 'New: climbing gear tiers instead of the compass', label: 'Gear tiers', file: 'services-gear.html',
+               { id: 'services-gear', updated: '2026-10-08T15:00:00+07:00', change: 'Detailed gear scattered at varied sizes; a narrower mat; bigger service numbers', label: 'Gear tiers', file: 'services-gear.html',
                  note: 'Three tiers of climbing kit laid out on a mat, upgrading as the stage grows; the services in two plain columns', state: 'live' } ] },
 
     { id: 'testimonials', label: 'Our testimonials',
