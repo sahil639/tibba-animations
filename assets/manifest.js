@@ -196,7 +196,7 @@ window.TIBBA_SITE = {
           note: 'Footer — dusk duplicated: over the fire the pointer becomes a stick with a marshmallow that toasts the longer it is held close; click to eat it', state: 'live' },
         { id: 'footer-blueprint-dusk', updated: '2026-10-07T23:00:00+07:00', change: 'Ground rises orange → green → black', label: 'Footer — blueprint dusk', file: 'footer-blueprint-dusk.html',
           note: "Blueprint grid's hairline cells over a grained teal ground, an ember streak sweeping up through the campfire", state: 'live' },
-        { id: 'footer-dusk-grid', updated: '2026-10-07T23:00:00+07:00', change: 'New: blueprint dusk in the reference layout', label: 'Footer — dusk grid', file: 'footer-dusk-grid.html',
+        { id: 'footer-dusk-grid', updated: '2026-10-08T22:00:00+07:00', change: 'An ASCII marshmallow to toast over the fire', label: 'Footer — dusk grid', file: 'footer-dusk-grid.html',
           note: 'A contact form over the campfire on the left; page and social links, the studio and its local time, and TIBBA drawn as a blueprint on the right; orange to green to black, bottom up', state: 'live' },
         { id: 'footer-pengon', updated: '2026-10-05T21:00:00+07:00', change: 'New: one footer per reference', label: 'Footer — halftone camp', file: 'footer-pengon.html',
           note: 'After Pengon: lockup, clocks and a status line over a halftone landscape with the fire in it', state: 'live' },

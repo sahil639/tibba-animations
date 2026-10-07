@@ -29,6 +29,11 @@
      right, foot  a thin ruler strip, then TIBBA drawn as a blueprint
      the foot     legal, full width
 
+   The fire takes the marshmallow from Footer — dusk, marshmallow, drawn
+   in characters to match the fire: over the fire the pointer becomes a
+   stick with a marshmallow on it, which toasts the nearer it is held to
+   the flames — raw, golden, brown, charred, alight; click to eat it.
+
    Phones: one column — the form, the links two-up, the extra, the fire,
    the word, the legal.
    Shared parts: assets/footer-kit.js / .css. Every value: the CONFIG object
@@ -64,6 +69,19 @@ body { background: #000; }
 .dg form .sent { font-size: 13px; color: #ffd2b8; min-height: 1.2em; }
 .dg .camp { position: relative; flex: 1; min-height: 260px; margin: 8px calc(-1 * clamp(22px, 3.2vw, 56px)) 0; }
 .dg .camp canvas { position: absolute; inset: 0; }
+/* the marshmallow on its stick, drawn in characters, following the pointer over the fire */
+.dg .camp.toasting, .dg .camp.toasting * { cursor: none; }
+.mallow { position: fixed; left: 0; top: 0; z-index: 30; margin: 0; pointer-events: none; opacity: 0; transition: opacity .2s linear;
+  font: 700 15px/1 ui-monospace, 'SFMono-Regular', Menlo, monospace; letter-spacing: 0; white-space: pre; will-change: transform;
+  text-shadow: 0 0 2px #000, 0 0 4px #000, 0 0 8px rgba(0,0,0,.8); }
+.camp.toasting .mallow { opacity: 1; }
+.mallow .st { color: #e2a76c; } .mallow .fl { color: #ffb347; }
+.mtip { position: fixed; left: 0; top: 0; z-index: 31; pointer-events: none; opacity: 0; transition: opacity .2s linear; white-space: nowrap;
+  font: 400 10px/1 ui-monospace, 'SFMono-Regular', Menlo, monospace; letter-spacing: .14em; text-transform: uppercase; color: #fff7ef;
+  padding: 6px 9px; background: rgba(10,8,8,.6); border: 1px solid rgba(255,255,255,.22); }
+.camp.toasting .mtip { opacity: 1; }
+.yum { position: fixed; z-index: 31; pointer-events: none; font: 700 14px/1 ui-monospace, Menlo, monospace; color: #fff7ef; animation: yum 1s ease-out forwards; }
+@keyframes yum { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -40px); } }
 .dg .camp .k { position: absolute; left: clamp(22px, 3.2vw, 56px); top: 26px; z-index: 2; color: rgba(255,240,228,.75); }
 
 /* the right half */
@@ -120,7 +138,7 @@ body { background: #000; }
       <button type="submit">Send it up the mountain<i></i></button>
       <p class="sent" aria-live="polite"></p>
     </form>
-    <div class="camp"><canvas class="fire" aria-hidden="true"></canvas><p class="k">Base camp · the fire’s lit</p></div>
+    <div class="camp"><canvas class="fire" aria-hidden="true"></canvas><pre class="mallow" aria-hidden="true"></pre><p class="mtip" aria-hidden="true"></p><p class="k">Base camp · the fire’s lit</p></div>
   </section>
   <nav class="cell pages" aria-label="Pages"><p class="k">Pages</p>
     <ul><li><a href="final-website-v2.html">Home</a></li><li><a href="summits-v3.html">Work</a></li><li><a href="services-compass-v4.html">Services</a></li>
@@ -143,9 +161,71 @@ body { background: #000; }
   import { fire, panel, slider, applyBaked, year } from './assets/footer-kit.js';
   const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
   $$('.yr').forEach(e => { e.textContent = year(); });
-  const CONFIG = { fire: { mode: 'dither', palette: 'warm', cell: 5, dot: .86, contrast: 1.25, flame: 1.05, embers: 1.2, speed: .9, scale: 1.05, wood: .75 } };
+  const CONFIG = { fire: { mode: 'dither', palette: 'warm', cell: 5, dot: .86, contrast: 1.25, flame: 1.05, embers: 1.2, speed: .9, scale: 1.05, wood: .75 },
+                   toast: { rate: .12, reach: 1.25 } };   // marshmallow: cooked per second at the heart of the fire; how far the heat reaches (× fire size)
   const KEY = 'tibba.bake.footer-dusk-grid'; applyBaked(KEY, CONFIG);
-  const f = fire($('.camp canvas'), { ...CONFIG.fire, x: .5, y: .74 });
+  const f = fire($('.camp canvas'), { ...CONFIG.fire, x: .5, y: .74, blowOut: false });
+
+  /* ── the marshmallow, in ASCII ──────────────────────────────────────
+     A 6 × 4 block of characters on a stick of backslashes. Every cell has
+     its own doneness: the cells nearest the fire (the bottom row, the
+     side facing it) run ahead of the rest. Doneness picks the character
+     (o → o → % → # → @, denser as it browns) and its colour (white →
+     gold → brown → black); past done the top catches and flickers. */
+  const camp = $('.camp'), mal = $('.mallow'), tip = $('.mtip');
+  const MW = 6, MH = 4, RAMP = ['o', 'o', '%', '#', '@'], FLAME = ['^', '*', "'", '~'];
+  const COL = [[0, [250, 246, 238]], [.35, [244, 214, 160]], [.6, [222, 154, 80]], [.82, [140, 74, 32]], [1, [46, 28, 20]]];
+  const col = k => { k = Math.max(0, Math.min(1, k)); let i = 1; while (i < COL.length - 1 && COL[i][0] < k) i++;
+    const [a, ca] = COL[i - 1], [b, cb] = COL[i], t = (k - a) / (b - a || 1); return `rgb(${ca.map((v, q) => Math.round(v + (cb[q] - v) * t)).join(',')})`; };
+  const STATES = [[.12, 'Raw'], [.4, 'Warming'], [.62, 'Toasting'], [.8, 'Golden'], [.9, 'Perfect · click to eat'], [.97, 'Charring'], [1.01, 'On fire!']];
+  let cook = 0, px = 0, py = 0, inside = false, last = performance.now();
+  function draw(t) {
+    let out = '';
+    if (cook > .97) {                                   // alight: a flicker over the top
+      const row = Array.from({ length: MW }, (_, x) => FLAME[(Math.floor(t * 12) + x * 3) % FLAME.length]).join('');
+      out += `<span class="fl">${row}</span>\n`;
+    } else out += ' '.repeat(MW) + '\n';
+    for (let y = 0; y < MH; y++) {
+      let line = '';
+      for (let x = 0; x < MW; x++) {
+        const edge = x === 0 || x === MW - 1 || y === 0 || y === MH - 1;
+        const k = Math.min(1, cook * (0.78 + y * .1 + (edge ? .08 : 0)));
+        line += `<span style="color:${col(k)}">${RAMP[Math.min(RAMP.length - 1, Math.floor(k * RAMP.length))]}</span>`;
+      }
+      out += line + '\n';
+    }
+    for (let i = 0; i < 7; i++) out += ' '.repeat(3 + i) + '<span class="st">\\</span>\n';
+    mal.innerHTML = out;
+  }
+  camp.addEventListener('pointermove', e => {
+    px = e.clientX; py = e.clientY;
+    inside = !e.target.closest('a, button, .k') && e.pointerType !== 'touch';
+    camp.classList.toggle('toasting', inside);
+  }, { passive: true });
+  camp.addEventListener('pointerleave', () => { inside = false; camp.classList.remove('toasting'); });
+  camp.addEventListener('click', e => {
+    if (!inside || cook < .15) return;
+    const y = document.createElement('p'); y.className = 'yum'; y.textContent = cook > .97 ? 'crunchy.' : cook > .8 ? 'perfect!' : 'mm.';
+    y.style.left = px + 'px'; y.style.top = (py - 30) + 'px'; document.body.appendChild(y); setTimeout(() => y.remove(), 1000);
+    cook = 0;
+  });
+  (function loop(now) {
+    requestAnimationFrame(loop);
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    if (!inside) return;
+    const ft = f.features(), r = $('.camp canvas').getBoundingClientRect();
+    const cx = r.left + ft.core.x, cy = r.top + ft.core.y;
+    /* the marshmallow sits a little above and left of the pointer, so the stick runs down to it */
+    const mx = px - 18, my = py - 30;
+    const d = Math.hypot(mx + 20 - cx, (my + 30 - cy) * 1.15) / ft.s;
+    const heat = Math.max(0, Math.min(1, (CONFIG.toast.reach - d) / CONFIG.toast.reach));
+    cook = Math.min(1.02, cook + dt * CONFIG.toast.rate * heat * heat * (d < .45 ? 1.6 : 1));
+    draw(now / 1000);
+    mal.style.transform = `translate3d(${mx.toFixed(1)}px, ${my.toFixed(1)}px, 0)`;
+    tip.style.transform = `translate3d(${(px + 40).toFixed(1)}px, ${(py - 58).toFixed(1)}px, 0)`;
+    let label = STATES[0][1]; for (const [k, l] of STATES) { label = l; if (cook < k) break; }
+    tip.textContent = '[ ' + label + ' ]';
+  })(performance.now());
   /* the form: no back end here, so it answers in place */
   $('#talk').addEventListener('submit', e => { e.preventDefault(); e.target.reset(); $('.sent').textContent = 'Got it — we’ll write back within two working days.'; });
   /* the studio's time */
@@ -156,7 +236,9 @@ body { background: #000; }
   let t = ''; [40, 120, 200].forEach(y => { for (let x = 60; x <= 940; x += 88) t += `<path class="tk" d="M${x - 5} ${y}H${x + 5}M${x} ${y - 5}V${y + 5}"/>`; });
   $('#ticks').innerHTML = t;
   new IntersectionObserver(([e], io) => { if (e.isIntersecting) { io.disconnect(); $('#word').classList.add('on'); } }, { threshold: .3 }).observe($('#word'));
-  panel({ title: 'Footer — dusk grid', key: KEY, config: CONFIG, name: 'CONFIG', fires: [{ fire: f, cfg: CONFIG.fire }] });
+  panel({ title: 'Footer — dusk grid', key: KEY, config: CONFIG, name: 'CONFIG', fires: [{ fire: f, cfg: CONFIG.fire }],
+    extra: `<p class="tune-sub">Marshmallow</p>${slider('tr', 'Toasting speed', .03, .6, .01, CONFIG.toast.rate)}${slider('th', 'Heat reach', .6, 2.5, .05, CONFIG.toast.reach)}`,
+    bind: (q, on) => { on('tr', v => { CONFIG.toast.rate = v; }); on('th', v => { CONFIG.toast.reach = v; }); } });
 </script>
 </body>
 </html>
