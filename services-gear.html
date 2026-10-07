@@ -121,11 +121,19 @@ button { font: inherit; color: inherit; }
 .list h3 span { display: inline-flex; align-items: center; gap: 10px; } .list h3 span::before { content: ''; width: 6px; height: 6px; background: var(--acc); }
 .list h3 b { font-weight: 400; color: var(--acc); letter-spacing: .12em; }
 .list ol { list-style: none; }
-.sv { position: relative; display: grid; grid-template-columns: clamp(48px, 4.2vw, 64px) 1fr; column-gap: 12px; align-items: start; padding: 18px 0 20px; border-bottom: 1px solid var(--line); }
+.sv { position: relative; display: grid; grid-template-columns: clamp(48px, 4.2vw, 64px) 1fr; column-gap: 12px; align-items: center; padding: 18px 0 18px; border-bottom: 1px solid var(--line); }
 .sv .ix { grid-row: 1 / span 2; font-size: clamp(22px, 1.9vw, 30px); font-weight: 300; line-height: .9; letter-spacing: -.02em; color: rgba(233,236,242,.42);
   font-variant-numeric: tabular-nums; transition: color .25s linear; }
 .sv .nm { color: #fff; font-size: clamp(16px, 1.15vw, 19px); line-height: 1.2; letter-spacing: -.01em; padding-top: 2px; }
-.sv .ds { grid-column: 2; margin-top: 7px; font-size: 13px; line-height: 1.5; color: var(--ink-mute); max-width: 44ch; }
+/* the line under each service opens on hover (or a tap / keyboard focus), as on Compass v4 */
+.sv { cursor: default; outline: none; }
+.sv .ix { grid-row: auto; }
+.sv .ds { grid-column: 2; display: grid; grid-template-rows: 0fr; transition: grid-template-rows .4s cubic-bezier(.22,.9,.3,1); }
+.sv .ds > span { overflow: hidden; font-size: 13px; line-height: 1.5; color: var(--ink-mute); max-width: 44ch; }
+.sv .ds > span::before { content: ''; display: block; height: 7px; }
+.sv:hover .ds, .sv:focus-visible .ds, .sv.open .ds { grid-template-rows: 1fr; }
+.sv:hover .ix, .sv:focus-visible .ix, .sv.open .ix { color: var(--acc); }
+.sv:focus-visible::before, .sv.open::before { transform: scaleX(1); }
 .sv::before { content: ''; position: absolute; left: 0; bottom: -1px; height: 1px; width: 100%; background: var(--acc); transform: scaleX(0); transform-origin: left; transition: transform .4s cubic-bezier(.22,.9,.3,1); }
 .sv:hover::before { transform: scaleX(1); }
 .sv:hover .ix { color: var(--acc); }
@@ -365,10 +373,12 @@ button { font: inherit; color: inherit; }
     const left = st.services.filter(s => STRATEGY.test(s.name)), right = st.services.filter(s => !STRATEGY.test(s.name));
     let k = 0, n = 0;
     const col = (title, list) => `<div class="list"><h3><span>${title}</span><b>${pad(list.length)}</b></h3><ol>${list.map(s =>
-      `<li class="sv" style="--k:${k++}"><span class="ix">${pad(++n)}</span><span class="nm">${s.name}</span><span class="ds">${s.points[2] || s.points[0]}</span></li>`).join('')}</ol></div>`;
+      `<li class="sv" tabindex="0" style="--k:${k++}"><span class="ix">${pad(++n)}</span><span class="nm">${s.name}</span><span class="ds"><span>${s.points[2] || s.points[0]}</span></span></li>`).join('')}</ol></div>`;
     const lists = $('lists');
     lists.innerHTML = col('Research and strategy', left) + col('Design &amp; delivery', right);
     lists.classList.remove('swap'); void lists.offsetWidth; lists.classList.add('swap');
+    /* no hover on a touch screen: a tap opens a service's line, another closes it */
+    lists.querySelectorAll('.sv').forEach(li => li.addEventListener('click', () => { if (matchMedia('(hover: none)').matches) li.classList.toggle('open'); }));
   }
 
   function pick(i, first) {
