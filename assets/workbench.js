@@ -105,6 +105,7 @@
       var sum = el('summary');
       sum.appendChild(el('span', 'wb-tw'));
       sum.appendChild(el('span', null, sec.label));
+      if (NEW.fresh && sec.pages.some(function (p) { return NEW.fresh(p); })) d.classList.add('wb-fresh');
       if (sec.pages.some(function (p) { return NEW.isNew(p); })) {
         var gd = el('span', 'wb-new-dot'); gd.title = 'Something new in here'; sum.appendChild(gd);
       }
@@ -112,7 +113,8 @@
       d.appendChild(sum);
 
       sec.pages.forEach(function (p) {
-        var a = el('a', 'wb-page');
+        var a = el('a', 'wb-page' + (NEW.fresh && NEW.fresh(p) ? ' wb-fresh' : ''));
+        if (NEW.fresh && NEW.fresh(p)) a.title = 'Changed in the last 24 hours' + (p.change ? ' — ' + p.change : '');
         a.href = p.file;
         a.appendChild(el('span', null, p.label));
         if (p.state === 'stub') a.appendChild(el('span', 'wb-stub', 'stub'));

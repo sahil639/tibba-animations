@@ -207,3 +207,8 @@
   #wb-nav  { width: min(272px, calc(100vw - 28px)); }
 }
 @media print { #wb-nav, #wb-dock { display: none !important; } }
+
+/* designs made or changed in the last 24 hours: light green in the menu */
+.wb-page.wb-fresh, .wb-page.wb-fresh:hover, .wb-page.wb-fresh[aria-current="page"] { color: #a6efb4; }
+.wb-page.wb-fresh::after { content: '24h'; margin-left: auto; padding-left: 8px; font-size: 9px; letter-spacing: .14em; color: #a6efb4; opacity: .7; }
+.wb-group.wb-fresh > summary { color: #a6efb4; }

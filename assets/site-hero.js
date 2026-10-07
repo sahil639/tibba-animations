@@ -206,10 +206,37 @@ stage.addEventListener('pointermove', e => {
   }
 });
 stage.addEventListener('pointerleave', () => { scene.setRingHover(null); clearTimeout(closeT); closeT = 0; hoverRing = -1; if (cardOpen) closeCard(); });
+/* the card's peak: a rock face drawn once, posterised into five warm tones
+   (a ridged noise field shaded from the left, under a jagged skyline) */
+function rockArt() {
+  const W = 300, H = 372, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d'), img = g.createImageData(W, H), d = img.data;
+  const h2 = (x, y) => { let n = Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263); n = Math.imul(n ^ (n >>> 13), 1274126177); return ((n ^ (n >>> 16)) >>> 0) / 4294967295; };
+  const vn = (x, y) => { const xi = Math.floor(x), yi = Math.floor(y), u = x - xi, v = y - yi, su = u * u * (3 - 2 * u), sv = v * v * (3 - 2 * v);
+    const a = h2(xi, yi), b = h2(xi + 1, yi), cc = h2(xi, yi + 1), dd = h2(xi + 1, yi + 1); return a + (b - a) * su + (cc - a) * sv + (a - b - cc + dd) * su * sv; };
+  const ridged = (x, y) => { let s = 0, a = .55, f = 1; for (let o = 0; o < 5; o++) { s += a * (1 - Math.abs(vn(x * f, y * f) * 2 - 1)); f *= 2.1; a *= .5; } return s; };
+  /* the skyline: a summit right of centre, a long left shoulder, a right one */
+  const sky = x => { const px = .58, top = .2; const l = x < px ? top + Math.pow((px - x) / px, .9) * .58 : top + Math.pow((x - px) / (1 - px), 1.1) * .34;
+    return l + (vn(x * 14, 3) - .5) * .05 + (vn(x * 40, 9) - .5) * .02; };
+  const TONES = [[46, 41, 38], [74, 63, 50], [107, 90, 66], [143, 125, 94], [176, 162, 132]];
+  const h = (x, y) => ridged(x * 5 + y * 3.4, y * 6 - x * 2.2) * .8 + (1 - y) * .5;   // streaks running down the slopes
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+    const x = i / W, y = j / H, o = (j * W + i) * 4;
+    if (y < sky(x)) { d[o + 3] = 0; continue; }
+    const e = .004, nx = h(x - e, y) - h(x + e, y), ny = h(x, y - e) - h(x, y + e);
+    let L = .5 + nx * 7 - ny * 2.5 + (x < .58 ? .08 : -.1);            // lit from the left
+    L *= 1 - Math.max(0, y - .62) * 1.1;                               // darker toward the foot
+    const t = TONES[Math.max(0, Math.min(4, Math.floor(L * 5)))];
+    d[o] = t[0]; d[o + 1] = t[1]; d[o + 2] = t[2]; d[o + 3] = 175;
+  }
+  g.putImageData(img, 0, 0);
+  return c.toDataURL('image/png');
+}
+setTimeout(() => card.style.setProperty('--rock', `url(${rockArt()})`), 400);
 function openCard(x, y) {
-  const w = Math.min(340, innerWidth - 32);
+  const w = Math.min(440, innerWidth - 32), h = w * 736 / 594;
   card.style.left = Math.min(innerWidth - w - 16, Math.max(16, x + 28)) + 'px';
-  card.style.top = Math.min(innerHeight - 260, Math.max(90, y - 40)) + 'px';
+  card.style.top = Math.max(16, Math.min(innerHeight - h - 16, y - h * .3)) + 'px';
   card.classList.add('on'); card.setAttribute('aria-hidden', 'false'); cardOpen = true;
 }
 function closeCard() { card.classList.remove('on'); card.setAttribute('aria-hidden', 'true'); cardOpen = false; }

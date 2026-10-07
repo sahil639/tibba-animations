@@ -95,8 +95,17 @@
     seen = load(); emit();
   });
 
+  /** Changed in the last 24 hours, seen or not — the site menu tints these. */
+  var FRESH_MS = 24 * 3600 * 1000;
+  function fresh(p) {
+    if (typeof p === 'string') p = find(p);
+    var t = stamp(p); if (t == null) return false;
+    return Date.now() - t < FRESH_MS;
+  }
+
   global.TibbaNew = {
     WINDOW_MS: WINDOW_MS,
+    fresh: fresh,
     recent: recent,
     isNew: isNew,
     unseen: function () { return recent().filter(isNew); },
