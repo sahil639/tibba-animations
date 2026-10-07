@@ -28,13 +28,22 @@
    its words roll in on the site's odometer. Tablets, phones and any screen
    without hover: the words are there from the start, rolled in once.
 
+   Behind the title, a rucksack drawn in line. The section runs a quarter
+   past the screen (125vh). Hover a print and it straightens to 0° and
+   comes to the top of the pile.
+
    Every value: POLAROID_CONFIG in the script, on the panel, and bakeable.
    ═════════════════════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow: hidden; }
-.table { position: relative; width: 100vw; height: 100vh; height: 100svh; overflow: hidden;
+.table { position: relative; width: 100vw; height: 125vh; height: 125svh; overflow: hidden;
   background: #000; }   /* black, as every other section */
 .title { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; z-index: 1; }
+/* the rucksack, drawn in line, behind the words */
+.ruck { position: absolute; left: 50%; top: 50%; height: min(78%, 900px); width: auto; transform: translate(-50%, -50%); z-index: 0; pointer-events: none; user-select: none;
+  filter: invert(1); opacity: .15; }
+body.stacked .table { height: 100vh; height: 100svh; }
+body.stacked .ruck { top: 30%; height: 40%; opacity: .14; }
 .title .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
 .title h1 { margin-top: 14px; color: #fff; font-weight: 400; font-size: clamp(34px, 5vw, 80px); line-height: .96; letter-spacing: -.04em; }
 .title p { margin: 16px auto 0; max-width: 34ch; color: var(--ink-mute); font-size: 13.5px; line-height: 1.6; }
@@ -46,7 +55,7 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
 .pol.drag { cursor: grabbing; }
 /* the shadow: one soft drop (--sh-*, from POLAROID_CONFIG.shadow) that
    lengthens as the print lifts, over a hairline contact shadow */
-.pol .card { position: relative; background: #0c0c0e; border: 1px solid rgba(255,255,255,.14); padding: 10px 10px 0;
+.pol .card { position: relative; background: #151515; border: 1px solid rgba(255,255,255,.14); padding: 10px 10px 0;
   transform: rotateX(var(--tx)) rotateY(var(--ty)) translateZ(calc(var(--lift) * 24px)) scale(calc(1 + var(--lift) * .03));
   box-shadow: 0 calc(var(--sh-y, 8px) + var(--lift) * 12px) calc(var(--sh-blur, 22px) + var(--lift) * 18px) rgba(0,0,0,calc(var(--sh-a, .26) + var(--lift) * .12)),
               0 1px 2px rgba(0,0,0,.25);
@@ -68,12 +77,13 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
 .pol .note { height: var(--foot, 62px); display: flex; flex-direction: column; justify-content: center; gap: 6px; padding: 0 2px; overflow: hidden; }
 .pol .note b { color: #fff; font-weight: 300; font-size: calc(var(--w, 220px) * .085); line-height: 1; letter-spacing: -.025em; white-space: nowrap; outline: none; }
 .pol .note b[contenteditable="true"] { background: rgba(255,75,31,.12); }
-.pol .note .s { font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pol .note .s { display: none; font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pol .k > *, .pol .note b, .pol .note .s { --odo-h: 1.12em; }
 /* desktop at rest: only the photo; hover shows and rolls the words */
 .pol .k > *, .pol .note > * { visibility: hidden; }
 .pol.hot .k > *, .pol.hot .note > *, .pol .note b[contenteditable="true"] { visibility: visible; }
-.pol.hot .card { border-color: rgba(255,75,31,.55); }
+.pol .card { rotate: 0deg; transition: box-shadow .25s ease, border-color .35s linear, rotate .5s cubic-bezier(.22,1,.36,1); }
+.pol.hot .card { border-color: rgba(255,75,31,.55); rotate: calc(-1 * var(--r)); }   /* straightened */
 .pol.hot .cn { opacity: .9; transform: none; }
 .pol.hot .pin { transform: scale(1); }
 .pol.hot .ph img { transform: scale(1.05); }
@@ -101,6 +111,7 @@ body.stacked .dots i.on { background: var(--accent); transform: scale(1.4); }
 </head>
 <body>
 <main class="table" id="table">
+  <img class="ruck" src="assets/studio/rucksack.webp" alt="" aria-hidden="true">
   <div class="title">
     <p class="eyebrow">[ &nbsp;Our studio&nbsp; ]</p>
     <h1>Team Tibba</h1>
@@ -126,7 +137,7 @@ const POLAROID_CONFIG = {
   titles: ['On the ridge', 'Crit hour', 'Speaking at VizChitra', 'Home base', 'After the launch', 'Next climb'],
   kinds:  ['Off-site', 'Studio', 'On stage', 'Base camp', 'After', 'Soon'],
   lines:  ['A monsoon climb, the whole team', 'Reviewing the work, together', 'Data, design and news', 'Where the climbs are planned', 'Two steins, one shipped app', 'A photo still on its way'],
-  foot: 62,               // px, the polaroid margin at the foot
+  foot: 50,               // px, the polaroid margin at the foot
   roll: { duration: .5, stagger: .018 },   // the odometer
   /* mobile: the stack, and the swipe that cycles it */
   stack: { spring: 170, damping: 22, threshold: 0.26, spread: 1, tilt: 1 },
@@ -168,7 +179,7 @@ const BAKE_KEY = 'tibba.polaroid-frames.layout';
       <span class="cn tl"></span><span class="cn tr"></span><span class="cn bl"></span><span class="cn br"></span><span class="pin"></span>
       <p class="k"><b>S—${String(i + 1).padStart(2, '0')}</b><span>${esc((C.kinds || [])[i] || '')}</span></p>
       <div class="ph"><img src="${p.person || p.img}" alt="${esc(title(i))}" draggable="false"></div>
-      <figcaption class="note"><b>${esc(title(i))}</b><span class="s">${esc((C.lines || [])[i] || '')}</span></figcaption></div>`;
+      <figcaption class="note"><b>${esc(title(i))}</b></figcaption></div>`;
     table.appendChild(el);
     return el;
   });
@@ -356,7 +367,7 @@ const BAKE_KEY = 'tibba.polaroid-frames.layout';
   /* the words: rolled in on the odometer — on hover on desktop; once, as the
      section arrives, where there is no hover */
   const always = () => matchMedia('(hover: none), (max-width: 1024px)').matches;
-  const parts = el => [...el.querySelectorAll('.k > *'), el.querySelector('.note b'), el.querySelector('.note .s')];
+  const parts = el => [...el.querySelectorAll('.k > *'), el.querySelector('.note b')];
   function rollIn(el, delay = 0) {
     const O = window.Odometer; if (!O || REDUCED) return;
     let d = delay;
@@ -368,7 +379,7 @@ const BAKE_KEY = 'tibba.polaroid-frames.layout';
     new IntersectionObserver(([e], o) => { if (!e.isIntersecting || !always()) return; o.disconnect(); els.forEach((el, i) => rollIn(el, .6 + i * .08)); }, { threshold: .3 }).observe(table);
   });
   els.forEach(el => {
-    el.addEventListener('pointerenter', e => { if (always() || e.pointerType === 'touch') return; el.classList.add('hot'); rollIn(el); });
+    el.addEventListener('pointerenter', e => { if (always() || e.pointerType === 'touch') return; el.style.zIndex = ++z; el.classList.add('hot'); rollIn(el); });
     el.addEventListener('pointerleave', () => { if (!el.classList.contains('drag')) el.classList.remove('hot'); });
     el.addEventListener('pointerup', () => { if (!el.matches(':hover')) el.classList.remove('hot'); });
   });

@@ -11,8 +11,8 @@
      2  hero       at 100 the counter clears and the camera flies down into
                    the hero's working perspective; TIBBA DESIGN STUDIO comes
                    up on the left, the supporting copy bottom right. The
-                   summit's orange rings are live: click one and the Tibba
-                   definition opens on an orange card.
+                   summit's orange rings are live: hover one (tap, on a
+                   touch screen) and the Tibba definition opens beside it.
      3  metrics    scrolling takes the hero's third move — the peak turns,
                    shrinks and steps aside — and the four Metrics boxes open
                    in the room it leaves, exactly as the Metrics section.
@@ -187,12 +187,25 @@ function ringAt(x, y) {
   return best;
 }
 const stage = $('#stage');
+/* hover a ring and the definition opens beside it; move off the rings (and
+   off the card) and it closes, after a beat so the pointer can cross the
+   gap to the card. Touch has no hover: a tap does the same. */
+let hoverRing = -1, closeT = 0;
 stage.addEventListener('pointermove', e => {
+  if (e.pointerType === 'touch') return;
   if (!ringsLive) { stage.style.cursor = ''; return; }
+  if (e.target.closest('#def-card')) { clearTimeout(closeT); return; }
   const i = ringAt(e.clientX, e.clientY);
   scene.setRingHover(i < 0 ? null : i);
-  stage.style.cursor = i < 0 ? '' : 'pointer';
+  stage.style.cursor = i < 0 ? '' : 'help';
+  if (i >= 0) {
+    clearTimeout(closeT);
+    if (i !== hoverRing || !cardOpen) { hoverRing = i; const r = scene.ringScreen()[i]; openCard(r.x + r.r, r.y); }
+  } else if (cardOpen && !closeT) {
+    closeT = setTimeout(() => { closeT = 0; hoverRing = -1; closeCard(); }, 320);
+  }
 });
+stage.addEventListener('pointerleave', () => { scene.setRingHover(null); clearTimeout(closeT); closeT = 0; hoverRing = -1; if (cardOpen) closeCard(); });
 function openCard(x, y) {
   const w = Math.min(340, innerWidth - 32);
   card.style.left = Math.min(innerWidth - w - 16, Math.max(16, x + 28)) + 'px';
@@ -202,7 +215,7 @@ function openCard(x, y) {
 function closeCard() { card.classList.remove('on'); card.setAttribute('aria-hidden', 'true'); cardOpen = false; }
 stage.addEventListener('click', e => {
   if (e.target.closest('#def-card')) return;
-  if (ringsLive) {
+  if (ringsLive && e.pointerType !== 'mouse') {
     const i = ringAt(e.clientX, e.clientY);
     if (i >= 0) { const r = scene.ringScreen()[i]; openCard(r.x + r.r, r.y); return; }
   }

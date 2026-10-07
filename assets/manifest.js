@@ -36,7 +36,7 @@ window.TIBBA_SITE = {
         note: 'About hero, description, foundations, team and footer as one page, with the same navbar and transitions as the home landing', state: 'live' },
       { id: 'modular-website', updated: '2026-10-01T22:00:00+07:00', change: "Controls moved right and hideable; desktop, tablet and phone mockups", label: 'Modular Website', file: 'modular-website.html',
         note: 'The home page as a control hub: every section with its source, in or out, drag to reorder, pick the page that fills it — the assembled page rebuilds live', state: 'live' },
-      { id: 'site-hero', updated: '2026-10-06T18:00:00+07:00', change: "Rings 1–3, bigger peak and title, 2.6s loader, stats within one scroll that never sit over the hero", label: 'Site hero', file: 'site-hero.html',
+      { id: 'site-hero', updated: '2026-10-08T18:00:00+07:00', change: "The summit's rings open the definition on hover", label: 'Site hero', file: 'site-hero.html',
         note: "The home page's opening: the loader fills the plan view, flies down into the hero (rings open the definition), then turns aside for the metrics", state: 'live' },
     ],
   },
@@ -160,7 +160,7 @@ window.TIBBA_SITE = {
                  note: 'The team and studio life as polaroids that spring in from the sides; layout editable and bakeable on the panel', state: 'live' },
                { id: 'studio-frames', updated: '2026-10-07T21:00:00+07:00', change: 'New: the six photos in polaroid frames, captions rolled in on hover', label: 'Framed prints', file: 'studio-frames.html',
                  note: 'The studio photos in polaroid frames built like the team cards; desktop shows only the photos until hover rolls the caption in on the odometer; tablets and phones show it always', state: 'live' },
-               { id: 'studio-polaroid-frames', updated: '2026-10-08T12:00:00+07:00', change: 'New: the Polaroids layout with the framed prints', label: 'Framed polaroids', file: 'studio-polaroid-frames.html',
+               { id: 'studio-polaroid-frames', updated: '2026-10-08T18:00:00+07:00', change: 'Hover straightens a print and brings it to the top; a rucksack behind the title; 125vh', label: 'Framed polaroids', file: 'studio-polaroid-frames.html',
                  note: "Polaroids' scattered, draggable layout and phone stack, each print in Framed prints' frame; hover rolls the words in on the odometer", state: 'live' } ] },
 
     { id: 'footer', label: 'Footer',
