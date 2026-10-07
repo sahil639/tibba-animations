@@ -40,8 +40,8 @@
    in the script, on the panel, and bakeable.
    ═════════════════════════════════════════════════════════════════════════ */
 body { background: #000; }
-.dg { --ln: rgba(233,236,242,.2); position: relative; isolation: isolate; overflow: hidden; min-height: 100svh; display: grid;
-  grid-template-columns: minmax(0, 46%) minmax(0, 30%) minmax(0, 1fr); grid-template-rows: minmax(220px, 38fr) minmax(200px, 36fr) 28px minmax(170px, 23fr) auto;
+.dg { --ln: rgba(233,236,242,.2); position: relative; isolation: isolate; overflow: hidden; display: grid;
+  grid-template-columns: minmax(0, 46%) minmax(0, 30%) minmax(0, 1fr); grid-template-rows: auto auto 22px minmax(140px, auto) auto;
   border-top: 1px solid var(--ln);
   background: radial-gradient(90% 40% at 30% 102%, rgba(232,84,40,.55), rgba(232,84,40,0) 70%),
     linear-gradient(0deg, #d64a28 0%, #b2452c 9%, #7d4030 21%, #4a3630 33%, #1d2d2e 46%, #10262a 56%, #0a1719 70%, #040808 85%, #000 100%); }
@@ -55,19 +55,41 @@ body { background: #000; }
 
 /* the left half: the form, and the fire at its foot */
 .dg .talk { grid-column: 1; grid-row: 1 / 5; border-right: 1px solid var(--ln); display: flex; flex-direction: column; padding-bottom: 0; }
+.dg .talk { padding-top: clamp(22px, 2.6vw, 44px); }
 .dg .talk h2 { color: #fff; font-weight: 400; font-size: clamp(24px, 2.2vw, 38px); line-height: 1.15; letter-spacing: -.02em; }
-.dg form { margin-top: 18px; display: grid; gap: 8px; width: min(100%, 580px); }
-.dg input, .dg textarea { width: 100%; padding: 15px 16px; border: 1px solid rgba(233,236,242,.3); background: rgba(0,0,0,.18); color: #fff; outline: none;
-  font: 400 15px/1.4 'F37 Analog', system-ui, sans-serif; transition: border-color .2s linear, background .2s linear; resize: none; }
-.dg textarea { height: clamp(150px, 22vh, 230px); }
-.dg input::placeholder, .dg textarea::placeholder { color: rgba(233,236,242,.45); }
-.dg input:focus, .dg textarea:focus { border-color: #ff8a3d; background: rgba(0,0,0,.32); }
-.dg form button { justify-self: start; margin-top: 4px; display: inline-flex; align-items: center; gap: 12px; padding: 12px 18px; border: 1px solid rgba(233,236,242,.4); background: none; color: #fff;
-  cursor: pointer; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; transition: background .2s linear, color .2s linear, border-color .2s linear; }
-.dg form button i { width: 18px; height: 1px; background: currentColor; transition: width .3s cubic-bezier(.22,1,.36,1); }
-.dg form button:hover { background: #fff; color: #000; border-color: #fff; } .dg form button:hover i { width: 30px; }
-.dg form .sent { font-size: 13px; color: #ffd2b8; min-height: 1.2em; }
-.dg .camp { position: relative; flex: 1; min-height: 260px; margin: 8px calc(-1 * clamp(22px, 3.2vw, 56px)) 0; }
+/* the form: a short sheet of labelled fields — numbered labels, hairline
+   underlines that turn orange on focus, the kind of project as chips,
+   and a solid button */
+.dg form { margin-top: clamp(18px, 2.6vh, 28px); display: grid; grid-template-columns: 1fr 1fr; gap: 18px 22px; width: min(100%, 600px); }
+.dg .fld { position: relative; display: grid; gap: 8px; min-width: 0; }
+.dg .fld.wide { grid-column: 1 / -1; }
+.dg .fld > span { display: flex; justify-content: space-between; font: 400 10px/1 ui-monospace, 'SFMono-Regular', Menlo, monospace; letter-spacing: .16em; text-transform: uppercase; color: rgba(233,236,242,.6); }
+.dg .fld > span b { font-weight: 400; color: #ff8a3d; }
+.dg input, .dg textarea { width: 100%; padding: 6px 0 10px; border: 0; border-bottom: 1px solid rgba(233,236,242,.32); background: none; color: #fff; outline: none; border-radius: 0;
+  font: 400 clamp(16px, 1.25vw, 19px)/1.35 'F37 Analog', system-ui, sans-serif; letter-spacing: -.005em; transition: border-color .25s linear; resize: none; }
+.dg textarea { height: 76px; }
+.dg input::placeholder, .dg textarea::placeholder { color: rgba(233,236,242,.32); }
+.dg .fld::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: #ff8a3d; transform: scaleX(0); transform-origin: left; transition: transform .45s cubic-bezier(.22,1,.36,1); }
+.dg .fld:focus-within::after { transform: scaleX(1); }
+.dg .fld:focus-within > span { color: #fff; }
+.dg .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.dg .chips label { position: relative; cursor: pointer; }
+.dg .chips input { position: absolute; opacity: 0; pointer-events: none; }
+.dg .chips span { display: inline-block; padding: 8px 12px; border: 1px solid rgba(233,236,242,.28); font-size: 13px; color: rgba(255,255,255,.82); transition: background .2s linear, border-color .2s linear, color .2s linear; }
+.dg .chips label:hover span { border-color: rgba(255,255,255,.6); }
+.dg .chips input:checked + span { background: #fff; color: #000; border-color: #fff; }
+.dg .chips input:focus-visible + span { outline: 1px solid #ff8a3d; outline-offset: 2px; }
+.dg .send { grid-column: 1 / -1; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.dg form button { display: inline-flex; align-items: center; gap: 14px; padding: 14px 20px; border: 0; background: #FF4B1F; color: #fff; cursor: pointer;
+  font: 400 12px/1 'F37 Analog', system-ui, sans-serif; letter-spacing: .16em; text-transform: uppercase; transition: background .2s linear, color .2s linear; }
+.dg form button i { position: relative; width: 22px; height: 1px; background: currentColor; transition: width .3s cubic-bezier(.22,1,.36,1); }
+.dg form button i::after { content: ''; position: absolute; right: 0; top: -3px; width: 7px; height: 7px; border: solid currentColor; border-width: 1px 1px 0 0; transform: rotate(45deg); }
+.dg form button:hover { background: #fff; color: #000; } .dg form button:hover i { width: 34px; }
+.dg form .note { font-size: 12.5px; color: rgba(233,236,242,.6); }
+.dg form .note a { color: #fff; border-bottom: 1px solid rgba(255,255,255,.4); }
+.dg form .sent { grid-column: 1 / -1; font-size: 13px; color: #ffd2b8; min-height: 1.2em; }
+@media (max-width: 520px) { .dg form { grid-template-columns: 1fr; } }
+.dg .camp { position: relative; flex: 1; min-height: 220px; margin: 8px calc(-1 * clamp(22px, 3.2vw, 56px)) 0; }
 .dg .camp canvas { position: absolute; inset: 0; }
 /* the marshmallow on its stick, drawn in characters, following the pointer over the fire */
 .dg .camp.toasting, .dg .camp.toasting * { cursor: none; }
@@ -132,10 +154,18 @@ body { background: #000; }
   <section class="cell talk" aria-labelledby="talk-h">
     <h2 id="talk-h">Let’s get to know<br>you and your idea!</h2>
     <form id="talk">
-      <input type="text" name="name" placeholder="Your name" aria-label="Your name" autocomplete="name" required>
-      <input type="email" name="email" placeholder="Your email" aria-label="Your email" autocomplete="email" required>
-      <textarea name="idea" placeholder="Tell us about the climb — the product, the stage, where you want to get to" aria-label="Your idea"></textarea>
-      <button type="submit">Send it up the mountain<i></i></button>
+      <label class="fld"><span>01 · Your name</span><input type="text" name="name" placeholder="Jane Doe" autocomplete="name" required></label>
+      <label class="fld"><span>02 · Email</span><input type="email" name="email" placeholder="jane@company.com" autocomplete="email" required></label>
+      <div class="fld wide" role="group" aria-label="What are you working on?"><span>03 · What are you working on?</span>
+        <div class="chips">
+          <label><input type="radio" name="kind" value="new"><span>A new product</span></label>
+          <label><input type="radio" name="kind" value="redesign"><span>A redesign</span></label>
+          <label><input type="radio" name="kind" value="research"><span>Research</span></label>
+          <label><input type="radio" name="kind" value="system"><span>A design system</span></label>
+          <label><input type="radio" name="kind" value="unsure"><span>Not sure yet</span></label>
+        </div></div>
+      <label class="fld wide"><span>04 · Tell us about the climb <b id="cc">0 / 500</b></span><textarea name="idea" maxlength="500" placeholder="The product, the stage, where you want to get to"></textarea></label>
+      <div class="send"><button type="submit">Send it up the mountain<i></i></button><p class="note">or write to <a href="mailto:hello@tibba.design">hello@tibba.design</a></p></div>
       <p class="sent" aria-live="polite"></p>
     </form>
     <div class="camp"><canvas class="fire" aria-hidden="true"></canvas><pre class="mallow" aria-hidden="true"></pre><p class="mtip" aria-hidden="true"></p><p class="k">Base camp · the fire’s lit</p></div>
@@ -227,7 +257,9 @@ body { background: #000; }
     tip.textContent = '[ ' + label + ' ]';
   })(performance.now());
   /* the form: no back end here, so it answers in place */
-  $('#talk').addEventListener('submit', e => { e.preventDefault(); e.target.reset(); $('.sent').textContent = 'Got it — we’ll write back within two working days.'; });
+  const idea = $('#talk textarea');
+  idea.addEventListener('input', () => { $('#cc').textContent = idea.value.length + ' / 500'; });
+  $('#talk').addEventListener('submit', e => { e.preventDefault(); e.target.reset(); $('#cc').textContent = '0 / 500'; $('.sent').textContent = 'Got it — we’ll write back within two working days.'; });
   /* the studio's time */
   const T = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: false }),
         D = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', weekday: 'short', day: 'numeric', month: 'short' });
