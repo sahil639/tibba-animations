@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 597">
+  <!-- a stand-in for the sixth studio photo, until it arrives -->
+  <rect width="580" height="597" fill="#121214"/>
+  <g fill="none" stroke="#e9ecf2" stroke-opacity=".14">
+    <ellipse cx="300" cy="320" rx="40" ry="28"/><ellipse cx="300" cy="320" rx="90" ry="62"/><ellipse cx="296" cy="324" rx="146" ry="102"/>
+    <ellipse cx="292" cy="328" rx="206" ry="146"/><ellipse cx="288" cy="332" rx="270" ry="194"/><ellipse cx="284" cy="336" rx="340" ry="246"/>
+  </g>
+  <rect x="293" y="313" width="14" height="14" fill="#FF4B1F"/>
+  <text x="290" y="420" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" letter-spacing="4" fill="#e9ecf2" fill-opacity=".5">PHOTO 06 · TO COME</text>
+</svg>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our services — climbing gear tiers</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<script src="assets/odometer.js" defer></script>
+<script src="assets/services.js"></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Our services — climbing gear tiers (Services v2)
+   ─────────────────────────────────────────────────────────────────────────
+   The compass gives way to kit. Each stage of company is a tier of gear,
+   laid out flat on a mat the way climbers lay out a rack before a climb
+   (knolling): the more ambitious the climb, the more there is on the mat.
+
+     01 Base kit        early-stage   shoes, chalk bag, a daypack, water
+     02 Expedition kit  mid-size      + harness, rope, carabiners, belay
+                                      device; the daypack becomes a pack
+     03 Summit kit      established   + helmet, ice axe, quickdraws, a
+                                      headlamp; the pack, an expedition pack
+
+   Moving up a tier, the gear already on the mat slides over to make room
+   and the new pieces drop in one after another; the pack swaps for the
+   bigger one. Moving down, the extra gear lifts off. Flat 2D drawings in
+   the site's hairline and orange, nothing more.
+
+   To the right, the stage said as a statement and its services in two
+   plain, left-aligned columns — research & strategy, design & delivery —
+   each service a name and the line that says what it delivers.
+
+   Every value: GEAR_CONFIG in the script, on the panel, and bakeable.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --line: rgba(233,236,242,.12); --line-2: rgba(233,236,242,.22); --acc: #FF4B1F; }
+body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; }
+.gs { max-width: 1520px; margin: 0 auto; padding: clamp(84px, 12vh, 130px) var(--gut) clamp(56px, 9vh, 100px); }
+
+/* the heading */
+.gs-title { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; padding-bottom: clamp(16px, 2.4vh, 28px); border-bottom: 1px solid var(--line); }
+.gs-title .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--acc); }
+.gs-title h1 { margin-top: 12px; color: #fff; font-weight: 400; font-size: clamp(30px, 3.3vw, 56px); line-height: 1; letter-spacing: -.035em; }
+.gs-title > p { max-width: 34ch; font-size: 12.5px; line-height: 1.6; color: var(--ink-mute); text-align: right; }
+.gs-title > p b { color: #fff; font-weight: 400; }
+
+.gs-body { margin-top: clamp(24px, 4vh, 44px); display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: clamp(28px, 4vw, 72px); align-items: start; }
+
+/* ── the tiers ─────────────────────────────────────────────────────────── */
+.tiers { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); }
+.tier { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 13px 16px 14px; background: none; border: 0; border-right: 1px solid var(--line);
+  cursor: pointer; text-align: left; color: rgba(233,236,242,.62); transition: color .2s linear, background .2s linear; min-width: 0; }
+.tier:last-child { border-right: 0; }
+.tier .n { display: inline-flex; align-items: center; gap: 8px; font-size: 10.5px; letter-spacing: .16em; color: var(--ink-faint); }
+.tier .l { font-size: clamp(14px, 1.05vw, 16px); color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.tier .s { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); }
+.tier::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--acc); transform: scaleX(0); transform-origin: left; transition: transform .45s cubic-bezier(.65,0,.35,1); }
+.tier:hover { color: #fff; }
+.tier[aria-selected="true"] { color: #fff; background: rgba(255,255,255,.035); }
+.tier[aria-selected="true"] .n { color: var(--acc); }
+.tier[aria-selected="true"] .n::before { content: ''; width: 6px; height: 6px; background: var(--acc); }
+.tier[aria-selected="true"]::after { transform: scaleX(1); }
+.tier:focus-visible { outline: 1px solid var(--acc); outline-offset: 2px; }
+
+/* ── the mat ───────────────────────────────────────────────────────────── */
+.mat { position: relative; margin-top: 14px; border: 1px solid var(--line); background:
+  linear-gradient(rgba(233,236,242,.035) 1px, transparent 1px) 0 0 / 24px 24px,
+  linear-gradient(90deg, rgba(233,236,242,.035) 1px, transparent 1px) 0 0 / 24px 24px,
+  radial-gradient(80% 70% at 50% 45%, rgba(255,75,31,.05), rgba(255,75,31,0) 70%), #050506; }
+.mat::before, .mat::after { content: ''; position: absolute; width: 10px; height: 10px; pointer-events: none; z-index: 3; }
+.mat::before { left: -1px; top: -1px; border-left: 1px solid var(--acc); border-top: 1px solid var(--acc); }
+.mat::after { right: -1px; bottom: -1px; border-right: 1px solid var(--acc); border-bottom: 1px solid var(--acc); }
+.mat-bar { display: flex; justify-content: space-between; align-items: center; padding: 11px 16px; border-bottom: 1px solid var(--line); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+.mat-bar b { color: #fff; font-weight: 400; }
+.mat-bar .acc { color: var(--acc); }
+.mat-bar.foot { border-bottom: 0; border-top: 1px solid var(--line); }
+.board { position: relative; aspect-ratio: 5 / 4; overflow: hidden; }
+
+/* a piece of gear: placed by its tier's slot, gliding between them */
+.gear { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); display: grid; place-items: center;
+  transition: left var(--move) cubic-bezier(.65,0,.35,1), top var(--move) cubic-bezier(.65,0,.35,1), width var(--move) cubic-bezier(.65,0,.35,1), height var(--move) cubic-bezier(.65,0,.35,1); }
+.gear .art { position: relative; width: 100%; height: 100%; transition: transform .6s cubic-bezier(.34,1.5,.64,1), opacity .35s linear; }
+.gear svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.gear.off .art { opacity: 0; transform: translateY(26px) scale(.7) rotate(-10deg); transition: transform .35s cubic-bezier(.55,0,1,.45), opacity .25s linear; }
+.gear.on .art { transition-delay: var(--d, 0s); }
+.gear .tag { position: absolute; left: 50%; bottom: -4px; transform: translate(-50%, 100%); font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-faint); white-space: nowrap; opacity: 0; transition: opacity .25s linear; pointer-events: none; }
+.board:hover .gear.on .tag { opacity: 1; }
+.gear.new .art::after { content: ''; position: absolute; left: 50%; top: 50%; width: 70%; aspect-ratio: 1; border-radius: 50%; transform: translate(-50%, -50%) scale(.3); border: 1px solid var(--acc); opacity: 0;
+  animation: ping .9s var(--d, 0s) cubic-bezier(.16,.62,.36,1) both; pointer-events: none; }
+@keyframes ping { 0% { opacity: .8; transform: translate(-50%, -50%) scale(.3); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.3); } }
+/* the pack: one slot, three packs, swapped */
+.gear.pack .art svg { transition: opacity .35s linear, transform .55s cubic-bezier(.34,1.5,.64,1); }
+.gear.pack .art svg:not(.cur) { opacity: 0; transform: scale(.8) translateY(10px); }
+
+/* the drawings */
+.ink { fill: none; stroke: rgba(233,236,242,.88); stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.ink.thin { stroke-width: 1; stroke: rgba(233,236,242,.5); }
+.fill { fill: #19191c; }
+.fill2 { fill: #26262b; }
+.acc-f { fill: #FF4B1F; }
+.acc-s { fill: none; stroke: #FF4B1F; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.pale-f { fill: #e9ecf2; }
+
+/* ── the stage and its services ─────────────────────────────────────────── */
+.state .k { display: flex; align-items: center; gap: 12px; font-size: clamp(13px, .95vw, 15px); letter-spacing: .16em; text-transform: uppercase; color: #fff; }
+.state .k::before { content: ''; width: 9px; height: 9px; background: var(--acc); }
+.state .k b { color: var(--acc); font-weight: 400; }
+.state .k i { flex: 0 0 40px; height: 1px; background: var(--line-2); }
+.state .blurb { margin-top: 14px; max-width: 30ch; color: #fff; font-size: clamp(20px, 1.9vw, 32px); line-height: 1.22; letter-spacing: -.02em; min-height: 2.5em; }
+.lists { margin-top: clamp(24px, 4vh, 40px); display: grid; grid-template-columns: 1fr 1fr; gap: clamp(20px, 2.6vw, 44px); }
+.list h3 { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--line-2); font-weight: 400; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-mute); }
+.list h3 span { display: inline-flex; align-items: center; gap: 10px; } .list h3 span::before { content: ''; width: 6px; height: 6px; background: var(--acc); }
+.list h3 b { font-weight: 400; color: var(--acc); letter-spacing: .12em; }
+.list ol { list-style: none; }
+.sv { position: relative; display: grid; grid-template-columns: 36px 1fr; column-gap: 8px; padding: 14px 0 15px; border-bottom: 1px solid var(--line); }
+.sv .ix { padding-top: .3em; font-size: 10px; letter-spacing: .1em; color: var(--ink-faint); font-variant-numeric: tabular-nums; transition: color .2s linear; }
+.sv .nm { color: #fff; font-size: clamp(15px, 1.12vw, 18px); line-height: 1.25; letter-spacing: -.005em; }
+.sv .ds { grid-column: 2; margin-top: 5px; font-size: 12.5px; line-height: 1.5; color: var(--ink-mute); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.sv::before { content: ''; position: absolute; left: 0; bottom: -1px; height: 1px; width: 100%; background: var(--acc); transform: scaleX(0); transform-origin: left; transition: transform .4s cubic-bezier(.22,.9,.3,1); }
+.sv:hover::before { transform: scaleX(1); }
+.sv:hover .ix { color: var(--acc); }
+.lists.swap .sv { animation: svc-in .5s calc(var(--k) * 40ms) cubic-bezier(.22,1,.36,1) both; }
+@keyframes svc-in { from { opacity: 0; transform: translateY(8px); } }
+
+@media (max-width: 1100px) {
+  .gs-body { grid-template-columns: 1fr; }
+  .mat { max-width: 720px; }
+}
+@media (max-width: 640px) {
+  .gs { padding: 64px 16px 40px; }
+  .gs-title > p { display: none; } .gs-title h1 { font-size: 28px; }
+  .tier { padding: 10px 8px; align-items: center; text-align: center; } .tier .s { display: none; } .tier .l { font-size: 13px; white-space: normal; }
+  .lists { grid-template-columns: 1fr; }
+  .board { aspect-ratio: 1 / 1; }
+}
+@media (prefers-reduced-motion: reduce) { .gear, .gear .art, .gear.pack .art svg { transition: none !important; } .gear.new .art::after { animation: none; } }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<main class="gs">
+  <header class="gs-title">
+    <div><p class="eyebrow">[ &nbsp;Our services&nbsp; ]</p><h1>Gear up for your climb</h1></div>
+    <p>Every climb takes its own kit. <b>Pick your stage</b> and see what we bring to the mountain.</p>
+  </header>
+  <div class="gs-body">
+    <section aria-label="The kit">
+      <div class="tiers" role="tablist" aria-label="Company stage" id="tiers"></div>
+      <div class="mat">
+        <p class="mat-bar"><span>Kit <b id="m-n">01</b> · <span class="acc" id="m-name">Base kit</span></span><span>Items <b id="m-c">04</b></span></p>
+        <div class="board" id="board" aria-hidden="true"></div>
+        <p class="mat-bar foot"><span>Pack weight <b id="m-w">3.4</b> kg</span><span id="m-for">For early-stage startups</span></p>
+      </div>
+    </section>
+    <section class="state" aria-live="polite">
+      <p class="k"><b id="st-n">01</b><i></i><span id="st-l">Early-stage startup</span></p>
+      <p class="blurb" id="blurb"></p>
+      <div class="lists" id="lists"></div>
+    </section>
+  </div>
+</main>
+
+<script type="module">
+  import { applyBaked, bakeControls } from './assets/bake.js';
+  /* GEAR_CONFIG — the tiers, and how the kit moves between them */
+  const GEAR_CONFIG = {
+    move: 0.7,            // s, gear gliding to its new place
+    stagger: 0.09,        // s between new pieces dropping in
+    tiers: [
+      { name: 'Base kit',       stage: 'Early-stage',  for: 'For early-stage startups', weight: 3.4 },
+      { name: 'Expedition kit', stage: 'Mid-size',     for: 'For mid-size companies',   weight: 11.8 },
+      { name: 'Summit kit',     stage: 'Established',  for: 'For established companies', weight: 19.6 },
+    ],
+  };
+  const C = GEAR_CONFIG, KEY = 'tibba.bake.services-gear';
+  applyBaked(KEY, C);
+  const S = window.TIBBA_SERVICES;
+  const STAGE_LABEL = ['Early-stage startup', 'Mid-size company', 'Established company'];
+
+  /* ── the drawings: flat, hairline and orange, each in a 100 × 100 box ── */
+  const svg = (inner, vb = '0 0 100 100') => `<svg viewBox="${vb}" preserveAspectRatio="xMidYMid meet">${inner}</svg>`;
+  const ART = {
+    shoes: svg(`<g transform="translate(0 6)">${[0, 1].map(k => `<g transform="translate(${k * 6} ${k * 20})">
+        <path class="fill" d="M8 50 Q10 34 26 31 L46 26 Q53 25 57 31 L78 42 Q88 47 86 55 L83 59 L12 59 Q6 57 8 50 Z"/>
+        <path class="ink" d="M8 50 Q10 34 26 31 L46 26 Q53 25 57 31 L78 42 Q88 47 86 55 L83 59 L12 59 Q6 57 8 50 Z"/>
+        <path class="acc-s" d="M30 31 L36 45 M40 28 L46 42"/><path class="ink" d="M10 59 L84 59" stroke-width="3"/></g>`).join('')}</g>`),
+    chalk: svg(`<path class="fill" d="M30 30 L70 30 L72 78 Q72 88 50 88 Q28 88 28 78 Z"/><path class="ink" d="M30 30 L70 30 L72 78 Q72 88 50 88 Q28 88 28 78 Z"/>
+        <path class="ink" d="M28 30 Q50 22 72 30"/><path class="acc-s" d="M50 24 Q46 12 38 10 M50 24 Q56 12 63 11"/><circle class="acc-f" cx="50" cy="25" r="2.6"/>
+        <path class="ink thin" d="M32 46 L68 46"/><rect class="fill2" x="44" y="56" width="12" height="18" rx="2"/><path class="ink thin" d="M44 56 h12 v18 h-12 z"/>`),
+    bottle: svg(`<rect class="acc-f" x="40" y="8" width="20" height="10" rx="2"/><path class="fill" d="M38 18 h24 v6 q8 4 8 14 v48 q0 6 -6 6 h-28 q-6 0 -6 -6 v-48 q0 -10 8 -14 z"/>
+        <path class="ink" d="M38 18 h24 v6 q8 4 8 14 v48 q0 6 -6 6 h-28 q-6 0 -6 -6 v-48 q0 -10 8 -14 z"/><path class="ink thin" d="M30 48 h40 M30 70 h40"/>`),
+    harness: svg(`<ellipse class="ink" cx="50" cy="34" rx="34" ry="14"/><ellipse class="ink thin" cx="50" cy="34" rx="28" ry="9"/>
+        <path class="fill2" d="M22 40 q-6 18 6 30 q10 8 18 -4 q-8 -10 -6 -22 z"/><path class="ink" d="M22 40 q-6 18 6 30 q10 8 18 -4 q-8 -10 -6 -22"/>
+        <path class="fill2" d="M78 40 q6 18 -6 30 q-10 8 -18 -4 q8 -10 6 -22 z"/><path class="ink" d="M78 40 q6 18 -6 30 q-10 8 -18 -4 q8 -10 6 -22"/>
+        <path class="acc-s" d="M44 46 q6 14 12 0"/><rect class="acc-f" x="46" y="44" width="8" height="5" rx="1"/>`),
+    rope: svg(`${[0, 1, 2, 3, 4].map(k => `<ellipse cx="50" cy="${48 + k * 1.5}" rx="${38 - k * 4}" ry="${26 - k * 3}" fill="none" stroke="#FF4B1F" stroke-width="3.2" stroke-opacity="${1 - k * .12}"/>`).join('')}
+        <ellipse cx="50" cy="48" rx="38" ry="26" fill="none" stroke="#fff" stroke-width="1" stroke-dasharray="2 7" stroke-opacity=".6"/>
+        <path d="M50 22 q-4 -10 6 -14 q8 4 2 14" fill="none" stroke="#FF4B1F" stroke-width="3"/><path class="ink" d="M44 22 h14" stroke-width="2"/>`),
+    carabiners: svg(`${[0, 1].map(k => `<g transform="translate(${k * 30} ${k * 6}) rotate(${k ? 12 : -8} 35 50)">
+        <path class="ink" d="M22 18 Q22 12 30 12 L40 12 Q48 12 48 22 L46 78 Q45 88 36 88 L30 88 Q20 88 20 78 Z" stroke-width="2.4"/>
+        <path class="${k ? 'acc-s' : 'ink thin'}" d="M24 34 L26 66"/><rect class="pale-f" x="27" y="70" width="10" height="5" rx="1" opacity=".7"/></g>`).join('')}`),
+    belay: svg(`<path class="fill2" d="M30 22 L70 22 L78 76 Q78 82 72 82 L28 82 Q22 82 22 76 Z"/><path class="ink" d="M30 22 L70 22 L78 76 Q78 82 72 82 L28 82 Q22 82 22 76 Z"/>
+        <rect class="fill" x="34" y="40" width="10" height="26" rx="5"/><rect class="fill" x="56" y="40" width="10" height="26" rx="5"/><path class="ink thin" d="M34 40 h10 v26 h-10z M56 40 h10 v26 h-10z"/>
+        <path class="acc-s" d="M50 82 L50 94 M44 94 h12"/>`),
+    helmet: svg(`<path class="acc-f" d="M14 64 Q14 22 50 20 Q86 22 86 64 Z"/><path class="ink" d="M14 64 Q14 22 50 20 Q86 22 86 64 Z"/>
+        <path d="M24 48 q8 -14 22 -18 M56 30 q14 4 20 18" stroke="#000" stroke-opacity=".35" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <rect class="fill" x="10" y="62" width="80" height="8" rx="3"/><path class="ink" d="M10 62 h80 v8 h-80z"/><path class="ink thin" d="M30 70 q4 16 20 18 q16 -2 20 -18"/>`),
+    axe: svg(`<path class="fill2" d="M47 18 h6 v74 h-6 z"/><path class="ink" d="M47 18 h6 v74 h-6 z"/><path class="acc-f" d="M47 70 h6 v22 h-6 z"/>
+        <path class="fill" d="M18 22 Q34 12 50 14 Q70 12 86 18 L84 24 Q66 20 54 24 L46 24 Q34 22 22 30 Z"/><path class="ink" d="M18 22 Q34 12 50 14 Q70 12 86 18 L84 24 Q66 20 54 24 L46 24 Q34 22 22 30 Z"/>
+        <path class="ink" d="M50 92 L50 98"/>`),
+    quickdraws: svg(`${[0, 1].map(k => `<g transform="translate(${k * 34} 0)">
+        <path class="ink" d="M20 10 q0 -4 6 -4 h4 q6 0 6 6 l-1 18 q-1 6 -7 6 h-2 q-6 0 -6 -6 z" stroke-width="2"/>
+        <rect class="acc-f" x="22" y="38" width="10" height="24" rx="3"/>
+        <path class="ink" d="M20 66 q0 -4 6 -4 h4 q6 0 6 6 l-1 20 q-1 6 -7 6 h-2 q-6 0 -6 -6 z" stroke-width="2"/></g>`).join('')}`),
+    headlamp: svg(`<ellipse class="ink thin" cx="50" cy="52" rx="40" ry="16"/><path d="M10 52 Q50 74 90 52" stroke="#FF4B1F" stroke-width="5" fill="none"/>
+        <rect class="fill2" x="38" y="50" width="24" height="18" rx="4"/><path class="ink" d="M38 50 h24 v18 h-24z"/><circle class="pale-f" cx="50" cy="59" r="5"/>
+        <path d="M50 64 L30 96 L70 96 Z" fill="#fff6dd" opacity=".08"/>`),
+    daypack: svg(`<path class="fill" d="M28 28 Q28 18 40 18 h20 Q72 18 72 28 L74 84 Q74 90 68 90 h-36 Q26 90 26 84 Z"/><path class="ink" d="M28 28 Q28 18 40 18 h20 Q72 18 72 28 L74 84 Q74 90 68 90 h-36 Q26 90 26 84 Z"/>
+        <path class="ink" d="M40 18 q10 -10 20 0"/><rect class="fill2" x="34" y="56" width="32" height="24" rx="4"/><path class="ink thin" d="M34 56 h32 v24 h-32z"/><path class="acc-s" d="M38 62 h24"/>`),
+    backpack: svg(`<path class="fill" d="M24 22 Q24 10 38 10 h24 Q76 10 76 22 L80 88 Q80 94 74 94 h-48 Q20 94 20 88 Z"/><path class="ink" d="M24 22 Q24 10 38 10 h24 Q76 10 76 22 L80 88 Q80 94 74 94 h-48 Q20 94 20 88 Z"/>
+        <path class="fill2" d="M22 24 Q50 14 78 24 L78 38 Q50 30 22 38 Z"/><path class="ink" d="M22 24 Q50 14 78 24 L78 38 Q50 30 22 38 Z"/>
+        <path class="acc-s" d="M22 54 h56 M22 72 h56"/><rect class="fill2" x="36" y="58" width="28" height="22" rx="3"/><path class="ink thin" d="M36 58 h28 v22 h-28z"/>`),
+    exppack: svg(`<path class="fill" d="M24 14 Q24 4 38 4 h24 Q76 4 76 14 L82 90 Q82 98 74 98 h-48 Q18 98 18 90 Z"/><path class="ink" d="M24 14 Q24 4 38 4 h24 Q76 4 76 14 L82 90 Q82 98 74 98 h-48 Q18 98 18 90 Z"/>
+        <path class="fill2" d="M22 16 Q50 6 78 16 L78 30 Q50 22 22 30 Z"/><path class="ink" d="M22 16 Q50 6 78 16 L78 30 Q50 22 22 30 Z"/>
+        <rect class="acc-f" x="14" y="40" width="72" height="12" rx="6"/><path class="ink" d="M14 46 h72" stroke-width="1"/>
+        <path class="acc-s" d="M20 66 h60 M21 82 h58"/><path class="ink thin" d="M30 30 L30 92 M70 30 L70 92"/><rect class="fill2" x="38" y="58" width="24" height="30" rx="3"/><path class="ink thin" d="M38 58 h24 v30 h-24z"/>`),
+  };
+  const LABEL = { shoes: 'Climbing shoes', chalk: 'Chalk bag', bottle: 'Water', harness: 'Harness', rope: 'Rope', carabiners: 'Carabiners', belay: 'Belay device',
+    helmet: 'Helmet', axe: 'Ice axe', quickdraws: 'Quickdraws', headlamp: 'Headlamp', pack: 'Pack' };
+  const PACK = ['daypack', 'backpack', 'exppack'], PACK_NAME = ['Daypack', '45 L pack', '70 L expedition pack'];
+
+  /* where each piece lies on the mat, per tier: [x, y, w, h] in % of the board;
+     a piece missing from a tier is off the mat there */
+  const SLOT = {
+    pack:       [[10, 12, 30, 54], [4, 6, 26, 60], [3, 4, 22, 62]],
+    chalk:      [[47, 13, 16, 34], [64, 45, 13, 28], [36, 70, 12, 26]],
+    bottle:     [[69, 10, 12, 40], [82, 43, 10, 32], [51, 68, 8, 28]],
+    shoes:      [[42, 56, 46, 34], [4, 70, 40, 27], [3, 70, 30, 26]],
+    harness:    [null, [64, 6, 32, 34], [76, 4, 21, 28]],
+    rope:       [null, [34, 6, 27, 34], [51, 4, 22, 28]],
+    carabiners: [null, [34, 45, 13, 28], [76, 36, 10, 30]],
+    belay:      [null, [49, 47, 12, 24], [87, 38, 10, 24]],
+    helmet:     [null, null, [28, 4, 20, 28]],
+    axe:        [null, null, [28, 36, 20, 30]],
+    quickdraws: [null, null, [51, 36, 22, 30]],
+    headlamp:   [null, null, [62, 70, 35, 24]],
+  };
+  const ORDER = Object.keys(SLOT);
+  const board = document.getElementById('board');
+  board.innerHTML = ORDER.map(id => `<div class="gear off${id === 'pack' ? ' pack' : ''}" data-id="${id}"><div class="art">${
+    id === 'pack' ? PACK.map((p, k) => ART[p].replace('<svg ', `<svg data-k="${k}" `)).join('') : ART[id]}</div><span class="tag">${LABEL[id]}</span></div>`).join('');
+  const gearEl = Object.fromEntries([...board.children].map(el => [el.dataset.id, el]));
+  const setMove = () => board.style.setProperty('--move', C.move + 's');
+  setMove();
+
+  /* ── the tiers ───────────────────────────────────────────────────────── */
+  const tiersEl = document.getElementById('tiers');
+  tiersEl.innerHTML = C.tiers.map((t, i) => `<button class="tier" role="tab" aria-selected="false" data-i="${i}"><span class="n">0${i + 1}</span><span class="l">${t.name}</span><span class="s">${t.stage}</span></button>`).join('');
+  const tierBtns = [...tiersEl.children];
+  const $ = id => document.getElementById(id);
+  const pad = (n, w = 2) => String(n).padStart(w, '0');
+  const STRATEGY = /research|testing|strategy|marketing|analysis/i;
+  let cur = -1;
+
+  function lay(i, first) {
+    const up = i > cur;
+    let n = 0, count = 0;
+    ORDER.forEach(id => {
+      const el = gearEl[id], s = SLOT[id][i];
+      if (!s) { el.classList.remove('on', 'new'); el.classList.add('off'); return; }
+      count++;
+      const was = el.classList.contains('on');
+      el.style.setProperty('--x', s[0] + '%'); el.style.setProperty('--y', s[1] + '%');
+      el.style.setProperty('--w', s[2] + '%'); el.style.setProperty('--h', s[3] + '%');
+      if (!was) {
+        /* new to the mat: placed without gliding, then dropped in, in turn */
+        el.style.transition = 'none'; void el.offsetWidth; el.style.transition = '';
+        el.style.setProperty('--d', (first ? .15 : C.move * .45) + n++ * C.stagger + 's');
+        el.classList.remove('off'); el.classList.add('on', 'new');
+        setTimeout(() => el.classList.remove('new'), 1600);
+      }
+    });
+    /* the pack: swapped for this tier's */
+    gearEl.pack.querySelectorAll('svg').forEach(sv => sv.classList.toggle('cur', +sv.dataset.k === i));
+    gearEl.pack.querySelector('.tag').textContent = PACK_NAME[i];
+    count += 0;
+    const t = C.tiers[i];
+    $('m-n').textContent = pad(i + 1); $('m-name').textContent = t.name; $('m-for').textContent = t.for;
+    const cEl = $('m-c'), wEl = $('m-w');
+    cEl.textContent = pad(count); wEl.textContent = t.weight.toFixed(1);
+    if (window.Odometer && !first) { delete cEl.dataset.odoText; window.Odometer.count(cEl, { duration: .8 }); }
+  }
+
+  function services(i) {
+    const st = S[i];
+    $('st-n').textContent = pad(i + 1); $('st-l').textContent = STAGE_LABEL[i];
+    $('blurb').textContent = st.blurb;
+    const left = st.services.filter(s => STRATEGY.test(s.name)), right = st.services.filter(s => !STRATEGY.test(s.name));
+    let k = 0, n = 0;
+    const col = (title, list) => `<div class="list"><h3><span>${title}</span><b>${pad(list.length)}</b></h3><ol>${list.map(s =>
+      `<li class="sv" style="--k:${k++}"><span class="ix">${pad(++n, 3)}</span><span class="nm">${s.name}</span><span class="ds">${s.points[2] || s.points[0]}</span></li>`).join('')}</ol></div>`;
+    const lists = $('lists');
+    lists.innerHTML = col('Research and strategy', left) + col('Design &amp; delivery', right);
+    lists.classList.remove('swap'); void lists.offsetWidth; lists.classList.add('swap');
+  }
+
+  function pick(i, first) {
+    if (i === cur) return;
+    tierBtns.forEach((b, k) => { b.setAttribute('aria-selected', String(k === i)); b.tabIndex = k === i ? 0 : -1; });
+    lay(i, first); services(i); cur = i;
+  }
+  tierBtns.forEach((b, i) => b.addEventListener('click', () => pick(i)));
+  tiersEl.addEventListener('keydown', e => {
+    const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (!d) return;
+    const i = (cur + d + 3) % 3; pick(i); tierBtns[i].focus();
+  });
+  /* the kit is laid out the first time the mat comes into view */
+  services(0);
+  tierBtns[0].setAttribute('aria-selected', 'true');
+  new IntersectionObserver(([e], io) => { if (!e.isIntersecting) return; io.disconnect(); cur = -1; pick(0, true); }, { threshold: .3 }).observe(board);
+
+  /* ── the panel ───────────────────────────────────────────────────── */
+  const el = document.createElement('div'); el.id = 'tune';
+  const R = (id, label, min, max, step, val, unit = '') => `<div class="row"><label>${label}<i id="v-${id}">${val}${unit}</i></label><input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}" data-unit="${unit}"></div>`;
+  el.innerHTML = `<div id="tune-head"><b>Services — gear tiers</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <p class="tune-sub">Motion</p>${R('mv', 'Glide', .2, 1.6, .05, C.move, 's')}${R('sg', 'Drop-in stagger', 0, .3, .01, C.stagger, 's')}
+    <div class="row inline"><label>Kit<i></i></label><button class="tune-btn" id="s-rp">Replay</button></div>
+    ${bakeControls.html}`;
+  document.body.appendChild(el);
+  const q = id => el.querySelector('#' + id);
+  const bind = (id, fn) => q('s-' + id).addEventListener('input', e => { const v = +e.target.value; q('v-' + id).textContent = v + e.target.dataset.unit; fn(v); });
+  bind('mv', v => { C.move = v; setMove(); }); bind('sg', v => { C.stagger = v; });
+  q('s-rp').addEventListener('click', () => { const i = cur; ORDER.forEach(id => { gearEl[id].classList.remove('on'); gearEl[id].classList.add('off'); }); cur = -1; setTimeout(() => pick(i, true), 400); });
+  bakeControls.bind(el, KEY, C, 'GEAR_CONFIG');
+  q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+  if (window.wb && window.wb.adopt) window.wb.adopt();
+</script>
+</body>
+</html>

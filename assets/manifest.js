@@ -75,7 +75,7 @@ window.TIBBA_SITE = {
 
     { id: 'brands', label: 'Brands section',
       note: 'The logo wall.',
-      pages: [ { id: 'brands-01', updated: '2026-10-06T18:00:00+07:00', change: "85vh in the site, grey closing tile; phones use the mosaic rows", label: 'Brands', file: 'brands.html',
+      pages: [ { id: 'brands-01', updated: '2026-10-07T21:00:00+07:00', change: "Firstpost's own logo", label: 'Brands', file: 'brands.html',
                  note: 'Fourteen tiles and a title filling the viewport; each plays its own contour field on hover', state: 'live' },
                { id: 'brands-mosaic', updated: '2026-10-01T12:00:00+07:00', change: 'Mobile: no gutters, shorter boxes; height, logos-per-row, rows and speed controls', label: 'Brands — mosaic', file: 'brands-mosaic.html',
                  note: 'The same brands in boxes of composed, varied sizes on a written six-by-five grid', state: 'live' } ] },
@@ -140,7 +140,9 @@ window.TIBBA_SITE = {
                { id: 'services-compass-v6', updated: '2026-10-07T18:00:00+07:00', change: 'New: a simpler compass, only half of it on screen', label: 'Compass v6 — half compass', file: 'services-compass-v6.html',
                  note: 'A plainer compass cut in half by the page edge (the foot, on phones); the dial turns so the chosen stage faces the services', state: 'live' },
                { id: 'services-compass-v7', updated: '2026-10-07T18:00:00+07:00', change: 'New: a small compass resting on a stone', label: 'Compass v7 — on a surface', file: 'services-compass-v7.html',
-                 note: 'The compass small and laid flat on a contoured stone under the tabs, an accent beside the statement and ledgers', state: 'live' } ] },
+                 note: 'The compass small and laid flat on a contoured stone under the tabs, an accent beside the statement and ledgers', state: 'live' },
+               { id: 'services-gear', updated: '2026-10-07T21:00:00+07:00', change: 'New: climbing gear tiers instead of the compass', label: 'Gear tiers', file: 'services-gear.html',
+                 note: 'Three tiers of climbing kit laid out on a mat, upgrading as the stage grows; the services in two plain columns', state: 'live' } ] },
 
     { id: 'testimonials', label: 'Our testimonials',
       note: 'What clients say.',
@@ -154,8 +156,10 @@ window.TIBBA_SITE = {
                  note: 'The section that sits between the testimonials and the footer', state: 'live' },
                { id: 'studio-photos', label: 'Photographs', file: 'studio-photos.html',
                  note: 'Seven photographs staggered around a centred title', state: 'live' },
-               { id: 'studio-polaroids', updated: '2026-10-01T22:00:00+07:00', change: "One title per print; on mobile a messy stack you swipe through", label: 'Polaroids', file: 'studio-polaroids.html',
-                 note: 'The team and studio life as polaroids that spring in from the sides; layout editable and bakeable on the panel', state: 'live' } ] },
+               { id: 'studio-polaroids', updated: '2026-10-07T21:00:00+07:00', change: "Only the studio's six photos", label: 'Polaroids', file: 'studio-polaroids.html',
+                 note: 'The team and studio life as polaroids that spring in from the sides; layout editable and bakeable on the panel', state: 'live' },
+               { id: 'studio-frames', updated: '2026-10-07T21:00:00+07:00', change: 'New: the six photos in polaroid frames, captions rolled in on hover', label: 'Framed prints', file: 'studio-frames.html',
+                 note: 'The studio photos in polaroid frames built like the team cards; desktop shows only the photos until hover rolls the caption in on the odometer; tablets and phones show it always', state: 'live' } ] },
 
     { id: 'footer', label: 'Footer',
       note: 'The bottom of every page.',

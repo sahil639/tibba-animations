@@ -37,8 +37,8 @@
    as the new defaults. From then on the resting layout is plain data —
    it never depends on where an animation happened to stop.
 
-   The four portraits are the team's own cut-outs (assets/people/) set on a
-   studio backdrop; the landscape prints are assets/studio/.
+   Six prints: the studio's own photos (assets/studio/team-*), the sixth a
+   stand-in until its photo arrives.
    ═════════════════════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow: hidden; }
@@ -110,26 +110,23 @@ body.stacked .dots i.on { background: var(--accent); transform: scale(1.4); }
    ═════════════════════════════════════════════════════════════════════════ */
 const POLAROID_CONFIG = {
   scale: 1,              // one scale for every print
-  baseWidth: 180,        // px width of a print at scale 1 on a 1440px-wide table
+  baseWidth: 210,        // px width of a print at scale 1 on a 1440px-wide table
   shadow: { y: 8, blur: 22, opacity: 0.26 },
   /* the entrance: a damped spring per print. stiffness pulls it home,
      damping bleeds the bounce (critical ≈ 2·√stiffness — lower is springier) */
   spring: { stiffness: 120, damping: 14, stagger: 0.07, travel: 120, spin: 18 },
   /* one title per print, in order — edit on the panel, or double-click a caption */
-  titles: ['Rahul', 'Neel', 'Riya', 'Sahil', "Team Tibba '25", 'Remote friendly', 'Base camp', 'First light', 'The long ridge'],
+  titles: ['On the ridge', 'Crit hour', 'Speaking at VizChitra', 'Home base', 'After the launch', 'Next climb'],
   /* mobile: the stack, and the swipe that cycles it */
   stack: { spring: 170, damping: 22, threshold: 0.26, spread: 1, tilt: 1 },
   /* x, y: the print's top-left as a fraction of the table; r: degrees */
   cards: [
-    { x: 0.07, y: 0.08, r: -5 },
-    { x: 0.30, y: 0.05, r: 3 },
-    { x: 0.61, y: 0.06, r: -2 },
-    { x: 0.83, y: 0.10, r: 6 },
-    { x: 0.04, y: 0.44, r: 4 },
-    { x: 0.85, y: 0.42, r: -4 },
-    { x: 0.17, y: 0.66, r: -3 },
-    { x: 0.44, y: 0.68, r: 2 },
-    { x: 0.68, y: 0.64, r: -6 },
+    { x: 0.07, y: 0.07, r: -5 },
+    { x: 0.42, y: 0.04, r: 3 },
+    { x: 0.78, y: 0.08, r: -3 },
+    { x: 0.06, y: 0.56, r: 4 },
+    { x: 0.43, y: 0.66, r: -2 },
+    { x: 0.79, y: 0.57, r: 5 },
   ],
 };
 const BAKE_KEY = 'tibba.polaroids.layout';
@@ -141,12 +138,11 @@ const BAKE_KEY = 'tibba.polaroids.layout';
   try { const b = JSON.parse(localStorage.getItem(BAKE_KEY) || 'null'); if (b && b.cards && b.cards.length === C.cards.length) { Object.assign(C, b); } } catch {}
   if (!C.stack) C.stack = { spring: 170, damping: 22, threshold: 0.26, spread: 1, tilt: 1 };
 
+  /* the studio's six photos (the sixth is a stand-in until it arrives) */
   const PICS = [
-    { person: 'assets/people/rahul.png' }, { person: 'assets/people/neel.png' },
-    { person: 'assets/people/riya.png' }, { person: 'assets/people/sahil.png' },
-    { img: 'assets/studio/01-dawn.jpg' }, { img: 'assets/studio/05-lake.jpg' },
-    { img: 'assets/studio/06-night.jpg' }, { img: 'assets/studio/07-summit.jpg' },
-    { img: 'assets/studio/03-ridge.jpg' },
+    { img: 'assets/studio/team-01-ridge.webp' }, { img: 'assets/studio/team-02-review.webp' },
+    { img: 'assets/studio/team-03-talk.webp' }, { img: 'assets/studio/team-04-desk.webp' },
+    { img: 'assets/studio/team-05-cheers.webp' }, { img: 'assets/studio/team-06-placeholder.svg' },
   ];
   const title = i => (C.titles && C.titles[i]) || '';
   const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));

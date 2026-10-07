@@ -63,11 +63,11 @@ export const HOME_SECTIONS = [
     variants: [{ file: 'services-compass-v4.html', label: 'Compass v4' }, { file: 'services-compass-v3.html', label: 'Compass v3' },
                { file: 'services-topo.html', label: 'Shifting Topo' },
                { file: 'services-compass-v5.html', label: 'Compass v5 — reference layout' }, { file: 'services-compass-v6.html', label: 'Compass v6 — half compass' },
-               { file: 'services-compass-v7.html', label: 'Compass v7 — on a surface' }] },
+               { file: 'services-compass-v7.html', label: 'Compass v7 — on a surface' }, { file: 'services-gear.html', label: 'Gear tiers' }] },
   { id: 'testimonials', label: 'Testimonials', folder: 'Our testimonials', nav: 'Voices', navMinor: true,
     variants: [{ file: 'testimonials-topo.html', label: 'Testimonials — topo' }] },
   { id: 'studio', label: 'Our studio', folder: 'Our studio', nav: 'Studio', navMinor: true,
-    variants: [{ file: 'studio-polaroids.html', label: 'Polaroids' }] },
+    variants: [{ file: 'studio-polaroids.html', label: 'Polaroids' }, { file: 'studio-frames.html', label: 'Framed prints' }] },
   FOOTER,
 ];
 
@@ -102,6 +102,7 @@ export const PAGE_CSS = {
   'brands.html': `#brands { height: 85vh !important; min-height: 0 !important; }
     .tile.cta { background: #1d1d20 !important; } .tile.cta:hover { background: #232327 !important; }`,
   'studio-polaroids.html': `#reset { display: none !important; }`,
+  'studio-frames.html': `.studio { padding-top: 8vh !important; }`,
 };
 
 /* the strip along the navbar's foot: working with the studio */

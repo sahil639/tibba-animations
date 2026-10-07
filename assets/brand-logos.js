@@ -58,6 +58,7 @@
     'apnaklub':             { name: 'Apnaklub',             ratio: 4.48,  weight: 0.98 },
     'simsim':               { name: 'simsim',               ratio: 4.07,  weight: 0.92 },
     'bombay-shirt-company': { name: 'Bombay Shirt Company', ratio: 8.02,  weight: 1.0 },
+    'firstpost':            { name: 'Firstpost',            ratio: 4.31,  weight: 0.9 },
   };
   const file = k => 'assets/logos/' + k + '.svg';
 

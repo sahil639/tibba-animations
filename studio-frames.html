@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our studio — framed prints</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<script src="assets/odometer.js" defer></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Our studio — framed prints (Polaroids v2)
+   ─────────────────────────────────────────────────────────────────────────
+   The studio's six photos, each set in a polaroid frame built the way the
+   About page's team cards are: a dark glass plate on a hairline, an index
+   row across the top (S—01 … and what kind of moment it was), the photo in
+   its window, and the deep polaroid margin at the foot where the caption
+   goes — a title and a line under it. Each print sits a degree or two off
+   true, as prints on a wall do.
+
+   Desktop: only the photos. On hover a print straightens and lifts, its
+   frame takes the orange hairline and corner brackets, and the caption
+   rolls in on the site's odometer (assets/odometer.js), index row first.
+   Tablets and phones (and any screen without hover): the captions are
+   there from the start, rolled in once as each print comes into view.
+
+   Every value: FRAMES_CONFIG in the script, on the panel, and bakeable.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+.studio { padding: clamp(84px, 13vh, 140px) var(--gut) clamp(72px, 11vh, 120px); max-width: 1500px; margin: 0 auto; }
+.head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
+.head .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.head h2 { margin-top: 14px; color: #fff; font-weight: 300; font-size: clamp(32px, 4vw, 66px); line-height: 1; letter-spacing: -.04em; }
+.head > p { max-width: 36ch; color: var(--ink-mute); font-size: 14px; line-height: 1.6; text-align: right; }
+
+.wall { margin-top: clamp(40px, 7vh, 80px); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gap, 34px) var(--gap, 34px); }
+
+/* the print */
+.print { --r: 0deg; position: relative; transform: rotate(calc(var(--r) * var(--tilt, 1))); transition: transform .55s cubic-bezier(.22,1,.36,1); outline: none; }
+.print .frame { position: relative; padding: var(--pad, 12px) var(--pad, 12px) 0; background: rgba(12,12,14,.92); border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 18px 40px rgba(0,0,0,.55); transition: border-color .4s linear, box-shadow .5s ease, transform .55s cubic-bezier(.22,1,.36,1); }
+.print .cn { position: absolute; width: 10px; height: 10px; border-color: #fff; border-style: solid; opacity: 0; transition: opacity .3s linear, transform .45s cubic-bezier(.22,1,.36,1); z-index: 2; }
+.print .cn.tl { left: -1px; top: -1px; border-width: 1px 0 0 1px; transform: translate(-6px, -6px); }
+.print .cn.tr { right: -1px; top: -1px; border-width: 1px 1px 0 0; transform: translate(6px, -6px); }
+.print .cn.bl { left: -1px; bottom: -1px; border-width: 0 0 1px 1px; transform: translate(-6px, 6px); }
+.print .cn.br { right: -1px; bottom: -1px; border-width: 0 1px 1px 0; transform: translate(6px, 6px); }
+.print .pin { position: absolute; right: -1px; top: -1px; width: 8px; height: 8px; background: var(--accent); z-index: 3; transform: scale(0); transition: transform .3s cubic-bezier(.22,1,.36,1); }
+.print .k { display: flex; justify-content: space-between; gap: 10px; height: 22px; align-items: flex-start; font-size: 9.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+.print .k b { color: var(--accent); font-weight: 400; }
+.print .ph { position: relative; aspect-ratio: var(--ratio, 1 / 1); overflow: hidden; background: #121214; }
+.print .ph img { display: block; width: 100%; height: 100%; object-fit: cover; transform: scale(1.02); filter: saturate(.92) contrast(1.03); transition: transform .9s cubic-bezier(.22,1,.36,1), filter .6s linear; }
+.print .ph::after { content: ''; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
+/* the polaroid margin: deep, and where the words go */
+.print .cap { height: var(--foot, 78px); display: flex; flex-direction: column; justify-content: center; gap: 7px; padding: 0 2px; }
+.print .t { color: #fff; font-weight: 300; font-size: clamp(18px, 1.5vw, 24px); line-height: 1; letter-spacing: -.025em; white-space: nowrap; overflow: hidden; }
+.print .s { font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-mute); white-space: nowrap; overflow: hidden; }
+.print .k > *, .print .t, .print .s { --odo-h: 1.12em; }
+
+/* desktop, at rest: only the photo */
+.print .k > *, .print .t, .print .s { visibility: hidden; }
+.print.shown .k > *, .print.shown .t, .print.shown .s { visibility: visible; }
+.print.hot { transform: rotate(0deg) translateY(-6px); z-index: 2; }
+.print.hot .frame { border-color: rgba(255,75,31,.55); box-shadow: 0 28px 60px rgba(0,0,0,.7); }
+.print.hot .cn { opacity: .9; transform: none; }
+.print.hot .pin { transform: scale(1); }
+.print.hot .ph img { transform: scale(1.06); filter: saturate(1.04) contrast(1.05); }
+.print:focus-visible .frame { outline: 1px solid var(--accent); outline-offset: 4px; }
+
+/* no hover (touch), or tablet and phone widths: the words are always there */
+@media (hover: none), (max-width: 1024px) {
+  .print .k > *, .print .t, .print .s { visibility: visible; }
+}
+@media (max-width: 1024px) { .wall { grid-template-columns: repeat(2, minmax(0, 1fr)); --gap: 22px; } .head > p { text-align: left; } }
+@media (max-width: 600px) {
+  .wall { grid-template-columns: 1fr; --gap: 26px; }
+  .print { width: 92%; } .print:nth-child(even) { justify-self: end; }
+}
+@media (prefers-reduced-motion: reduce) { .print, .print .frame, .print .ph img { transition: none; } }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<section class="studio" aria-labelledby="studio-h">
+  <header class="head">
+    <div><p class="eyebrow">[ &nbsp;Our studio&nbsp; ]</p><h2 id="studio-h">Team Tibba</h2></div>
+    <p>A lean design team based out of India, and the places we go to think.</p>
+  </header>
+  <div class="wall" id="wall"></div>
+</section>
+
+<script type="module">
+  import { applyBaked, bakeControls } from './assets/bake.js';
+  /* FRAMES_CONFIG — the prints, their words, and how they move */
+  const FRAMES_CONFIG = {
+    tilt: 1,             // how far off true the prints hang (× each print's own angle)
+    pad: 12,             // px, the frame's side margin
+    foot: 78,            // px, the polaroid margin at the foot, where the caption goes
+    gap: 34,             // px between prints
+    ratio: 1,            // photo window, width ÷ height
+    roll: { duration: .5, stagger: .018 },   // the odometer, per character
+    /* the six photos: kind (index row, right), title, line (the sixth is a stand-in) */
+    prints: [
+      { src: 'assets/studio/team-01-ridge.webp',       kind: 'Off-site',  title: 'On the ridge',          line: 'A monsoon climb, the whole team', r: -1.6 },
+      { src: 'assets/studio/team-02-review.webp',      kind: 'Studio',    title: 'Crit hour',             line: 'Reviewing the work, together',    r: 1.2 },
+      { src: 'assets/studio/team-03-talk.webp',        kind: 'On stage',  title: 'Speaking at VizChitra', line: 'A talk on data, design and news', r: -.8 },
+      { src: 'assets/studio/team-04-desk.webp',        kind: 'Base camp', title: 'Home base',             line: 'Where the climbs are planned',    r: 1.5 },
+      { src: 'assets/studio/team-05-cheers.webp',      kind: 'After',     title: 'After the launch',      line: 'Two steins for one shipped app',  r: -1.1 },
+      { src: 'assets/studio/team-06-placeholder.svg',  kind: 'Soon',      title: 'Next climb',            line: 'A photo still on its way',        r: .9 },
+    ],
+  };
+  const C = FRAMES_CONFIG, KEY = 'tibba.bake.studio-frames';
+  applyBaked(KEY, C);
+  const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const wall = document.getElementById('wall');
+  const pad = i => String(i + 1).padStart(2, '0');
+
+  wall.innerHTML = C.prints.map((p, i) => `
+    <figure class="print" tabindex="0" style="--r:${p.r}deg">
+      <div class="frame">
+        <span class="cn tl"></span><span class="cn tr"></span><span class="cn bl"></span><span class="cn br"></span><span class="pin"></span>
+        <p class="k"><b>S—${pad(i)}</b><span>${esc(p.kind)}</span></p>
+        <div class="ph"><img src="${p.src}" alt="${esc(p.title)}" loading="lazy" decoding="async"></div>
+        <figcaption class="cap"><span class="t">${esc(p.title)}</span><span class="s">${esc(p.line)}</span></figcaption>
+      </div>
+    </figure>`).join('');
+  const prints = [...wall.children];
+
+  function look() {
+    const s = document.documentElement.style;
+    s.setProperty('--tilt', C.tilt); s.setProperty('--pad', C.pad + 'px'); s.setProperty('--foot', C.foot + 'px');
+    s.setProperty('--gap', C.gap + 'px'); s.setProperty('--ratio', C.ratio);
+  }
+  look();
+
+  /* the odometer, rolled across a print's words: index row, then title, then line */
+  function rollIn(el, delay = 0) {
+    const O = window.Odometer; if (!O) return;
+    const parts = [...el.querySelectorAll('.k > *'), el.querySelector('.t'), el.querySelector('.s')];
+    let d = delay;
+    parts.forEach((n, k) => { const t = O.roll(n, { duration: C.roll.duration, stagger: C.roll.stagger, delay: d }); d += k < 2 ? .04 : .12; });
+  }
+  const always = () => matchMedia('(hover: none), (max-width: 1024px)').matches;
+
+  function wire() {
+    /* desktop: hover (or focus) shows and rolls the words */
+    prints.forEach(el => {
+      const on = () => { if (always()) return; el.classList.add('hot', 'shown'); rollIn(el); };
+      const off = () => { if (always()) return; el.classList.remove('hot', 'shown'); };
+      el.addEventListener('pointerenter', on); el.addEventListener('pointerleave', off);
+      el.addEventListener('focus', on); el.addEventListener('blur', off);
+    });
+    /* tablets and phones: the words are there, rolled in once as each print arrives */
+    const io = new IntersectionObserver(es => es.forEach(e => {
+      if (!e.isIntersecting || !always()) return;
+      io.unobserve(e.target); rollIn(e.target, .15);
+    }), { threshold: .35 });
+    prints.forEach(el => io.observe(el));
+  }
+  /* odometer.js is deferred: wait for it, and for the face, so the reels measure true */
+  const ready = () => window.Odometer ? (document.fonts ? document.fonts.ready : Promise.resolve()) : new Promise(r => setTimeout(r, 50)).then(ready);
+  ready().then(() => { prints.forEach(el => el.querySelectorAll('.k > *, .t, .s').forEach(n => window.Odometer.build(n))); wire(); });
+
+  /* ── the panel ───────────────────────────────────────────────────── */
+  const el = document.createElement('div'); el.id = 'tune';
+  const R = (id, label, min, max, step, val, unit = '') => `<div class="row"><label>${label}<i id="v-${id}">${val}${unit}</i></label><input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}" data-unit="${unit}"></div>`;
+  el.innerHTML = `<div id="tune-head"><b>Studio — framed prints</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <p class="tune-sub">The prints</p>
+    ${R('tl', 'Hang off true', 0, 3, .05, C.tilt, '×')}${R('pd', 'Frame margin', 4, 28, 1, C.pad, 'px')}${R('ft', 'Caption margin', 48, 130, 1, C.foot, 'px')}
+    ${R('gp', 'Gap', 8, 80, 1, C.gap, 'px')}${R('ra', 'Photo shape (w ÷ h)', .7, 1.5, .01, C.ratio)}
+    <p class="tune-sub">The odometer</p>
+    ${R('rd', 'Roll per character', .2, 1.4, .02, C.roll.duration, 's')}${R('rs', 'Stagger', 0, .08, .002, C.roll.stagger, 's')}
+    ${bakeControls.html}`;
+  document.body.appendChild(el);
+  const q = id => el.querySelector('#' + id);
+  const bind = (id, fn) => q('s-' + id).addEventListener('input', e => { const v = +e.target.value; q('v-' + id).textContent = v + e.target.dataset.unit; fn(v); look(); });
+  bind('tl', v => { C.tilt = v; }); bind('pd', v => { C.pad = v; }); bind('ft', v => { C.foot = v; }); bind('gp', v => { C.gap = v; }); bind('ra', v => { C.ratio = v; });
+  bind('rd', v => { C.roll.duration = v; }); bind('rs', v => { C.roll.stagger = v; });
+  bakeControls.bind(el, KEY, C, 'FRAMES_CONFIG');
+  q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+  if (window.wb && window.wb.adopt) window.wb.adopt();
+</script>
+</body>
+</html>
