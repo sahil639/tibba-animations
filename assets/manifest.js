@@ -159,7 +159,9 @@ window.TIBBA_SITE = {
                { id: 'studio-polaroids', updated: '2026-10-07T21:00:00+07:00', change: "Only the studio's six photos", label: 'Polaroids', file: 'studio-polaroids.html',
                  note: 'The team and studio life as polaroids that spring in from the sides; layout editable and bakeable on the panel', state: 'live' },
                { id: 'studio-frames', updated: '2026-10-07T21:00:00+07:00', change: 'New: the six photos in polaroid frames, captions rolled in on hover', label: 'Framed prints', file: 'studio-frames.html',
-                 note: 'The studio photos in polaroid frames built like the team cards; desktop shows only the photos until hover rolls the caption in on the odometer; tablets and phones show it always', state: 'live' } ] },
+                 note: 'The studio photos in polaroid frames built like the team cards; desktop shows only the photos until hover rolls the caption in on the odometer; tablets and phones show it always', state: 'live' },
+               { id: 'studio-polaroid-frames', updated: '2026-10-08T12:00:00+07:00', change: 'New: the Polaroids layout with the framed prints', label: 'Framed polaroids', file: 'studio-polaroid-frames.html',
+                 note: "Polaroids' scattered, draggable layout and phone stack, each print in Framed prints' frame; hover rolls the words in on the odometer", state: 'live' } ] },
 
     { id: 'footer', label: 'Footer',
       note: 'The bottom of every page.',

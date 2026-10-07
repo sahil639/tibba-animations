@@ -68,7 +68,7 @@ export const HOME_SECTIONS = [
   { id: 'testimonials', label: 'Testimonials', folder: 'Our testimonials', nav: 'Voices', navMinor: true,
     variants: [{ file: 'testimonials-topo.html', label: 'Testimonials — topo' }] },
   { id: 'studio', label: 'Our studio', folder: 'Our studio', nav: 'Studio', navMinor: true,
-    variants: [{ file: 'studio-polaroids.html', label: 'Polaroids' }, { file: 'studio-frames.html', label: 'Framed prints' }] },
+    variants: [{ file: 'studio-polaroids.html', label: 'Polaroids' }, { file: 'studio-frames.html', label: 'Framed prints' }, { file: 'studio-polaroid-frames.html', label: 'Framed polaroids' }] },
   FOOTER,
 ];
 
@@ -103,6 +103,7 @@ export const PAGE_CSS = {
   'brands.html': `#brands { height: 85vh !important; min-height: 0 !important; }
     .tile.cta { background: #1d1d20 !important; } .tile.cta:hover { background: #232327 !important; }`,
   'studio-polaroids.html': `#reset { display: none !important; }`,
+  'studio-polaroid-frames.html': `#reset { display: none !important; }`,
   'studio-frames.html': `.studio { padding-top: 8vh !important; }`,
 };
 
