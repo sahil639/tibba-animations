@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Footer — dusk grid</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<link rel="stylesheet" href="assets/footer-kit.css">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Footer — dusk grid
+   ─────────────────────────────────────────────────────────────────────────
+   Footer — blueprint dusk (footer-blueprint-dusk.html), duplicated and laid
+   out after the reference sketch. One hairline grid over the bottom-up
+   ground — orange at the foot, the site's deep green in the middle, black
+   at the top, grained like film:
+
+     left half    "Let's get to know you and your idea!" over a three-field
+                  form (name, email, the idea), and at the foot the campfire
+     right, top   page links | social links
+     right, mid   the extra: where we are, the studio's local time, a line
+                  from a client
+     right, foot  a thin ruler strip, then TIBBA drawn as a blueprint
+     the foot     legal, full width
+
+   Phones: one column — the form, the links two-up, the extra, the fire,
+   the word, the legal.
+   Shared parts: assets/footer-kit.js / .css. Every value: the CONFIG object
+   in the script, on the panel, and bakeable.
+   ═════════════════════════════════════════════════════════════════════════ */
+body { background: #000; }
+.dg { --ln: rgba(233,236,242,.2); position: relative; isolation: isolate; overflow: hidden; min-height: 100svh; display: grid;
+  grid-template-columns: minmax(0, 46%) minmax(0, 30%) minmax(0, 1fr); grid-template-rows: minmax(220px, 38fr) minmax(200px, 36fr) 28px minmax(170px, 23fr) auto;
+  border-top: 1px solid var(--ln);
+  background: radial-gradient(90% 40% at 30% 102%, rgba(232,84,40,.55), rgba(232,84,40,0) 70%),
+    linear-gradient(0deg, #d64a28 0%, #b2452c 9%, #7d4030 21%, #4a3630 33%, #1d2d2e 46%, #10262a 56%, #0a1719 70%, #040808 85%, #000 100%); }
+.dg .grain { position: absolute; inset: -50%; z-index: 5; pointer-events: none; opacity: .18; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.4 -.2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: grain 1.2s steps(6) infinite; }
+@keyframes grain { 0% { transform: translate(0, 0); } 33% { transform: translate(-3%, 2%); } 66% { transform: translate(2%, -3%); } 100% { transform: translate(0, 0); } }
+.dg .k { color: rgba(233,236,242,.55); }
+.dg .cell { position: relative; min-width: 0; padding: clamp(22px, 3.2vw, 56px); }
+.dg a:hover { color: #ff8a3d; }
+
+/* the left half: the form, and the fire at its foot */
+.dg .talk { grid-column: 1; grid-row: 1 / 5; border-right: 1px solid var(--ln); display: flex; flex-direction: column; padding-bottom: 0; }
+.dg .talk h2 { color: #fff; font-weight: 400; font-size: clamp(24px, 2.2vw, 38px); line-height: 1.15; letter-spacing: -.02em; }
+.dg form { margin-top: 18px; display: grid; gap: 8px; width: min(100%, 580px); }
+.dg input, .dg textarea { width: 100%; padding: 15px 16px; border: 1px solid rgba(233,236,242,.3); background: rgba(0,0,0,.18); color: #fff; outline: none;
+  font: 400 15px/1.4 'F37 Analog', system-ui, sans-serif; transition: border-color .2s linear, background .2s linear; resize: none; }
+.dg textarea { height: clamp(150px, 22vh, 230px); }
+.dg input::placeholder, .dg textarea::placeholder { color: rgba(233,236,242,.45); }
+.dg input:focus, .dg textarea:focus { border-color: #ff8a3d; background: rgba(0,0,0,.32); }
+.dg form button { justify-self: start; margin-top: 4px; display: inline-flex; align-items: center; gap: 12px; padding: 12px 18px; border: 1px solid rgba(233,236,242,.4); background: none; color: #fff;
+  cursor: pointer; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; transition: background .2s linear, color .2s linear, border-color .2s linear; }
+.dg form button i { width: 18px; height: 1px; background: currentColor; transition: width .3s cubic-bezier(.22,1,.36,1); }
+.dg form button:hover { background: #fff; color: #000; border-color: #fff; } .dg form button:hover i { width: 30px; }
+.dg form .sent { font-size: 13px; color: #ffd2b8; min-height: 1.2em; }
+.dg .camp { position: relative; flex: 1; min-height: 260px; margin: 8px calc(-1 * clamp(22px, 3.2vw, 56px)) 0; }
+.dg .camp canvas { position: absolute; inset: 0; }
+.dg .camp .k { position: absolute; left: clamp(22px, 3.2vw, 56px); top: 26px; z-index: 2; color: rgba(255,240,228,.75); }
+
+/* the right half */
+.dg .pages { grid-column: 2; grid-row: 1; border-right: 1px solid var(--ln); border-bottom: 1px solid var(--ln); }
+.dg .social { grid-column: 3; grid-row: 1; border-bottom: 1px solid var(--ln); }
+.dg ul { list-style: none; margin-top: 22px; display: grid; gap: 12px; font-size: clamp(17px, 1.3vw, 21px); color: #fff; }
+.dg .pages ul { grid-template-columns: 1fr 1fr; column-gap: 18px; }
+.dg .extra { grid-column: 2 / 4; grid-row: 2; border-bottom: 1px solid var(--ln); display: grid; grid-template-columns: 1fr 1fr 1.3fr; gap: clamp(18px, 2.4vw, 40px); align-content: start; }
+.dg .extra .t { margin-top: 14px; color: #fff; font-size: 15px; line-height: 1.5; }
+.dg .extra .now { margin-top: 12px; color: #fff; font-size: clamp(30px, 2.6vw, 44px); font-weight: 300; letter-spacing: -.03em; font-variant-numeric: tabular-nums; line-height: 1; }
+.dg .extra .now small { display: block; margin-top: 8px; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: rgba(233,236,242,.6); }
+.dg .extra blockquote { margin-top: 14px; color: #fff; font-size: clamp(16px, 1.2vw, 19px); line-height: 1.35; letter-spacing: -.01em; }
+.dg .extra cite { display: block; margin-top: 10px; font-style: normal; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: rgba(233,236,242,.6); }
+.dg .ruler { grid-column: 2 / 4; grid-row: 3; border-bottom: 1px solid var(--ln); background: repeating-linear-gradient(90deg, rgba(244,230,216,.4) 0 1px, transparent 1px 12px) 0 50% / 100% 9px no-repeat; }
+.dg .word { grid-column: 2 / 4; grid-row: 4; display: grid; place-items: center; padding-top: 18px; padding-bottom: 18px; }
+.dg .word svg { width: 100%; height: auto; max-height: 100%; overflow: visible; }
+.dg .word text { font: 500 220px 'F37 Analog', system-ui, sans-serif; letter-spacing: -.02em; fill: none; stroke: #fff7ef; stroke-width: 1.3; stroke-dasharray: 3000; stroke-dashoffset: 3000; }
+.dg .word.on text { animation: draw 3.2s cubic-bezier(.65,0,.35,1) forwards; }
+.dg .word.on text.fill { animation: draw 3.2s cubic-bezier(.65,0,.35,1) forwards, fillin 1.2s 2.6s ease forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes fillin { to { fill: rgba(255,247,239,.1); } }
+.dg .word .tk { stroke: rgba(255,247,239,.7); stroke-width: 1; }
+.dg .legal { grid-column: 1 / -1; grid-row: 5; display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; padding: 16px clamp(22px, 3.2vw, 56px); border-top: 1px solid rgba(255,230,210,.4);
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,240,228,.85); }
+.dg .legal > span:last-child { display: flex; gap: 22px; }
+
+@media (max-width: 1100px) {
+  .dg .extra { grid-template-columns: 1fr 1fr; } .dg .extra .q { grid-column: 1 / -1; }
+}
+@media (max-width: 860px) {
+  .dg { grid-template-columns: 1fr 1fr; grid-template-rows: none; }
+  .dg > * { grid-column: 1 / -1 !important; grid-row: auto !important; }
+  .dg .talk { border-right: 0; border-bottom: 1px solid var(--ln); }
+  .dg .camp { min-height: 76vw; }
+  .dg .pages { grid-column: 1 !important; } .dg .social { grid-column: 2 !important; border-right: 0; }
+  .dg .pages ul { grid-template-columns: 1fr; }
+  .dg .extra { grid-template-columns: 1fr 1fr; }
+  .dg .ruler { min-height: 28px; }
+  .dg .word { padding: 26px 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .dg .grain { animation: none; } .dg .word text { stroke-dashoffset: 0; animation: none !important; } }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<footer class="foot dg" aria-label="Footer">
+  <i class="grain" aria-hidden="true"></i>
+  <section class="cell talk" aria-labelledby="talk-h">
+    <h2 id="talk-h">Let’s get to know<br>you and your idea!</h2>
+    <form id="talk">
+      <input type="text" name="name" placeholder="Your name" aria-label="Your name" autocomplete="name" required>
+      <input type="email" name="email" placeholder="Your email" aria-label="Your email" autocomplete="email" required>
+      <textarea name="idea" placeholder="Tell us about the climb — the product, the stage, where you want to get to" aria-label="Your idea"></textarea>
+      <button type="submit">Send it up the mountain<i></i></button>
+      <p class="sent" aria-live="polite"></p>
+    </form>
+    <div class="camp"><canvas class="fire" aria-hidden="true"></canvas><p class="k">Base camp · the fire’s lit</p></div>
+  </section>
+  <nav class="cell pages" aria-label="Pages"><p class="k">Pages</p>
+    <ul><li><a href="final-website-v2.html">Home</a></li><li><a href="summits-v3.html">Work</a></li><li><a href="services-compass-v4.html">Services</a></li>
+        <li><a href="about-landing.html">About</a></li><li><a href="case-studies-reel.html">Case studies</a></li><li><a href="studio-polaroids.html">Studio</a></li></ul></nav>
+  <nav class="cell social" aria-label="Social"><p class="k">Social</p>
+    <ul><li><a href="https://www.instagram.com/tibba.design/">Instagram</a></li><li><a href="https://www.linkedin.com/company/tibba-design-studio/">LinkedIn</a></li>
+        <li><a href="https://medium.com/@tibbadesignstudio">Medium</a></li><li><a href="mailto:hello@tibba.design">Email</a></li></ul></nav>
+  <section class="cell extra" aria-label="The studio">
+    <div><p class="k">Base</p><p class="t">Tibba Design Studio<br>India — and remote</p><p class="t"><a href="mailto:hello@tibba.design">hello@tibba.design</a></p></div>
+    <div><p class="k">At the studio</p><p class="now"><span id="now">--:--</span><small id="today"></small></p></div>
+    <div class="q"><p class="k">From a client</p><blockquote>“The website captures the essence of our brand and resonates with our audience.”</blockquote><cite>Milan Sachdeva · Firstpost</cite></div>
+  </section>
+  <i class="ruler" aria-hidden="true"></i>
+  <section class="word" id="word" aria-label="Tibba">
+    <svg viewBox="0 0 1000 240" aria-hidden="true"><text class="fill" x="500" y="200" text-anchor="middle" textLength="900" lengthAdjust="spacingAndGlyphs">TIBBA</text><g id="ticks"></g></svg>
+  </section>
+  <p class="legal"><span>© <span class="yr"></span> Tibba Design Studio. All rights reserved.</span><span><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Cookies</a></span></p>
+</footer>
+<script type="module">
+  import { fire, panel, slider, applyBaked, year } from './assets/footer-kit.js';
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  $$('.yr').forEach(e => { e.textContent = year(); });
+  const CONFIG = { fire: { mode: 'dither', palette: 'warm', cell: 5, dot: .86, contrast: 1.25, flame: 1.05, embers: 1.2, speed: .9, scale: 1.05, wood: .75 } };
+  const KEY = 'tibba.bake.footer-dusk-grid'; applyBaked(KEY, CONFIG);
+  const f = fire($('.camp canvas'), { ...CONFIG.fire, x: .5, y: .74 });
+  /* the form: no back end here, so it answers in place */
+  $('#talk').addEventListener('submit', e => { e.preventDefault(); e.target.reset(); $('.sent').textContent = 'Got it — we’ll write back within two working days.'; });
+  /* the studio's time */
+  const T = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: false }),
+        D = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', weekday: 'short', day: 'numeric', month: 'short' });
+  const tick = () => { const n = new Date(); $('#now').textContent = T.format(n); $('#today').textContent = D.format(n) + ' · IST'; }; tick(); setInterval(tick, 10000);
+  /* the word: drawn as a blueprint between construction ticks, once */
+  let t = ''; [40, 120, 200].forEach(y => { for (let x = 60; x <= 940; x += 88) t += `<path class="tk" d="M${x - 5} ${y}H${x + 5}M${x} ${y - 5}V${y + 5}"/>`; });
+  $('#ticks').innerHTML = t;
+  new IntersectionObserver(([e], io) => { if (e.isIntersecting) { io.disconnect(); $('#word').classList.add('on'); } }, { threshold: .3 }).observe($('#word'));
+  panel({ title: 'Footer — dusk grid', key: KEY, config: CONFIG, name: 'CONFIG', fires: [{ fire: f, cfg: CONFIG.fire }] });
+</script>
+</body>
+</html>

@@ -45,7 +45,8 @@ const FOOTER = { id: 'footer', label: 'Footer', folder: 'Footer', nav: 'Contact'
                { file: 'footer-contour-fire.html', label: 'Footer B — contour ridge fire' },
                { file: 'footer-analytical.html', label: 'Footer C — analytical campfire' },
                { file: 'footer-dusk-marshmallow.html', label: 'Footer — dusk, marshmallow' },
-               { file: 'footer-blueprint-dusk.html', label: 'Footer — blueprint dusk' }] };
+               { file: 'footer-blueprint-dusk.html', label: 'Footer — blueprint dusk' },
+               { file: 'footer-dusk-grid.html', label: 'Footer — dusk grid' }] };
 
 export const HOME_SECTIONS = [
   { id: 'opening', label: 'Loader → Hero → Metrics', folder: 'Loader · Hero section · Metrics', nav: null, gate: true,
