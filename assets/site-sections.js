@@ -10,7 +10,8 @@
      id        stable key (the Modular hub stores layouts by it)
      label     what it is called in the nav hub
      folder    the playground folder it comes from
-     variants  [{ file, label }] — the page(s) that can fill it
+     variants  [{ file, label }] — the page(s) that can fill it; new ones go
+               on the END (the Modular hub saves a choice by its index)
      frame     the height of the window it is shown in (default 100vh);
                Brands sits in 85vh so it reads as contained, not a screen
      mobile    { file, frame } used in place of the default variant on a
@@ -42,7 +43,9 @@ const FOOTER = { id: 'footer', label: 'Footer', folder: 'Footer', nav: 'Contact'
                { file: 'footer-pengon.html', label: 'Footer — halftone camp' },
                { file: 'footer-dithered.html', label: 'Footer A — campfire, dithered' },
                { file: 'footer-contour-fire.html', label: 'Footer B — contour ridge fire' },
-               { file: 'footer-analytical.html', label: 'Footer C — analytical campfire' }] };
+               { file: 'footer-analytical.html', label: 'Footer C — analytical campfire' },
+               { file: 'footer-dusk-marshmallow.html', label: 'Footer — dusk, marshmallow' },
+               { file: 'footer-blueprint-dusk.html', label: 'Footer — blueprint dusk' }] };
 
 export const HOME_SECTIONS = [
   { id: 'opening', label: 'Loader → Hero → Metrics', folder: 'Loader · Hero section · Metrics', nav: null, gate: true,
@@ -58,7 +61,9 @@ export const HOME_SECTIONS = [
     variants: [{ file: 'case-studies-reel.html', label: 'Case reel' }] },
   { id: 'services', label: 'Our services', folder: 'Our services', nav: 'Services',
     variants: [{ file: 'services-compass-v4.html', label: 'Compass v4' }, { file: 'services-compass-v3.html', label: 'Compass v3' },
-               { file: 'services-topo.html', label: 'Shifting Topo' }] },
+               { file: 'services-topo.html', label: 'Shifting Topo' },
+               { file: 'services-compass-v5.html', label: 'Compass v5 — reference layout' }, { file: 'services-compass-v6.html', label: 'Compass v6 — half compass' },
+               { file: 'services-compass-v7.html', label: 'Compass v7 — on a surface' }] },
   { id: 'testimonials', label: 'Testimonials', folder: 'Our testimonials', nav: 'Voices', navMinor: true,
     variants: [{ file: 'testimonials-topo.html', label: 'Testimonials — topo' }] },
   { id: 'studio', label: 'Our studio', folder: 'Our studio', nav: 'Studio', navMinor: true,
@@ -102,9 +107,9 @@ export const PAGE_CSS = {
 /* the strip along the navbar's foot: working with the studio */
 export const TICKER = 'Have a summit in mind? Let’s climb it together  ·  Now taking on new projects for 2027  ·  Write to hello@tibba.design  ·  Founders, product teams, first launches and redesigns';
 
-/* the navbar's three links, the same on every page */
-export const HOME_LINKS = [{ label: 'Work', target: 'summits' }, { label: 'Services', target: 'services' }, { label: 'About', href: 'about-landing.html' }];
-export const ABOUT_LINKS = [{ label: 'Work', href: 'final-website-v2.html#summits' }, { label: 'Services', href: 'final-website-v2.html#services' }, { label: 'About', target: 'about-hero' }];
+/* the navbar's links, the same on every page; Contact goes to the footer */
+export const HOME_LINKS = [{ label: 'Work', target: 'summits' }, { label: 'Services', target: 'services' }, { label: 'About', href: 'about-landing.html' }, { label: 'Contact', target: 'footer' }];
+export const ABOUT_LINKS = [{ label: 'Work', href: 'final-website-v2.html#summits' }, { label: 'Services', href: 'final-website-v2.html#services' }, { label: 'About', target: 'about-hero' }, { label: 'Contact', target: 'footer' }];
 
 /* the Modular hub's layout, stored per browser: [{ id, on, variant }] */
 export const LAYOUT_KEY = 'tibba.site.home';

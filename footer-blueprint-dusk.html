@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Footer — blueprint dusk</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<link rel="stylesheet" href="assets/footer-kit.css">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Footer — blueprint dusk
+   ─────────────────────────────────────────────────────────────────────────
+   Blueprint grid's sheet of hairline cells (footer-heron.html), laid over
+   Dusk's light (footer-jijo.html) taken further, after the reference
+   gradient: a deep teal-black ground, grained like film, with one ember
+   streak sweeping up from the lower left — red at its core, orange at its
+   edges, a teal halo round it — and passing straight through the campfire,
+   which glows where the streak meets it. The cells stay hairline and
+   transparent so the light runs under the whole grid; the fire is the one
+   bright thing in it.
+
+   The layout, as Blueprint grid:
+
+   After Heron AI: the footer as a sheet of hairline cells — statement,
+   link columns, subscribe, address, inboxes, socials — with the campfire in
+   the tall cell on the right where Heron keeps its mark, then the wordmark
+   drawn as a blueprint between ruler marks, and a bar of legal cells.
+   Phones: the cells stack two-up, the fire leads.
+   Shared parts: assets/footer-kit.js / .css. Every value: the CONFIG object
+   in the script, on the panel, and bakeable.
+   ═════════════════════════════════════════════════════════════════════════ */
+.he { margin: 10px; border: 1px solid var(--line-2); }
+.g1 { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr 1.25fr; grid-template-rows: auto auto; }
+.g1 > div { border-right: 1px solid var(--line-2); border-bottom: 1px solid var(--line-2); padding: 18px; min-width: 0; }
+.g1 .stmt { grid-row: 1; }
+.g1 .stmt h2 { color: #fff; font-weight: 500; font-size: clamp(26px, 2.4vw, 40px); line-height: .98; letter-spacing: -.035em; text-transform: uppercase; }
+.g1 ul { list-style: none; margin-top: 26px; display: grid; gap: 12px; font-size: 18px; color: #fff; }
+.g1 ul a:hover, .g1 ul a.on { color: var(--acc); }
+.g1 .mark { grid-column: 5; grid-row: 1 / span 2; border-right: 0; position: relative; padding: 0; min-height: 420px; }
+.g1 .mark canvas { position: absolute; inset: 0; }
+.g1 .mark .k { position: absolute; left: 18px; top: 18px; z-index: 2; }
+.g1 .row2 { min-height: 210px; display: flex; flex-direction: column; }
+.g1 .row2 p.t { margin-top: 22px; font-size: 16px; line-height: 1.45; color: #fff; }
+.sub { margin: auto -18px -18px; display: flex; border-top: 1px solid var(--line-2); }
+.sub input { flex: 1; min-width: 0; padding: 16px 18px; background: none; border: 0; outline: none; font-size: 15px; }
+.sub input::placeholder { color: var(--ink-faint); }
+.sub button { width: 54px; border: 0; border-left: 1px solid var(--line-2); background: none; color: #fff; cursor: pointer; font-size: 18px; }
+.sub button:hover { background: var(--acc); color: #000; }
+.split { padding: 0 !important; display: grid; grid-template-rows: 1fr 1fr; }
+.split > div { padding: 18px; } .split > div + div { border-top: 1px solid var(--line-2); }
+.soc { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 18px; margin-top: auto; font-size: 17px; color: #fff; }
+.soc a:hover { color: var(--acc); }
+.bp { position: relative; padding: 42px 24px; border-bottom: 1px solid var(--line-2); }
+.bp .rule { position: absolute; left: 12px; right: 12px; height: 10px; background: repeating-linear-gradient(90deg, rgba(233,236,242,.35) 0 1px, transparent 1px 10px); }
+.bp .rule.t { top: 12px; } .bp .rule.b { bottom: 12px; }
+.bp .pl { position: absolute; width: 13px; height: 13px; } .bp .pl::before, .bp .pl::after { content: ''; position: absolute; background: #e8e3dc; }
+.bp .pl::before { left: 6px; width: 1px; height: 13px; } .bp .pl::after { top: 6px; height: 1px; width: 13px; }
+.bp .pl.a { left: 6px; top: 10px; } .bp .pl.b { right: 6px; top: 10px; } .bp .pl.c { left: 6px; bottom: 10px; } .bp .pl.d { right: 6px; bottom: 10px; }
+.bp svg { display: block; width: 100%; height: auto; overflow: visible; }
+.bp svg text { font: 500 220px 'F37 Analog', system-ui, sans-serif; letter-spacing: -.02em; fill: none; stroke: #e8e3dc; stroke-width: 1.2; stroke-dasharray: 3000; stroke-dashoffset: 3000; }
+.bp.on svg text { animation: draw 3.2s cubic-bezier(.65,0,.35,1) forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.bp svg .tk { stroke: #e8e3dc; stroke-width: 1; }
+.bp svg .tk.o { stroke: var(--acc); }
+.g3 { display: grid; grid-template-columns: 1fr auto auto auto; }
+.g3 > * { padding: 20px 22px; border-right: 1px solid var(--line-2); font-size: 15px; color: #fff; }
+.g3 > *:last-child { border-right: 0; }
+.g3 p { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-mute); }
+.g3 p a { color: #fff; border-bottom: 1px solid currentColor; }
+.g3 a:hover { color: var(--acc); }
+@media (max-width: 900px) {
+  .he { margin: 6px; }
+  .g1 { grid-template-columns: 1fr 1fr; }
+  .g1 > div { grid-column: auto !important; grid-row: auto !important; }
+  .g1 .mark { grid-column: 1 / -1 !important; order: -1; min-height: 88vw; }
+  .g1 .stmt, .g1 .subc { grid-column: 1 / -1 !important; }
+  .g3 { grid-template-columns: 1fr 1fr 1fr; }
+  .g3 p { grid-column: 1 / -1; border-right: 0; border-bottom: 1px solid var(--line-2); }
+  .g3 > * { padding: 14px; font-size: 13px; }
+}
+
+/* ── the dusk light, after the reference ────────────────────────────────── */
+body { background: #0b1215; }
+.he.em { position: relative; isolation: isolate; overflow: hidden; border-color: rgba(233,236,242,.16);
+  background: radial-gradient(70% 55% at 18% 100%, rgba(40,96,100,.55), rgba(40,96,100,0) 70%),
+              radial-gradient(45% 40% at 86% 8%, rgba(32,74,80,.45), rgba(32,74,80,0) 70%),
+              radial-gradient(60% 60% at 60% 50%, rgba(22,44,50,.6), rgba(22,44,50,0) 80%),
+              linear-gradient(180deg, #0e171b 0%, #0f1c20 55%, #0c1416 100%); }
+.em .streak { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+.em .grain { position: absolute; inset: -50%; z-index: 5; pointer-events: none; opacity: .2; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.4 -.2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: grain 1.2s steps(6) infinite; }
+@keyframes grain { 0% { transform: translate(0, 0); } 33% { transform: translate(-3%, 2%); } 66% { transform: translate(2%, -3%); } 100% { transform: translate(0, 0); } }
+.em .g1 > div, .em .bp, .em .g3 > *, .em .sub, .em .sub button, .em .split > div + div { border-color: rgba(233,236,242,.16); }
+.em .k { color: rgba(233,236,242,.55); }
+.em .k.acc, .em .g1 ul a.on { color: #ff8a3d; }
+.em .g1 ul a:hover, .em .soc a:hover, .em .g3 a:hover { color: #ff8a3d; }
+.em .sub button:hover { background: #ff6a2b; }
+.em .g1 .stmt h2 { text-shadow: 0 0 30px rgba(255,106,43,.18); }
+/* the fire's cell: where the streak meets the fire, it glows */
+.em .g1 .mark { background: radial-gradient(42% 34% at 50% 66%, rgba(255,92,38,.42), rgba(255,92,38,.12) 55%, rgba(31,93,99,0) 100%); }
+.em .g1 .mark::after { content: ''; position: absolute; left: 50%; top: 66%; width: 64%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; z-index: 0; pointer-events: none;
+  background: radial-gradient(circle at 40% 40%, rgba(255,150,80,.32), rgba(224,48,30,.22) 40%, rgba(31,93,99,.18) 70%, rgba(31,93,99,0) 76%); filter: blur(6px); }
+.em .g1 .mark canvas { z-index: 1; }
+.em .bp svg text { stroke: #f4e6d8; }
+.em .bp svg .tk.o { stroke: #ff6a2b; }
+.em .bp .rule { background: repeating-linear-gradient(90deg, rgba(244,230,216,.35) 0 1px, transparent 1px 10px); }
+@media (prefers-reduced-motion: reduce) { .em .grain { animation: none; } }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<footer class="foot he em" aria-label="Footer">
+  <svg class="streak" aria-hidden="true" preserveAspectRatio="none"></svg>
+  <i class="grain" aria-hidden="true"></i>
+  <section class="g1">
+    <div class="stmt"><h2>A design studio that climbs with you</h2></div>
+    <div><p class="k">Studio</p><ul><li><a class="on" href="final-website-v2.html">Home</a></li><li><a href="about-landing.html">About us</a></li><li><a href="mailto:hello@tibba.design">Contact us</a></li></ul></div>
+    <div><p class="k">Work</p><ul><li><a href="summits-v3.html">Summits</a></li><li><a href="case-studies-reel.html">Case studies</a></li><li><a href="services-compass-v4.html">Services</a></li></ul></div>
+    <div><p class="k">Resources</p><ul><li><a href="https://medium.com/@tibbadesignstudio">Field notes</a></li><li><a href="#">Process</a></li><li><a href="#">Workshops</a></li></ul></div>
+    <div class="mark"><p class="k">The fire</p><canvas class="fire" aria-hidden="true"></canvas></div>
+    <div class="row2 subc"><p class="k">Subscribe</p><p class="t">Want field notes from the climb?<br>Sign up for occasional updates from Tibba.</p>
+      <form class="sub" id="sub"><input type="email" required placeholder="Enter your email" aria-label="Email"><button aria-label="Subscribe">→</button></form></div>
+    <div class="row2"><p class="k">Base</p><p class="t">Tibba Design Studio,<br>India — and remote</p><p class="t" style="margin-top:auto"><a href="#">Direction</a></p></div>
+    <div class="row2 split"><div><p class="k">New business</p><p class="t"><a href="mailto:hello@tibba.design?subject=New%20project">hello@tibba.design</a></p></div>
+      <div><p class="k">General inquiries</p><p class="t"><a href="mailto:hello@tibba.design">hello@tibba.design</a></p></div></div>
+    <div class="row2"><p class="k">Social</p><div class="soc"><a href="https://www.instagram.com/tibba.design/">Instagram</a><a href="https://www.linkedin.com/company/tibba-design-studio/">LinkedIn</a><a href="https://medium.com/@tibbadesignstudio">Medium</a><a href="mailto:hello@tibba.design">Email</a></div></div>
+  </section>
+  <section class="bp" id="bp" aria-label="Tibba">
+    <i class="rule t"></i><i class="rule b"></i><i class="pl a"></i><i class="pl b"></i><i class="pl c"></i><i class="pl d"></i>
+    <svg viewBox="0 0 1000 240" aria-hidden="true"><text x="500" y="200" text-anchor="middle" textLength="900" lengthAdjust="spacingAndGlyphs">TIBBA</text><g id="ticks"></g></svg>
+  </section>
+  <section class="g3"><p>© <span class="yr"></span> Tibba Design Studio. All rights reserved. Built around a <a href="#">campfire</a>.</p><a href="#">Privacy policy</a><a href="#">Terms &amp; conditions</a><a href="#">Cookie policy</a></section>
+</footer>
+<script type="module">
+  import { fire, draggable, clocks, ticker, barWord, panel, slider, applyBaked, pad, year, LINE } from './assets/footer-kit.js';
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  $$('.yr').forEach(e => { e.textContent = year(); });
+  const CONFIG = { fire: { mode: 'dither', palette: 'warm', cell: 5, dot: .86, contrast: 1.25, flame: 1.05, embers: 1.2, speed: .9, scale: 1.25, wood: .75 },
+                   streak: { width: 1, glow: 1 } };
+  const KEY = 'tibba.bake.footer-blueprint-dusk'; applyBaked(KEY, CONFIG);
+  const f = fire($('.mark canvas'), { ...CONFIG.fire, x: .5, y: .72 });
+  $('#sub').addEventListener('submit', e => { e.preventDefault(); e.target.querySelector('input').value = ''; e.target.querySelector('input').placeholder = 'Noted — see you at camp'; });
+  /* blueprint construction ticks along the letters' guide lines */
+  let t = ''; [40, 120, 200].forEach((y, k) => { for (let x = 60; x <= 940; x += 88) t += `<path class="tk${k === 1 && x === 500 ? ' o' : ''}" d="M${x - 5} ${y}H${x + 5}M${x} ${y - 5}V${y + 5}"/>`; });
+  $('#ticks').innerHTML = t;
+  new IntersectionObserver(([e], io) => { if (e.isIntersecting) { io.disconnect(); $('#bp').classList.add('on'); } }, { threshold: .3 }).observe($('#bp'));
+  /* the streak: from the lower left, up through the fire, out at the top
+     right — drawn to the footer's own size, so it always meets the fire */
+  const foot = $('.em'), svg = $('.streak'), mark = $('.g1 .mark');
+  function streak() {
+    const W = foot.clientWidth, H = foot.clientHeight, fr = foot.getBoundingClientRect(), m = mark.getBoundingClientRect();
+    const fx = m.left - fr.left + m.width * .5, fy = m.top - fr.top + m.height * .66;
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    const d = `M${-W * .08} ${H * 1.02} C ${W * .3} ${H * .92}, ${fx - W * .22} ${fy + H * .18}, ${fx} ${fy} S ${W * 1.02} ${H * -.06}, ${W * 1.1} ${H * -.2}`;
+    const w = CONFIG.streak.width, g = CONFIG.streak.glow, u = Math.min(W, 1600) / 1440;
+    svg.innerHTML = `<defs>
+        <filter id="bl1" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="${60 * u * g}"/></filter>
+        <filter id="bl2" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="${26 * u * g}"/></filter>
+        <filter id="bl3" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="${9 * u * g}"/></filter>
+        <linearGradient id="sg" gradientUnits="userSpaceOnUse" x1="0" y1="${H}" x2="${W}" y2="0">
+          <stop offset="0" stop-color="#ff9a4a"/><stop offset=".35" stop-color="#e4361f"/><stop offset=".62" stop-color="#ff8a3d"/><stop offset="1" stop-color="#ffb070" stop-opacity=".2"/></linearGradient></defs>
+      <path d="${d}" fill="none" stroke="#1f6168" stroke-opacity=".75" stroke-width="${260 * u * w}" filter="url(#bl1)"/>
+      <path d="${d}" fill="none" stroke="url(#sg)" stroke-opacity=".85" stroke-width="${110 * u * w}" filter="url(#bl2)"/>
+      <path d="${d}" fill="none" stroke="#c81e14" stroke-opacity=".75" stroke-width="${34 * u * w}" filter="url(#bl3)"/>`;
+  }
+  streak(); new ResizeObserver(streak).observe(foot);
+  if (document.fonts) document.fonts.ready.then(streak);
+  panel({ title: 'Footer — blueprint dusk', key: KEY, config: CONFIG, name: 'CONFIG', fires: [{ fire: f, cfg: CONFIG.fire }],
+    extra: `<p class="tune-sub">The streak</p>${slider('sw', 'Width', .3, 2, .05, CONFIG.streak.width)}${slider('sg', 'Glow', .3, 2, .05, CONFIG.streak.glow)}`,
+    bind: (q, on) => { on('sw', v => { CONFIG.streak.width = v; streak(); }); on('sg', v => { CONFIG.streak.glow = v; streak(); }); } });
+</script>
+</body>
+</html>

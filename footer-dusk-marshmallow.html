@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Footer — dusk, marshmallow</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<link rel="stylesheet" href="assets/footer-kit.css">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Footer — dusk, marshmallow
+   ─────────────────────────────────────────────────────────────────────────
+   Footer — dusk (footer-jijo.html), duplicated, with its own campfire
+   interaction: bring the pointer to the fire and it becomes a stick with a
+   marshmallow on the end. Held close to the flames the marshmallow toasts —
+   pale, golden, brown, and on to charred if it stays too long; click to eat
+   it and a fresh one goes on the stick. The fire never goes out here (the
+   click-to-scatter of the other footers is off).
+
+   The original, below:
+
+   After Jijo.fyi: an evening sky over base camp, dark at the top and warm at
+   the horizon, with soft clouds drifting; the campfire in the middle made
+   of warm ASCII characters; // links on the left; a "Swing by!" card of
+   hanging tabs top right; a crackle player at the top; a big line along the
+   foot, © on the left and the studio's local time on the right; a paper
+   plane drifting across.
+   Phones: one column, the fire first.
+   Shared parts: assets/footer-kit.js / .css. Every value: the CONFIG object
+   in the script, on the panel, and bakeable.
+   ═════════════════════════════════════════════════════════════════════════ */
+.jj { position: relative; min-height: 100svh; overflow: hidden; color: #fff;
+  background: linear-gradient(180deg, #0a0b10 0%, #1a1420 34%, #4a2218 64%, #c4552a 92%, #ff7a3e 100%); }
+.jj .cloud { position: absolute; border-radius: 50%; background: rgba(255,230,210,.16); filter: blur(46px); pointer-events: none; animation: cl 26s ease-in-out infinite alternate; }
+@keyframes cl { to { transform: translateX(6vw) scale(1.08); } }
+.jj canvas.fire { position: absolute; left: 22%; top: 10%; width: 56%; height: 66%; z-index: 2; }
+.jj .links { position: absolute; z-index: 3; left: clamp(24px, 8vw, 160px); top: clamp(80px, 12vh, 140px); list-style: none; display: grid; gap: 22px; font-size: clamp(20px, 1.6vw, 28px); }
+.jj .links a { color: #ffd2b8; } .jj .links a::before { content: '// '; color: var(--acc); } .jj .links a:hover { color: #fff; }
+.crackle { position: absolute; z-index: 3; left: 50%; top: 26px; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; padding: 6px 18px 6px 6px; border-radius: 999px;
+  background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.3); backdrop-filter: blur(10px); cursor: pointer; color: #fff; font-size: 13px; }
+.crackle i { width: 32px; height: 32px; border-radius: 50%; background: var(--acc); display: grid; place-items: center; font-style: normal; }
+.swing { position: absolute; z-index: 3; right: clamp(24px, 7vw, 140px); top: 14px; width: 330px; background: #eceae4; color: #111; border-radius: 2px; box-shadow: 0 14px 40px rgba(0,0,0,.35); }
+.swing header { position: relative; padding: 18px 16px 14px; text-align: center; }
+.swing header::before, .swing header::after { content: ''; position: absolute; top: 8px; width: 7px; height: 7px; border-radius: 50%; background: #777; } .swing header::before { left: 8px; } .swing header::after { right: 8px; }
+.swing h4 { font-weight: 400; font-size: 30px; letter-spacing: -.02em; }
+.swing p { margin-top: 6px; font-size: 12px; letter-spacing: .04em; color: #444; }
+.swing .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 0 0 2px; background: #2c2c34; }
+.swing .tab { display: flex; flex-direction: column; align-items: center; gap: 14px; height: 300px; padding: 22px 0; background: #eceae4; transform-origin: 50% 0; transition: background .2s; }
+.swing .tab b { font-size: 22px; } .swing .tab span { writing-mode: vertical-rl; font-size: 14px; border-left: 1px dotted #555; padding-left: 2px; }
+.swing .tab:hover { background: #fff; animation: sw 1.3s cubic-bezier(.36,.07,.19,.97); }
+@keyframes sw { 15% { transform: rotate(8deg); } 35% { transform: rotate(-6deg); } 55% { transform: rotate(3deg); } 100% { transform: rotate(0); } }
+.jj .line { position: absolute; z-index: 3; left: 0; right: 0; bottom: clamp(40px, 7vh, 80px); text-align: center; font-weight: 300; font-size: clamp(36px, 4vw, 72px); line-height: 1.04; letter-spacing: -.03em; color: #fff7ef; text-shadow: 0 2px 30px rgba(120,40,10,.5); }
+.jj .cp { position: absolute; z-index: 3; left: clamp(24px, 8vw, 160px); bottom: 42px; font-size: 14px; color: rgba(255,255,255,.75); }
+.jj .clock { position: absolute; z-index: 3; right: clamp(24px, 8vw, 160px); bottom: 34px; display: flex; gap: 14px; align-items: center; padding: 10px 22px; border-radius: 999px; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.35); backdrop-filter: blur(10px); font-size: 14px; font-variant-numeric: tabular-nums; }
+.jj .clock span { opacity: .7; }
+.plane { position: absolute; z-index: 3; width: 120px; pointer-events: none; animation: pl 18s linear infinite; }
+@keyframes pl { 0% { transform: translate(-10vw, 70vh) rotate(-18deg); } 100% { transform: translate(110vw, 20vh) rotate(-10deg); } }
+@media (max-width: 900px) {
+  .jj { display: flex; flex-direction: column; padding: 90px 16px 32px; gap: 28px; }
+  .jj > *:not(.cloud):not(.plane):not(.mallow):not(.mallow-tip):not(.yum) { position: relative !important; left: auto !important; right: auto !important; top: auto !important; bottom: auto !important; transform: none !important; }
+  .plane { display: none; }
+  .jj canvas.fire { order: -1; width: 100%; height: 96vw; }
+  .crackle { position: absolute !important; top: 20px !important; left: 16px !important; align-self: flex-start; }
+  .swing { width: 100%; } .swing .tab { height: 220px; }
+  .jj .line { font-size: 34px; }
+  .jj .clock { align-self: flex-start; }
+}
+/* the stick and the marshmallow */
+.jj.toasting, .jj.toasting * { cursor: none !important; }
+.mallow { position: absolute; z-index: 6; left: 0; top: 0; width: 230px; height: 200px; margin: -26px 0 0 -22px; pointer-events: none; opacity: 0;
+  transition: opacity .25s linear; will-change: transform; filter: drop-shadow(0 8px 10px rgba(0,0,0,.45)); }
+.jj.toasting .mallow { opacity: 1; }
+.mallow .stick { stroke: #b07a4a; stroke-width: 5; stroke-linecap: round; }
+.mallow .stick2 { stroke: #6e4526; stroke-width: 1.5; stroke-linecap: round; opacity: .7; }
+.mallow .glow { transition: opacity .2s linear; }
+.mallow .burn { transform-box: fill-box; transform-origin: 50% 100%; animation: mburn .32s ease-in-out infinite alternate; }
+@keyframes mburn { from { transform: scale(.9, .8); } to { transform: scale(1.05, 1.15); } }
+.mallow-tip { position: absolute; z-index: 6; left: 0; top: 0; pointer-events: none; opacity: 0; transition: opacity .25s linear;
+  font: 400 10px/1 'F37 Analog', system-ui, sans-serif; letter-spacing: .18em; text-transform: uppercase; color: #fff7ef; white-space: nowrap;
+  padding: 6px 9px; border-radius: 999px; background: rgba(20,12,10,.55); border: 1px solid rgba(255,255,255,.22); backdrop-filter: blur(6px); }
+.jj.toasting .mallow-tip { opacity: 1; }
+.mallow-tip i { display: inline-block; width: 46px; height: 3px; margin-left: 8px; vertical-align: 2px; background: rgba(255,255,255,.2); border-radius: 2px; overflow: hidden; }
+.mallow-tip i b { display: block; height: 100%; width: var(--cook, 0%); background: linear-gradient(90deg, #f1d6a6, #d99a52, #8a4a1f, #2b1a12); }
+.yum { position: absolute; z-index: 6; pointer-events: none; font: 400 22px/1 'F37 Analog', system-ui, sans-serif; color: #fff7ef; animation: yum 1s ease-out forwards; }
+@keyframes yum { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -40px); } }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<footer class="foot jj" aria-label="Footer">
+  <i class="cloud" style="width:60vw;height:30vw;left:-6vw;top:26%"></i><i class="cloud" style="width:50vw;height:26vw;right:-8vw;top:40%;animation-delay:-9s"></i><i class="cloud" style="width:40vw;height:16vw;left:30%;top:58%;animation-delay:-4s"></i>
+  <canvas class="fire" aria-hidden="true"></canvas>
+  <ul class="links"><li><a href="summits-v3.html">Summits</a></li><li><a href="case-studies-reel.html">Cases</a></li><li><a href="services-compass-v4.html">Services</a></li><li><a href="studio-polaroids.html">Studio</a></li></ul>
+  <button class="crackle" type="button" id="crackle" aria-pressed="false"><i>▶</i><span>Crackle</span></button>
+  <aside class="swing"><header><h4>Swing by!</h4><p>Reach out once you have warmed up</p></header>
+    <div class="tabs"><a class="tab" href="https://www.linkedin.com/company/tibba-design-studio/"><b>in</b><span>tibba-design-studio</span></a><a class="tab" href="https://www.instagram.com/tibba.design/"><b>ig</b><span>tibba.design</span></a><a class="tab" href="https://medium.com/@tibbadesignstudio"><b>md</b><span>tibbadesignstudio</span></a><a class="tab" href="mailto:hello@tibba.design"><b>@</b><span>hello@tibba.design</span></a></div></aside>
+  <p class="line">Pouring head, hands and heart<br>into every climb</p>
+  <p class="cp">© <span class="yr"></span> Tibba Design Studio. All rights reserved.</p>
+  <p class="clock"><b id="date"></b><b id="time"></b><span>in India</span></p>
+  <svg class="mallow" viewBox="0 0 230 200" aria-hidden="true">
+    <defs><linearGradient id="mg" x1="0" y1="0" x2="0" y2="1"><stop id="mg0" offset="0" stop-color="#f7f1e6"/><stop id="mg1" offset=".55" stop-color="#f7f1e6"/><stop id="mg2" offset="1" stop-color="#f7f1e6"/></linearGradient>
+      <radialGradient id="mglow"><stop offset="0" stop-color="#ff7a3e" stop-opacity=".75"/><stop offset="1" stop-color="#ff7a3e" stop-opacity="0"/></radialGradient></defs>
+    <circle class="glow" cx="22" cy="28" r="38" fill="url(#mglow)" opacity="0"/>
+    <line class="stick" x1="34" y1="44" x2="226" y2="196"/><line class="stick2" x1="60" y1="64" x2="220" y2="191"/>
+    <g transform="rotate(-38 22 28)"><rect x="4" y="8" width="36" height="40" rx="11" fill="url(#mg)"/>
+      <ellipse id="mtop" cx="22" cy="12" rx="16" ry="5" fill="#fffaf2" opacity=".9"/></g>
+    <g class="burnwrap" opacity="0"><path class="burn" d="M22 -6 C12 6 10 16 16 24 C10 18 30 18 28 24 C34 14 30 4 22 -6 Z" fill="#ff7a3e"/><path class="burn" d="M22 4 C17 11 17 17 20 22 C19 18 26 18 25 22 C27 16 26 10 22 4 Z" fill="#ffd36b"/></g>
+  </svg>
+  <p class="mallow-tip" aria-hidden="true"><span id="mstate">Raw</span><i><b></b></i></p>
+  <svg class="plane" viewBox="0 0 120 70" aria-hidden="true"><path d="M2 40 L118 2 L60 66 L50 44 Z" fill="#f4f1ea"/><path d="M50 44 L118 2 L58 50 Z" fill="#d9d4ca"/></svg>
+</footer>
+<script type="module">
+  import { fire, draggable, clocks, ticker, barWord, panel, slider, applyBaked, pad, year, LINE } from './assets/footer-kit.js';
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  $$('.yr').forEach(e => { e.textContent = year(); });
+  const CONFIG = { fire: { mode: 'ascii', palette: 'warm', cell: 9, dot: .8, contrast: 1.2, flame: 1.1, embers: 1.2, speed: 1, scale: 1.15, wood: .85 }, volume: .5 };
+  CONFIG.toast = { rate: 0.12, reach: 1.25 };   // cooked per second at the heart of the fire; how far the heat reaches (× fire size)
+  const KEY = 'tibba.bake.footer-dusk-marshmallow'; applyBaked(KEY, CONFIG);
+  const f = fire($('canvas.fire'), { ...CONFIG.fire, x: .5, y: .78, blowOut: false });
+  const D = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', month: 'short', day: 'numeric' }), Tm = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Kolkata', hour: 'numeric', minute: '2-digit' });
+  const clk = () => { const n = new Date(); $('#date').textContent = D.format(n) + ' ·'; $('#time').textContent = Tm.format(n); }; clk(); setInterval(clk, 10000);
+  /* the crackle: synthesised, no file — a low hiss and random pops */
+  let ac = null, gain = null, timer = 0;
+  function pop() {
+    const n = ac.createBufferSource(), len = .02 + Math.random() * .05, b = ac.createBuffer(1, ac.sampleRate * len, ac.sampleRate), d = b.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 3);
+    n.buffer = b; const g = ac.createGain(); g.gain.value = .3 + Math.random() * .7; n.connect(g).connect(gain); n.start();
+    timer = setTimeout(pop, 40 + Math.random() * 260);
+  }
+  $('#crackle').addEventListener('click', e => {
+    const b = e.currentTarget, on = b.getAttribute('aria-pressed') !== 'true';
+    b.setAttribute('aria-pressed', on); b.querySelector('i').textContent = on ? '❚❚' : '▶';
+    if (on) {
+      if (!ac) { ac = new (window.AudioContext || window.webkitAudioContext)(); gain = ac.createGain(); gain.connect(ac.destination);
+        const hiss = ac.createBufferSource(), hb = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate), hd = hb.getChannelData(0);
+        for (let i = 0; i < hd.length; i++) hd[i] = (Math.random() * 2 - 1) * .04; hiss.buffer = hb; hiss.loop = true;
+        const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; hiss.connect(lp).connect(gain); hiss.start(); }
+      ac.resume(); gain.gain.value = CONFIG.volume; pop();
+    } else { clearTimeout(timer); if (ac) ac.suspend(); }
+  });
+  /* ── the marshmallow ────────────────────────────────────────────────
+     Over the fire's canvas the pointer is a toasting stick. Heat falls off
+     with distance from the flame's core; the side facing the fire browns
+     first, the whole of it follows, and past "perfect" it chars and then
+     catches. Click to eat it: a new one goes on the stick. */
+  const foot = $('.jj'), cv = $('canvas.fire'), mal = $('.mallow'), tip = $('.mallow-tip'), stEl = $('#mstate');
+  const stops = [[0, [247, 241, 230]], [.35, [241, 214, 166]], [.6, [217, 154, 82]], [.82, [138, 74, 31]], [1, [43, 26, 18]]];
+  const col = k => { k = Math.max(0, Math.min(1, k)); let i = 1; while (i < stops.length - 1 && stops[i][0] < k) i++;
+    const [a, ca] = stops[i - 1], [b, cb] = stops[i], t = (k - a) / (b - a || 1);
+    return `rgb(${ca.map((v, q) => Math.round(v + (cb[q] - v) * t)).join(',')})`; };
+  const STATES = [[.12, 'Raw'], [.4, 'Warming'], [.62, 'Toasting'], [.8, 'Golden'], [.9, 'Perfect · click to eat'], [.97, 'Charring'], [1.01, 'On fire!']];
+  let px = 0, py = 0, inside = false, cook = 0, last = performance.now();
+  foot.addEventListener('pointermove', e => {
+    const r = cv.getBoundingClientRect(), fr = foot.getBoundingClientRect();
+    px = e.clientX - fr.left; py = e.clientY - fr.top;
+    inside = e.clientX > r.left && e.clientX < r.right && e.clientY > r.top && e.clientY < r.bottom && !e.target.closest('a, button, .swing');
+    foot.classList.toggle('toasting', inside);
+  }, { passive: true });
+  foot.addEventListener('pointerleave', () => { inside = false; foot.classList.remove('toasting'); });
+  foot.addEventListener('click', e => {
+    if (!inside || cook < .15) return;
+    const y = document.createElement('p'); y.className = 'yum'; y.textContent = cook > .97 ? 'Crunchy.' : cook > .8 ? 'Perfect!' : 'Mm.';
+    y.style.left = px + 'px'; y.style.top = (py - 40) + 'px'; foot.appendChild(y); setTimeout(() => y.remove(), 1000);
+    cook = 0;
+  });
+  (function loop(now) {
+    requestAnimationFrame(loop);
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    if (!inside) return;
+    const ft = f.features(), r = cv.getBoundingClientRect(), fr = foot.getBoundingClientRect();
+    const cx = r.left - fr.left + ft.core.x, cy = r.top - fr.top + ft.core.y;
+    const d = Math.hypot(px - cx, (py - cy) * 1.15) / ft.s;
+    const heat = Math.max(0, Math.min(1, (CONFIG.toast.reach - d) / CONFIG.toast.reach));
+    cook = Math.min(1.02, cook + dt * CONFIG.toast.rate * heat * heat * (d < .45 ? 1.6 : 1));
+    mal.style.transform = `translate3d(${px.toFixed(1)}px, ${py.toFixed(1)}px, 0)`;
+    tip.style.transform = `translate3d(${(px + 34).toFixed(1)}px, ${(py - 52).toFixed(1)}px, 0)`;
+    /* the bottom (towards the fire) leads, the top follows */
+    $('#mg2').setAttribute('stop-color', col(cook * 1.08));
+    $('#mg1').setAttribute('stop-color', col(cook * .9));
+    $('#mg0').setAttribute('stop-color', col(cook * .62));
+    $('#mtop').setAttribute('fill', col(cook * .55));
+    mal.querySelector('.glow').setAttribute('opacity', (heat * .9).toFixed(2));
+    mal.querySelector('.burnwrap').setAttribute('opacity', cook > .97 ? 1 : 0);
+    let label = STATES[0][1]; for (const [k, l] of STATES) { label = l; if (cook < k) break; }
+    stEl.textContent = label;
+    tip.style.setProperty('--cook', Math.min(100, cook * 100).toFixed(1) + '%');
+  })(performance.now());
+
+  panel({ title: 'Footer — dusk, marshmallow', key: KEY, config: CONFIG, name: 'CONFIG', fires: [{ fire: f, cfg: CONFIG.fire }],
+    extra: `<p class="tune-sub">Sound</p>${slider('vo', 'Crackle volume', 0, 1, .01, CONFIG.volume)}<p class="tune-sub">Marshmallow</p>${slider('tr', 'Toasting speed', .03, .6, .01, CONFIG.toast.rate)}${slider('th', 'Heat reach', .6, 2.5, .05, CONFIG.toast.reach)}`,
+    bind: (q, on) => { on('vo', v => { CONFIG.volume = v; if (gain) gain.gain.value = v; }); on('tr', v => { CONFIG.toast.rate = v; }); on('th', v => { CONFIG.toast.reach = v; }); } });
+</script>
+</body>
+</html>

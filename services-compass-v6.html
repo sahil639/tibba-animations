@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our services — Compass v6 · half compass</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<script src="assets/services.js"></script>
+<script src="assets/services-split.js"></script>
+<link rel="stylesheet" href="assets/services-split.css">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Our services — Compass v6 · half the compass
+   ─────────────────────────────────────────────────────────────────────────
+   Compass v4's services and tabs, with a plainer compass of which only half
+   is ever visible, at every width: its centre on the page's left edge on a
+   wide screen, on the section's foot on a narrow one. The dial turns so the
+   chosen stage faces the page; the needle stays put.
+   ═════════════════════════════════════════════════════════════════════════ */
+:root { --accent: #FF4B1F; --line: rgba(233,236,242,.12); --line-2: rgba(233,236,242,.22); }
+
+/* ── the page grid ──────────────────────────────────────────────────────── */
+.ss-page { grid-template-columns: minmax(440px, 1.05fr) minmax(0, .8fr) minmax(0, .8fr);
+  grid-template-rows: auto auto minmax(0, 1fr); column-gap: var(--cg, clamp(24px, 2.6vw, 56px)); row-gap: clamp(20px, 3.2vh, 40px);
+  padding-top: clamp(84px, 11vh, 120px); padding-bottom: clamp(28px, 5vh, 56px); }
+.ss-title { grid-column: 1 / -1; grid-row: 1; align-items: flex-end; padding-bottom: clamp(16px, 2.4vh, 28px); border-bottom: 1px solid var(--line); }
+.ss-title h1 { font-size: clamp(30px, 3.3vw, 56px); letter-spacing: -.035em; }
+.ss-title .note { max-width: 34ch; font-size: 12.5px; line-height: 1.6; color: var(--ink-mute); text-align: right; }
+.ss-title .note b { color: #fff; font-weight: 400; }
+
+/* ── the instrument card ────────────────────────────────────────────────── */
+.v4-card { grid-column: 1; grid-row: 2 / span 2; position: relative; min-height: 0; display: grid;
+  grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; border: 1px solid var(--line); background:
+  radial-gradient(120% 80% at 50% 45%, rgba(255,75,31,.045), rgba(255,75,31,0) 60%), rgba(255,255,255,.012); }
+.v4-card::before, .v4-card::after { content: ''; position: absolute; width: 10px; height: 10px; pointer-events: none; }
+.v4-card::before { left: -1px; top: -1px; border-left: 1px solid var(--accent); border-top: 1px solid var(--accent); }
+.v4-card::after { right: -1px; bottom: -1px; border-right: 1px solid var(--accent); border-bottom: 1px solid var(--accent); }
+.ss-foot { grid-column: auto; grid-row: auto; margin: 0; display: block; }
+.ss-stages { display: grid; grid-template-columns: repeat(3, 1fr); border: 0; border-bottom: 1px solid var(--line); }
+.ss-stage { justify-content: flex-start; padding: 15px 18px 14px; background: none; border-right: 1px solid var(--line); font-size: clamp(14px, 1.05vw, 16px); letter-spacing: -.005em; color: rgba(233,236,242,.72); white-space: nowrap; min-width: 0; overflow: hidden; }
+.ss-stage .l { overflow: hidden; text-overflow: ellipsis; }
+@media (min-width: 641px) { .ss-stage { flex-direction: column; align-items: flex-start; gap: 7px; padding: 13px 16px 14px; } }
+.ss-stage::after { top: auto; bottom: -1px; }
+.ss-stage .n { font-size: 10.5px; display: inline-flex; align-items: center; gap: 8px; }
+.ss-stage[aria-selected="true"] .n::before { content: ''; width: 6px; height: 6px; background: var(--accent); }
+.ss-stage[aria-selected="true"] { background: rgba(255,255,255,.035); }
+.ss-center { grid-column: auto !important; grid-row: auto !important; display: grid; place-items: center; min-height: 0; padding: clamp(10px, 2vh, 24px); }
+#compass { width: auto; height: 100%; max-width: 100%; max-height: clamp(280px, calc(100vh - 430px), 640px); max-height: clamp(280px, calc(100svh - 430px), 640px); aspect-ratio: 1; display: block; overflow: visible;
+  touch-action: none; cursor: grab; user-select: none; }
+#compass.dragging { cursor: grabbing; }
+#compass text { font-family: 'F37 Analog', system-ui, sans-serif; }
+#compass .tk { stroke: rgba(233,236,242,.36); stroke-width: 1; }
+#compass .tk.mj { stroke: rgba(233,236,242,.7); }
+#compass .tk.cd { stroke: #fff; stroke-width: 1.6; }
+#compass .rim { fill: none; stroke: rgba(233,236,242,.5); stroke-width: 1.4; }
+#compass .rim.in { stroke: rgba(233,236,242,.2); stroke-width: 1; }
+#compass .cube { fill: var(--accent); }
+#compass .tk.on { stroke: rgba(255,75,31,.55); }
+#compass .tk.mj.on, #compass .tk.cd.on { stroke: var(--accent); }
+#compass .deg { fill: rgba(233,236,242,.78); font-size: 13px; letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+#compass .card { fill: #fff; font-size: 15px; letter-spacing: .14em; }
+#compass .card.n { fill: var(--accent); }
+#compass .guide { fill: none; stroke: rgba(233,236,242,.2); stroke-width: 1; }
+#compass .track { fill: none; stroke: rgba(233,236,242,.16); stroke-width: 6; stroke-linecap: round; cursor: pointer; transition: stroke .45s linear; }
+#compass .track:hover { stroke: rgba(233,236,242,.28); }
+#compass .track.on { stroke: var(--accent); }
+#compass .glow { fill: none; stroke: var(--accent); stroke-width: 14; stroke-linecap: round; opacity: 0; filter: url(#v4-blur); pointer-events: none; transition: opacity .5s linear; }
+#compass .glow.on { opacity: var(--glow, .5); }
+#compass .arclbl { fill: rgba(233,236,242,.62); font-size: 15px; letter-spacing: .14em; text-transform: uppercase; pointer-events: none; transition: fill .45s linear; }
+#compass .arclbl.on { fill: #fff; }
+#compass .spk { stroke: #e9ecf2; stroke-width: 1.2; stroke-linecap: round; }
+#compass .inner circle { fill: none; stroke: rgba(233,236,242,.34); stroke-dasharray: 1 5; }
+#compass .inner line { stroke: rgba(233,236,242,.3); }
+#compass .needle { fill: url(#v4-needle); }
+#compass .tail { fill: rgba(233,236,242,.18); }
+#compass .bug { fill: var(--accent); }
+#compass .hub { fill: #000; stroke: var(--accent); stroke-width: 1.4; }
+.v4-strip { display: grid; grid-template-columns: 1.15fr 1fr 1.25fr; border-top: 1px solid var(--line); }
+.v4-strip > div { padding: 12px 18px 13px; border-right: 1px solid var(--line); min-width: 0; }
+.v4-strip > div:last-child { border-right: 0; }
+.v4-strip span { display: block; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+.v4-strip b { display: block; margin-top: 6px; color: #fff; font-weight: 400; font-size: clamp(16px, 1.25vw, 19px); overflow: hidden; text-overflow: ellipsis; letter-spacing: .02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.v4-strip .big b { font-size: clamp(20px, 1.7vw, 26px); letter-spacing: -.01em; margin-top: 4px; }
+.v4-strip .acc { color: var(--accent); }
+
+/* ── the stage, said as a statement ────────────────────────────────────── */
+.v4-state { grid-column: 2 / span 2; grid-row: 2; }
+.v4-state .k { display: flex; align-items: center; gap: 12px; font-size: clamp(13px, .95vw, 15px); letter-spacing: .16em; text-transform: uppercase; color: #fff; }
+.v4-state .k::before { content: ''; flex: 0 0 auto; width: 9px; height: 9px; background: var(--accent); }
+.v4-state .k b { color: var(--accent); font-weight: 400; }
+.v4-state .k span { color: #fff; }
+.v4-state .k i { flex: 0 0 40px; height: 1px; background: var(--line-2); }
+.v4-state .ss-blurb { margin-top: 14px; max-width: 34ch; text-align: left; min-height: 2.5em; color: #fff; font-size: clamp(20px, 1.9vw, 32px); line-height: 1.22; letter-spacing: -.02em; }
+
+/* ── the service ledgers: brick bond, refined ──────────────────────────── */
+.ss-col { align-self: start; justify-content: flex-start; padding: 0; min-width: 0; }
+.ss-col.left { grid-column: 2; grid-row: 3; } .ss-col.right { grid-column: 3; grid-row: 3; }
+.ssb-head { font-size: 10.5px; letter-spacing: .2em; color: var(--ink-mute); padding-bottom: 12px; border-bottom: 1px solid var(--line); align-items: center; }
+.ssb-head b { font-size: 11px; font-weight: 400; letter-spacing: .12em; }
+.ssb-head > span { display: inline-flex; align-items: center; gap: 10px; }
+.ssb-head > span::before { content: ''; width: 6px; height: 6px; background: var(--accent); }
+.ssb .ix::after { content: ''; position: absolute; right: -1px; top: -1px; width: 7px; height: 7px; background: var(--accent); transform: scale(0); transition: transform .3s cubic-bezier(.22,.9,.3,1); }
+.ssb:hover .ix::after { transform: scale(1); }
+/* the grid line between the two ledgers: a hairline down the gutter, from
+   the statement's foot to the page's, with a cube where it meets the
+   heading rule */
+.ss-page { --cg: clamp(24px, 2.6vw, 56px); }
+.ss-col.right { position: relative; }
+.ss-col.right::before { content: ''; position: absolute; left: calc(var(--cg) / -2); top: -14px; bottom: calc(-1 * clamp(28px, 5vh, 56px)); width: 1px;
+  background: linear-gradient(180deg, var(--line-2), var(--line) 70%, rgba(233,236,242,0)); }
+.ss-col.right::after { content: ''; position: absolute; left: calc(var(--cg) / -2 - 3px); top: calc(1.05em + 9px); width: 7px; height: 7px; background: var(--accent); }
+.ssb-list { margin-top: clamp(14px, 2.2vh, 24px); }
+.ssb { align-self: flex-start; width: 88%; min-width: 0; max-width: none; display: grid; grid-template-columns: 38px 1fr; column-gap: 10px;
+  padding: clamp(12px, 1.5vh, 16px) 16px clamp(12px, 1.5vh, 16px) 12px; border-color: var(--line-2); background: #000; }
+.ssb:nth-child(even) { align-self: flex-end; }
+.ssb .ix { position: static; padding-top: .3em; font-size: 10px; letter-spacing: .1em; color: var(--ink-faint); transition: color .25s linear; }
+.ssb .nm, .ss-col.right .ssb .nm { text-transform: none; font-size: clamp(14.5px, 1.1vw, 18px); line-height: 1.25; letter-spacing: -.005em; }
+.ssb .ds { grid-column: 2; display: grid; grid-template-rows: 0fr; transition: grid-template-rows .4s cubic-bezier(.22,.9,.3,1); }
+.ssb .ds > span { overflow: hidden; font-size: 12.5px; line-height: 1.5; color: var(--ink-mute); }
+.ssb .ds > span::before { content: ''; display: block; height: 8px; }
+.ssb::before { content: ''; position: absolute; left: -1px; top: -1px; bottom: -1px; width: 2px; background: var(--accent); transform: scaleY(0); transform-origin: top; transition: transform .35s cubic-bezier(.22,.9,.3,1); }
+.ssb:hover { border-color: rgba(255,75,31,.55); background: #0b0b0c; }
+.ssb:hover::before { transform: scaleY(1); }
+.ssb:hover .ds { grid-template-rows: 1fr; }
+
+@media (max-height: 760px) and (min-width: 641px) { .ss-page { padding-top: 78px; row-gap: 16px; } .ss-title { padding-bottom: 12px; } .v4-strip > div { padding: 9px 16px 10px; } .ss-stage { padding: 10px 16px 11px !important; gap: 5px !important; } }
+/* ── mid widths: the card over the ledgers ─────────────────────────────── */
+@media (max-width: 1100px) and (min-width: 641px) {
+  .ss-page { grid-template-columns: 1fr 1fr; grid-template-rows: auto auto auto auto; }
+  .v4-card { grid-column: 1 / -1; grid-row: 2; }
+  #compass { height: auto; width: min(100%, 58vh); }
+  .v4-strip { display: none; }
+  .v4-state { grid-column: 1 / -1; grid-row: 3; }
+  .ss-col.left { grid-column: 1; grid-row: 4; } .ss-col.right { grid-column: 2; grid-row: 4; }
+}
+/* ── phones: one viewport ──────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  /* the services are the subject here; the compass is a small delight
+     beside its readout, and the page scrolls like any other */
+  .ss-page { padding: 64px 16px 32px; grid-template-columns: 1fr; grid-template-rows: none; row-gap: 22px; --cg: 0px; }
+  .ss-title { padding-bottom: 14px; } .ss-title h1 { font-size: 27px; margin-top: 8px; } .ss-title .eyebrow { font-size: 10.5px; } .ss-title .note { display: none; }
+  .v4-card { grid-column: 1; grid-row: auto; grid-template-columns: 1fr; grid-template-rows: auto auto; }
+  .v4-strip { display: none !important; }
+  .ss-foot { grid-column: 1 / -1; }
+  .ss-stage { justify-content: center; align-items: center; padding: 10px 6px; font-size: 13.5px; line-height: 1.2; white-space: normal; text-align: center; } .ss-stage .n { display: none; } .ss-stage .l { overflow: visible; font-size: 13.5px; }
+  .ss-center { grid-column: 1; grid-row: 2; padding: 14px; }
+  #compass { width: min(62vw, 250px); height: auto; max-height: none; }
+  .v4-strip { grid-column: 2; grid-row: 2; grid-template-columns: 1fr; border-top: 0; border-left: 1px solid var(--line); }
+  .v4-strip > div { border-right: 0; border-bottom: 1px solid var(--line); padding: 10px 14px; display: flex; flex-direction: column; justify-content: center; }
+  .v4-strip > div:last-child { border-bottom: 0; }
+  .v4-strip span { font-size: 9.5px; letter-spacing: .16em; } .v4-strip b, .v4-strip .big b { font-size: 16px; margin-top: 4px; }
+  .v4-state { grid-column: 1; grid-row: auto; }
+  .v4-state .k { font-size: 12.5px; } .v4-state .ss-blurb { font-size: 20px; min-height: 0; }
+  .ss-col.left, .ss-col.right { grid-column: 1 !important; grid-row: auto !important; }
+  .ss-col.right::before { left: 0; right: 0; top: -12px; bottom: auto; width: auto; height: 1px; background: var(--line-2); }
+  .ss-col.right::after { left: -3px; top: -15px; }
+  .ss-col.right { padding-top: 10px; }
+  .ssb-head { font-size: 11.5px; letter-spacing: .16em; } .ssb-list { margin-top: 12px; }
+  .ssb { width: 92%; grid-template-columns: 32px 1fr; padding: 11px 12px 12px 10px; }
+  .ssb .ds { display: none; }
+  .ssb .nm, .ss-col.right .ssb .nm { font-size: 16px; line-height: 1.25; }
+  /* the stage tabs dock to the top while the section is read, and go back
+     to their place when it is scrolled above them (script at the foot) */
+  .ss-foot.docked .ss-stages { position: fixed; z-index: 30; left: 16px; right: 16px; top: var(--dock-top, 10px);
+    border: 1px solid var(--line-2); background: rgba(8,8,9,.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 10px 24px rgba(0,0,0,.5); animation: dock-in .32s cubic-bezier(.16,1,.3,1) both; }
+  .ss-foot.docked .ss-stages::before { content: ''; position: absolute; left: -1px; top: -1px; width: 7px; height: 7px; background: var(--accent); }
+}
+@keyframes dock-in { from { opacity: 0; transform: translateY(-8px); } }
+
+/* ══ Variant 2 — half the compass ═════════════════════════════════════════
+   A plainer instrument, only half of it ever on screen: on a wide screen its
+   centre sits on the page's left edge and its right half fills the left
+   third; on a narrow one its centre sits on the section's foot and its top
+   half rises under the services. The dial turns, the needle holds still,
+   pointing into the page, so the chosen stage is always the part in view. */
+body.v6 .ss-page { position: relative; overflow: hidden; grid-template-columns: minmax(0, 38%) minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto auto auto 1fr; row-gap: clamp(22px, 3.4vh, 40px); }
+body.v6 .ss-title { grid-column: 2 / -1; grid-row: 1; }
+body.v6 .v6-tabs { grid-column: 2 / -1; grid-row: 2; }
+body.v6 .ss-stages { border: 1px solid var(--line); }
+body.v6 .v4-state { grid-column: 2 / -1; grid-row: 3; }
+body.v6 .ss-col.left { grid-column: 2; grid-row: 4; }
+body.v6 .ss-col.right { grid-column: 3; grid-row: 4; }
+body.v6 .v4-card { position: absolute; left: 0; top: 54%; width: min(104vh, 74vw); aspect-ratio: 1; height: auto; transform: translate(-50%, -50%);
+  display: block; border: 0; background: radial-gradient(closest-side, rgba(255,75,31,.06), rgba(255,75,31,0)); pointer-events: none; }
+body.v6 .v4-card::before, body.v6 .v4-card::after { display: none; }
+body.v6 .ss-center { position: absolute; inset: 0; padding: 0; display: block; }
+body.v6 #compass { width: 100%; height: 100%; max-height: none; cursor: default; pointer-events: auto; transition: none; }
+body.v6 .v4-strip { display: none !important; }
+body.v6 #compass .card { font-size: 18px; }
+body.v6 #compass .arclbl { font-size: 17px; }
+/* a hairline where the half-dial meets the page */
+body.v6 .ss-page::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: linear-gradient(180deg, transparent, var(--line-2), transparent); }
+@media (max-width: 900px) {
+  body.v6 .ss-page { grid-template-columns: 1fr 1fr; grid-template-rows: none; padding-bottom: calc(min(110vw, 680px) / 2 + 24px); }
+  body.v6 .ss-title, body.v6 .v6-tabs, body.v6 .v4-state { grid-column: 1 / -1 !important; }
+  body.v6 .ss-col.left { grid-column: 1 !important; grid-row: 4 !important; }
+  body.v6 .ss-col.right { grid-column: 2 !important; grid-row: 4 !important; }
+  body.v6 .v4-card { left: 50%; top: auto; bottom: 0; width: min(110vw, 680px); transform: translate(-50%, 50%); }
+  body.v6 .ss-page::before { display: none; }
+}
+@media (max-width: 640px) {
+  body.v6 .ss-page { grid-template-columns: 1fr; }
+  body.v6 .ss-col.left { grid-column: 1 !important; grid-row: 4 !important; }
+  body.v6 .ss-col.right { grid-column: 1 !important; grid-row: 5 !important; }
+}
+
+/* a simpler instrument: the scale's majors, the rim, the three arcs and the
+   needle — no minor ticks, degree numbers, spokes or inner ring */
+body.v6 #compass .tk:not(.mj):not(.cd), body.v6 #compass .deg, body.v6 #compass .spk,
+body.v6 #compass .inner, body.v6 #compass .guide { display: none; }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body class="v6">
+
+<main class="ss-page">
+  <header class="ss-title">
+    <div>
+      <p class="eyebrow">[ &nbsp;Our services&nbsp; ]</p>
+      <h1>Set a heading for your stage</h1>
+    </div>
+    <p class="note">Where a company is decides what it needs. <b>Turn the dial</b> to your stage and the work lines up beside it.</p>
+  </header>
+
+  <div class="v6-tabs">
+    <footer class="ss-foot"><div class="ss-stages" role="tablist" aria-label="Company stage"></div></footer>
+  </div>
+
+  <section class="v4-card" aria-label="Compass">
+    <div class="ss-center">
+      <svg id="compass" viewBox="-350 -350 700 700" role="img" aria-label="Compass: drag or click a stage to set the heading"></svg>
+    </div>
+    <div class="v4-strip" aria-live="off">
+      <div class="big"><span>Your bearing</span><b id="rd-hdg">060.00°</b></div>
+      <div><span>Turn to stage</span><b class="acc" id="hud-d">On course</b></div>
+      <div><span>You are</span><b id="rd-seg">01 · Early-stage</b></div>
+    </div>
+  </section>
+
+  <div class="v4-state">
+    <p class="k"><b id="st-n">01</b><i></i><span id="st-l">Early-stage startup</span></p>
+    <p class="ss-blurb" aria-live="polite"></p>
+  </div>
+  <section class="ss-col left" aria-label="Research and strategy services"></section>
+  <section class="ss-col right" aria-label="Design and delivery services"></section>
+</main>
+
+<script>
+(function () {
+  const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.getElementById('compass');
+  const el = (tag, attrs, parent = svg) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); parent.appendChild(n); return n; };
+  const rad = d => (d - 90) * Math.PI / 180;           // 0° at the top, clockwise
+  const P = (r, d) => [Math.cos(rad(d)) * r, Math.sin(rad(d)) * r];
+  const pad = (n, w = 2) => String(n).padStart(w, '0');
+
+  /* the three stages: 120° each, centred on 060, 180 and 300 */
+  const SEG = [0, 1, 2].map(i => ({ from: i * 120 + 7, to: i * 120 + 113, mid: i * 120 + 60 }));
+  const LBL = ['Early-stage startup', 'Mid-size company', 'Established company'];
+  const SHORT = ['Early-stage', 'Mid-size', 'Established'];
+  /* COMPASS_V4 — the panel writes here */
+  const C = { stiffness: 42, drift: 1, glow: .5, reach: 22 };
+
+  /* ── defs: the arc glow and the needle's gradient ──────────────────── */
+  const defs = el('defs', {});
+  const blur = el('filter', { id: 'v4-blur', x: '-20%', y: '-20%', width: '140%', height: '140%' }, defs);
+  el('feGaussianBlur', { stdDeviation: 7 }, blur);
+  const grad = el('linearGradient', { id: 'v4-needle', x1: 0, y1: 1, x2: 0, y2: 0 }, defs);
+  el('stop', { offset: 0, 'stop-color': '#FF4B1F', 'stop-opacity': .25 }, grad);
+  el('stop', { offset: 1, 'stop-color': '#FF4B1F', 'stop-opacity': 1 }, grad);
+
+  /* ── the bearing scale ─────────────────────────────────────────────── */
+  const R = { rim: 340, tick: 300, deg: 270, card: 321, guide: 244, track: 226, lbl: 202, spA: 150, spB: 176, inner: 112 };
+  const FACE = () => matchMedia('(max-width: 900px)').matches ? 0 : 90;
+  const segOf = d => Math.min(2, Math.floor((((d % 360) + 360) % 360) / 120));
+  const ticks = [];
+  for (let i = 0; i < 144; i++) {
+    const d = i * 2.5, cd = i % 36 === 0, mj = i % 9 === 0;
+    const [x0, y0] = P(R.tick, d), [x1, y1] = P(R.tick - (cd ? 20 : mj ? 13 : 6), d);
+    ticks.push({ d, n: el('line', { class: 'tk' + (cd ? ' cd' : mj ? ' mj' : ''), x1: x0, y1: y0, x2: x1, y2: y1 }) });
+  }
+  for (let i = 0; i < 8; i++) {                           // every 45°, upright
+    const d = i * 45; if (d % 90 === 0) continue;
+    const [x, y] = P(R.deg, d);
+    el('text', { class: 'deg', x, y, 'text-anchor': 'middle', 'dominant-baseline': 'middle' }).textContent = pad(d, 3);
+  }
+  ['N', 'E', 'S', 'W'].forEach((p, i) => {
+    const [x, y] = P(R.card, i * 90);
+    el('text', { class: 'card' + (i ? '' : ' n'), x, y, 'text-anchor': 'middle', 'dominant-baseline': 'middle' }).textContent = p;
+  });
+  el('circle', { class: 'guide', r: R.guide });
+  /* the rim: one solid circle round the whole instrument, so it reads as a
+     compass rather than a dial, and a cube on it at each stage's heading */
+  el('circle', { class: 'rim', r: R.rim });
+  const cubes = SEG.map(sg => { const [x, y] = P(R.rim, sg.mid);
+    return el('rect', { class: 'cube', x: x - 5, y: y - 5, width: 10, height: 10, transform: `rotate(${sg.mid} ${x} ${y})` }); });
+
+  /* the stage track: three rounded arcs, a glow under the live one, and
+     each stage's name set along the inside of its arc */
+  const arcPath = (r, a0, a1) => { const [x0, y0] = P(r, a0), [x1, y1] = P(r, a1); return `M${x0} ${y0} A${r} ${r} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${x1} ${y1}`; };
+  const arcs = SEG.map((s, i) => {
+    const g = el('path', { class: 'glow', d: arcPath(R.track, s.from, s.to) });
+    const a = el('path', { class: 'track', d: arcPath(R.track, s.from, s.to), 'data-i': i });
+    const flip = s.mid > 90 && s.mid < 270;
+    el('path', { id: 'v4lp' + i, d: flip ? arcPath(R.lbl, s.to, s.from).replace(' 0 1 ', ' 0 0 ') : arcPath(R.lbl, s.from, s.to) }, defs);
+    const t = el('text', { class: 'arclbl', dy: flip ? 5 : 0 });
+    el('textPath', { href: '#v4lp' + i, startOffset: '50%', 'text-anchor': 'middle' }, t).textContent = `${pad(i + 1)} · ${LBL[i]}`;
+    a.addEventListener('click', () => split.pick(i));
+    return { a, g, t };
+  });
+
+  /* spokes: 72, brightening toward the needle inside the live stage */
+  const spokes = [];
+  for (let i = 0; i < 72; i++) {
+    const d = i * 5 + 2.5, [x0, y0] = P(R.spA, d), [x1, y1] = P(R.spB - (i % 3 ? 10 : 0), d);
+    spokes.push({ d, n: el('line', { class: 'spk', x1: x0, y1: y0, x2: x1, y2: y1 }) });
+  }
+
+  /* the inner ring — a dotted circle with twelve ticks, turning slowly */
+  const inner = el('g', { class: 'inner' });
+  el('circle', { r: R.inner }, inner);
+  for (let i = 0; i < 12; i++) { const [x0, y0] = P(R.inner - 5, i * 30), [x1, y1] = P(R.inner + 5, i * 30); el('line', { x1: x0, y1: y0, x2: x1, y2: y1 }, inner); }
+
+  /* the needle, its counterweight, the heading bug on the scale, the hub */
+  const ptr = el('g', {});
+  el('path', { class: 'tail', d: 'M-5 0 L0 46 L5 0 Z' }, ptr);
+  el('path', { class: 'needle', d: 'M-6 0 L0 -186 L6 0 Z' }, ptr);
+  el('path', { class: 'bug', d: `M-7 ${-R.tick - 14} L7 ${-R.tick - 14} L0 ${-R.tick - 2} Z` }, ptr);
+  el('circle', { class: 'hub', r: 9 });
+  el('circle', { r: 2.6, fill: '#FF4B1F' });
+
+  /* ── the heading: followed, critically damped ──────────────────────── */
+  let heading = SEG[0].mid, target = heading, vel = 0, dragging = false, t0 = performance.now(), moveStart = t0, lastLive = -1;
+  const $ = id => document.getElementById(id);
+  const hdg = $('rd-hdg'), seg = $('rd-seg'), hudD = $('hud-d');
+  const norm = d => ((d % 360) + 360) % 360;
+  const angDist = (a, b) => { const x = Math.abs(norm(a) - norm(b)); return Math.min(x, 360 - x); };
+
+  function paint() {
+    ptr.setAttribute('transform', `rotate(${heading.toFixed(3)})`);
+    /* the dial turns under a needle that always points into the half on
+       screen: east on a wide screen, north on a narrow one */
+    svg.style.transform = `rotate(${(FACE() - heading).toFixed(3)}deg)`;
+    const live = segOf(heading);
+    if (live !== lastLive) {
+      lastLive = live;
+      arcs.forEach((o, i) => [o.a, o.g, o.t].forEach(n => n.classList.toggle('on', i === live)));
+      ticks.forEach(t => t.n.classList.toggle('on', segOf(t.d) === live && t.d % 120 > 4 && t.d % 120 < 116));
+      seg.textContent = `${pad(live + 1)} · ${SHORT[live]}`;
+      cubes.forEach((c, i) => c.setAttribute('opacity', i === live ? 1 : .32));
+    }
+    spokes.forEach(s => {
+      const on = segOf(s.d) === live, near = Math.exp(-Math.pow(angDist(s.d, heading) / C.reach, 2));
+      s.n.setAttribute('stroke', on ? '#FF4B1F' : '#e9ecf2');
+      s.n.setAttribute('stroke-opacity', (on ? .28 + .72 * near : .1 + .12 * near).toFixed(3));
+    });
+    hdg.textContent = norm(heading).toFixed(2).padStart(6, '0') + '°';
+    const dd = target - heading;
+    hudD.textContent = Math.abs(dd) < 0.05 ? 'On course' : (dd >= 0 ? '+' : '−') + Math.abs(dd).toFixed(1).padStart(5, '0') + '°';
+  }
+
+  let last = performance.now();
+  function loop(now) {
+    requestAnimationFrame(loop);
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (!dragging) {
+      if (REDUCED) { heading = target; vel = 0; }
+      else {
+        /* critically damped spring: ω² pull, 2ω damping — no overshoot */
+        const w = Math.sqrt(C.stiffness);
+        vel += (w * w * (target - heading) - 2 * w * vel) * dt; heading += vel * dt;
+        if (Math.abs(target - heading) < 0.01 && Math.abs(vel) < 0.01) { heading = target; vel = 0; }
+      }
+    }
+    if (!REDUCED) inner.setAttribute('transform', `rotate(${((now - t0) / 1000 * 4 * C.drift) % 360})`);
+    paint();
+  }
+
+  /* shortest way round to a stage's middle */
+  function aim(i) {
+    let m = SEG[i].mid;
+    while (m - heading > 180) m -= 360;
+    while (heading - m > 180) m += 360;
+    target = m; moveStart = performance.now();
+  }
+
+  /* ── dragging the dial ─────────────────────────────────────────────── */
+  const angleAt = e => {
+    const r = svg.getBoundingClientRect();
+    return Math.atan2(e.clientY - (r.top + r.height / 2), e.clientX - (r.left + r.width / 2)) * 180 / Math.PI + 90;
+  };
+  let grabOff = 0;
+  svg.addEventListener('pointerdown', e => {
+    return;                                                  // half a dial: the tabs and arcs steer it
+    dragging = true; svg.classList.add('dragging'); svg.setPointerCapture(e.pointerId);
+    grabOff = heading - angleAt(e); vel = 0;
+  });
+  svg.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    let a = angleAt(e) + grabOff;
+    while (a - heading > 180) a -= 360;
+    while (heading - a > 180) a += 360;
+    heading = a; target = a;
+  });
+  const release = () => {
+    if (!dragging) return;
+    dragging = false; svg.classList.remove('dragging');
+    split.pick(segOf(heading));
+    aim(segOf(heading));
+  };
+  svg.addEventListener('pointerup', release);
+  svg.addEventListener('pointercancel', release);
+
+  /* ── the services ──────────────────────────────────────────────────── */
+  const left = document.querySelector('.ss-col.left'), right = document.querySelector('.ss-col.right');
+  /* each box gets its description line (the service's first point) as a
+     line that opens on hover, in place of the native tooltip */
+  const describe = c => c.querySelectorAll('.ssb[title]').forEach(b => {
+    b.insertAdjacentHTML('beforeend', `<span class="ds"><span></span></span>`);
+    b.querySelector('.ds > span').textContent = b.title; b.removeAttribute('title');
+  });
+  [left, right].forEach(c => new MutationObserver(() => describe(c)).observe(c, { childList: true }));
+  const split = mountServicesSplit({
+    left, right,
+    stages: document.querySelector('.ss-stages'),
+    blurb: document.querySelector('.ss-blurb'),
+    layout: 'boxes',
+    onStage(i) { aim(i); $('st-n').textContent = pad(i + 1); $('st-l').textContent = LBL[i]; },
+  });
+  split.pick(0);
+  paint();
+  requestAnimationFrame(loop);
+  window.tibbaCompass = { C, split };
+
+  /* ── the panel ─────────────────────────────────────────────────────── */
+  const tn = document.createElement('div');
+  tn.id = 'tune';
+  const row = (id, label, min, max, step, val) => `<div class="row"><label>${label}<i id="v-${id}">${val}</i></label><input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}"></div>`;
+  tn.innerHTML = `
+    <div id="tune-head"><b>Compass v6 — half compass</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <p class="tune-sub">Motion</p>
+    ${row('k', 'Settle speed', 6, 160, 1, C.stiffness)}
+    ${row('dr', 'Inner ring drift', 0, 4, .05, C.drift)}
+    <p class="tune-sub">Light</p>
+    ${row('gl', 'Arc glow', 0, 1, .02, C.glow)}
+    ${row('rc', 'Spoke reach', 4, 90, 1, C.reach)}`;
+  document.body.appendChild(tn);
+  const bind = (id, fn) => tn.querySelector('#s-' + id).addEventListener('input', e => { const v = +e.target.value; tn.querySelector('#v-' + id).textContent = v; fn(v); });
+  bind('k', v => { C.stiffness = v; });
+  bind('dr', v => { C.drift = v; });
+  bind('gl', v => { C.glow = v; svg.style.setProperty('--glow', v); });
+  bind('rc', v => { C.reach = v; });
+  svg.style.setProperty('--glow', C.glow);
+  tn.querySelector('#tune-hide').addEventListener('click', () => tn.classList.toggle('hidden'));
+})();
+</script>
+<script>
+/* phones: the stage tabs dock while the section is being read. Docked once
+   their own place has scrolled above the top edge (under the site's navbar
+   when framed in the site), undocked when scrolled back above it, and let
+   go before the section ends so they never ride over the next one. */
+(function () {
+  const foot = document.querySelector('.ss-foot'), bar = foot.querySelector('.ss-stages'), page = document.querySelector('.ss-page');
+  const phone = matchMedia('(max-width: 640px)');
+  const gap = () => document.documentElement.classList.contains('wb-embed') && window.parent !== window ? 72 : 10;
+  function check() {
+    let dock = false;
+    if (phone.matches) {
+      const r = foot.getBoundingClientRect(), pr = page.getBoundingClientRect(), g = gap();
+      dock = r.top < g && pr.bottom > g + bar.offsetHeight + 60;
+      /* in the site the page stops scrolling at its foot and the frame
+         itself slides away: let go as soon as it starts to */
+      let fe = null; try { fe = window.frameElement; } catch (e) {}
+      if (dock && fe) dock = fe.getBoundingClientRect().top > -24;
+      document.documentElement.style.setProperty('--dock-top', g + 'px');
+    }
+    if (dock === foot.classList.contains('docked')) return;
+    foot.style.height = dock ? foot.offsetHeight + 'px' : '';
+    foot.classList.toggle('docked', dock);
+  }
+  addEventListener('scroll', check, { passive: true });
+  addEventListener('resize', check);
+  try { if (window.parent !== window) window.parent.addEventListener('scroll', check, { passive: true }); } catch (e) {}
+  check();
+})();
+</script>
+</body>
+</html>

@@ -79,6 +79,7 @@ html.site-locked .ca.ca-header.site-nav { transform: translateY(calc(-100% - 4px
   .site-nav.open .site-drawer-list li { animation: site-in .6s cubic-bezier(.16,1,.3,1) both; }
   .site-nav.open .site-drawer-list li:nth-child(2) { animation-delay: .06s; }
   .site-nav.open .site-drawer-list li:nth-child(3) { animation-delay: .12s; }
+  .site-nav.open .site-drawer-list li:nth-child(4) { animation-delay: .18s; }
 
   /* the wireframe panel: the pill's own frame, as tall as the pill */
   .site-wire { display: block; position: relative; flex: none; width: 76px; padding: 0 5px 5px; border-radius: 0 0 10px 10px; pointer-events: auto; cursor: pointer;

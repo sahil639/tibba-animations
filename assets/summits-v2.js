@@ -70,7 +70,7 @@ export const SUMMITS2_CONFIG = {
   },
 };
 
-export function mountSummitsV2({ layout = 'cards' } = {}) {
+export function mountSummitsV2({ layout = 'cards', onCase = null } = {}) {
   const C = SUMMITS2_CONFIG;
   const scope = $('#scope');
   scope.style.height = C.scroll.height + 'vh';
@@ -233,6 +233,7 @@ export function mountSummitsV2({ layout = 'cards' } = {}) {
     if (ct) ct.innerHTML = `<b>${pad(i)}</b>&thinsp;/&thinsp;${pad(N - 1)}`;
     const tt = $('#tx-title');
     if (tt) { tt.innerHTML = c.title; tt.style.setProperty('--c', c.colour); tt.parentElement.classList.remove('swap'); void tt.offsetWidth; tt.parentElement.classList.add('swap'); }
+    if (onCase) onCase(i, c);
   }
 
   /* ── the focus: chased, and settling on a summit when the scroll rests ── */
@@ -243,8 +244,10 @@ export function mountSummitsV2({ layout = 'cards' } = {}) {
   };
   addEventListener('scroll', () => { focusTarget = scrollFocus(); lastInput = performance.now(); }, { passive: true });
   function goTo(i) {
-    const travel = scope.offsetHeight - innerHeight;
-    scrollTo({ top: scope.offsetTop + travel * (i / (N - 1)), behavior: REDUCED ? 'auto' : 'smooth' });
+    const travel = scope.offsetHeight - innerHeight, y = scope.offsetTop + travel * (i / (N - 1));
+    /* framed in the site, the site's own scroll is the one to move */
+    if (window.wb && window.wb.scrollTo) window.wb.scrollTo(y, !REDUCED);
+    else scrollTo({ top: y, behavior: REDUCED ? 'auto' : 'smooth' });
   }
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   focusTarget = focus = scrollFocus();
@@ -315,7 +318,7 @@ export function mountSummitsV2({ layout = 'cards' } = {}) {
     scene.clientTops().forEach((t, i) => Object.assign(tops[i], t));
     rebuild();
   }
-  return { scene, trails, CONFIG: C, rebuild, goTo, setTerrain,
+  return { scene, trails, CONFIG: C, rebuild, goTo, setTerrain, peakEls, railBtns,
     replay() { trails.forEach(t => { t.state = 'idle'; t.p = 0; }); },
     get focus() { return focus; } };
 }

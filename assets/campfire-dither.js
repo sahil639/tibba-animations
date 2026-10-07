@@ -268,8 +268,9 @@ export function mountDitherFire(canvas, opts = {}) {
     const r = canvas.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top, g = geo;
     return Math.abs(x - g.cx) < g.s * 0.75 && y < g.base + g.s * 0.2 && y > g.base - g.s * 1.9;
   };
-  host.addEventListener('pointermove', e => { canvas.style.cursor = onFlame(e) && G > 0.5 ? 'pointer' : ''; }, { passive: true });
+  host.addEventListener('pointermove', e => { if (K.blowOut !== false) canvas.style.cursor = onFlame(e) && G > 0.5 ? 'pointer' : ''; }, { passive: true });
   host.addEventListener('click', e => {
+    if (K.blowOut === false) return;                           // a page can keep its fire lit
     if (out !== null || !onFlame(e) || e.target.closest('a, button, input')) return;
     out = 0;
     const g = geo, fh = g.s * 1.55 * K.flame;
