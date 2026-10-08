@@ -134,3 +134,9 @@ html.site-locked .ca.ca-header.site-nav { transform: translateY(calc(-100% - 4px
 @keyframes site-spin { to { transform: rotate(360deg); } }
 html.site-locked .site-refresh { opacity: 0; pointer-events: none; }
 .site-refresh { transition: opacity .6s linear, border-color .25s linear; }
+
+/* phones and touch screens: no live background blur */
+@media (max-width: 760px), (pointer: coarse) {
+  .site-refresh { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(10,10,12,.92); }
+  .site-block .sticky { contain: strict; }
+}

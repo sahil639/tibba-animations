@@ -113,6 +113,12 @@ export const ABOUT_SECTIONS = [
 
 /* F37 everywhere, and only the landing's own navbar */
 const SITE_CSS = `html, body { font-family: 'F37 Analog', system-ui, sans-serif; }
+  /* phones and touch screens: no live background blur (each one re-blurs
+     everything behind it on every frame of a scroll) — the plates keep their
+     tint, which is most of the look */
+  @media (max-width: 760px), (pointer: coarse) {
+    *, *::before, *::after { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+  }
   .mono, [class*="mono"] { font-family: 'F37 Analog', system-ui, sans-serif !important; }
   #ca-header, #hero-logo { display: none !important; }`;
 export const PAGE_CSS = {

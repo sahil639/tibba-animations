@@ -613,8 +613,12 @@ const CT_PALETTE_GLSL = `
 
 /* ─── Renderer ───────────────────────────────────────────────── */
 const canvas = opts.canvas;
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+/* Phones and touch screens: half the pixels to fill (density capped at 1.5,
+   where the eye cannot tell the difference on a moving contour sheet) and
+   no MSAA on a screen dense enough not to need it. */
+const LITE = matchMedia('(max-width: 760px), (pointer: coarse)').matches;
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: !LITE || devicePixelRatio < 2, alpha: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, LITE ? 1.25 : 2));
 renderer.setSize(vpW(), vpH(), false);
 renderer.setClearColor(0x000000, 0);
 
@@ -1160,7 +1164,7 @@ const CT = {
   W_INDEX: 2.70,
   LIFT: 0.12,        // world units the ribbon floats off the surface
   OPACITY: 0.92,
-  STEP: 0.56,        // field spacing — fine enough to resolve the fluting
+  STEP: matchMedia('(max-width: 760px), (pointer: coarse)').matches ? 0.74 : 0.56,   // field spacing — fine enough to resolve the fluting (coarser on phones: about half the field to march)
   /* The window marching squares runs over. It has to contain every landform
      that is meant to draw, and nothing outside it exists at all — a summit
      beyond the edge is not faint, it has no contours generated for it.
@@ -2339,7 +2343,10 @@ let ringHover = -1;
 let viewLock = false;
 /* set by setDepth, so stepMorph knows to stop writing the fade itself */
 let depthLock = -1;
-let rafId = 0, running = true;
+let rafId = 0, running = true, onScreen = true;
+/* nothing is drawn while the canvas is off screen — in a page framed in the
+   site, that is whenever its section has scrolled away */
+try { new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; }, { rootMargin: '120px' }).observe(opts.canvas); } catch (e) {}
 /* Scheduled rather than entered. The loop used to run its first frame the
    instant it was defined, which was fine when it was the last thing on the
    page; here the camera stations and the zoom it reads are set up below it, so
@@ -2349,7 +2356,7 @@ function frame(){
   /* Two WebGL scenes on one page is two full terrain redraws a frame. The one
      that is not on screen does not get them: the page hands each scene its own
      visibility and the loop simply stops. */
-  if (!running) { _lastT = performance.now(); return; }
+  if (!running || !onScreen || document.hidden) { _lastT = performance.now(); return; }
 
   /* The morph is eased per-frame rather than written straight from the scroll
      position. Scroll events arrive in coarse, uneven jumps — trackpad flicks,

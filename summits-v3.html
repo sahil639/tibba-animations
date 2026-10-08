@@ -152,7 +152,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.js"}}</script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.min.js"}}</script>
 <script type="module">
   import { mountSummitsV2, SUMMITS2_CONFIG as C } from './assets/summits-v2.js';
   import { applyBaked, bakeControls } from './assets/bake.js';
@@ -162,6 +162,9 @@
      closer landforms, livelier ground and a denser contour sheet */
   Object.assign(C.fill, { count: 46, height: 0.72, spacing: 18, relief: 14 });
   C.terrain = { levels: 44, width: 1 };
+  /* phones: a lighter survey — fewer landforms and contour levels to build
+     and draw, so the section arrives quickly and scrolls smoothly */
+  if (matchMedia('(max-width: 760px), (pointer: coarse)').matches) { C.fill.count = 24; C.terrain.levels = 30; }
   applyBaked(BAKE_KEY, C);
   /* the band's words, as final-website.html's (assets/home.js CASES / BAND) */
   const BAND = [

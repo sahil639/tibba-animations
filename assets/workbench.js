@@ -363,7 +363,28 @@
       if (axis !== 'x') up.scrollBy(0, ty - y);
       ty = y;
     }, { passive: true, capture: true });
-    window.addEventListener('touchend', function () { ty = null; }, { passive: true, capture: true });
+    /* the fling: a flick keeps the page moving and eases to a stop, as the
+       phone's own scrolling does — without it the page stops dead the
+       moment the finger lifts, which is what read as jank */
+    var vel = 0, fling = 0;
+    window.addEventListener('touchstart', function () { cancelAnimationFrame(fling); vel = 0; }, { passive: true, capture: true });
+    var prevY = 0, prevT = 0;
+    window.addEventListener('touchmove', function (e) {
+      var y = e.touches[0].clientY, now = performance.now();
+      if (prevT && axis === 'y') { var v = (prevY - y) / Math.max(1, now - prevT); vel = vel * 0.4 + v * 0.6; }
+      prevY = y; prevT = now;
+    }, { passive: true, capture: true });
+    window.addEventListener('touchend', function () {
+      ty = null; prevT = 0;
+      if (axis !== 'y' || Math.abs(vel) < 0.15) return;
+      var t0 = performance.now();
+      (function step(now) {
+        var dt = Math.min(32, now - t0); t0 = now;
+        vel *= Math.exp(-dt / 325);                         // the decay of a native fling
+        up.scrollBy(0, vel * dt);
+        if (Math.abs(vel) > 0.02) fling = requestAnimationFrame(step);
+      })(t0);
+    }, { passive: true, capture: true });
   }
 
   /* ═══ boot ═══════════════════════════════════════════════════════════ */

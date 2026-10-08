@@ -22,6 +22,7 @@
    light and the embers are recomputed each frame, and only while on screen.
    ═════════════════════════════════════════════════════════════════════════ */
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const LITE = matchMedia('(max-width: 760px), (pointer: coarse)').matches;   // phones: fewer pixels to fill
 
 function h2(x, y) { let n = Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263); n = Math.imul(n ^ (n >>> 13), 1274126177); return ((n ^ (n >>> 16)) >>> 0) / 4294967295; }
 function vn(x, y) {
@@ -232,7 +233,7 @@ export function mountDitherFire(canvas, opts = {}) {
 
   function resize() {
     const r = canvas.getBoundingClientRect();
-    W = Math.max(1, r.width); H = Math.max(1, r.height); dpr = Math.min(2, devicePixelRatio || 1);
+    W = Math.max(1, r.width); H = Math.max(1, r.height); dpr = Math.min(LITE ? 1.5 : 2, devicePixelRatio || 1);
     canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
     layout(); drawStatic();
   }
@@ -241,6 +242,7 @@ export function mountDitherFire(canvas, opts = {}) {
   let t = 0, last = 0, raf = 0, visible = false;
   function frame(now) {
     raf = visible && !REDUCED ? requestAnimationFrame(frame) : 0;
+    if (LITE && last && now - last < 30) return;   // phones: ~30 fps is plenty for a flicker
     const dt = last ? Math.min(0.05, (now - last) / 1000) : 0; last = now;
     t += dt * K.speed;
     if (K.cell !== cellUsed) { layout(); drawStatic(); }

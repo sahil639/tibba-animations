@@ -41,6 +41,10 @@ export const SITE_CONFIG = {
   logoStep: 0.9,       // viewports of scroll per change of the mark's form
   gateTimeout: 14,     // s: never hold the page longer than this, whatever happens
 };
+/* phones: load a section a screen ahead rather than one and a half, and let
+   go of it two screens behind rather than four — fewer pages, scenes and
+   WebGL contexts alive at once, which is what a phone runs out of first */
+if (matchMedia('(max-width: 760px), (pointer: coarse)').matches) Object.assign(SITE_CONFIG, { loadAhead: 1, unloadBeyond: 2 });
 const C = SITE_CONFIG;
 
 /* the drawer's wireframe: each section as a few strokes (site-shell.css .wf) */

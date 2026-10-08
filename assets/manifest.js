@@ -44,7 +44,7 @@ window.TIBBA_SITE = {
         note: 'The same system, with the scattered cards, the globe and the burst-and-reader kept', state: 'live' },
       { id: 'case-shyft-mindhouse-v2', updated: '2026-10-08T16:31:00+07:00', change: 'New: the case study design system', label: 'v3 · Case — Shyft & Mindhouse', file: 'case-shyft-mindhouse-v2.html',
         note: 'The same system, Shyft & Mindhouse’s colour and story', state: 'live' },
-      { id: 'final-website-v2', updated: '2026-10-07T17:15:00+07:00', change: "Contact in the navbar; summits worded and hovered as Final Website", label: 'Final Website v2', file: 'final-website-v2.html',
+      { id: 'final-website-v2', updated: '2026-10-08T17:03:00+07:00', change: "Lighter and smoother on phones: fewer pixels, lazier sections, momentum scrolling", label: 'Final Website v2', file: 'final-website-v2.html',
         note: 'The live sections as one website: loader into Active Peak into Metrics, Brands, Summits v3, case reel, Compass v4, testimonials, polaroids, footer; one navbar, refresh bottom left', state: 'live' },
       { id: 'about-landing', updated: '2026-10-06T18:00:00+07:00', change: "The new navbar; the stone hero", label: 'About us — landing', file: 'about-landing.html',
         note: 'About hero, description, foundations, team and footer as one page, with the same navbar and transitions as the home landing', state: 'live' },

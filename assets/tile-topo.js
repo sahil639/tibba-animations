@@ -60,7 +60,7 @@
     function size() {
       const r = el.getBoundingClientRect();
       W = Math.max(1, r.width); H = Math.max(1, r.height);
-      dpr = Math.min(2, devicePixelRatio || 1);
+      dpr = Math.min(matchMedia('(max-width: 760px), (pointer: coarse)').matches ? 1.5 : 2, devicePixelRatio || 1);
       cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
       cols = Math.ceil(W / cell) + 1; rows = Math.ceil(H / cell) + 1;
       F = new Float32Array(cols * rows);
