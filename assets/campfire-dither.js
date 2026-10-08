@@ -49,6 +49,8 @@ export const DITHER_DEFAULTS = {
   x: 0.5, y: 0.74,       // where the fire's base sits, share of the canvas
   scale: 1,              // overall size
   ramp: ' .,:;-=+*#%@',
+  hand: true,            // the pointer becomes a hand, drawn in the fire's own cells, while it is over the fire's box
+  handSize: 1,           // the hand's size, × the fire's
 };
 
 export function mountDitherFire(canvas, opts = {}) {
@@ -58,6 +60,103 @@ export function mountDitherFire(canvas, opts = {}) {
   let W = 0, H = 0, dpr = 1, gw = 0, gh = 0, S = new Float32Array(0), L = new Float32Array(0), HT = new Float32Array(0);
   let cellUsed = 0, geo = null;
   const ptr = { x: -1e4, y: -1e4, k: 0, kt: 0 };
+
+  /* ── the hand ────────────────────────────────────────────────────────
+     Over the fire's box the pointer becomes a hand reaching for the flame
+     — the index finger out, the others curled, the thumb over, a wrist and
+     forearm trailing back off the pointer — drawn into the same grid of
+     cells as the fire, so it dithers (or turns to characters) exactly as
+     the flame and the wood do.
+
+     It is built from rounded segments (capsules) in its own frame: the
+     fingertip at the origin, pointing along +x. Each is shaded as the
+     cylinder it stands for — the side turned to the flame lit, the far
+     side falling to shadow — and the flame's light falls off with distance
+     and flickers with it; in the warm palette the lit edge takes the
+     fire's orange, in mono only its brightness. Gaps between fingers are
+     kept dark so the fingers read apart.
+
+     It always reaches for the flame: turned toward the fire's core, a
+     left hand reaching right on the fire's left and a right hand reaching
+     left on its right (so the thumb stays on top), and a little larger
+     lower down the box, where it is nearer the viewer. */
+  const SEG = [            // [ax, ay, bx, by, ra, rb] — one hand-unit ≈ a finger's width
+    /* index finger, out */  [0, 0, -1.5, .12, .36, .4], [-1.5, .12, -3, .3, .4, .46],
+    /* thumb, over */        [-2.5, -.7, -3.6, -.55, .4, .46], [-3.6, -.55, -4.8, .1, .46, .62],
+    /* middle, curled */     [-3.1, .95, -2, 1.18, .44, .4], [-2, 1.18, -2.3, 1.85, .4, .36],
+    /* ring, curled */       [-3.3, 1.65, -2.3, 1.92, .42, .38], [-2.3, 1.92, -2.7, 2.55, .38, .34],
+    /* little, curled */     [-3.55, 2.3, -2.75, 2.58, .36, .33], [-2.75, 2.58, -3.1, 3.05, .33, .3],
+    /* palm */               [-3.2, .55, -5.3, .9, 1.02, 1.12], [-3.4, 1.55, -5.2, 1.5, .9, 1.05],
+    /* wrist, forearm */     [-5.4, 1.05, -7.4, 1.35, 1.0, 1.05], [-7.4, 1.35, -12.5, 1.9, 1.05, 1.25],
+  ];
+  const hand = { k: 0, on: false, x: 0, y: 0, ang: 0, flip: 1, flipT: 1 };
+  const capsule = (px, py, sg) => {
+    const [ax, ay, bx, by, ra, rb] = sg, dx = bx - ax, dy = by - ay;
+    const h = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)));
+    const qx = px - (ax + dx * h), qy = py - (ay + dy * h), r = ra + (rb - ra) * h;
+    return { d: Math.hypot(qx, qy), r, qx, qy, h };
+  };
+  function drawHand(dt, flick) {
+    hand.k += ((hand.on ? 1 : 0) - hand.k) * (1 - Math.exp(-dt * 9));
+    if (hand.k < 0.01) return;
+    const g = geo, C = K.cell;
+    /* where it reaches: the flame's core */
+    const fx = g.cx, fy = g.base - g.s * 0.45;
+    const tAng = Math.atan2(fy - hand.y, fx - hand.x);
+    let da = tAng - hand.ang; while (da > Math.PI) da -= 2 * Math.PI; while (da < -Math.PI) da += 2 * Math.PI;
+    hand.ang += da * (1 - Math.exp(-dt * 10));
+    if (Math.abs(hand.x - fx) > g.s * 0.12) hand.flipT = hand.x < fx ? 1 : -1;   // a little dead zone over the flame
+    hand.flip += (hand.flipT - hand.flip) * (1 - Math.exp(-dt * 14));
+    const unit = g.s * 0.25 * K.handSize * (0.82 + 0.36 * clamp01(hand.y / H)) * (0.7 + 0.3 * hand.k);
+    const ca = Math.cos(hand.ang), sa = Math.sin(hand.ang), fl = Math.abs(hand.flip) < .15 ? .15 * Math.sign(hand.flip || 1) : hand.flip;
+    const reach = 10.5 * unit;
+    const i0 = Math.max(0, Math.floor((hand.x - reach) / C)), i1 = Math.min(gw - 1, Math.ceil((hand.x + reach) / C));
+    const j0 = Math.max(0, Math.floor((hand.y - reach) / C)), j1 = Math.min(gh - 1, Math.ceil((hand.y + reach) / C));
+    const lightR = g.s * 2.4, warm = K.palette !== 'mono';
+    for (let j = j0; j <= j1; j++) {
+      const y = (j + 0.5) * C;
+      for (let i = i0; i <= i1; i++) {
+        const x = (i + 0.5) * C, rx = x - hand.x, ry = y - hand.y;
+        /* into the hand's frame: rotate, mirror for the other hand, scale */
+        const lx = (rx * ca + ry * sa) / unit, ly = (-rx * sa + ry * ca) / unit / fl;
+        if (lx > 0.6 || lx < -10.2 || ly < -2 || ly > 4.4) continue;
+        let best = null, second = 1e9;
+        for (let q = 0; q < SEG.length; q++) {
+          const c = capsule(lx, ly, SEG[q]), sd = c.d - c.r;
+          if (!best || sd < best.sd) { if (best) second = Math.min(second, best.sd); best = c; best.sd = sd; best.q = q; }
+          else second = Math.min(second, sd);
+        }
+        if (best.sd > 0) continue;
+        /* the forearm fades away behind the wrist */
+        const fade = best.q >= 12 ? clamp01(1 - (-lx - 6.4) / 3.4) : 1;
+        if (fade <= 0.02) continue;
+        /* the cylinder's normal, back in screen space, and the flame's light on it */
+        const nr = clamp01(best.d / best.r);
+        const nlx = best.qx / (best.d || 1) * nr, nly = best.qy / (best.d || 1) * nr * fl, nz = Math.sqrt(1 - nr * nr);
+        const nx = nlx * ca - nly * sa, ny = nlx * sa + nly * ca;
+        const lxs = fx - x, lys = fy - y, ld = Math.hypot(lxs, lys) || 1, lz = g.s * 0.35;
+        const lm = Math.hypot(lxs, lys, lz);
+        const lam = Math.max(0, (nx * lxs + ny * lys + nz * lz) / lm);
+        const fall = Math.exp(-(ld * ld) / (lightR * lightR)) * K.light * (0.86 + 0.14 * flick) * G;
+        /* form: a dim fill, a hard terminator, and the flame's light on the near side */
+        const lit = lam * fall;
+        /* a base light like the wood's, so the form holds away from the
+           fire too: rounder parts face the viewer and read brighter */
+        let lum = (0.3 + 0.28 * nz) * K.wood + lit * 1.1;
+        const away = nx * lxs + ny * lys < 0;                           // turned from the flame
+        if (away) lum *= 0.62 - 0.3 * fall;                             // the shadow side, deeper the nearer the fire
+        /* creases: where two parts meet, a dark seam keeps the fingers apart */
+        const crease = clamp01(1 - (second - best.sd) / 0.22);
+        if (best.q < 12) lum *= 1 - crease * 0.85;
+        /* a lit rim where the silhouette turns away from the fire */
+        if (best.sd > -0.1) lum = Math.max(lum, 0.32 + lit * 0.6);           // the outline holds the silhouette
+        lum *= fade * hand.k;
+        const k = j * gw + i;
+        L[k] = clamp01(lum);
+        HT[k] = warm && !away ? clamp01((lit - 0.22) * 1.3) * (0.4 + 0.6 * (1 - nz)) * fade : 0;   // orange only where the flame catches its edge
+      }
+    }
+  }
   /* a click on the flame blows it apart: it scatters as sparks, goes out,
      and then lights again from nothing — G is how much fire there is */
   const LIFE = { scatter: 0.9, dark: 0.7, regrow: 2.4 };
@@ -217,6 +316,7 @@ export function mountDitherFire(canvas, opts = {}) {
       const k = j * gw + i, a = clamp01(1 - e.life / e.max);
       L[k] = Math.max(L[k], a); HT[k] = Math.max(HT[k], a * 0.8);
     });
+    if (K.hand) drawHand(dt, flick);
     draw();
   }
 
@@ -263,12 +363,23 @@ export function mountDitherFire(canvas, opts = {}) {
     const d = Math.hypot(x - geo.cx, (y - geo.base + geo.s * 0.6) * 1.2) / (geo.s * 1.4);
     ptr.kt = clamp01(1 - d);
   }, { passive: true });
-  host.addEventListener('pointerleave', () => { ptr.kt = 0; canvas.style.cursor = ''; });
+  host.addEventListener('pointerleave', () => { ptr.kt = 0; canvas.style.cursor = ''; hand.on = false; host.style.cursor = ''; });
+  /* the hand: on while the pointer is over the fire's box (and not over a
+     link, button or field in it); the real cursor hides while it shows */
+  host.addEventListener('pointermove', e => {
+    if (!K.hand || e.pointerType === 'touch') return;
+    const r = canvas.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+    const over = x >= 0 && y >= 0 && x <= r.width && y <= r.height && !e.target.closest('a, button, input, textarea, select, label, [data-drag], .win, .swing');
+    if (over && !hand.on) { hand.x = x; hand.y = y; hand.ang = Math.atan2(geo.base - geo.s * 0.45 - y, geo.cx - x); hand.flip = hand.flipT = x < geo.cx ? 1 : -1; }
+    hand.on = over; hand.x = x; hand.y = y;
+    host.style.cursor = over ? 'none' : '';
+    if (REDUCED) frame(performance.now()); else kick();
+  }, { passive: true });
   const onFlame = e => {
     const r = canvas.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top, g = geo;
     return Math.abs(x - g.cx) < g.s * 0.75 && y < g.base + g.s * 0.2 && y > g.base - g.s * 1.9;
   };
-  host.addEventListener('pointermove', e => { if (K.blowOut !== false) canvas.style.cursor = onFlame(e) && G > 0.5 ? 'pointer' : ''; }, { passive: true });
+  host.addEventListener('pointermove', e => { if (K.blowOut !== false && !hand.on) canvas.style.cursor = onFlame(e) && G > 0.5 ? 'pointer' : ''; }, { passive: true });
   host.addEventListener('click', e => {
     if (K.blowOut === false) return;                           // a page can keep its fire lit
     if (out !== null || !onFlame(e) || e.target.closest('a, button, input')) return;

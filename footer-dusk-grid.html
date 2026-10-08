@@ -187,7 +187,7 @@ body { background: #000; }
   const CONFIG = { fire: { mode: 'dither', palette: 'warm', cell: 5, dot: .86, contrast: 1.25, flame: 1.05, embers: 1.2, speed: .9, scale: 1.05, wood: .75 },
                    toast: { rate: .12, reach: 1.25 } };   // marshmallow: cooked per second at the heart of the fire; how far the heat reaches (× fire size)
   const KEY = 'tibba.bake.footer-dusk-grid'; applyBaked(KEY, CONFIG);
-  const f = fire($('.camp canvas'), { ...CONFIG.fire, x: .5, y: .74, blowOut: false });
+  const f = fire($('.camp canvas'), { ...CONFIG.fire, x: .5, y: .74, blowOut: false, hand: false });
 
   /* ── the marshmallow, in ASCII ──────────────────────────────────────
      A 6 × 4 block of characters on a stick of backslashes. Every cell has
