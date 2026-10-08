@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>More work — the index</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<link rel="stylesheet" href="assets/work.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<script src="assets/odometer.js" defer></script>
+<script src="assets/work.js"></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   More work — the index
+   ─────────────────────────────────────────────────────────────────────────
+   Website v3's second look at the work: every project that isn't one of the
+   four summits, as an index — a row each, year, client, what we did, the
+   sector — over a contour line. On a desktop, hovering a row brings its
+   cover up beside the pointer, following it with a little lag and a tilt
+   toward the way it is moving, the row taking the project's colour. On
+   touch screens there is no hover, so each row carries its cover inline,
+   as a strip above the words.
+
+   Images: assets/work/<project>/cover (see assets/work.js).
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+.wi { padding: clamp(84px, 12vh, 130px) var(--gut) clamp(72px, 11vh, 120px); }
+.wi-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; padding-bottom: clamp(22px, 3.6vh, 40px); }
+.wi-head .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.wi-head h2 { margin-top: 14px; color: #fff; font-weight: 300; font-size: clamp(32px, 4vw, 68px); line-height: 1; letter-spacing: -.04em; }
+.wi-head p { max-width: 36ch; color: var(--ink-mute); font-size: 14px; line-height: 1.6; }
+
+.cols, .row { display: grid; grid-template-columns: 90px minmax(0, 1.1fr) minmax(0, 1.6fr) 150px 40px; gap: clamp(14px, 2vw, 32px); align-items: center; }
+.cols { padding: 0 0 12px; border-bottom: 1px solid rgba(233,236,242,.22); font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: rgba(233,236,242,.45); }
+.list { list-style: none; }
+.row { --c: #fff; position: relative; padding: clamp(18px, 2.6vh, 26px) 0; border-bottom: 1px solid rgba(233,236,242,.12); color: #fff; text-decoration: none; cursor: default; }
+.row::before { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: var(--c); transform: scaleX(0); transform-origin: left; transition: transform .5s cubic-bezier(.22,1,.36,1); }
+.row .yr { font-size: 12px; letter-spacing: .14em; color: rgba(233,236,242,.5); font-variant-numeric: tabular-nums; }
+.row .nm { display: flex; align-items: center; gap: 12px; font-size: clamp(22px, 2.2vw, 36px); font-weight: 300; letter-spacing: -.025em; line-height: 1.05; transition: transform .45s cubic-bezier(.22,1,.36,1), color .3s linear; }
+.row .nm::before { content: ''; flex: none; width: 9px; height: 9px; background: var(--c); transform: scale(0); transition: transform .35s cubic-bezier(.22,1,.36,1); }
+.row .ln { font-size: 14px; line-height: 1.5; color: rgba(233,236,242,.62); transition: color .3s linear; }
+.row .sc { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: rgba(233,236,242,.5); }
+.row .ar { justify-self: end; width: 26px; height: 1px; background: rgba(233,236,242,.5); position: relative; transition: width .35s cubic-bezier(.22,1,.36,1), background .3s linear; }
+.row .ar::after { content: ''; position: absolute; right: 0; top: -3px; width: 7px; height: 7px; border: solid currentColor; border-width: 1px 1px 0 0; transform: rotate(45deg); color: rgba(233,236,242,.5); }
+.row .strip { display: none; }
+.list:hover .row:not(:hover) .nm, .list:hover .row:not(:hover) .ln { color: rgba(233,236,242,.35); }
+.row:hover::before { transform: scaleX(1); }
+.row:hover .nm { transform: translateX(4px); color: var(--c); }
+.row:hover .nm::before { transform: scale(1); }
+.row:hover .ln { color: #fff; }
+.row:hover .ar { width: 40px; background: var(--c); } .row:hover .ar::after { color: var(--c); }
+
+/* the floating cover */
+.peek { position: fixed; left: 0; top: 0; z-index: 30; width: clamp(280px, 26vw, 420px); pointer-events: none; opacity: 0;
+  transition: opacity .25s linear; will-change: transform; }
+.peek.on { opacity: 1; }
+.peek .card { position: relative; border: 1px solid rgba(233,236,242,.18); box-shadow: 0 30px 60px rgba(0,0,0,.6); transform: scale(.94); transition: transform .4s cubic-bezier(.22,1,.36,1); }
+.peek.on .card { transform: none; }
+.peek .wk-img { display: none; }
+.peek .wk-img.cur { display: block; }
+.peek .tag { position: absolute; left: 10px; top: 10px; z-index: 2; padding: 5px 8px; background: rgba(0,0,0,.6); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: #fff; }
+
+.wi-foot { margin-top: clamp(26px, 4vh, 44px); display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: rgba(233,236,242,.5); }
+.wi-foot a { color: #fff; border-bottom: 1px solid rgba(255,255,255,.35); }
+
+@media (max-width: 900px), (hover: none) {
+  .cols { display: none; }
+  .row { grid-template-columns: 1fr auto; gap: 8px 14px; padding: 18px 0 22px; }
+  .row .strip { display: block; grid-column: 1 / -1; margin-bottom: 8px; }
+  .row .strip .wk-img { aspect-ratio: 16 / 7; }
+  .row .yr { grid-column: 1; grid-row: 2; }
+  .row .sc { grid-column: 2; grid-row: 2; justify-self: end; }
+  .row .nm { grid-column: 1 / -1; }
+  .row .ln { grid-column: 1 / -1; }
+  .row .ar { display: none; }
+  .row .nm::before { display: none; }
+  .peek { display: none; }
+}
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<section class="wi" aria-labelledby="wi-h">
+  <header class="wi-head">
+    <div><p class="eyebrow">[ &nbsp;More work&nbsp; ]</p><h2 id="wi-h">The climbs between the summits</h2></div>
+    <p>A decade of products — first versions, rebuilds and quiet fixes — for teams across India and beyond.</p>
+  </header>
+  <div class="cols" aria-hidden="true"><span>Year</span><span>Client</span><span>What we did</span><span>Sector</span><span></span></div>
+  <ol class="list" id="list"></ol>
+  <p class="wi-foot"><span>14 brands · 6 sectors · since 2013</span><span>Something to climb? <a href="mailto:hello@tibba.design">hello@tibba.design</a></span></p>
+</section>
+<div class="peek" id="peek" aria-hidden="true"><div class="card"><span class="tag" id="peek-tag"></span><div id="peek-imgs"></div></div></div>
+
+<script>
+(function () {
+  const W = window.TibbaWork, esc = W.esc;
+  const list = document.getElementById('list'), peek = document.getElementById('peek'), imgs = document.getElementById('peek-imgs');
+  list.innerHTML = W.MORE.map((m, i) => `<li class="row" style="--c:${m.colour}" data-i="${i}">
+      <div class="strip">${W.img(m.folder, 'cover', m.client, '16 / 7')}</div>
+      <span class="yr">${esc(m.year)}</span><span class="nm">${esc(m.client)}</span>
+      <span class="ln">${esc(m.line)}</span><span class="sc">${esc(m.sector)}</span><i class="ar"></i></li>`).join('');
+  imgs.innerHTML = W.MORE.map(m => W.img(m.folder, 'cover', m.client, '4 / 3')).join('');
+  [...list.querySelectorAll('.wk-img'), ...imgs.children].forEach((el, k) => el.style.setProperty('--c', W.MORE[k % W.MORE.length].colour));
+  const covers = [...imgs.children];
+
+  /* the cover follows the pointer, with a lag, leaning into its motion */
+  let x = 0, y = 0, tx = 0, ty = 0, vx = 0, raf = 0, on = false;
+  function tick() {
+    raf = 0;
+    const nx = x + (tx - x) * .16, ny = y + (ty - y) * .16;
+    vx = vx * .8 + (nx - x) * .2; x = nx; y = ny;
+    const lean = Math.max(-8, Math.min(8, vx * .6));
+    peek.style.transform = `translate3d(${(x + 28).toFixed(1)}px, ${(y - peek.offsetHeight * .5).toFixed(1)}px, 0) rotate(${lean.toFixed(2)}deg)`;
+    if (on || Math.abs(tx - x) > .5) raf = requestAnimationFrame(tick);
+  }
+  list.addEventListener('pointermove', e => { tx = e.clientX; ty = e.clientY; if (!raf) raf = requestAnimationFrame(tick); });
+  list.querySelectorAll('.row').forEach(r => {
+    r.addEventListener('pointerenter', e => {
+      if (e.pointerType === 'touch') return;
+      if (!on) { x = tx = e.clientX; y = ty = e.clientY; }
+      const i = +r.dataset.i; on = true;
+      covers.forEach((c, k) => c.classList.toggle('cur', k === i));
+      document.getElementById('peek-tag').textContent = W.MORE[i].tags;
+      peek.classList.add('on'); if (!raf) raf = requestAnimationFrame(tick);
+    });
+  });
+  list.addEventListener('pointerleave', () => { on = false; peek.classList.remove('on'); });
+})();
+</script>
+</body>
+</html>

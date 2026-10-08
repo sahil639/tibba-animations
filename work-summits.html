@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selected work — stacked summits</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<link rel="stylesheet" href="assets/work.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<script src="assets/odometer.js" defer></script>
+<script src="assets/cases.js"></script>
+<script src="assets/work.js"></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Selected work — the four summits, stacked
+   ─────────────────────────────────────────────────────────────────────────
+   Website v3's lead section: the studio's four deep projects, each a
+   full-screen panel led by its own imagery. The panels pin and stack — the
+   next one rises over the last, which sinks back, dims and shrinks a little
+   — so the reader climbs from one summit to the next.
+
+   A panel: the cover image large on the right, its parallax driven by the
+   scroll, framed by a contour ring in the client's colour and an altitude
+   tag (each summit has its height); on the left the summit's number, the
+   client, the title with its phrase in the client's colour, the outcome as
+   numbers on the odometer, the tags and the way into the case study.
+
+   Images: assets/work/<client>/cover (see assets/work.js). Phones: the
+   panels stop pinning and run as cards, image first.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+
+.ws-head { padding: clamp(96px, 14vh, 150px) var(--gut) clamp(40px, 7vh, 72px); display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
+.ws-head .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.ws-head h2 { margin-top: 14px; color: #fff; font-weight: 300; font-size: clamp(34px, 4.4vw, 76px); line-height: 1; letter-spacing: -.04em; max-width: 14ch; }
+.ws-head p { max-width: 38ch; color: var(--ink-mute); font-size: 14px; line-height: 1.6; }
+
+.stack { position: relative; }
+.pn { --c: #fff; position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; background: #050506; }
+.pn + .pn { box-shadow: 0 -30px 60px rgba(0,0,0,.6); }
+.pn .in { position: absolute; inset: 0; display: grid; grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); gap: clamp(24px, 4vw, 72px); align-items: center;
+  padding: clamp(84px, 11vh, 120px) var(--gut) clamp(40px, 7vh, 72px); transform-origin: 50% 0;
+  transform: scale(calc(1 - var(--sink, 0) * .06)) translateY(calc(var(--sink, 0) * -3vh)); filter: brightness(calc(1 - var(--sink, 0) * .55)); }
+.pn .in::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: color-mix(in srgb, var(--c) 45%, transparent); }
+
+/* the words */
+.pn .k { display: flex; align-items: center; gap: 12px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: rgba(233,236,242,.55); }
+.pn .k b { color: var(--c); font-weight: 400; }
+.pn .k i { width: 34px; height: 1px; background: rgba(233,236,242,.3); }
+.pn .client { margin-top: clamp(20px, 3vh, 34px); display: flex; align-items: center; gap: 12px; font-size: clamp(16px, 1.3vw, 20px); color: #fff; }
+.pn .client::before { content: ''; width: 10px; height: 10px; background: var(--c); }
+.pn h3 { margin-top: 14px; color: #fff; font-weight: 300; font-size: clamp(28px, 3vw, 52px); line-height: 1.04; letter-spacing: -.03em; max-width: 17ch; }
+.pn h3 em { font-style: normal; color: var(--c); }
+.pn .out { margin-top: clamp(22px, 3.4vh, 38px); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; border-top: 1px solid rgba(233,236,242,.16); max-width: 460px; }
+.pn .out div { padding: 14px 14px 14px 0; border-bottom: 1px solid rgba(233,236,242,.16); }
+.pn .out div:nth-child(odd) { border-right: 1px solid rgba(233,236,242,.16); }
+.pn .out div:nth-child(even) { padding-left: 14px; }
+.pn .out b { display: block; color: #fff; font-weight: 300; font-size: clamp(26px, 2.4vw, 40px); line-height: 1; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.pn .out b * { font-weight: inherit; }
+.pn .out div > span { display: block; margin-top: 6px; font-size: 12px; line-height: 1.35; color: var(--ink-mute); }
+.pn .body { margin-top: clamp(18px, 3vh, 30px); max-width: 44ch; color: var(--ink-mute); font-size: 14px; line-height: 1.6; }
+.pn .tags { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 6px; list-style: none; }
+.pn .tags li { padding: 6px 10px; border: 1px solid rgba(233,236,242,.18); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: rgba(233,236,242,.7); }
+.pn .go { margin-top: clamp(22px, 3.4vh, 36px); display: inline-flex; align-items: center; gap: 14px; padding: 14px 20px; background: var(--c); color: #0a0a0b;
+  font-size: 12px; letter-spacing: .16em; text-transform: uppercase; transition: gap .3s cubic-bezier(.22,1,.36,1); }
+.pn .go i { width: 22px; height: 1px; background: currentColor; position: relative; } .pn .go i::after { content: ''; position: absolute; right: 0; top: -3px; width: 7px; height: 7px; border: solid currentColor; border-width: 1px 1px 0 0; transform: rotate(45deg); }
+.pn .go:hover { gap: 24px; }
+
+/* the picture */
+.pn .pic { position: relative; display: block; height: min(72vh, 760px); }
+.pn .pic .wk-img { position: absolute; inset: 0; aspect-ratio: auto; height: 100%; --c: var(--c); border: 1px solid rgba(233,236,242,.12); }
+.pn .pic .wk-img img { transform: translateY(var(--par, 0px)) scale(1.12); transition: opacity .6s linear, scale .8s cubic-bezier(.22,1,.36,1); }
+.pn .pic:hover .wk-img img { scale: 1.03; }
+.pn .pic .ring { position: absolute; right: -6%; top: -10%; width: 34%; aspect-ratio: 1; border-radius: 50%; pointer-events: none;
+  background: repeating-radial-gradient(circle, transparent 0 14px, color-mix(in srgb, var(--c) 55%, transparent) 14px 15px); -webkit-mask: radial-gradient(circle, #000 30%, transparent 70%); mask: radial-gradient(circle, #000 30%, transparent 70%); opacity: .6; }
+.pn .pic .alt { position: absolute; left: 0; bottom: -28px; display: flex; gap: 18px; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: rgba(233,236,242,.5); font-variant-numeric: tabular-nums; }
+.pn .pic .alt b { color: var(--c); font-weight: 400; }
+.pn .pic::after { content: ''; position: absolute; left: -1px; top: -1px; width: 12px; height: 12px; border: solid var(--c); border-width: 1px 0 0 1px; }
+
+/* the rail: which summit, of four */
+.rail { position: fixed; right: clamp(14px, 1.6vw, 26px); top: 50%; transform: translateY(-50%); z-index: 20; display: grid; gap: 6px; opacity: 0; transition: opacity .3s linear; }
+.rail.on { opacity: 1; }
+.rail i { width: 3px; height: 26px; background: rgba(233,236,242,.2); transition: background .3s linear, height .3s ease; }
+.rail i.on { background: var(--c, #fff); height: 44px; }
+
+@media (max-width: 900px) {
+  .pn { position: relative; height: auto; }
+  .pn + .pn { box-shadow: none; }
+  .pn .in { position: relative; inset: auto; transform: none; filter: none; grid-template-columns: 1fr; padding: 48px 16px 56px; gap: 26px; }
+  .pn .pic { order: -1; height: auto; aspect-ratio: 16 / 11; }
+  .pn .pic .alt { bottom: -24px; }
+  .rail { display: none; }
+}
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<header class="ws-head">
+  <div><p class="eyebrow">[ &nbsp;Selected work&nbsp; ]</p><h2>Four summits, climbed with our clients</h2></div>
+  <p>The products we've shaped from the first sketch to the numbers that moved — each one a climb we made beside the team who owns it.</p>
+</header>
+<div class="stack" id="stack"></div>
+<nav class="rail" id="rail" aria-hidden="true"></nav>
+
+<script>
+(function () {
+  const W = window.TibbaWork, C = window.TIBBA_CASES, esc = W.esc;
+  const HEIGHT = ['4,820 m', '5,360 m', '6,190 m', '7,050 m'];
+  const pad = i => String(i + 1).padStart(2, '0');
+  const stack = document.getElementById('stack'), rail = document.getElementById('rail');
+  const top = (window.top !== window) ? ' target="_top"' : '';
+  stack.innerHTML = W.SUMMITS.map((s, i) => {
+    const c = C[s.key], st = (c.blocks.find(b => b.k === 'stats') || {}).items || [];
+    const title = esc(s.line).replace(esc(s.hi), `<em>${esc(s.hi)}</em>`);
+    const body = ((c.blocks.find(b => b.k === 'text' || b.k === 'points') || {}).p);
+    const lead = Array.isArray(body) ? body[0] : body;
+    return `<section class="pn" style="--c:${c.colour}" aria-label="${esc(c.client)}">
+      <div class="in">
+        <div class="txt">
+          <p class="k"><b>Summit ${pad(i)}</b><i></i><span>${esc(s.sector)} · ${esc(s.year)}</span></p>
+          <p class="client">${esc(c.client)}</p>
+          <h3>${title}</h3>
+          ${st.length ? `<div class="out">${st.slice(0, 4).map(x => `<div><b data-odo-count>${esc(x.n)}</b><span>${esc(x.l)}</span></div>`).join('')}</div>`
+                      : `<p class="body">${esc(lead ? lead.split('. ').slice(0, 2).join('. ') + (lead.includes('. ') ? '.' : '') : '')}</p>`}
+          <ul class="tags">${c.tags.map(t => `<li>${esc(t)}</li>`).join('')}</ul>
+          <a class="go" href="${s.file}"${top}>View the case study<i></i></a>
+        </div>
+        <a class="pic" href="${s.file}"${top} aria-label="${esc(c.client)} case study">
+          <i class="ring"></i>${W.img(s.folder, 'cover', c.client + ' — the work')}
+          <p class="alt"><span>Alt <b>${HEIGHT[i]}</b></span><span>${esc(c.client)} / cover</span></p>
+        </a>
+      </div></section>`;
+  }).join('');
+  stack.querySelectorAll('.wk-img').forEach((el, i) => el.style.setProperty('--c', C[W.SUMMITS[i].key].colour));
+  rail.innerHTML = W.SUMMITS.map(() => '<i></i>').join('');
+  const panels = [...stack.children], bars = [...rail.children];
+
+  /* the stack: a panel sinks as the next rises over it; its picture drifts */
+  function frame() {
+    const vh = innerHeight; let cur = -1;
+    panels.forEach((p, i) => {
+      const nx = panels[i + 1], r = p.getBoundingClientRect();
+      const sink = nx ? Math.min(1, Math.max(0, 1 - nx.getBoundingClientRect().top / vh)) : 0;
+      p.style.setProperty('--sink', sink.toFixed(3));
+      const par = Math.max(-1, Math.min(1, (r.top + (nx ? (vh - nx.getBoundingClientRect().top) : 0)) / vh));
+      p.style.setProperty('--par', (par * -40).toFixed(1) + 'px');
+      if (r.top <= vh * .5) cur = i;
+    });
+    const sr = stack.getBoundingClientRect();
+    rail.classList.toggle('on', sr.top < vh * .5 && sr.bottom > vh * .5 && innerWidth > 900);
+    bars.forEach((b, i) => { b.classList.toggle('on', i === cur); b.style.setProperty('--c', C[W.SUMMITS[i].key].colour); });
+  }
+  addEventListener('scroll', () => requestAnimationFrame(frame), { passive: true });
+  addEventListener('resize', frame);
+  frame();
+  /* the numbers count once each panel arrives */
+  const arm = () => window.Odometer ? window.Odometer.arm(stack) : setTimeout(arm, 60);
+  arm();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tibba Design Studio — v3</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/ca-nav.css">
+<link rel="stylesheet" href="assets/site-shell.css">
+<!-- ─────────────────────────────────────────────────────────────────────────
+     Website v3 — the work, first
+
+       Loader → Hero (Active Peak) → Metrics   site-hero.html, as v2
+       Selected work                           work-summits.html — the four
+                                               summits stacked, image-led
+       Brands                                  brands.html (the mosaic on phones)
+       More work                               work-index.html — the index,
+                                               covers following the pointer
+       Our services                            services-gear.html
+       Testimonials                            testimonials-topo.html
+       Our studio                              studio-polaroid-frames.html
+       Footer                                  footer-dusk-grid.html
+
+     Case studies: case-*-v2.html (assets/case-v2.js / .css).
+     The work's images: assets/work/<client>/ — see assets/work.js.
+     Shell and sections: assets/site-shell.js, assets/site-sections.js.
+     ───────────────────────────────────────────────────────────────────── -->
+</head>
+<body>
+<header id="ca-header"></header>
+<main id="stack"></main>
+<button class="site-refresh" id="site-refresh" type="button" title="Reload every section from its latest design" aria-label="Refresh sections">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg>
+  <span>Refresh</span>
+</button>
+
+<script type="module">
+  import { mountSite } from './assets/site-shell.js';
+  import { V3_SECTIONS, V3_LINKS, resolveLayout, sectionsFor } from './assets/site-sections.js';
+  window.tibba = mountSite({
+    sections: sectionsFor(resolveLayout(null, V3_SECTIONS), V3_SECTIONS),
+    home: '#',
+    links: V3_LINKS,
+  });
+</script>
+</body>
+</html>

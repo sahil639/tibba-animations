@@ -50,6 +50,8 @@ const WIRES = {
   opening: `<svg class="pk" viewBox="0 0 100 40" preserveAspectRatio="none"><path d="M0 40 L30 18 L44 26 L62 6 L80 22 L100 14"/><path d="M8 40 L32 24 L46 30 L62 14 L78 28 L96 22"/></svg>${L(62, 'big')}${L(40)}`,
   brands: BX(8, 'g4'),
   summits: `${L(34)}${BX(4, 'g2 tall')}`,
+  work: `${L(30, 'acc')}${BX(1, 'wide')}${L(60, 'big')}${BX(1, 'wide')}`,
+  more: `${L(46)}${L(90)}${L(90)}${L(90)}${L(90)}`,
   cases: `${L(42)}${BX(3, 'row')}`,
   services: `${L(38)}<span class="tabs"><i></i><i></i><i></i></span>${BX(1, 'wide')}`,
   testimonials: `${L(20, 'acc')}${L(80, 'big')}${L(64, 'big')}${L(30)}`,

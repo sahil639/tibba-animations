@@ -72,6 +72,33 @@ export const HOME_SECTIONS = [
   FOOTER,
 ];
 
+/* Website v3: the same opening (loader → hero → stats), then the work
+   itself — four summits stacked, each led by its imagery; the brands; the
+   index of everything else — and only then services, voices, studio and
+   the footer. The images come from assets/work/ (assets/work.js). */
+export const V3_SECTIONS = [
+  { id: 'opening', label: 'Loader → Hero → Metrics', folder: 'Loader · Hero section · Metrics', nav: null, gate: true,
+    variants: [{ file: 'site-hero.html', label: 'Loader, Active Peak and Metrics as one scene' },
+               { file: 'site-hero.html?noloader', label: 'Same, without the loader' }] },
+  { id: 'work', label: 'Selected work', folder: 'Website v3', nav: 'Work',
+    variants: [{ file: 'work-summits.html', label: 'Four summits, stacked' }] },
+  { id: 'brands', label: 'Brands', folder: 'Brands section', frame: '85vh',
+    mobile: { file: 'brands-mosaic.html', frame: '78vh' },
+    variants: [{ file: 'brands.html', label: 'Brands' }, { file: 'brands-mosaic.html', label: 'Brands — mosaic' }] },
+  { id: 'more', label: 'More work', folder: 'Website v3',
+    variants: [{ file: 'work-index.html', label: 'The index' }, { file: 'case-studies-reel.html', label: 'Case reel' }] },
+  { id: 'services', label: 'Our services', folder: 'Our services', nav: 'Services',
+    variants: [{ file: 'services-gear.html', label: 'Gear tiers' }, { file: 'services-compass-v4.html', label: 'Compass v4' }] },
+  { id: 'testimonials', label: 'Testimonials', folder: 'Our testimonials',
+    variants: [{ file: 'testimonials-topo.html', label: 'Testimonials — topo' }] },
+  { id: 'studio', label: 'Our studio', folder: 'Our studio',
+    variants: [{ file: 'studio-polaroid-frames.html', label: 'Framed polaroids' }, { file: 'studio-frames.html', label: 'Framed prints' }] },
+  { id: 'footer', label: 'Footer', folder: 'Footer', nav: 'Contact',
+    variants: [{ file: 'footer-dusk-grid.html', label: 'Footer — dusk grid' }, { file: 'footer-blueprint-dusk.html', label: 'Footer — blueprint dusk' },
+               { file: 'footer-campfire.html', label: 'Footer — campfire' }] },
+];
+export const V3_LINKS = [{ label: 'Work', target: 'work' }, { label: 'Services', target: 'services' }, { label: 'About', href: 'about-landing.html' }, { label: 'Contact', target: 'footer' }];
+
 export const ABOUT_SECTIONS = [
   { id: 'about-hero', label: 'About us — hero', folder: 'About us — hero', nav: 'About',
     variants: [{ file: 'about-hero.html', label: 'About us — hero' }] },

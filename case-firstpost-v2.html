@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case study — Tibba Design Studio</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/ca-nav.css">
+<link rel="stylesheet" href="assets/site-shell.css">
+<link rel="stylesheet" href="assets/work.css">
+<link rel="stylesheet" href="assets/case-v2.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<script src="assets/odometer.js" defer></script>
+<script src="assets/services.js" defer></script>
+<script src="assets/footer-range.js" defer></script>
+<script src="assets/site-chrome.js" defer></script>
+<script src="assets/work.js" defer></script>
+<script src="assets/cases.js" defer></script>
+<script src="assets/case-v2.js" defer></script>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+
+<!-- Case study v2 (Website v3). Built by assets/case-v2.js from the 'firstpost'
+     entry in assets/cases.js, in the design system of assets/case-v2.css;
+     the images come from assets/work/ (see assets/work.js). Nothing to edit
+     here. -->
+<body data-page="work" data-case="firstpost">
+
+<header id="ca-header"></header>
+
+<main>
+  <section data-case-hero></section>
+  <section data-case-ledger></section>
+  <div data-case-body></div>
+  <section data-case-more></section>
+</main>
+
+<footer data-site-footer></footer>
+
+<script type="module">
+  import { mountCaHeader } from './assets/ca-nav.js';
+  import { TICKER } from './assets/site-sections.js';
+  /* Website v3's navbar, hung from the top as on the home page */
+  const h = document.getElementById('ca-header');
+  mountCaHeader(h, { announcement: TICKER, home: 'website-v3.html', nav: [
+    { label: 'Work', href: 'website-v3.html#work' }, { label: 'Services', href: 'website-v3.html#services' },
+    { label: 'About', href: 'about-landing.html' }, { label: 'Contact', href: '#contact' }] });
+  h.classList.add('site-nav');
+  requestAnimationFrame(() => document.documentElement.classList.add('site-nav-in'));
+  h.querySelector('a[href="#contact"]').addEventListener('click', e => { e.preventDefault(); document.querySelector('[data-site-footer]').scrollIntoView({ behavior: 'smooth' }); });
+</script>
+</body>
+</html>
