@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our summits — B, hover reveal</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<link rel="stylesheet" href="assets/work.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<script src="assets/odometer.js" defer></script>
+<script src="assets/work.js"></script>
+<script src="assets/cases.js"></script>
+<script src="assets/summits-data.js"></script>
+<script src="assets/topo-contours.js"></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Our summits — B · hover reveal
+   ─────────────────────────────────────────────────────────────────────────
+   No scroll effect: the section scrolls like a page. The four summits are
+   laid out as an editorial spread — a cover and its title each, staggered
+   down the page over quiet horizontal contour lines (no peak singled out).
+   Hover one and the rest of the spread steps back, dimmed and soft, while
+   that summit's work comes up around it: more images and its two outcome
+   numbers, placed in the space the other side of the screen, drifting a
+   little with the pointer. Leave, and it all settles back.
+
+   Phones and touch screens (no hover): the summits stacked, each with its
+   images and numbers laid out in place — nothing hidden, nothing animated.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #0d0e11; }
+body { color: #fff; font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+a { color: inherit; text-decoration: none; }
+
+#sb { position: relative; padding: clamp(84px, 13vh, 140px) 0 clamp(80px, 12vh, 140px); }
+#sb-lines { position: absolute; left: 0; top: 0; pointer-events: none; transition: opacity .5s linear; }
+#sb-lines path { fill: none; }
+.sb-head { position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap;
+  padding: 0 var(--gut) clamp(36px, 7vh, 80px); transition: opacity .45s ease; }
+.sb-head p { font-size: clamp(28px, 3.3vw, 56px); line-height: 1; letter-spacing: -.01em; color: var(--accent); }
+.sb-head span { display: block; margin-top: 12px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: rgba(233,236,242,.45); }
+.sb-head em { font-style: normal; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: rgba(233,236,242,.4); }
+
+/* the spread */
+#sb-grid { position: relative; z-index: 2; }
+.it { --c: #fff; position: absolute; display: block; transition: opacity .45s ease, filter .45s ease; }
+.it .wk-img img { transition: opacity .6s linear, transform .8s cubic-bezier(.22,1,.36,1); }
+.it .meta { display: flex; gap: 14px; margin-top: 18px; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: rgba(233,236,242,.45); }
+.it .meta b { color: var(--c); font-weight: 400; }
+.it h3 { margin-top: 10px; font-weight: 400; font-size: clamp(22px, 2.25vw, 40px); line-height: 1.12; letter-spacing: -.02em; max-width: 22ch; }
+.it h3 .hi { color: var(--c); }
+.it .cover { position: relative; }
+.it .cover::after { content: ''; position: absolute; inset: 0; border: 1px solid var(--c); opacity: 0; transition: opacity .35s linear; pointer-events: none; }
+
+/* one summit hovered: the rest step back */
+#sb.hov .it:not(.on) { opacity: .14; filter: blur(5px); }
+#sb.hov .sb-head { opacity: .25; }
+#sb.hov #sb-lines { opacity: .5; }
+.it.on { z-index: 30; }
+.it.on .wk-img img { transform: scale(1.03); }
+.it.on .cover::after { opacity: .9; }
+
+/* what comes up: fixed to the screen, the other side from the summit */
+.rv { position: fixed; inset: 0; z-index: 20; pointer-events: none; }
+.rv > * { position: absolute; opacity: 0; clip-path: inset(10% 10% 10% 10%); will-change: transform;
+  transition: opacity .22s linear, clip-path .3s cubic-bezier(.4,0,.2,1); }
+.rv.on > * { opacity: 1; clip-path: inset(0 0 0 0); transition: opacity .35s linear, clip-path .65s cubic-bezier(.22,1,.36,1); }
+.rv.on > :nth-child(2) { transition-delay: .06s; } .rv.on > :nth-child(3) { transition-delay: .12s; } .rv.on > :nth-child(4) { transition-delay: .18s; }
+.rv .wk-img { width: 100%; outline: 1px solid rgba(233,236,242,.1); }
+.rv .r0 { top: 12vh; width: min(26vw, 50vh); }
+.rv .r1 { top: 20vh; width: min(12vw, 24vh); }
+.rv .r2 { bottom: 10vh; width: min(20vw, 38vh); }
+.rv .st { bottom: 10vh; display: flex; flex-direction: column; }
+/* each set keeps to the half of the screen away from its summit */
+.rv.l .r0, .rv.l .st { left: 4vw; } .rv.l .r1 { left: 32vw; } .rv.l .r2 { left: 24.5vw; }
+.rv.r .r0, .rv.r .st { right: 4vw; } .rv.r .r1 { right: 32vw; } .rv.r .r2 { right: 24.5vw; }
+.rv.r .st { align-items: flex-end; }
+.st div { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: clamp(12px, 1.4vw, 26px);
+  padding: clamp(12px, 1.3vw, 22px) clamp(14px, 1.5vw, 26px); background: rgba(13,14,17,.92); border: 1px solid rgba(185,193,234,.3); width: min(19vw, 330px); }
+.st div + div { margin-top: -1px; }
+.rv.l .st div:first-child { margin-left: min(4vw, 70px); } .rv.r .st div:first-child { margin-right: min(4vw, 70px); }
+.st b { white-space: nowrap; font-weight: 400; font-size: clamp(26px, 2.6vw, 48px); line-height: 1; letter-spacing: -.03em; }
+.st div > span { font-size: clamp(11.5px, .9vw, 15px); line-height: 1.3; color: rgba(255,255,255,.9); }
+
+/* ── phones and touch screens: stacked, everything in place ───────────── */
+.static .rv { display: none; }
+.static .sb-head em { display: none; }
+.static #sb-grid { height: auto !important; padding: 0 var(--gut); display: grid; gap: 64px; }
+.static .it { position: relative; left: auto !important; top: auto !important; width: auto !important; }
+.static .it .more { display: grid; grid-template-columns: 1.25fr 1fr; gap: 10px; margin-top: 16px; }
+.static .it .st { display: flex; flex-direction: column; margin-top: 18px; }
+.static .st div { width: auto; grid-template-columns: 74px 1fr; gap: 14px; padding: 12px 14px; }
+.static .st b { font-size: 28px; } .static .st div > span { font-size: 12.5px; }
+.it .more, .it .st { display: none; }
+@media (prefers-reduced-motion: reduce) { .rv > *, .rv.on > * { transition: opacity .2s linear; clip-path: none; } }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<section id="sb" aria-labelledby="sb-h">
+  <svg id="sb-lines" aria-hidden="true"></svg>
+  <header class="sb-head"><div><p id="sb-h">[OUR SUMMITS]</p><span>Four climbs, and what they were for</span></div><em>Hover a summit</em></header>
+  <div id="sb-grid"></div>
+</section>
+<div id="sb-rv"></div>
+
+<script>
+(function () {
+  const S = window.TIBBA_SUMMITS, T = window.TibbaTopo;
+  const root = document.documentElement, sec = document.getElementById('sb'), grid = document.getElementById('sb-grid'),
+        lines = document.getElementById('sb-lines'), rvHost = document.getElementById('sb-rv');
+  const MQ = matchMedia('(max-width: 900px), (hover: none)');
+  /* the spread: where each summit sits (vw), and which side its work comes up on */
+  const POS = [{ l: 8, t: 0, w: 34, side: 'r' }, { l: 62, t: 15, w: 29, side: 'l' }, { l: 22, t: 50, w: 30, side: 'r' }, { l: 60, t: 66, w: 27, side: 'l' }];
+  const pad = n => String(n).padStart(2, '0');
+  const stats = s => `<div class="st">${s.stats.map(t => `<div><b data-n>${t.n}</b><span>${t.l}</span></div>`).join('')}</div>`;
+
+  grid.innerHTML = S.map((s, i) => `
+    <a class="it" href="${s.file}" style="--c:${s.colour}" data-i="${i}">
+      <div class="cover">${S.slot(s, 0, '16 / 10')}</div>
+      <p class="meta"><b>${pad(i + 1)}</b><span>${s.sector}</span><span>${s.year}</span></p>
+      <h3>${s.title}</h3>
+      ${stats(s)}
+      <div class="more">${S.slot(s, 1, '4 / 3')}${S.slot(s, 2, '4 / 3')}</div>
+    </a>`).join('');
+  const items = [...grid.children];
+  let rvs = [];
+  S.link(sec);
+
+  /* the reveal sets are only built for a pointer that can hover */
+  function buildReveals() {
+    if (rvs.length) return;
+    rvHost.innerHTML = S.map((s, i) => `<div class="rv ${POS[i].side}" style="--c:${s.colour}" aria-hidden="true">
+        <div class="r0" data-d="14">${S.slot(s, 1, '16 / 10')}</div>
+        <div class="r1" data-d="26">${S.slot(s, 2, '1 / 1')}</div>
+        <div class="r2" data-d="10">${S.slot(s, 3, '16 / 10')}</div>
+        <div class="st" data-d="6">${s.stats.map(t => `<div><b data-n>${t.n}</b><span>${t.l}</span></div>`).join('')}</div>
+      </div>`).join('');
+    rvs = [...rvHost.children].map(el => ({ el, parts: [...el.children].map(p => ({ p, d: +p.dataset.d })) }));
+  }
+
+  /* ── the lines: horizontal contours, no peak ─────────────────────────── */
+  function drawLines() {
+    const w = sec.offsetWidth, h = sec.offsetHeight, gap = 26;
+    const field = (x, y) => y / gap + T.noise(x / 360, y / 360) * 3.2 + T.noise(x / 120 + 9, y / 120) * .7;
+    const levels = []; for (let L = -2; L < h / gap + 4; L++) levels.push(L);
+    const g = T.contours({ w, h, step: 12, levels, field, key: li => (levels[li] % 5 === 0 ? 'a' : 'b') });
+    T.svg(lines, g, k => ({ stroke: '#e9ecf2', 'stroke-width': 1, 'stroke-opacity': k === 'a' ? .12 : .055 }));
+    lines.setAttribute('width', w); lines.setAttribute('height', h); lines.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  }
+
+  let isStatic = null, lw = 0, lh = 0;
+  function layout() {
+    const st = MQ.matches;
+    root.classList.toggle('static', st);
+    if (!st) {
+      buildReveals();
+      const vw = innerWidth / 100;
+      items.forEach((it, i) => { const p = POS[i]; it.style.left = p.l * vw + 'px'; it.style.top = p.t * vw + 'px'; it.style.width = p.w * vw + 'px'; });
+      grid.style.height = Math.max(...items.map(it => it.offsetTop + it.offsetHeight)) + 'px';
+    } else { items.forEach(it => { it.style.left = it.style.top = it.style.width = ''; }); grid.style.height = ''; close(); }
+    isStatic = st;
+    if (sec.offsetWidth !== lw || Math.abs(sec.offsetHeight - lh) > 40) { lw = sec.offsetWidth; lh = sec.offsetHeight; drawLines(); }
+  }
+
+  /* ── hover: the rest steps back, this one's work comes up ────────────── */
+  let open = -1, mx = 0, my = 0, px = 0, py = 0, raf = 0;
+  function show(i) {
+    if (open === i) return;
+    open = i;
+    sec.classList.add('hov');
+    items.forEach((it, k) => it.classList.toggle('on', k === i));
+    rvs.forEach((r, k) => r.el.classList.toggle('on', k === i));
+    const nums = rvs[i].el.querySelectorAll('[data-n]');
+    if (window.Odometer) nums.forEach((el, j) => window.Odometer.count(el, { delay: .1 + j * .1 }));
+    if (!raf) raf = requestAnimationFrame(drift);
+  }
+  function close() {
+    if (open < 0) return;
+    open = -1; sec.classList.remove('hov');
+    items.forEach(it => it.classList.remove('on')); rvs.forEach(r => r.el.classList.remove('on'));
+  }
+  /* the pieces lean a little toward the pointer, each by its own depth */
+  function drift() {
+    px += (mx - px) * .09; py += (my - py) * .09;
+    if (open >= 0) rvs[open].parts.forEach(o => { o.p.style.transform = `translate3d(${(px * o.d).toFixed(2)}px,${(py * o.d).toFixed(2)}px,0)`; });
+    raf = open >= 0 || Math.abs(mx - px) + Math.abs(my - py) > .002 ? requestAnimationFrame(drift) : 0;
+  }
+  items.forEach((it, i) => {
+    it.addEventListener('pointerenter', e => { if (e.pointerType !== 'touch' && !isStatic) show(i); });
+    it.addEventListener('pointerleave', e => { if (e.pointerType !== 'touch') close(); });
+    it.addEventListener('focus', () => { if (!isStatic) show(i); });
+    it.addEventListener('blur', close);
+  });
+  addEventListener('pointermove', e => { mx = e.clientX / innerWidth - .5; my = e.clientY / innerHeight - .5; }, { passive: true });
+
+  let rt = 0; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(layout, 160); });
+  MQ.addEventListener('change', layout);
+  addEventListener('DOMContentLoaded', () => { layout(); (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { lw = 0; layout(); }); });
+})();
+</script>
+</body>
+</html>

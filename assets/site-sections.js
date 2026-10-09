@@ -57,7 +57,8 @@ export const HOME_SECTIONS = [
     mobile: { file: 'brands-mosaic.html', frame: '78vh' },
     variants: [{ file: 'brands.html', label: 'Brands' }, { file: 'brands-mosaic.html', label: 'Brands — mosaic' }] },
   { id: 'summits', label: 'Our summits', folder: 'Our summits', nav: 'Work',
-    variants: [{ file: 'summits-v3.html', label: 'Summits v3' }, { file: 'summits-v2.html', label: 'Summits v2' }, { file: 'summits-four.html', label: 'Four Summits' }] },
+    variants: [{ file: 'summits-v3.html', label: 'Summits v3' }, { file: 'summits-v2.html', label: 'Summits v2' }, { file: 'summits-four.html', label: 'Four Summits' },
+               { file: 'summits-topview.html', label: 'Summits A — top-view peaks' }, { file: 'summits-hover.html', label: 'Summits B — hover reveal' }] },
   { id: 'cases', label: 'Extra case studies', folder: 'Extra case studies', nav: 'Cases', navMinor: true,
     variants: [{ file: 'case-studies-reel.html', label: 'Case reel' }] },
   { id: 'services', label: 'Our services', folder: 'Our services', nav: 'Services',
@@ -97,6 +98,13 @@ export const V3_SECTIONS = [
     variants: [{ file: 'footer-dusk-grid.html', label: 'Footer — dusk grid' }, { file: 'footer-blueprint-dusk.html', label: 'Footer — blueprint dusk' },
                { file: 'footer-campfire.html', label: 'Footer — campfire' }] },
 ];
+/* Website v4: Final Website v2, with Our Summits told two new ways —
+   A, the range from above, carried sideways by the scroll; B, a still
+   spread whose work comes up on hover. Everything else as v2. */
+const withSummits = (file, label) => HOME_SECTIONS.map(s => s.id === 'summits' ? { ...s, variants: [{ file, label }] } : s);
+export const V4A_SECTIONS = withSummits('summits-topview.html', 'Summits A — top-view peaks');
+export const V4B_SECTIONS = withSummits('summits-hover.html', 'Summits B — hover reveal');
+
 export const V3_LINKS = [{ label: 'Work', target: 'work' }, { label: 'Services', target: 'services' }, { label: 'About', href: 'about-landing.html' }, { label: 'Contact', target: 'footer' }];
 
 export const ABOUT_SECTIONS = [

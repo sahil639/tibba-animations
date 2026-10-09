@@ -30,6 +30,10 @@ window.TIBBA_SITE = {
     pages: [
       { id: 'final-website', label: 'Final website', file: 'final-website.html',
         note: 'Loader, hero and its three scroll states, metrics, brands, the four-summit walk, services, testimonials', state: 'live' },
+      { id: 'website-v4a', updated: '2026-10-09T18:35:00+07:00', change: 'New: Our Summits as top-view peaks, carried sideways by the scroll', label: 'Website v4 — A', file: 'website-v4a.html',
+        note: 'Final Website v2 with Summits A: a flat contour map, each peak in its client’s colour, the work between peak and words; static and stacked on phones', state: 'live' },
+      { id: 'website-v4b', updated: '2026-10-09T18:35:00+07:00', change: 'New: Our Summits as a spread whose work comes up on hover', label: 'Website v4 — B', file: 'website-v4b.html',
+        note: 'Final Website v2 with Summits B: normal scroll over horizontal contours; hover a summit and its images and numbers come up, the rest stepping back', state: 'live' },
       { id: 'website-v3', updated: '2026-10-08T16:31:00+07:00', change: 'New: the work first — four summits stacked, the index, real imagery throughout', label: 'Website v3', file: 'website-v3.html',
         note: 'Loader, hero and stats as v2, then the work: four summits stacked and image-led, brands, the index of everything else, gear-tier services, voices, studio, footer', state: 'live' },
       { id: 'work-summits', updated: '2026-10-08T16:31:00+07:00', change: 'New: the four summits as stacked, image-led panels', label: 'v3 · Selected work', file: 'work-summits.html',
@@ -109,6 +113,10 @@ window.TIBBA_SITE = {
           note: 'The four summits in a connected range, the Three Summits camera, winding shadowed trails, a rail and editorial cards', state: 'live' },
         { id: 'summits-v3', updated: '2026-10-07T17:15:00+07:00', change: "Words and hover as Final Website: radar marks, rule rail, the case band with its rolling arrow", label: 'Summits v3', file: 'summits-v3.html',
           note: 'Summits v2 with no cards: the copy bottom-left names the summit in focus', state: 'live' },
+        { id: 'summits-topview', updated: '2026-10-09T18:35:00+07:00', change: 'New: the four peaks seen from above, scrolled sideways', label: 'Summits A — top-view peaks', file: 'summits-topview.html',
+          note: 'A 2D contour map, the top rings in each client’s colour; scrolling moves along it summit by summit, images and numbers between peak and title. Phones: stacked, no scroll effect', state: 'live' },
+        { id: 'summits-hover', updated: '2026-10-09T18:35:00+07:00', change: 'New: hover a summit and its work comes up', label: 'Summits B — hover reveal', file: 'summits-hover.html',
+          note: 'A still editorial spread over horizontal contour lines; hovering a summit dims the rest and brings up its images and numbers, leaning with the pointer. Phones: stacked, everything in place', state: 'live' },
       ] },
 
     { id: 'case-studies', label: 'Extra case studies',

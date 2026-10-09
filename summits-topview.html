@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our summits — A, top-view peaks</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<link rel="stylesheet" href="assets/work.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<script src="assets/odometer.js" defer></script>
+<script src="assets/work.js"></script>
+<script src="assets/cases.js"></script>
+<script src="assets/summits-data.js"></script>
+<script src="assets/topo-contours.js"></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Our summits — A · top-view peaks
+   ─────────────────────────────────────────────────────────────────────────
+   The range seen from straight above, flat and 2D: a contour map with four
+   peaks, the top rings of each in its client's colour. Scrolling carries
+   the map sideways, one summit at a time — a short rest on each, an eased
+   move to the next — and the work sits in the ground between the peak and
+   the words: two images, the outcome numbers, the title.
+
+   Light on purpose. The map is vector lines drawn once (assets/
+   topo-contours.js); a scroll only moves the track and nudges the images
+   (transforms, nothing else), and the loop sleeps when it has arrived.
+
+   Phones and portrait screens: no scroll effect at all. The four peaks are
+   stacked down the page, the work arranged round each, and the section
+   scrolls like any other.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #0b0b0d; }
+body { color: #fff; font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+a { color: inherit; text-decoration: none; }
+
+#sa { position: relative; }
+#sa-stage { position: sticky; top: 0; height: 100vh; overflow: hidden; }
+#sa-track { position: absolute; left: 0; top: 0; height: 100%; will-change: transform; }
+#sa-map { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; }
+#sa-map path { fill: none; stroke-linejoin: round; stroke-linecap: round; }
+#sa-map .ring { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 1.8s cubic-bezier(.33,0,.15,1); }
+#sa-map .ring.on { stroke-dashoffset: 0; }
+#sa-stage::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;           /* a vignette, so the words sit clear */
+  background: radial-gradient(120% 90% at 50% 50%, transparent 55%, rgba(11,11,13,.7) 100%); }
+
+.sa-head { position: absolute; z-index: 5; left: var(--gut); top: clamp(76px, 11vh, 120px); pointer-events: none; }
+.sa-head p { font-size: clamp(28px, 3.3vw, 56px); font-weight: 400; line-height: 1; letter-spacing: -.01em; color: var(--accent); }
+.sa-head span { display: block; margin-top: 12px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: rgba(233,236,242,.45); }
+
+/* a summit's panel: one screen wide */
+.pn { --c: #fff; position: absolute; top: 0; height: 100%; width: 100vw; }
+.pn > * { position: absolute; z-index: 2; }
+.pk, .st { position: absolute; z-index: 2; }
+.pk { width: 0; height: 0; }
+.pk i { position: absolute; left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%; background: var(--c); box-shadow: 0 0 16px var(--c); }
+.pk em { position: absolute; left: 16px; top: -10px; padding: 5px 8px; background: rgba(11,11,13,.82); white-space: nowrap; font-style: normal; font-size: 10px;
+  letter-spacing: .18em; text-transform: uppercase; color: rgba(233,236,242,.7); }
+.pk em b { color: var(--c); font-weight: 400; }
+
+.im { display: block; overflow: hidden; outline: 1px solid rgba(233,236,242,.08); will-change: transform; }
+.im .wk-img { width: 100%; }
+.im .wk-img img { transition: opacity .6s linear, transform .9s cubic-bezier(.22,1,.36,1); }
+.im:hover .wk-img img { transform: scale(1.04); }
+
+.st { display: flex; flex-direction: column; align-items: flex-end; will-change: transform; }
+.st div { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: clamp(16px, 2.4vw, 44px);
+  padding: clamp(14px, 1.9vw, 30px) clamp(18px, 2.2vw, 36px); background: rgba(10,10,14,.86); border: 1px solid rgba(185,193,234,.32); }
+.st div + div { margin-top: -1px; }
+.st div:first-child { min-width: min(19vw, 330px); max-width: min(24vw, 400px); } .st div:last-child { min-width: min(27vw, 470px); max-width: min(30vw, 520px); }
+.st b { white-space: nowrap; font-weight: 400; font-size: clamp(30px, 3.5vw, 64px); line-height: 1; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.st div > span { font-size: clamp(12px, 1.05vw, 17px); line-height: 1.3; color: rgba(255,255,255,.9); }
+.pn.l1 .st { align-items: flex-start; }
+
+.tt { display: block; will-change: transform; }
+.tt .tg { display: block; margin-bottom: 14px; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--c); }
+.tt h3 { font-weight: 400; font-size: clamp(26px, 3.05vw, 54px); line-height: 1.08; letter-spacing: -.025em; }
+.tt h3 .hi { color: var(--c); }
+.tt .go { display: inline-flex; align-items: center; gap: 10px; margin-top: 18px; font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+  color: rgba(233,236,242,.6); transition: color .3s linear; }
+.tt .go i { width: 26px; height: 1px; background: currentColor; transition: width .35s cubic-bezier(.22,1,.36,1); }
+.tt:hover .go { color: #fff; } .tt:hover .go i { width: 44px; }
+/* the words arrive with their summit */
+.tt, .st, .pk em { transition: opacity .7s ease, translate .7s cubic-bezier(.22,1,.36,1); }
+.pn:not(.on) .tt, .pn:not(.on) .st { opacity: .25; translate: 0 10px; }
+.pn:not(.on) .pk em { opacity: 0; }
+
+/* layout 0 (the reference): image top left, numbers top right, image bottom right, words bottom left */
+.l0 .im.a { left: 4.5vw; top: 25vh; width: min(33vw, 58vh); }
+.l0 .im.b { right: 5vw; bottom: 9vh; width: min(25vw, 44vh); }
+.l0 .st   { right: 2.5vw; top: clamp(76px, 11vh, 120px); }
+.l0 .tt   { left: var(--gut); bottom: 9vh; width: min(44vw, 760px); }
+/* layout 1: mirrored round its peak */
+.l1 .im.a { right: 4vw; top: 15vh; width: min(31vw, 54vh); }
+.l1 .im.b { left: 7vw; top: 27vh; width: min(19vw, 32vh); }
+.l1 .st   { left: var(--gut); bottom: 9vh; }
+.l1 .tt   { right: 4vw; bottom: 9vh; width: min(40vw, 680px); }
+
+/* progress along the foot */
+.sa-prog { position: absolute; z-index: 6; left: 50%; bottom: 3.6vh; transform: translateX(-50%); display: flex; gap: 6px; align-items: flex-end; }
+.sa-prog button { appearance: none; border: 0; background: none; cursor: pointer; padding: 10px 0 0; width: clamp(54px, 7vw, 110px); text-align: left; color: rgba(233,236,242,.4);
+  font: 400 9.5px/1 'F37 Analog', system-ui, sans-serif; letter-spacing: .16em; text-transform: uppercase; transition: color .3s linear; }
+.sa-prog button::before { content: ''; display: block; height: 2px; margin-bottom: 8px; background: rgba(233,236,242,.18);
+  background-image: linear-gradient(var(--c), var(--c)); background-repeat: no-repeat; background-size: calc(var(--f, 0) * 100%) 100%; }
+.sa-prog button.on { color: #fff; }
+.sa-prog button:hover { color: rgba(233,236,242,.8); }
+
+/* ── phones and portrait screens: static, the peaks stacked ─────────────
+   each summit: its peak with the numbers beside it, the words, then the
+   two images, overlapping — the peaks alternate sides down the page */
+html.static #sa-stage { position: relative; height: auto; overflow: visible; }
+html.static #sa-stage::after { display: none; }
+html.static #sa-track { position: relative; width: auto; transform: none; }
+html.static .sa-head { position: relative; left: auto; top: auto; padding: clamp(84px, 12vh, 120px) var(--gut) 0; }
+html.static .sa-prog { display: none; }
+html.static .pn { position: relative; left: auto; width: auto; height: auto; padding: 0 var(--gut) 84px; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); }
+html.static .pn > *, html.static .pn > .im, html.static .pn > .tt { position: relative; inset: auto; width: auto; transform: none; translate: none; opacity: 1; }
+html.static .zone { grid-column: 1 / -1; grid-row: 1; height: min(74vw, 440px); }
+html.static .pk { left: 25%; top: 50%; }
+html.static .pn:nth-child(even) .pk { left: 75%; }
+html.static .pk em { display: none; }
+html.static .pn:nth-child(even) .pk em { left: auto; right: -24px; }
+html.static .st { position: absolute; top: 50%; bottom: auto; transform: translateY(-50%); right: 0; left: auto; width: 54%; align-items: stretch; opacity: 1; translate: none; }
+html.static .pn:nth-child(even) .st { left: 0; right: auto; }
+html.static .st div, html.static .st div:first-child, html.static .st div:last-child { min-width: 0; max-width: none; width: 100%; grid-template-columns: 1fr; gap: 6px; padding: 12px 14px; }
+html.static .st b { font-size: 30px; } html.static .st div > span { font-size: 12px; }
+html.static .tt { grid-column: 1 / -1; grid-row: 2; margin: 8px 0 26px; }
+html.static .tt h3 { font-size: clamp(25px, 7vw, 36px); }
+html.static .im.a { grid-column: 1 / span 9; grid-row: 3; }
+html.static .im.b { grid-column: 6 / -1; grid-row: 4; margin-top: -16vw; outline: 5px solid #0b0b0d; }
+html.static .pn:nth-child(even) .im.a { grid-column: 4 / -1; }
+html.static .pn:nth-child(even) .im.b { grid-column: 1 / span 7; }
+@media (prefers-reduced-motion: reduce) { #sa-map .ring { transition: none; } .tt, .st, .pk em { transition: none; } }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<section id="sa" aria-labelledby="sa-h">
+  <div id="sa-stage">
+    <header class="sa-head"><p id="sa-h">[OUR SUMMITS]</p><span>Four climbs, and what they were for</span></header>
+    <div id="sa-track"><svg id="sa-map" aria-hidden="true"></svg></div>
+    <nav class="sa-prog" id="sa-prog" aria-label="Summits"></nav>
+  </div>
+</section>
+
+<script>
+(function () {
+  const S = window.TIBBA_SUMMITS, N = S.length, T = window.TibbaTopo;
+  const root = document.documentElement, sec = document.getElementById('sa'), track = document.getElementById('sa-track'),
+        map = document.getElementById('sa-map'), prog = document.getElementById('sa-prog');
+  const MQ = matchMedia('(max-width: 900px), (max-aspect-ratio: 4/5)');
+  /* where each peak stands in its panel (share of the screen) */
+  const PEAK = [{ x: .55, y: .45 }, { x: .47, y: .55 }, { x: .56, y: .42 }, { x: .46, y: .53 }];
+  const pad = n => String(n).padStart(2, '0');
+
+  track.insertAdjacentHTML('beforeend', S.map((s, i) => `
+    <article class="pn l${i % 2}" style="--c:${s.colour}" data-i="${i}">
+      <div class="zone"><span class="pk"><i></i><em>Summit ${pad(i + 1)} · <b>${s.client}</b> · ${s.alt} m</em></span>
+      <div class="st">${s.stats.map(t => `<div><b data-n>${t.n}</b><span>${t.l}</span></div>`).join('')}</div></div>
+      <a class="im a" href="${s.file}" data-par=".07" aria-label="${s.client} — the work">${S.slot(s, 0, '16 / 10')}</a>
+      <a class="im b" href="${s.file}" data-par=".15" aria-label="${s.client} — the work" tabindex="-1">${S.slot(s, 1, i % 2 ? '1 / 1' : '5 / 4')}</a>
+      <a class="tt" href="${s.file}" data-par=".025"><span class="tg">${s.tags}</span><h3>${s.title}</h3><span class="go">View case study<i></i></span></a>
+    </article>`).join(''));
+  prog.innerHTML = S.map((s, i) => `<button type="button" style="--c:${s.colour}" data-i="${i}">${pad(i + 1)} ${s.client.replace(' & Mindhouse', '')}</button>`).join('');
+  const panels = [...track.querySelectorAll('.pn')], dots = [...prog.children];
+  /* the panel's .zone is only a frame on phones; on a desktop its children
+     are placed against the panel itself */
+  panels.forEach(p => { const z = p.querySelector('.zone'); z.style.display = 'contents'; });
+  S.link(sec);
+
+  let vw = 0, vh = 0, isStatic = null, cur = 0, raf = 0, last = 0, active = -1;
+  const pars = panels.map(p => [...p.querySelectorAll('[data-par]')].map(el => ({ el, k: +el.dataset.par })));
+
+  /* ── the map ─────────────────────────────────────────────────────────── */
+  function drawMap(w, h, peaks, R) {
+    const field = (x, y) => {
+      let v = T.noise(x / 300, y / 300) * .46 + T.noise(x / 95 + 40, y / 95) * .1;
+      for (const p of peaks) {
+        const dx = x - p.x, dy = y - p.y, a = Math.atan2(dy, dx);
+        const warp = 1 + (T.noise(Math.cos(a) * 1.4 + p.s, Math.sin(a) * 1.4 + p.s) - .5) * .7;
+        const r = Math.hypot(dx, dy) / (R * warp);
+        v += 1.05 * Math.exp(-Math.pow(r, 1.6));
+      }
+      return v;
+    };
+    const tops = peaks.map(p => field(p.x, p.y));
+    const levels = []; for (let L = .1; L < 1.7; L += .055) levels.push(L);
+    const near = (x, y) => { let k = 0, d = 1e12; peaks.forEach((p, i) => { const q = (x - p.x) ** 2 + (y - p.y) ** 2; if (q < d) { d = q; k = i; } }); return k; };
+    const groups = T.contours({ w, h, step: isStatic ? 8 : 10, levels, field,
+      key: (li, x, y) => {
+        const L = levels[li], k = near(x, y);
+        if (L > tops[k] - .2) return 'p' + k;                         // the top rings: the client's colour
+        return 'b' + Math.min(5, Math.floor(L / .24));                 // the rest: brighter as they climb
+      } });
+    T.svg(map, groups, k => k[0] === 'p'
+      ? { stroke: S[+k.slice(1)].colour, 'stroke-width': 2.2, pathLength: 1, class: 'ring' + (isStatic ? ' on' : ''), 'data-k': k.slice(1) }
+      : { stroke: '#b9c1ea', 'stroke-width': 1, 'stroke-opacity': [.1, .16, .24, .34, .46, .58][+k.slice(1)] });
+    map.setAttribute('width', w); map.setAttribute('height', h); map.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  }
+
+  /* ── layout, for whichever mode the screen is in ─────────────────────── */
+  function layout() {
+    const st = MQ.matches, w = innerWidth, h = innerHeight;
+    if (st === isStatic && w === vw && (st || h === vh)) return;
+    isStatic = st; vw = w; vh = h;
+    root.classList.toggle('static', st);
+    panels.forEach(p => { p.querySelector('.zone').style.display = st ? '' : 'contents'; });
+    if (st) {
+      /* clear what the desktop mode wrote inline */
+      sec.style.height = track.style.width = track.style.transform = '';
+      panels.forEach((p, i) => { p.style.left = ''; const pk = p.querySelector('.pk'); pk.style.left = pk.style.top = ''; pars[i].forEach(o => { o.el.style.transform = ''; }); });
+      panels.forEach(p => p.classList.add('on'));
+      requestAnimationFrame(() => {
+        const sr = sec.getBoundingClientRect();
+        const peaks = panels.map((p, i) => { const r = p.querySelector('.pk').getBoundingClientRect(); return { x: r.left - sr.left, y: r.top - sr.top, s: i * 7.3 }; });
+        map.style.top = '0';
+        drawMap(sr.width, sec.offsetHeight, peaks, Math.min(sr.width * .25, 120));
+        /* the map lives in the section's own coordinates on a phone */
+        map.style.position = 'absolute'; sec.prepend(map);
+      });
+      return;
+    }
+    if (map.parentNode !== track) track.prepend(map);
+    sec.style.height = (100 + (N - 1) * 125) + 'vh';
+    track.style.width = N * w + 'px';
+    panels.forEach((p, i) => {
+      p.style.left = i * w + 'px';
+      const pk = p.querySelector('.pk'); pk.style.left = PEAK[i].x * 100 + '%'; pk.style.top = PEAK[i].y * 100 + '%';
+    });
+    drawMap(N * w, h, PEAK.map((p, i) => ({ x: (i + p.x) * w, y: p.y * h, s: i * 7.3 })), Math.min(w, h) * .27);
+    active = -1; cur = target(); render();
+  }
+
+  /* ── the scroll: a rest on each summit, an eased move between ────────── */
+  function target() {
+    const top = sec.offsetTop, span = sec.offsetHeight - vh;
+    const p = Math.min(1, Math.max(0, (scrollY - top) / Math.max(1, span))) * (N - 1);
+    const k = Math.min(N - 2, Math.floor(p)), f = Math.min(1, Math.max(0, (p - k - .16) / .68));
+    return k + f * f * (3 - 2 * f);
+  }
+  function render() {
+    track.style.transform = `translate3d(${(-cur * vw).toFixed(1)}px,0,0)`;
+    panels.forEach((p, i) => {
+      const d = i - cur; if (Math.abs(d) > 1.4) return;
+      pars[i].forEach(o => { o.el.style.transform = `translate3d(${(d * o.k * vw).toFixed(1)}px,0,0)`; });
+    });
+    dots.forEach((b, i) => b.style.setProperty('--f', Math.min(1, Math.max(0, cur - i + 1)).toFixed(3)));
+    const a = Math.round(cur);
+    if (a !== active) {
+      active = a;
+      panels.forEach((p, i) => p.classList.toggle('on', i === a));
+      dots.forEach((b, i) => b.classList.toggle('on', i === a));
+      map.querySelectorAll('.ring').forEach(r => r.classList.toggle('on', +r.dataset.k <= a));
+      const nums = panels[a].querySelectorAll('[data-n]:not(.odo)');
+      if (window.Odometer) nums.forEach((el, j) => window.Odometer.count(el, { delay: .15 + j * .12 }));
+    }
+  }
+  function tick(now) {
+    const dt = Math.min(.05, (now - (last || now)) / 1000); last = now;
+    const t = target();
+    cur += (t - cur) * (1 - Math.exp(-dt * 7.5));
+    if (Math.abs(t - cur) < .0008) cur = t;
+    render();
+    raf = cur !== t ? requestAnimationFrame(tick) : 0;
+  }
+  const wake = () => { if (!isStatic && !raf) { last = 0; raf = requestAnimationFrame(tick); } };
+  addEventListener('scroll', wake, { passive: true });
+  let rt = 0; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(layout, 160); });
+  MQ.addEventListener('change', layout);
+  dots.forEach((b, i) => b.addEventListener('click', () => {
+    const y = (i / (N - 1)) * (sec.offsetHeight - vh) + (i ? .02 * vh : 0);
+    if (window.wb && window.wb.scrollTo) window.wb.scrollTo(y); else scrollTo({ top: y, behavior: 'smooth' });
+  }));
+  /* after the odometer (deferred) is in, so the first summit's numbers count too */
+  addEventListener('DOMContentLoaded', () => { layout(); (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { vw = 0; layout(); }); });
+})();
+</script>
+</body>
+</html>
