@@ -27,6 +27,16 @@
    copy sits bottom-left and names the summit in focus.
 
    Every tunable: SUMMITS2_CONFIG.
+
+   Embedded in other layouts (the Our Summits layouts, assets/summits-
+   layouts.js), the same mountain takes:
+     canvas, stage     its own elements, in place of #peak-canvas / #stage
+     focus()           where it should be (0 … 3), in place of the page
+                       scroll; the layout owns the scroll then
+     frame: 'range'    the whole range from the front, low, panning a little
+                       toward the summit in focus — a side view, in place of
+                       the camera riding from summit to summit
+     view              overrides for that framing (see RANGE_VIEW)
    ═════════════════════════════════════════════════════════════════════════ */
 import * as THREE from 'three';
 import { createRangeScene } from './range-scene.js';
@@ -70,16 +80,29 @@ export const SUMMITS2_CONFIG = {
   },
 };
 
-export function mountSummitsV2({ layout = 'cards', onCase = null } = {}) {
+/* the side view: the whole range from the front */
+export const RANGE_VIEW = {
+  dist: 1.25,          // × the range's width
+  elev: 9,             // degrees above the horizon
+  yaw: 0,              // degrees
+  follow: 0.18,        // how far the view pans toward the summit in focus (share of the way)
+  aimY: 0.42,          // look this far up the summits
+  lift: 0,             // vertical offset of the aim, × the tallest summit (negative sits the range lower)
+  tilt: { yaw: 2.5, pitch: 1.5 },
+};
+
+export function mountSummitsV2({ layout = 'cards', onCase = null, canvas = null, stage: stageEl = null, focus: focusFn = null,
+                                 frame = 'ride', view = null, onPeakClick = null } = {}) {
   const C = SUMMITS2_CONFIG;
-  const scope = $('#scope');
-  scope.style.height = C.scroll.height + 'vh';
-  const stage = $('#stage');
+  const V = Object.assign({}, RANGE_VIEW, view || {});
+  const scope = focusFn ? null : $('#scope');
+  if (scope) scope.style.height = C.scroll.height + 'vh';
+  const stage = stageEl || $('#stage');
 
   const scene = createRangeScene({
-    canvas: $('#peak-canvas'), mode: 'range', palette: 'peak', hover: true, noStudio: true,
+    canvas: canvas || $('#peak-canvas'), mode: 'range', palette: 'peak', hover: true, noStudio: true,
     fill: C.fill, terrain: C.terrain,
-    onPeakClick: i => { location.href = CASES[i].file; },
+    onPeakClick: onPeakClick || (i => { location.href = CASES[i].file; }),
   });
   scene.setAccent(ACCENT);
   scene.setDepth(0.1);
@@ -206,9 +229,9 @@ export function mountSummitsV2({ layout = 'cards', onCase = null } = {}) {
   };
 
   /* ── the rail ─────────────────────────────────────────────────────── */
-  const rail = $('#rail');
-  rail.innerHTML = CASES.map((c, i) => `<button type="button" aria-label="Show ${c.name}"><span class="tick"></span><span class="nm">${c.name}</span><span>${pad(i)}</span></button>`).join('');
-  const railBtns = [...rail.children];
+  const rail = focusFn ? null : $('#rail');
+  if (rail) rail.innerHTML = CASES.map((c, i) => `<button type="button" aria-label="Show ${c.name}"><span class="tick"></span><span class="nm">${c.name}</span><span>${pad(i)}</span></button>`).join('');
+  const railBtns = rail ? [...rail.children] : [];
   railBtns.forEach((b, i) => b.addEventListener('click', () => goTo(i)));
 
   /* ── the copy: the editorial card (v2) or the bottom-left text (v3) ── */
@@ -239,17 +262,19 @@ export function mountSummitsV2({ layout = 'cards', onCase = null } = {}) {
   /* ── the focus: chased, and settling on a summit when the scroll rests ── */
   let focus = 0, focusTarget = 0, lastInput = -1e9, shown = -1;
   const scrollFocus = () => {
+    if (focusFn) return Math.max(0, Math.min(N - 1, focusFn()));
     const travel = scope.offsetHeight - innerHeight;
     return (travel > 0 ? clamp01(-scope.getBoundingClientRect().top / travel) : 0) * (N - 1);
   };
-  addEventListener('scroll', () => { focusTarget = scrollFocus(); lastInput = performance.now(); }, { passive: true });
+  if (!focusFn) addEventListener('scroll', () => { focusTarget = scrollFocus(); lastInput = performance.now(); }, { passive: true });
   function goTo(i) {
+    if (!scope) return;
     const travel = scope.offsetHeight - innerHeight, y = scope.offsetTop + travel * (i / (N - 1));
     /* framed in the site, the site's own scroll is the one to move */
     if (window.wb && window.wb.scrollTo) window.wb.scrollTo(y, !REDUCED);
     else scrollTo({ top: y, behavior: REDUCED ? 'auto' : 'smooth' });
   }
-  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  if (scope && 'scrollRestoration' in history) history.scrollRestoration = 'manual';
   focusTarget = focus = scrollFocus();
 
   const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
@@ -266,8 +291,9 @@ export function mountSummitsV2({ layout = 'cards', onCase = null } = {}) {
   function tick(now) {
     requestAnimationFrame(tick);
     const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (focusFn) { focusTarget = scrollFocus(); lastInput = now; }
     /* settle onto the nearest summit once the scroll goes quiet */
-    if (now - lastInput > C.scroll.settleAfter * 1000) focusTarget += (Math.round(focusTarget) - focusTarget) * Math.min(1, dt * 3.4);
+    else if (now - lastInput > C.scroll.settleAfter * 1000) focusTarget += (Math.round(focusTarget) - focusTarget) * Math.min(1, dt * 3.4);
     focus += (focusTarget - focus) * Math.min(1, dt * (REDUCED ? 30 : C.focus.chase));
     pointer.x += (pointer.tx - pointer.x) * Math.min(1, dt * 4); pointer.y += (pointer.ty - pointer.y) * Math.min(1, dt * 4);
 
@@ -282,6 +308,8 @@ export function mountSummitsV2({ layout = 'cards', onCase = null } = {}) {
     /* a trail waits until its summit has actually arrived in frame */
     if (Math.abs(focus - idx) < 0.08) queueTrail(idx);
 
+    if (frame === 'range') { rangeView(fi, now); }
+    else {
     /* Three Summits' camera: ride from summit to summit, lifting toward the
        plan view in the middle of the move and coming back down */
     const cam = C.camera, A = tops[i0], B = tops[i1];
@@ -293,6 +321,7 @@ export function mountSummitsV2({ layout = 'cards', onCase = null } = {}) {
     const aside = innerWidth > 820 ? (layout === 'cards' ? cam.aside : cam.asideText) : 0;
     const ax = tx + Math.cos(yaw) * aside * dist, az = tz - Math.sin(yaw) * aside * dist;
     scene.setView([ax + Math.sin(yaw) * Math.cos(elev) * dist, ty + Math.sin(elev) * dist, az + Math.cos(yaw) * Math.cos(elev) * dist], [ax, ty, az], 0);
+    }
 
     const ease = easeFn();
     trails.forEach(t => {
@@ -307,6 +336,26 @@ export function mountSummitsV2({ layout = 'cards', onCase = null } = {}) {
       }
     });
   }
+  /* the side view: the range's centre, panned a little toward the summit in
+     focus, from low in front; distance from the range's width and the
+     canvas's shape, so a short wide frame and a tall one both hold it */
+  const ext = (() => {
+    let x0 = 1e9, x1 = -1e9, z = 0, y = 0;
+    tops.forEach(t => { x0 = Math.min(x0, t.x - t.spread); x1 = Math.max(x1, t.x + t.spread); z += t.z / N; y = Math.max(y, t.y); });
+    return { cx: (x0 + x1) / 2, cz: z, w: x1 - x0, h: y };
+  })();
+  function rangeView(fi, now) {
+    const i0 = Math.floor(fi), i1 = Math.min(N - 1, i0 + 1), f = fi - i0;
+    const fx = tops[i0].x + (tops[i1].x - tops[i0].x) * f, fz = tops[i0].z + (tops[i1].z - tops[i0].z) * f;
+    const tx = ext.cx + (fx - ext.cx) * V.follow, tz = ext.cz + (fz - ext.cz) * V.follow;
+    const cv = scene.canvas, aspect = Math.max(.3, (cv.clientWidth || 1) / (cv.clientHeight || 1));
+    const dist = ext.w * V.dist * Math.max(1, 1.6 / aspect);
+    const ty = ext.h * V.aimY + ext.h * V.lift;
+    const yaw = rad(V.yaw + pointer.x * V.tilt.yaw + (REDUCED ? 0 : Math.sin(now / 1000 * 0.11) * 0.6));
+    const elev = rad(V.elev - pointer.y * V.tilt.pitch);
+    scene.setView([tx + Math.sin(yaw) * Math.cos(elev) * dist, ty + Math.sin(elev) * dist, tz + Math.cos(yaw) * Math.cos(elev) * dist], [tx, ty, tz], 0);
+  }
+
   requestAnimationFrame(tick);
 
   /** The country round the summits, live — writes C.fill / C.terrain and
@@ -318,7 +367,7 @@ export function mountSummitsV2({ layout = 'cards', onCase = null } = {}) {
     scene.clientTops().forEach((t, i) => Object.assign(tops[i], t));
     rebuild();
   }
-  return { scene, trails, CONFIG: C, rebuild, goTo, setTerrain, peakEls, railBtns,
+  return { scene, trails, CONFIG: C, VIEW: V, rebuild, goTo, setTerrain, peakEls, railBtns, tops,
     replay() { trails.forEach(t => { t.state = 'idle'; t.p = 0; }); },
     get focus() { return focus; } };
 }

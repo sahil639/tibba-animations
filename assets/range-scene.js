@@ -2713,6 +2713,8 @@ return {
 
   /** Light one client summit (0–3) and let the others recede; -1 for none. */
   light(i) { lightPeak(i, 0); },
+  /** the project whose summit is under the pointer, or -1 (hover must be on) */
+  hoveredCase() { return caseUnderPointer(); },
 
   /** 0 = the peak as lit surface, 1 = fully redrawn as contour line. */
   setHeroMorph(t) {

@@ -49,7 +49,7 @@
   const h = document.getElementById('ca-header');
   mountCaHeader(h, { announcement: TICKER, home: 'website-v3.html', nav: [
     { label: 'Work', href: 'website-v3.html#work' }, { label: 'Services', href: 'website-v3.html#services' },
-    { label: 'About', href: 'about-landing.html' }, { label: 'Contact', href: '#contact' }] });
+    { label: 'About', href: 'about.html' }, { label: 'Contact', href: '#contact' }] });
   h.classList.add('site-nav');
   requestAnimationFrame(() => document.documentElement.classList.add('site-nav-in'));
   h.querySelector('a[href="#contact"]').addEventListener('click', e => { e.preventDefault(); document.querySelector('[data-site-footer]').scrollIntoView({ behavior: 'smooth' }); });

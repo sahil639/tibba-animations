@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our summits — Base Camp</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<link rel="stylesheet" href="assets/work.css">
+<link rel="stylesheet" href="assets/summits-layouts.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<script src="assets/odometer.js" defer></script>
+<script src="assets/work.js"></script>
+<script src="assets/cases.js"></script>
+<script src="assets/summits-data.js"></script>
+<script src="assets/rive-slot.js"></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Our summits — 1 · Base Camp (the mountain docked at the bottom)
+   ─────────────────────────────────────────────────────────────────────────
+   Website v3's stacking cards — each project a full screen that rises over
+   the last — with the range docked along the foot of the section, seen
+   from the front: our Summits v3 mountain, low and wide. As the cards
+   stack, the range pans to the project in view, lights it and draws its
+   trail; a progress bar per project under it fills as its card is read.
+
+   A card: the title with its phrase in the client's colour, the tags, a
+   line about the work and the way in on the left; on the right three
+   boxes — the tall one plays the shared Rive file (assets/rive/), the two
+   beside it the work's images (assets/work/).
+
+   Phones: the cards run one after another; the dock stays, smaller.
+   ═════════════════════════════════════════════════════════════════════════ */
+:root { --dock: clamp(190px, 30vh, 320px); }
+.bc-head { padding: clamp(96px, 14vh, 150px) var(--gut) clamp(30px, 5vh, 60px); }
+.bc-head .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.bc-head h2 { margin-top: 14px; color: #fff; font-weight: 400; font-size: clamp(26px, 2.6vw, 44px); line-height: 1.1; letter-spacing: -.025em; max-width: 22ch; }
+
+#bc { position: relative; }
+/* the dock: held at the foot of the screen for the whole section */
+.bc-dock { position: sticky; top: calc(100vh - var(--dock)); height: var(--dock); margin-bottom: calc(-1 * var(--dock)); z-index: 20; pointer-events: none;
+  display: flex; flex-direction: column; align-items: center; }
+.bc-dock::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.92) 0%, rgba(0,0,0,.55) 45%, rgba(0,0,0,0) 100%); }
+.bc-range { position: relative; width: min(64vw, 1040px); flex: 1; pointer-events: auto;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent); mask: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent); }
+.bc-dock .sl-tabs { position: relative; width: min(46vw, 760px); padding-bottom: clamp(18px, 3.2vh, 34px); pointer-events: auto; }
+
+/* the cards */
+.pn { --c: #fff; position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; background: #050506; }
+.pn + .pn { box-shadow: 0 -30px 60px rgba(0,0,0,.6); }
+.pn .in { position: absolute; inset: 0; display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(28px, 5vw, 96px); align-items: center;
+  padding: clamp(90px, 12vh, 130px) var(--gut) calc(var(--dock) + 2vh); transform-origin: 50% 0;
+  transform: scale(calc(1 - var(--sink, 0) * .06)) translateY(calc(var(--sink, 0) * -3vh)); filter: brightness(calc(1 - var(--sink, 0) * .55)); }
+.pn .txt > * + * { margin-top: clamp(16px, 2.6vh, 30px); }
+.pn .txt .sl-tags { margin-top: clamp(22px, 3.4vh, 40px); }
+.pn .boxes { display: grid; grid-template-columns: .8fr 1fr; grid-template-rows: 1fr 1fr; gap: clamp(10px, 1vw, 18px); height: 100%; max-height: 640px; }
+.pn .boxes .sl-rive { grid-row: 1 / span 2; }
+
+/* phones: the cards in a run; a smaller dock */
+@media (max-width: 900px) {
+  :root { --dock: clamp(150px, 24vh, 210px); }
+  .pn { position: relative; height: auto; }
+  .pn + .pn { box-shadow: none; }
+  .pn .in { position: relative; inset: auto; transform: none; filter: none; grid-template-columns: 1fr; padding: 40px var(--gut) 64px; gap: 26px; }
+  .pn .boxes { order: -1; height: 72vw; max-height: none; }
+  .bc-range { width: 100vw; -webkit-mask: none; mask: none; }
+  .bc-dock .sl-tabs { width: calc(100vw - 2 * var(--gut)); padding-bottom: 14px; }
+  .sl-tabs button { font-size: 10px; letter-spacing: .04em; }
+  .sl-tabs button::before { margin-bottom: 9px; }
+  #bc { padding-bottom: var(--dock); }
+}
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<header class="bc-head"><p class="eyebrow">[ &nbsp;Our summits&nbsp; ]</p><h2>Four climbs, and what they were for</h2></header>
+<section id="bc" aria-label="Our summits">
+  <div class="bc-dock" aria-label="The range"><div class="bc-range" id="range"></div><nav class="sl-tabs" id="tabs" aria-label="Projects"></nav></div>
+  <div id="stack"></div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.min.js"}}</script>
+<script type="module">
+  import { S, N, clamp, mountRange, tags, cta, riveBox, armRive, box, links, scrollToY } from './assets/summits-layouts.js';
+  const sec = document.getElementById('bc'), stack = document.getElementById('stack'), tabsEl = document.getElementById('tabs');
+  stack.innerHTML = S.map((s, i) => `
+    <article class="pn" style="--c:${s.colour}" aria-label="${s.client}">
+      <div class="in">
+        <div class="txt">
+          <h3 class="sl-title">${s.title}</h3>
+          ${tags(s)}
+          <p class="sl-body">${s.body}</p>
+          ${cta(s)}
+        </div>
+        <div class="boxes">${riveBox(s, 0)}${box(s, 1)}${box(s, 2)}</div>
+      </div>
+    </article>`).join('');
+  tabsEl.innerHTML = S.map((s, i) => `<button type="button" style="--c:${s.colour}">${s.client.replace(' & Mindhouse', '')}</button>`).join('');
+  const cards = [...stack.children], tabs = [...tabsEl.children];
+  links(sec);
+  armRive(stack);
+
+  /* where the reader is: 0 … 3 through the cards */
+  const phone = matchMedia('(max-width: 900px)');
+  function focus() {
+    if (phone.matches) {          // cards in a run: the one crossing the middle of the screen
+      let f = 0; cards.forEach((c, i) => { const r = c.getBoundingClientRect(); if (r.top < innerHeight * .5) f = i + clamp((innerHeight * .5 - r.top) / r.height, 0, 1) - .5; });
+      return clamp(f, 0, N - 1);
+    }
+    return clamp((scrollY - stack.offsetTop) / innerHeight, 0, N - 1);
+  }
+  const range = mountRange(document.getElementById('range'), { focus, frame: 'range',
+    view: { dist: .5, elev: 11, follow: .35, aimY: .3 }, onPick: i => jump(i) });
+  function jump(i) {
+    if (phone.matches) { scrollToY(cards[i].offsetTop + stack.offsetTop - 60); return; }
+    scrollToY(stack.offsetTop + i * innerHeight + 2);
+  }
+  tabs.forEach((b, i) => b.addEventListener('click', () => jump(i)));
+
+  /* the cards sink as the next rises; the tabs fill */
+  let raf = 0, act = -1;
+  function frame() {
+    raf = 0;
+    const f = focus();
+    if (!phone.matches) cards.forEach((c, i) => c.querySelector('.in').style.setProperty('--sink', clamp(f - i, 0, 1).toFixed(3)));
+    tabs.forEach((b, i) => b.style.setProperty('--f', clamp(f - i + 1, 0, 1).toFixed(3)));
+    const a = Math.round(f);
+    if (a !== act) { act = a; tabs.forEach((b, i) => b.classList.toggle('on', i === a)); }
+  }
+  addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(frame); }, { passive: true });
+  addEventListener('resize', frame);
+  frame();
+  window.tibba = range;
+</script>
+</body>
+</html>

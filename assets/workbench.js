@@ -397,6 +397,13 @@
     if (CURRENT) NEW.markSeen(CURRENT.id);
     var nav = buildNav();
     document.body.appendChild(nav);
+    /* the assembled websites carry the index and nothing else: no dock
+       (<html data-wb="nav">) */
+    if (document.documentElement.getAttribute('data-wb') === 'nav') {
+      window.wb = window.wb || {}; window.wb.adopt = function () {};
+      keepScrollLocal(nav);
+      return;
+    }
     document.body.appendChild(buildDock());
     adopt();
 

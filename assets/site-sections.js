@@ -1,7 +1,7 @@
 /* ══════════════════════════════════════════════════════════════════════════
    Site sections — what the stitched landings are made of
    ─────────────────────────────────────────────────────────────────────────
-   One registry for Final Website v2 (the home landing), the About landing
+   One registry for Website v2 (the home landing), the About page
    and the Modular Website hub. Each section names the folder its design
    lives in and the pages that can fill it (`variants`, first = default),
    so a section always shows the live, latest page of that design — the
@@ -25,7 +25,7 @@
    edge.
    ═════════════════════════════════════════════════════════════════════════ */
 /* one footer for every landing: the About landing shows whichever the home
-   page shows (see about-landing.html) */
+   page shows (see about.html) */
 const FOOTER = { id: 'footer', label: 'Footer', folder: 'Footer', nav: 'Contact',
     variants: [{ file: 'footer.html', label: 'Footer — skyline' }, { file: 'footer-meadow.html', label: 'Footer — green range' },
                { file: 'footer-mountain.html', label: 'Footer — snow peak' },
@@ -58,7 +58,12 @@ export const HOME_SECTIONS = [
     variants: [{ file: 'brands.html', label: 'Brands' }, { file: 'brands-mosaic.html', label: 'Brands — mosaic' }] },
   { id: 'summits', label: 'Our summits', folder: 'Our summits', nav: 'Work',
     variants: [{ file: 'summits-v3.html', label: 'Summits v3' }, { file: 'summits-v2.html', label: 'Summits v2' }, { file: 'summits-four.html', label: 'Four Summits' },
-               { file: 'summits-topview.html', label: 'Summits A — top-view peaks' }, { file: 'summits-hover.html', label: 'Summits B — hover reveal' }] },
+               { file: 'summits-topview.html', label: 'Summits A — top-view peaks' }, { file: 'summits-hover.html', label: 'Summits B — hover reveal' },
+               { file: 'summits-basecamp.html', label: 'Base Camp — the range docked below stacking cards' },
+               { file: 'summits-fieldnotes.html', label: 'Field Notes — mountain and notes, two panels' },
+               { file: 'summits-horizon.html', label: 'Horizon — the range minimised, as a navigator' },
+               { file: 'summits-rings.html', label: 'Signal Rings — hover a ring, see the work' },
+               { file: 'summits-log.html', label: 'Summit Log — stacking cards, the mountain in a window' }] },
   { id: 'cases', label: 'Extra case studies', folder: 'Extra case studies', nav: 'Cases', navMinor: true,
     variants: [{ file: 'case-studies-reel.html', label: 'Case reel' }] },
   { id: 'services', label: 'Our services', folder: 'Our services', nav: 'Services',
@@ -98,20 +103,16 @@ export const V3_SECTIONS = [
     variants: [{ file: 'footer-dusk-grid.html', label: 'Footer — dusk grid' }, { file: 'footer-blueprint-dusk.html', label: 'Footer — blueprint dusk' },
                { file: 'footer-campfire.html', label: 'Footer — campfire' }] },
 ];
-/* Website v4: Final Website v2, with Our Summits told two new ways —
-   A, the range from above, carried sideways by the scroll; B, a still
-   spread whose work comes up on hover. Everything else as v2. */
-const withSummits = (file, label) => HOME_SECTIONS.map(s => s.id === 'summits' ? { ...s, variants: [{ file, label }] } : s);
-export const V4A_SECTIONS = withSummits('summits-topview.html', 'Summits A — top-view peaks');
-export const V4B_SECTIONS = withSummits('summits-hover.html', 'Summits B — hover reveal');
-
-export const V3_LINKS = [{ label: 'Work', target: 'work' }, { label: 'Services', target: 'services' }, { label: 'About', href: 'about-landing.html' }, { label: 'Contact', target: 'footer' }];
+export const V3_LINKS = [{ label: 'Work', target: 'work' }, { label: 'Services', target: 'services' }, { label: 'About', href: 'about.html' }, { label: 'Contact', target: 'footer' }];
 
 export const ABOUT_SECTIONS = [
   { id: 'about-hero', label: 'About us — hero', folder: 'About us — hero', nav: 'About',
     variants: [{ file: 'about-hero.html', label: 'About us — hero' }] },
   { id: 'about-description', label: 'Description', folder: 'About us — description', nav: 'Who we are',
     variants: [{ file: 'about-description.html', label: 'About us — description' }] },
+  /* from the old single-page About us, kept when the two were merged */
+  { id: 'about-numbers', label: 'In numbers', folder: 'About us — numbers',
+    variants: [{ file: 'about-numbers.html', label: 'About us — numbers' }] },
   { id: 'about-foundations', label: 'Foundations', folder: 'About us — foundations', nav: 'Foundation', navMinor: true,
     variants: [{ file: 'about-foundations.html', label: 'About us — foundations' }] },
   { id: 'about-team', label: 'Team', folder: 'About us — team', nav: 'Team',
@@ -152,7 +153,7 @@ export const PAGE_CSS = {
 export const TICKER = 'Have a summit in mind? Let’s climb it together  ·  Now taking on new projects for 2027  ·  Write to hello@tibba.design  ·  Founders, product teams, first launches and redesigns';
 
 /* the navbar's links, the same on every page; Contact goes to the footer */
-export const HOME_LINKS = [{ label: 'Work', target: 'summits' }, { label: 'Services', target: 'services' }, { label: 'About', href: 'about-landing.html' }, { label: 'Contact', target: 'footer' }];
+export const HOME_LINKS = [{ label: 'Work', target: 'summits' }, { label: 'Services', target: 'services' }, { label: 'About', href: 'about.html' }, { label: 'Contact', target: 'footer' }];
 export const ABOUT_LINKS = [{ label: 'Work', href: 'final-website-v2.html#summits' }, { label: 'Services', href: 'final-website-v2.html#services' }, { label: 'About', target: 'about-hero' }, { label: 'Contact', target: 'footer' }];
 
 /* the Modular hub's layout, stored per browser: [{ id, on, variant }] */

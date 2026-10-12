@@ -66,6 +66,12 @@
   max-height: calc(100vh - 28px);
 }
 #wb-nav[data-open="false"] { width: auto; }
+/* on the assembled websites (index only) the site's own navbar holds the
+   top of a phone, so the index sits bottom right and opens upward */
+@media (max-width: 760px) {
+  html[data-wb="nav"] #wb-nav { top: auto; bottom: 14px; left: auto; right: 14px; flex-direction: column-reverse; }
+  html[data-wb="nav"] #wb-nav .wb-nav-body { border-top: 0; border-bottom: 1px solid var(--wb-line); }
+}
 
 .wb-nav-bar {
   display: flex; align-items: center; gap: 10px;

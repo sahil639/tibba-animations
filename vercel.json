@@ -2,7 +2,20 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
   "redirects": [
-    { "source": "/contour-ridge-studies", "destination": "/", "permanent": false },
-    { "source": "/tibba-studio", "destination": "/", "permanent": false }
+    {
+      "source": "/contour-ridge-studies",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/tibba-studio",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/about-landing",
+      "destination": "/about",
+      "permanent": true
+    }
   ]
 }

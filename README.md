@@ -70,7 +70,7 @@ The logic is `assets/whats-new.js`.
 
 | Section | Pages |
 | --- | --- |
-| **Final website** | `final-website.html` — the assembled home page |
+| **Websites** | `final-website.html` (Website v1), `final-website-v2.html` (Website v2), `website-v3.html` (Website v3) — the assembled site; `about.html` the one About page; `modular-website.html` the control hub |
 | Hero section | Contour Ridge, Scroll hero, Three summits, Range, Peak |
 | Metrics · Brands · Extra case studies · Our services · Our testimonials · Our studio · Footer | one stub each |
 | Our summits | Three summits and Range — copies of the hero pages, free to diverge |
