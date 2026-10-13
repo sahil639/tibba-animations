@@ -37,6 +37,16 @@ html, body { height: 100%; background: #0b0b0c; overflow: hidden; }
 body { color: #E9ECF2; font-family: 'F37 Analog', system-ui, sans-serif; }
 #c { position: fixed; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
 #c:active { cursor: grabbing; }
+.switch { position: fixed; left: 18px; bottom: 18px; z-index: 5; display: flex; gap: 2px; padding: 4px; background: rgba(20,20,22,.82); border: 1px solid rgba(233,236,242,.12); }
+.switch button { appearance: none; border: 0; background: none; cursor: pointer; display: flex; align-items: baseline; gap: 8px; padding: 10px 14px 11px; color: rgba(233,236,242,.55);
+  font: 400 12px/1 'F37 Analog', system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; position: relative; transition: color .25s linear, background-color .25s linear; }
+.switch button b { font-weight: 400; font-size: 10px; color: rgba(233,236,242,.35); transition: color .25s linear; }
+.switch button::after { content: ''; position: absolute; left: 14px; right: 14px; bottom: 4px; height: 1px; background: var(--accent, #E85D3D); transform: scaleX(0); transform-origin: left; transition: transform .45s cubic-bezier(.22,1,.36,1); }
+.switch button:hover { color: #fff; }
+.switch button[aria-pressed="true"] { color: #fff; background: rgba(255,255,255,.05); }
+.switch button[aria-pressed="true"] b { color: var(--accent, #E85D3D); }
+.switch button[aria-pressed="true"]::after { transform: scaleX(1); }
+@media (max-width: 640px) { .switch { left: 12px; right: 12px; bottom: 12px; } .switch button { flex: 1; justify-content: center; padding: 10px 6px 11px; font-size: 10.5px; } .hint { display: none; } }
 .hint { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase;
   color: rgba(233,236,242,.4); pointer-events: none; }
 </style>
@@ -45,6 +55,7 @@ body { color: #E9ECF2; font-family: 'F37 Analog', system-ui, sans-serif; }
 <body>
 <canvas id="c" aria-label="A hiking backpack drawn in topographic contour lines, in 3D"></canvas>
 <p class="hint">Drag to turn · scroll to zoom</p>
+<nav class="switch" id="switch" aria-label="Bags"></nav>
 
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.min.js","three/addons/":"https://unpkg.com/three@0.165.0/examples/jsm/"}}</script>
 <script type="module">
@@ -58,7 +69,7 @@ const CONFIG = {
   anim: { play: true, speed: 0.35, morph: 0.25 },
   lines: { density: 11.5, width: 0.75, warp: 0.22, opacity: 0.95, colour: '#F2F3F6' },
   model: { fill: '#0E0E10', shade: 0.45, rim: 0.22, outline: 1.6, accent: '#E8572E', logo: true, guides: true },
-  view: { autoRotate: false, rotateSpeed: 0.6 },
+  view: { autoRotate: false, rotateSpeed: 0.6, bag: 0 },
 };
 const KEY = 'tibba.bake.misc-bags';
 applyBaked(KEY, CONFIG);
@@ -75,11 +86,7 @@ let VIEW_H = 10;                                     // world units across the f
 const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 200);
 /* the reference angle: front-left, from above — the front pocket faces
    right, the harness and hip belt show on the left */
-const HOME = { dir: new THREE.Vector3(-1.05, 0.78, 0.95).normalize(), target: new THREE.Vector3(0, 3.35, 0), zoom: 1.05 };
-camera.position.copy(HOME.target).addScaledVector(HOME.dir, 40);
-camera.zoom = HOME.zoom;
 const controls = new OrbitControls(camera, canvas);
-controls.target.copy(HOME.target);
 controls.enableDamping = true; controls.dampingFactor = 0.08;
 controls.enablePan = false; controls.minZoom = 0.5; controls.maxZoom = 4;
 controls.update();
@@ -211,7 +218,11 @@ function strap(points, width, thick, side, { r = 0.03, seg = 48, closed = false 
   return { g, curve, len };
 }
 
-const bag = new THREE.Group(); scene.add(bag);
+/* ── the bags ────────────────────────────────────────────────────────────
+   Three, each built into its own group: its parts (surface + outline hull),
+   the Tibba mark centred on its front panel and its dimension guides. Each
+   sits in a pivot at its own centre, so the switch can scale it in place. */
+let bag = null;                                     // the group parts are being added to
 const hulls = [];
 /* a part: its surface and its outline hull, in one group to place */
 function add(geo, mat, name, outline = true) {
@@ -222,121 +233,220 @@ function add(geo, mat, name, outline = true) {
 }
 const solidAccent = () => surface({ lines: 0, solid: 1, base: accent });
 const solidDark = () => surface({ lines: 0, solid: 1, base: { value: new THREE.Color(0x111113) } });
-
-/* the main body: tall, a little narrower at the top, the front and back
-   faces gently pillowed */
 const pillow = (amt) => (v, x, y, z) => { const k = (1 - x * x) * (1 - y * y * 0.6); v.z += Math.sign(z) * Math.max(0, Math.abs(z) - 0.6) * amt * k; };
-add(block(2.5, 4.5, 2.0, 0.42, [18, 30, 14], { taper: 0.06, deform: pillow(0.25) }).translate(0, 3.35, 0),
-  surface({ k: [1.25, 2.25, 1.0], c: [0.25, 0.4, 0.6], seed: 1.3 }), 'body');
-/* the lid: a pillow overhanging the top, rings centred on its crown */
-add(block(2.75, 1.45, 2.45, 0.62, [18, 12, 16], { deform: (v, x, y, z) => { v.y += Math.max(0, y) * 0.22 * (1 - x * x) * (1 - z * z); } }).translate(0, 6.0, 0.12),
-  surface({ k: [1.4, 0.75, 1.25], c: [0.1, 0.55, 0.2], seed: 4.1 }), 'lid');
-/* the front pocket, to the right of the orange strap */
-add(block(1.7, 2.55, 0.62, 0.28, [14, 20, 6], { deform: (v, x, y, z) => { if (z > 0) v.z += 0.22 * (1 - x * x) * (1 - y * y); } }).translate(0.32, 3.3, 1.2),
-  surface({ k: [0.85, 1.3, 0.3], c: [0.05, -0.2, 0.3], seed: 7.7 }), 'front-pocket');
-/* the sleeping-bag compartment, wide and soft at the foot */
-add(block(2.8, 1.5, 2.3, 0.6, [18, 12, 16], { deform: pillow(0.35) }).translate(0, 0.9, 0.08),
-  surface({ k: [1.4, 0.75, 1.15], c: [0.35, 0.05, 0.75], seed: 2.6 }), 'base-compartment');
-/* the side mesh pocket, low on the left */
-add(block(0.48, 1.35, 1.55, 0.2, [6, 12, 12]).translate(-1.38, 2.0, 0.05),
-  surface({ k: [0.24, 0.7, 0.8], c: [0.3, 0.1, 0.0], seed: 9.2 }), 'side-pocket');
-
-/* the harness on the back: two shoulder straps, curved off the pack and in */
-for (const sx of [-1, 1]) {
-  const s = strap([[sx * 0.62, 5.45, -1.02], [sx * 0.7, 4.75, -1.7], [sx * 0.74, 3.6, -1.86], [sx * 0.8, 2.55, -1.66], [sx * 1.05, 1.85, -1.3]], 0.62, 0.22, [1, 0, 0], { seg: 40 });
-  add(s.g, surface({ k: [0.31, s.len / 2, 0.1], c: [0, 0.4, 0], seed: 3 + sx }), 'shoulder-strap');
-}
-add(strap([[-0.72, 4.35, -1.92], [0, 4.4, -2.0], [0.72, 4.35, -1.92]], 0.13, 0.05, [0, 1, 0], { seg: 16 }).g, solidDark(), 'sternum-strap');
-add(block(0.3, 0.16, 0.08, 0.03, [2, 2, 1]).translate(0, 4.4, -2.04), solidDark(), 'sternum-buckle');
-/* load lifters, lid to shoulder strap */
-for (const sx of [-1, 1]) add(strap([[sx * 0.75, 5.5, -0.95], [sx * 0.72, 5.2, -1.45], [sx * 0.72, 4.85, -1.72]], 0.1, 0.04, [1, 0, 0], { seg: 10 }).g, solidDark(), 'load-lifter');
-
-/* the hip belt, round the back of the base and forward to the hips */
-const hip = strap([[-1.55, 1.35, 0.55], [-1.75, 1.45, -0.35], [-1.25, 1.55, -1.3], [0, 1.6, -1.55], [1.25, 1.55, -1.3], [1.75, 1.45, -0.35], [1.55, 1.35, 0.55]], 0.72, 0.24, [0, 1, 0], { seg: 64, r: 0.08 });
-add(hip.g, surface({ k: [0.36, hip.len / 2, 0.12], c: [0, 0, 0], seed: 5.4 }), 'hip-belt');
-/* the hip pocket, on the left wing, rings of its own */
-add(block(0.32, 0.6, 1.0, 0.14, [4, 8, 10]).rotateY(-0.25).translate(-1.86, 1.42, -0.15),
-  surface({ k: [0.16, 0.3, 0.5], c: [0, 0, 0.05], seed: 6.6 }), 'hip-pocket');
-add(block(0.12, 0.3, 0.22, 0.03, [1, 2, 2]).translate(-1.62, 1.38, 0.58), solidDark(), 'hip-buckle');
-
-/* the orange strap: down the front from under the lid, over the base */
-const ostrap = strap([[-0.62, 5.3, 1.2], [-0.68, 4.4, 1.12], [-0.7, 3.2, 1.11], [-0.68, 2.05, 1.16], [-0.62, 1.45, 1.42], [-0.55, 0.55, 1.5]], 0.26, 0.06, [1, 0, 0], { seg: 60 });
-add(ostrap.g, solidAccent(), 'accent-strap');
-const buckleAt = (curve, u, w = 0.36, h = 0.18, mat = solidDark()) => {
+/* a small part laid along a curve at u: its length along the tangent */
+function along(curve, u, geo, mat, name, lift = 0, up = [0, 1, 0]) {
   const p = curve.getPointAt(u), t = curve.getTangentAt(u);
-  const m = add(block(w, h, 0.08, 0.03, [2, 2, 1]), mat, 'buckle');
-  m.position.copy(p).add(new THREE.Vector3(0, 0, 0.04)); m.rotation.set(-Math.atan2(t.z, t.y), 0, 0);
-};
-buckleAt(ostrap.curve, 0.06, 0.34, 0.2, solidAccent());
-buckleAt(ostrap.curve, 0.82, 0.32, 0.18);
-
-/* compression straps across the left side and round to the front */
-const comp1 = strap([[-1.05, 4.75, -0.92], [-1.32, 4.55, -0.35], [-1.32, 4.3, 0.45], [-1.05, 4.1, 1.06], [-0.72, 4.05, 1.12]], 0.14, 0.05, [0, 1, 0], { seg: 36 });
-add(comp1.g, solidDark(), 'compression-strap');
-add(strap([[-1.32, 4.73, -0.95], [-1.36, 4.62, -0.62]], 0.16, 0.06, [0, 1, 0], { seg: 6 }).g, solidAccent(), 'compression-keeper');
-const comp2 = strap([[-1.02, 2.95, -0.95], [-1.33, 2.85, -0.3], [-1.33, 2.75, 0.45], [-1.05, 2.7, 1.07], [-0.72, 2.68, 1.12]], 0.14, 0.05, [0, 1, 0], { seg: 36 });
-add(comp2.g, solidDark(), 'compression-strap');
-for (const [c, u] of [[comp1, 0.62], [comp2, 0.6]]) {
-  const p = c.curve.getPointAt(u);
-  add(block(0.1, 0.18, 0.32, 0.03, [1, 2, 2]), solidDark(), 'side-buckle').position.copy(p);
-}
-/* lid strap round the front of the lid, and the feet loops */
-add(strap([[0.6, 6.45, 1.0], [0.62, 6.0, 1.42], [0.6, 5.4, 1.38]], 0.12, 0.045, [1, 0, 0], { seg: 16 }).g, solidDark(), 'lid-strap');
-for (const sx of [-0.75, 0.75]) {
-  add(strap([[sx - 0.12, 0.25, 1.15], [sx, -0.02, 1.32], [sx + 0.12, 0.25, 1.15]], 0.1, 0.05, [1, 0, 0], { seg: 12 }).g, solidDark(), 'foot-loop');
-}
-/* the haul loop */
-add(strap([[-0.2, 5.6, -0.98], [0, 5.92, -1.15], [0.2, 5.6, -0.98]], 0.09, 0.04, [0, 0, 1], { seg: 12 }).g, solidDark(), 'haul-loop');
-
-/* ── the Tibba mark, on a label patch on the lid ─────────────────────────── */
-const patch = add(block(1.1, 0.42, 0.06, 0.04, [2, 2, 1]), solidDark(), 'label-patch');
-patch.position.set(-0.45, 6.02, 1.36); patch.rotation.x = -0.12;
-const logoMat = new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false });
-const logo = new THREE.Mesh(new THREE.PlaneGeometry(0.92, 0.33), logoMat);
-logo.position.set(-0.45, 6.02, 1.43); logo.rotation.x = -0.12; bag.add(logo);
-{
-  const img = new Image();
-  img.onload = () => {
-    const cv = document.createElement('canvas'); cv.width = 1040; cv.height = 370;
-    cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
-    const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
-    logoMat.map = tex; logoMat.needsUpdate = true;
-  };
-  img.src = 'assets/brand/tibba-white.svg';
+  const side = new THREE.Vector3().crossVectors(t, new THREE.Vector3(...up)).normalize(), n = new THREE.Vector3().crossVectors(side, t).normalize();
+  const m = add(geo, mat, name);
+  m.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(side, t, n));
+  m.position.copy(p).addScaledVector(n, lift);
+  return m;
 }
 
-/* ── dimension guides, dashed, as in the drawing ─────────────────────────── */
-const guides = new THREE.Group(); scene.add(guides);
-{
+/* the Tibba mark — the icon alone, white, cut from the logo's own path */
+const markTex = (() => {
+  const cv = document.createElement('canvas'); cv.width = 620; cv.height = 400;
+  const g = cv.getContext('2d'); g.scale(cv.width / 31.04, cv.height / 20); g.translate(-8, -8);
+  g.fillStyle = '#fff';
+  g.fill(new Path2D('M39.0383 28H8L28.2219 8L39.0383 28ZM15.0685 24.6037L26.2673 20.151L34.3324 24.5768L27.5681 12.0807L15.0685 24.6037Z'), 'evenodd');
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t;
+})();
+const markMat = new THREE.MeshBasicMaterial({ map: markTex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
+const marks = [];
+function mark(pos, w, rotY = 0) {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, w * 20 / 31.04), markMat);
+  m.position.set(...pos); m.rotation.y = rotY; bag.add(m); marks.push(m); return m;
+}
+
+/* dashed dimension guides round a bag's bounds, as in the drawings */
+function guidesFor(box) {
+  const gr = new THREE.Group();
   const m = new THREE.LineDashedMaterial({ color: 0x5c5e66, dashSize: 0.14, gapSize: 0.1, transparent: true, opacity: 0.85 });
-  const seg = (a, b) => { const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...a), new THREE.Vector3(...b)]); const l = new THREE.Line(g, m); l.computeLineDistances(); guides.add(l); };
   const solid = new THREE.LineBasicMaterial({ color: 0x7b7d86 });
-  const tick = (p, d) => { const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...p).addScaledVector(new THREE.Vector3(...d), -0.18), new THREE.Vector3(...p).addScaledVector(new THREE.Vector3(...d), 0.18)]); guides.add(new THREE.Line(g, solid)); };
-  const X0 = -2.3, X1 = 2.3, Z0 = -2.0, Z1 = 1.9, Y0 = -0.05, Y1 = 6.95;
+  const seg = (a, b) => { const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...a), new THREE.Vector3(...b)]); const l = new THREE.Line(g, m); l.computeLineDistances(); gr.add(l); };
+  const tick = (p, d) => { const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...p).addScaledVector(new THREE.Vector3(...d), -0.18), new THREE.Vector3(...p).addScaledVector(new THREE.Vector3(...d), 0.18)]); gr.add(new THREE.Line(g, solid)); };
+  const X0 = box.min.x - 0.4, X1 = box.max.x + 0.4, Z0 = box.min.z - 0.3, Z1 = box.max.z + 0.3, Y0 = box.min.y - 0.05, Y1 = box.max.y + 0.15, YM = (Y0 + Y1) / 2;
   seg([X0, Y0, Z1], [X1, Y0, Z1]); seg([X1, Y0, Z1], [X1, Y0, Z0]); seg([X0, Y0, Z1], [X0, Y0, Z0]);
-  seg([X1 + 0.5, Y0, Z1], [X1 + 0.5, Y1, Z1]); tick([X1 + 0.5, Y0, Z1], [1, 0, 0]); tick([X1 + 0.5, Y1, Z1], [1, 0, 0]); tick([X1 + 0.5, 3.4, Z1], [1, 0, 0]);
-  seg([X0 - 0.4, Y0, Z0], [X0 - 0.4, Y1 - 0.6, Z0]); tick([X0 - 0.4, Y1 - 0.6, Z0], [1, 0, 0]);
+  seg([X1 + 0.5, Y0, Z1], [X1 + 0.5, Y1, Z1]); tick([X1 + 0.5, Y0, Z1], [1, 0, 0]); tick([X1 + 0.5, Y1, Z1], [1, 0, 0]); tick([X1 + 0.5, YM, Z1], [1, 0, 0]);
+  seg([X0 - 0.4, Y0, Z0], [X0 - 0.4, Y1 - 0.4, Z0]); tick([X0 - 0.4, Y1 - 0.4, Z0], [1, 0, 0]);
   seg([X0, Y1, Z0], [X1, Y1, Z0]); tick([X0, Y1, Z0], [0, 1, 0]); tick([X1, Y1, Z0], [0, 1, 0]);
   seg([X0, Y0 - 0.02, Z1 + 0.5], [X1, Y0 - 0.02, Z1 + 0.5]); tick([X0, Y0, Z1 + 0.5], [0, 0, 1]); tick([X1, Y0, Z1 + 0.5], [0, 0, 1]);
+  return gr;
 }
 
+/* builds one bag into a pivot; home is its reference view */
+const BAGS = [];
+function makeBag(name, build, home) {
+  const pivot = new THREE.Group(), inner = new THREE.Group();
+  pivot.add(inner); scene.add(pivot); bag = inner;
+  build();
+  const box = new THREE.Box3().setFromObject(inner), c = box.getCenter(new THREE.Vector3());
+  const g = guidesFor(box); inner.add(g);
+  inner.position.copy(c).negate(); pivot.position.copy(c);
+  BAGS.push({ name, pivot, guides: g, home: { dir: new THREE.Vector3(...home.dir).normalize(), target: c.clone().add(new THREE.Vector3(...(home.shift || [0, 0, 0]))), zoom: home.zoom } });
+  pivot.visible = false;
+}
+
+/* ── 1 · the hiking pack ─────────────────────────────────────────────────── */
+makeBag('Hiking pack', () => {
+/* the main body: tall, a little narrower at the top, the front and back
+     faces gently pillowed */
+  const pillow = (amt) => (v, x, y, z) => { const k = (1 - x * x) * (1 - y * y * 0.6); v.z += Math.sign(z) * Math.max(0, Math.abs(z) - 0.6) * amt * k; };
+  add(block(2.5, 4.5, 2.0, 0.42, [18, 30, 14], { taper: 0.06, deform: pillow(0.25) }).translate(0, 3.35, 0),
+    surface({ k: [1.25, 2.25, 1.0], c: [0.25, 0.4, 0.6], seed: 1.3 }), 'body');
+  /* the lid: a pillow overhanging the top, rings centred on its crown */
+  add(block(2.75, 1.45, 2.45, 0.62, [18, 12, 16], { deform: (v, x, y, z) => { v.y += Math.max(0, y) * 0.22 * (1 - x * x) * (1 - z * z); } }).translate(0, 6.0, 0.12),
+    surface({ k: [1.4, 0.75, 1.25], c: [0.1, 0.55, 0.2], seed: 4.1 }), 'lid');
+  /* the front pocket, to the right of the orange strap */
+  add(block(1.7, 2.55, 0.62, 0.28, [14, 20, 6], { deform: (v, x, y, z) => { if (z > 0) v.z += 0.22 * (1 - x * x) * (1 - y * y); } }).translate(0.32, 3.3, 1.2),
+    surface({ k: [0.85, 1.3, 0.3], c: [0.05, -0.2, 0.3], seed: 7.7 }), 'front-pocket');
+  /* the sleeping-bag compartment, wide and soft at the foot */
+  add(block(2.8, 1.5, 2.3, 0.6, [18, 12, 16], { deform: pillow(0.35) }).translate(0, 0.9, 0.08),
+    surface({ k: [1.4, 0.75, 1.15], c: [0.35, 0.05, 0.75], seed: 2.6 }), 'base-compartment');
+  /* the side mesh pocket, low on the left */
+  add(block(0.48, 1.35, 1.55, 0.2, [6, 12, 12]).translate(-1.38, 2.0, 0.05),
+    surface({ k: [0.24, 0.7, 0.8], c: [0.3, 0.1, 0.0], seed: 9.2 }), 'side-pocket');
+  
+  /* the harness on the back: two shoulder straps, curved off the pack and in */
+  for (const sx of [-1, 1]) {
+    const s = strap([[sx * 0.62, 5.45, -1.02], [sx * 0.7, 4.75, -1.7], [sx * 0.74, 3.6, -1.86], [sx * 0.8, 2.55, -1.66], [sx * 1.05, 1.85, -1.3]], 0.62, 0.22, [1, 0, 0], { seg: 40 });
+    add(s.g, surface({ k: [0.31, s.len / 2, 0.1], c: [0, 0.4, 0], seed: 3 + sx }), 'shoulder-strap');
+  }
+  add(strap([[-0.72, 4.35, -1.92], [0, 4.4, -2.0], [0.72, 4.35, -1.92]], 0.13, 0.05, [0, 1, 0], { seg: 16 }).g, solidDark(), 'sternum-strap');
+  add(block(0.3, 0.16, 0.08, 0.03, [2, 2, 1]).translate(0, 4.4, -2.04), solidDark(), 'sternum-buckle');
+  /* load lifters, lid to shoulder strap */
+  for (const sx of [-1, 1]) add(strap([[sx * 0.75, 5.5, -0.95], [sx * 0.72, 5.2, -1.45], [sx * 0.72, 4.85, -1.72]], 0.1, 0.04, [1, 0, 0], { seg: 10 }).g, solidDark(), 'load-lifter');
+  
+  /* the hip belt, round the back of the base and forward to the hips */
+  const hip = strap([[-1.55, 1.35, 0.55], [-1.75, 1.45, -0.35], [-1.25, 1.55, -1.3], [0, 1.6, -1.55], [1.25, 1.55, -1.3], [1.75, 1.45, -0.35], [1.55, 1.35, 0.55]], 0.72, 0.24, [0, 1, 0], { seg: 64, r: 0.08 });
+  add(hip.g, surface({ k: [0.36, hip.len / 2, 0.12], c: [0, 0, 0], seed: 5.4 }), 'hip-belt');
+  /* the hip pocket, on the left wing, rings of its own */
+  add(block(0.32, 0.6, 1.0, 0.14, [4, 8, 10]).rotateY(-0.25).translate(-1.86, 1.42, -0.15),
+    surface({ k: [0.16, 0.3, 0.5], c: [0, 0, 0.05], seed: 6.6 }), 'hip-pocket');
+  add(block(0.12, 0.3, 0.22, 0.03, [1, 2, 2]).translate(-1.62, 1.38, 0.58), solidDark(), 'hip-buckle');
+  
+  /* the orange strap: down the front from under the lid, over the base */
+  const ostrap = strap([[-0.62, 5.3, 1.2], [-0.68, 4.4, 1.12], [-0.7, 3.2, 1.11], [-0.68, 2.05, 1.16], [-0.62, 1.45, 1.42], [-0.55, 0.55, 1.5]], 0.26, 0.06, [1, 0, 0], { seg: 60 });
+  add(ostrap.g, solidAccent(), 'accent-strap');
+  const buckleAt = (curve, u, w = 0.36, h = 0.18, mat = solidDark()) => {
+    const p = curve.getPointAt(u), t = curve.getTangentAt(u);
+    const m = add(block(w, h, 0.08, 0.03, [2, 2, 1]), mat, 'buckle');
+    m.position.copy(p).add(new THREE.Vector3(0, 0, 0.04)); m.rotation.set(-Math.atan2(t.z, t.y), 0, 0);
+  };
+  buckleAt(ostrap.curve, 0.06, 0.34, 0.2, solidAccent());
+  buckleAt(ostrap.curve, 0.82, 0.32, 0.18);
+  
+  /* compression straps across the left side and round to the front */
+  const comp1 = strap([[-1.05, 4.75, -0.92], [-1.32, 4.55, -0.35], [-1.32, 4.3, 0.45], [-1.05, 4.1, 1.06], [-0.72, 4.05, 1.12]], 0.14, 0.05, [0, 1, 0], { seg: 36 });
+  add(comp1.g, solidDark(), 'compression-strap');
+  add(strap([[-1.32, 4.73, -0.95], [-1.36, 4.62, -0.62]], 0.16, 0.06, [0, 1, 0], { seg: 6 }).g, solidAccent(), 'compression-keeper');
+  const comp2 = strap([[-1.02, 2.95, -0.95], [-1.33, 2.85, -0.3], [-1.33, 2.75, 0.45], [-1.05, 2.7, 1.07], [-0.72, 2.68, 1.12]], 0.14, 0.05, [0, 1, 0], { seg: 36 });
+  add(comp2.g, solidDark(), 'compression-strap');
+  for (const [c, u] of [[comp1, 0.62], [comp2, 0.6]]) {
+    const p = c.curve.getPointAt(u);
+    add(block(0.1, 0.18, 0.32, 0.03, [1, 2, 2]), solidDark(), 'side-buckle').position.copy(p);
+  }
+  /* lid strap round the front of the lid, and the feet loops */
+  add(strap([[0.6, 6.45, 1.0], [0.62, 6.0, 1.42], [0.6, 5.4, 1.38]], 0.12, 0.045, [1, 0, 0], { seg: 16 }).g, solidDark(), 'lid-strap');
+  for (const sx of [-0.75, 0.75]) {
+    add(strap([[sx - 0.12, 0.25, 1.15], [sx, -0.02, 1.32], [sx + 0.12, 0.25, 1.15]], 0.1, 0.05, [1, 0, 0], { seg: 12 }).g, solidDark(), 'foot-loop');
+  }
+  /* the haul loop */
+  add(strap([[-0.2, 5.6, -0.98], [0, 5.92, -1.15], [0.2, 5.6, -0.98]], 0.09, 0.04, [0, 0, 1], { seg: 12 }).g, solidDark(), 'haul-loop');
+  /* the mark, centred on the front pocket */
+  mark([0.32, 3.3, 1.765], 0.62);
+}, { dir: [-1.05, 0.78, 0.95], zoom: 1.05 });
+
+/* ── 2 · the waist pack ──────────────────────────────────────────────────── */
+makeBag('Waist pack', () => {
+  const curve = x => 0.32 * (x / 1.6) * (x / 1.6);          // the pouch curves back toward the wearer
+  /* the pouch: long, deep, its ends swept back */
+  add(block(3.2, 1.9, 1.15, 0.52, [26, 16, 10], { deform: (v, x, y, z) => { v.z -= curve(v.x); if (z > 0) v.z += 0.1 * (1 - x * x) * (1 - y * y); } }).translate(0, 1.0, 0),
+    surface({ k: [0.9, 1.25, 0.7], c: [0.2, 0.0, 0.5], seed: 2.2 }), 'pouch');
+  /* the front pocket, its rings centred a little left, as in the drawing */
+  add(block(2.6, 1.42, 0.44, 0.42, [22, 14, 6], { deform: (v, x, y, z) => { v.z -= curve(v.x); if (z > 0) v.z += 0.17 * (1 - x * x) * (1 - y * y); } }).translate(-0.05, 0.92, 0.66),
+    surface({ k: [1.0, 1.35, 0.45], c: [-0.45, -0.05, 0.3], seed: 8.1 }), 'front-pocket');
+  /* the zips' orange pulls */
+  add(block(0.09, 0.34, 0.05, 0.02, [1, 3, 1]).rotateZ(0.2).translate(1.32, 1.42, 0.64 - curve(1.32)), solidAccent(), 'zip-pull');
+  add(block(0.09, 0.34, 0.05, 0.02, [1, 3, 1]).rotateZ(-0.15).translate(-1.62, 1.55, 0.18 - curve(1.62)), solidAccent(), 'zip-pull');
+  /* the belt, from one end of the pouch round behind the wearer to the other */
+  const belt = strap([[-1.62, 1.05, -0.3], [-1.85, 1.15, -1.0], [-1.55, 1.35, -2.25], [-0.2, 1.6, -3.1], [1.45, 1.55, -3.0], [2.55, 1.25, -1.9], [2.35, 1.05, -0.7], [1.62, 1.0, -0.3]],
+    0.58, 0.06, [0, 1, 0], { seg: 120, r: 0.02 });
+  add(belt.g, surface({ k: [1, 0, 0], c: [-3, 0, 0], seed: 0 }), 'belt');      // field across the width only: the lines run along the belt
+  /* the buckle, orange, in the belt behind on the right */
+  along(belt.curve, 0.64, block(0.66, 0.46, 0.13, 0.05, [3, 3, 1]), solidAccent(), 'buckle', 0.03);
+  along(belt.curve, 0.64, block(0.36, 0.2, 0.15, 0.03, [2, 1, 1]), solidDark(), 'buckle-window', 0.05);
+  /* the belt tabs where it meets the pouch */
+  for (const sx of [-1, 1]) add(block(0.22, 0.62, 0.5, 0.08, [2, 4, 3]).translate(sx * 1.62, 1.03, -0.28), surface({ k: [0.5, 0.5, 0.5], c: [0, 0, 0], seed: 4 }), 'tab');
+  mark([-0.05, 0.92, 1.12], 0.5);
+}, { dir: [0.62, 0.72, 1.0], zoom: 1.2, shift: [0.2, 0, 0.35] });
+
+/* ── 3 · the daypack ─────────────────────────────────────────────────────── */
+makeBag('Daypack', () => {
+  /* the body: rounded, a domed top */
+  add(block(2.5, 3.6, 1.35, 0.62, [20, 30, 12], { taper: 0.05, deform: (v, x, y, z) => { if (y > 0) v.y += 0.38 * y * y * (1 - x * x * 0.8); } }).translate(0, 2.1, 0),
+    surface({ k: [1.0, 0.95, 0.55], c: [0.35, 0.3, -0.4], seed: 3.7 }), 'body');
+  /* the front pocket: a soft square low on the front */
+  add(block(2.05, 1.8, 0.5, 0.55, [18, 16, 6], { deform: (v, x, y, z) => { if (z > 0) v.z += 0.2 * (1 - x * x) * (1 - y * y); } }).translate(0, 1.22, 0.8),
+    surface({ k: [1.0, 1.0, 0.4], c: [-0.3, -0.1, 0.3], seed: 6.3 }), 'front-pocket');
+  /* the top handle */
+  add(strap([[-0.32, 4.02, -0.32], [-0.3, 4.5, -0.36], [0, 4.68, -0.38], [0.3, 4.5, -0.36], [0.32, 4.02, -0.32]], 0.17, 0.07, [0, 0, 1], { seg: 24 }).g,
+    surface({ k: [1, 0, 0], c: [-4, 0, 0], seed: 1 }), 'handle');
+  /* shoulder straps: padded, curving off the back, webbing to the base */
+  for (const sx of [-1, 1]) {
+    const s = strap([[sx * 0.5, 3.95, -0.62], [sx * 0.62, 3.4, -1.12], [sx * 0.72, 2.3, -1.24], [sx * 0.85, 1.25, -1.05], [sx * 0.98, 0.75, -0.82]], 0.55, 0.2, [1, 0, 0], { seg: 40 });
+    add(s.g, surface({ k: [0.28, s.len / 2, 0.1], c: [0, 0.3, 0], seed: 5 + sx }), 'shoulder-strap');
+    add(strap([[sx * 0.98, 0.75, -0.82], [sx * 1.08, 0.45, -0.72], [sx * 1.05, 0.28, -0.62]], 0.13, 0.04, [1, 0, 0], { seg: 10 }).g, solidDark(), 'webbing');
+  }
+  /* zips: round the pocket and up the side; orange pulls, an orange loop */
+  add(strap([[-0.98, 0.45, 1.0], [-1.0, 1.25, 1.12], [-0.85, 2.05, 1.04], [0, 2.14, 1.1], [0.85, 2.05, 1.04], [1.0, 1.25, 1.12], [0.98, 0.45, 1.0]], 0.045, 0.03, [0, 0, 1], { seg: 50 }).g, solidDark(), 'pocket-zip');
+  add(block(0.1, 0.36, 0.05, 0.02, [1, 3, 1]).translate(1.05, 1.35, 1.12), solidAccent(), 'zip-pull');
+  add(block(0.1, 0.36, 0.05, 0.02, [1, 3, 1]).rotateZ(0.25).translate(-1.2, 2.2, 0.5), solidAccent(), 'zip-pull');
+  add(strap([[1.24, 1.25, -0.05], [1.32, 0.98, 0.08], [1.24, 1.25, 0.22]], 0.08, 0.06, [1, 0, 0], { seg: 14 }).g, solidAccent(), 'loop');
+  mark([0, 1.22, 1.275], 0.52);
+}, { dir: [0.6, 0.62, 1.0], zoom: 1.4, shift: [0, 0.1, 0] });
+
 /* ── applying the config ─────────────────────────────────────────────────── */
+let cur = Math.min(BAGS.length - 1, Math.max(0, C.view.bag | 0));
+BAGS[cur].pivot.visible = true;
+let HOME = BAGS[cur].home;
+camera.position.copy(HOME.target).addScaledVector(HOME.dir, 40); camera.zoom = HOME.zoom; camera.updateProjectionMatrix();
+controls.target.copy(HOME.target); controls.update();
 function apply() {
   G.uDensity.value = C.lines.density; G.uWidth.value = C.lines.width; G.uWarp.value = C.lines.warp; G.uLineOp.value = C.lines.opacity;
   G.uLineCol.value.set(C.lines.colour); G.uOutlineCol.value.set(C.lines.colour);
   G.uFill.value.set(C.model.fill); G.uShade.value = C.model.shade; G.uRim.value = C.model.rim;
   accent.value.set(C.model.accent);
-  logo.visible = C.model.logo; guides.visible = C.model.guides;
+  marks.forEach(m => { m.visible = C.model.logo; });
+  BAGS.forEach(b => { b.guides.visible = C.model.guides; });
   controls.autoRotate = C.view.autoRotate; controls.autoRotateSpeed = C.view.rotateSpeed;
 }
 apply();
 
 /* ── reset to the reference angle ──────────────────────────────────────── */
 let tween = null;
-function resetView() {
+function resetView(dur = 900) {
   const from = { p: camera.position.clone(), t: controls.target.clone(), z: camera.zoom };
   const to = { p: HOME.target.clone().addScaledVector(HOME.dir, 40), t: HOME.target.clone(), z: HOME.zoom };
-  tween = { from, to, t0: performance.now(), dur: 900 };
+  tween = { from, to, t0: performance.now(), dur };
+}
+
+/* ── the switch: out goes the bag, shrinking and easing away; in comes the
+   next, growing with a small overshoot before it settles ─────────────────── */
+const easeIn = t => t * t * t;
+const easeOutBack = (t, s = 1.25) => 1 + (s + 1) * Math.pow(t - 1, 3) + s * Math.pow(t - 1, 2);
+const easeOut = t => 1 - Math.pow(1 - t, 3);
+const OUT = 360, GAP = 150, IN = 820;
+let swap = null;
+function showBag(i) {
+  if (i === cur || swap) return;
+  const from = BAGS[cur], to = BAGS[i];
+  to.pivot.visible = true; to.pivot.scale.setScalar(0.001);
+  swap = { from, to, t0: performance.now() };
+  cur = i; C.view.bag = i; HOME = to.home;
+  resetView(OUT + GAP + IN * 0.8);
+  syncSwitch();
 }
 
 /* ── the loop: pauses with the tab ─────────────────────────────────────── */
@@ -346,6 +456,16 @@ function frame(now) {
   if (document.hidden) { last = now; return; }
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   if (C.anim.play) { G.uPhase.value += dt * C.anim.speed * 2.2; G.uMorphT.value += dt * C.anim.morph; }
+  if (swap) {
+    const t = now - swap.t0;
+    const ko = Math.min(1, t / OUT), ki = Math.min(1, Math.max(0, (t - OUT - GAP) / IN));
+    swap.from.pivot.scale.setScalar(Math.max(0.001, 1 - easeIn(ko)));
+    swap.from.pivot.rotation.y = 0.35 * easeIn(ko);
+    swap.to.pivot.scale.setScalar(Math.max(0.001, ki > 0 ? easeOutBack(ki) : 0.001));
+    swap.to.pivot.rotation.y = -0.4 * (1 - easeOut(ki));
+    if (ko >= 1) swap.from.pivot.visible = false;
+    if (ki >= 1) { swap.from.pivot.scale.setScalar(1); swap.from.pivot.rotation.y = 0; swap.to.pivot.scale.setScalar(1); swap.to.pivot.rotation.y = 0; swap = null; }
+  }
   if (tween) {
     const k = Math.min(1, (now - tween.t0) / tween.dur), e = 1 - Math.pow(1 - k, 3);
     camera.position.lerpVectors(tween.from.p, tween.to.p, e); controls.target.lerpVectors(tween.from.t, tween.to.t, e);
@@ -361,6 +481,20 @@ function frame(now) {
   renderer.render(scene, camera);
 }
 requestAnimationFrame(frame);
+
+/* ── the switcher, bottom left ─────────────────────────────────────────── */
+const sw = document.getElementById('switch');
+sw.innerHTML = BAGS.map((b, i) => `<button type="button" data-i="${i}"><b>0${i + 1}</b><span>${b.name}</span></button>`).join('');
+const swBtns = [...sw.children];
+function syncSwitch() { swBtns.forEach((b, i) => { b.setAttribute('aria-pressed', String(i === cur)); }); }
+swBtns.forEach((b, i) => b.addEventListener('click', () => showBag(i)));
+addEventListener('keydown', e => {
+  if (e.target.closest && e.target.closest('input, textarea, select')) return;
+  if (/^[1-3]$/.test(e.key)) showBag(+e.key - 1);
+  if (e.key === 'ArrowRight') showBag((cur + 1) % BAGS.length);
+  if (e.key === 'ArrowLeft') showBag((cur + BAGS.length - 1) % BAGS.length);
+});
+syncSwitch();
 
 /* ── the panel ─────────────────────────────────────────────────────────── */
 const SCHEMA = [
@@ -380,7 +514,7 @@ const SCHEMA = [
   ['model.rim', 'Rim light', 0, 1, 0.01],
   ['model.outline', 'Outline', 0, 4, 0.1, 'px'],
   ['model.accent', 'Accent (strap, keeper, buckle)', 'color'],
-  ['model.logo', 'Tibba mark on the lid', 'check'],
+  ['model.logo', 'Tibba mark on the front', 'check'],
   ['model.guides', 'Dimension guides', 'check'],
   ['View'],
   ['view.autoRotate', 'Turn slowly', 'check'],
@@ -404,11 +538,11 @@ SCHEMA.forEach(([p, label, a]) => {
   else if (a === 'color') inp.addEventListener('input', () => { set(p, inp.value); apply(); });
   else inp.addEventListener('input', () => { el.querySelector('#v-b-' + p.replace('.', '-')).textContent = inp.value + inp.dataset.unit; set(p, +inp.value); apply(); });
 });
-el.querySelector('#b-reset').addEventListener('click', resetView);
+el.querySelector('#b-reset').addEventListener('click', () => resetView());
 el.querySelector('#tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
 bakeControls.bind(el, KEY, C, 'BAGS_CONFIG');
 if (window.wb && window.wb.adopt) window.wb.adopt();
-window.bags = { scene, camera, controls, bag, resetView, CONFIG };
+window.bags = { scene, camera, controls, BAGS, showBag, resetView, CONFIG };
 </script>
 </body>
 </html>

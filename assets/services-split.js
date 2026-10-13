@@ -82,6 +82,7 @@
           <div class="ssb" style="--k:${k}" title="${sv.points[0].replace(/"/g, '&quot;')}">
             <span class="ix">${String(offset + k + 1).padStart(3, '0')}</span>
             <span class="nm">${cap(sv.name)}</span>
+            ${o.icons && window.TibbaServiceIcon ? `<span class="ic" aria-hidden="true">${window.TibbaServiceIcon(sv.name).replace('<svg ', '<svg width="30" height="30" ')}</span>` : ''}
           </div>`).join('')}</div>`;
     }
 
