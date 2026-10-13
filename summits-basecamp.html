@@ -105,8 +105,8 @@ html, body { background: var(--bg); }
   pointer-events: none; background: none; }
 /* no wash: the cards read straight through behind the peaks */
 .bc-phone .bc-dock::before { display: none; }
-.bc-phone #range { inset: 0 0 52px 0; -webkit-mask-image: none; mask-image: none; pointer-events: auto; }
-.bc-phone .bc-bar { pointer-events: auto; left: 0; right: 0; transform: none; width: auto; bottom: 0; padding: 12px var(--gut) 12px; background: var(--bg); }   /* a plain strip, no fade: the labels stay legible over the cards */
+.bc-phone #range { inset: 0 0 var(--barh, 40px) 0; -webkit-mask-image: none; mask-image: none; pointer-events: auto; }
+.bc-phone .bc-bar { pointer-events: auto; left: 0; right: 0; transform: none; width: auto; bottom: 0; padding: 0 var(--gut) 12px; background: var(--bg); }   /* a plain strip, no fade, its progress line right under the range */
 .bc-phone .sl-tabs button { font-size: 9.5px; letter-spacing: .02em; } .bc-phone .sl-tabs button::before { margin-bottom: 8px; }
 .bc-phone #bc-panel { display: none; }
 .bc-phone .bc-head { padding: 92px var(--gut) 18px; }

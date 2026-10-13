@@ -51,6 +51,7 @@ export const BASECAMP_CONFIG = {
     frontFov: 6,          // degrees: the long lens the front view is taken with (lower = flatter)
     frontFill: 0.62,      // front view: the summit's height, as a share of the scene's
     frontBase: 0.18,      // front view: how far up from the bottom edge the foot sits (share of the scene)
+    desk: { frontFill: 0.49, frontBase: 0.23 },   // the same two on desktop (frontFill / frontBase above are phones')
   },
   style: {
     activeInk: '#EEF1F8', activeInkMix: 0.45, activeBoost: 0.5,
@@ -141,6 +142,7 @@ export function mountBasecamp() {
   const BEAR = [-10, -4, 4, 10];
   function camera({ fi, now, tops, pointer, shift }) {
     const D = C.depth, sy = C.contours.spacing;
+    const fill = phone.matches ? D.frontFill : D.desk.frontFill, base = phone.matches ? D.frontBase : D.desk.frontBase;
     const i0 = Math.floor(fi), i1 = Math.min(N - 1, i0 + 1), f = fi - i0, fs = f * f * (3 - 2 * f);
     const A = tops[i0], B = tops[i1];
     const tx = lerp(A.x + shift[i0], B.x + shift[i1], fs), tz = lerp(A.z, B.z, fs), top = lerp(A.y, B.y, fs) * sy * D.fgScale;
@@ -152,11 +154,11 @@ export function mountBasecamp() {
     /* front: framed by height — the base on the bar, the summit filling
        D.frontFill of the scene, whatever the lens */
     const half = Math.tan(rad(D.frontFov / 2));
-    const dist = front ? top / (2 * D.frontFill * half) : D.focusDist * (1 + lift * .7) * Math.max(1, 1.9 / asp);
+    const dist = front ? top / (2 * fill * half) : D.focusDist * (1 + lift * .7) * Math.max(1, 1.9 / asp);
     const elev = front ? 0 : rad(D.elev + lift * 16 - pointer.y * 1.5);
     const drift = C.anim.on && !front ? Math.sin(now / 1000 * .11) * .5 : 0;
     const yaw = front ? 0 : rad(lerp(BEAR[i0], BEAR[i1], fs) + pointer.x * 2.5 + drift);
-    const ty = front ? dist * half * (1 - 2 * D.frontBase) : top * D.aim;
+    const ty = front ? dist * half * (1 - 2 * base) : top * D.aim;
     /* the haze is measured from the camera, so the far country fades to
        nothing instead of ending in a hard horizon */
     const near = dist + lerp(320, 15, D.fog) * (front ? 1.6 : 1);
@@ -238,6 +240,9 @@ export function mountBasecamp() {
     if (!m && stack.parentNode !== sec) sec.appendChild(stack);
   }
   phone.addEventListener('change', layout); layout();
+  /* the range ends exactly on the progress line, whatever the bar's height */
+  const bar = tabsEl.parentNode;
+  new ResizeObserver(() => root.style.setProperty('--barh', bar.offsetHeight + 'px')).observe(bar);
 
   buildPanel(apply, range);
   return { range, apply, config: C };
@@ -293,8 +298,11 @@ const SCHEMA = [
   ['rive.playAll', 'Rive — play every card', 'check'],
   ['dock', 'Scene height under the cards', 30, 70, 1, 'vh'],
 ];
-const get = p => p.split('.').reduce((o, k) => o[k], C);
-const set = (p, v) => { const ks = p.split('.'), last = ks.pop(); ks.reduce((o, k) => o[k], C)[last] = v; };
+/* the front view's framing has its own values on desktop */
+const PHONE = matchMedia('(max-width: 900px)');
+const at = p => !PHONE.matches && /^depth\.front(Fill|Base)$/.test(p) ? p.replace('depth.', 'depth.desk.') : p;
+const get = p => at(p).split('.').reduce((o, k) => o[k], C);
+const set = (p, v) => { const ks = at(p).split('.'), last = ks.pop(); ks.reduce((o, k) => o[k], C)[last] = v; };
 
 function buildPanel(apply, range) {
   const el = document.createElement('div');
