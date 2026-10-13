@@ -17,7 +17,7 @@
 
    ── the state machine ─────────────────────────────────────────────────────
    focus      a number, 0 … 3, from the page (desktop: how far through the
-              stacking cards; phones: how far through the pinned section)
+              stacking cards; phones: which card crosses the middle of the scroll area)
    each summit is in one of
      idle       not in focus — receding, no dot, no trail, Rive paused
      arriving   the camera is flying to it (|focus − i| < .5, not settled)
@@ -123,11 +123,18 @@ export function mountBasecamp() {
   const top = el => el.getBoundingClientRect().top + scrollY;          // page position, whatever the offset parent
   /* desktop: a rest on each card, the flight while the next one rises */
   const focusNow = () => {
-    if (phone.matches) return P.focus();
+    if (phone.matches) {
+      /* the card crossing the middle of the scroll area (the top two-thirds)
+         is the one in focus; the flight to the next starts as it leaves */
+      const line = innerHeight * .34;
+      let f = 0;
+      cards.forEach((c, i) => { const r = c.getBoundingClientRect(); if (r.top <= line) { const p = clamp((line - r.top) / Math.max(1, r.height + 48), 0, 1), g = clamp((p - .72) / .28, 0, 1); f = i + g * g * (3 - 2 * g); } });
+      return clamp(f, 0, N - 1);
+    }
     const p = clamp((scrollY - top(stack)) / innerHeight, 0, N - 1), k = Math.min(N - 2, Math.floor(p)), f = clamp((p - k - .18) / .64, 0, 1);
     return k + f * f * (3 - 2 * f);
   };
-  const jump = i => phone.matches ? P.jump(i) : scrollToY(top(stack) + i * innerHeight + 2);
+  const jump = i => phone.matches ? scrollToY(top(cards[i]) - innerHeight * .1) : scrollToY(top(stack) + i * innerHeight + 2);
   tabs.forEach((b, i) => b.addEventListener('click', () => jump(i)));
 
   /* ── the camera: close on the summit in focus, a short flight between ─ */
@@ -228,7 +235,6 @@ export function mountBasecamp() {
   function layout() {
     const m = phone.matches;
     root.classList.toggle('bc-phone', m);
-    if (m && stack.parentNode !== panelEl) panelEl.prepend(stack);
     if (!m && stack.parentNode !== sec) sec.appendChild(stack);
   }
   phone.addEventListener('change', layout); layout();

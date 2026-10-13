@@ -30,8 +30,9 @@
    in focus or under the pointer, tinted toward the summit's colour.
 
    Scene, state machine, panel: assets/basecamp.js (BASECAMP_CONFIG).
-   Phones: the section pins; the range on top, and under it one panel that
-   holds the card in focus, its Rive and the progress bar.
+   Phones: the range and the progress bar docked in the bottom third; above
+   them the cards scroll — a primary card (title, subtitle, the way in),
+   the Rive slideshow, the numbers as cards — one project after another.
    ═════════════════════════════════════════════════════════════════════════ */
 :root { --dock: 46vh; --ac: #4DD9C0; --pulse-s: 1.8s; --pulse-k: 1; --rv-tint: 0; --bg: #0c0b0a; }
 html, body { background: var(--bg); }
@@ -96,28 +97,35 @@ html, body { background: var(--bg); }
 .pn.hovered .rv { border-color: color-mix(in srgb, var(--c) 55%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--c) 30%, transparent), 0 20px 50px rgba(0,0,0,.5); }
 .pn .sl-stats { max-width: none; }
 
-/* ── phones: the scene on top, one panel under it ──────────────────────── */
-.bc-phone #bc { height: 400vh; }
-.bc-phone .bc-dock { top: 0; height: 100vh; height: 100svh; margin-bottom: 0; display: grid; grid-template-rows: 38% 1fr; pointer-events: auto; }
-.bc-phone .bc-dock::before { background: linear-gradient(to top, var(--bg) 58%, rgba(12,11,10,0) 66%); }
-.bc-phone #range { position: relative; inset: auto; grid-row: 1; -webkit-mask-image: linear-gradient(transparent, #000 25%); mask-image: linear-gradient(transparent, #000 25%); }
-.bc-phone #bc-panel { position: relative; z-index: 3; grid-row: 2; border-top: 1px solid rgba(233,236,242,.12); padding-bottom: 76px; overflow: hidden; }
-.bc-phone #stack { position: absolute; inset: 0 0 76px; }
-.bc-phone .pn { position: absolute; inset: 0; height: auto; background: none; box-shadow: none; opacity: 0; pointer-events: none; transition: opacity .35s ease; }
-.bc-phone .pn.active { opacity: 1; pointer-events: auto; }
-.bc-phone .pn .in { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 12px; padding: 16px var(--gut) 0; transform: none; filter: none; }
-.bc-phone .pn .txt { gap: 8px; order: 1; }
-.bc-phone .pn .media { order: 2; }
-.bc-phone .pn .txt .sl-title { font-size: clamp(19px, 5.4vw, 26px); }
-.bc-phone .pn .sl-body, .bc-phone .pn .sl-tags { display: none; }
-.bc-phone .pn .sl-cta { position: absolute; left: var(--gut); bottom: 6px; padding: 10px 14px; font-size: 10.5px; }
-.bc-phone .rv { max-height: none; }
-.bc-phone .pn .sl-stats b { font-size: 22px; } .bc-phone .pn .sl-stats div > span { font-size: 11px; }
+/* ── phones: the cards scroll in the top two-thirds; the range and the
+   progress bar are docked in the bottom third the whole way through ─── */
+:root.bc-phone { --mdock: 33vh; }
+@supports (height: 1svh) { :root.bc-phone { --mdock: 33svh; } }
+.bc-phone .bc-dock { top: calc(100vh - var(--mdock)); top: calc(100svh - var(--mdock)); height: var(--mdock); margin-bottom: calc(-1 * var(--mdock));
+  pointer-events: auto; background: var(--bg); border-top: 1px solid rgba(233,236,242,.08); }
+/* the cards fade out as they pass behind the dock's top edge */
+.bc-phone .bc-dock::before { inset: auto 0 100% 0; height: 56px; background: linear-gradient(to top, var(--bg), rgba(12,11,10,0)); }
+.bc-phone #range { inset: 0 0 52px 0; -webkit-mask-image: linear-gradient(transparent, #000 18%); mask-image: linear-gradient(transparent, #000 18%); -webkit-mask-composite: source-over; mask-composite: add; }
 .bc-phone .bc-bar { width: calc(100% - 2 * var(--gut)); bottom: 12px; }
-.bc-phone .bc-bar .lbl { display: none; }
 .bc-phone .sl-tabs button { font-size: 9.5px; letter-spacing: .02em; } .bc-phone .sl-tabs button::before { margin-bottom: 8px; }
-#bc-panel { display: contents; }
-.bc-phone #bc-panel { display: block; }
+.bc-phone #bc-panel { display: none; }
+.bc-phone .bc-head { padding: 92px var(--gut) 18px; }
+.bc-phone #stack { display: flex; flex-direction: column; gap: 48px; padding: 6px var(--gut) calc(var(--mdock) + 40px); }
+.bc-phone .pn { position: relative; height: auto; overflow: visible; background: none; box-shadow: none; }
+.bc-phone .pn + .pn { box-shadow: none; }
+.bc-phone .pn .in { position: relative; inset: auto; display: flex; flex-direction: column; gap: 12px; padding: 0; transform: none; filter: none; }
+/* the primary card: title, subtitle, the way in */
+.bc-phone .pn .txt { gap: 12px; padding: 20px 18px 22px; background: #151413; border: 1px solid rgba(233,236,242,.1); border-top: 2px solid var(--c); }
+.bc-phone .pn .txt .sl-title { font-size: clamp(22px, 6.2vw, 30px); }
+.bc-phone .pn .sl-tags { display: none; }
+.bc-phone .pn .sl-body { font-size: 13.5px; }
+.bc-phone .pn .sl-cta { padding: 12px 16px; font-size: 11px; }
+/* then the Rive slideshow, then the numbers as cards */
+.bc-phone .pn .media { gap: 12px; }
+.bc-phone .rv { max-height: none; }
+.bc-phone .pn .sl-stats { border-top: 0; gap: 12px; }
+.bc-phone .pn .sl-stats div, .bc-phone .pn .sl-stats div + div { padding: 14px; border: 1px solid rgba(233,236,242,.1); background: #151413; }
+.bc-phone .pn .sl-stats b { font-size: 26px; } .bc-phone .pn .sl-stats div > span { font-size: 11.5px; }
 @media (prefers-reduced-motion: reduce) { .fs-peak.bc-mark::before, .fs-peak.bc-mark::after { animation: none; opacity: 0; } }
 </style>
 <link rel="stylesheet" href="assets/tune.css">
