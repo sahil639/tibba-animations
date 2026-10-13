@@ -46,7 +46,11 @@ export const BASECAMP_CONFIG = {
     bgScale: 0.5,         // the rest of the range's height while one is in focus
     spread: 1.22,         // the summits' spacing, × as built
     offsets: [0, 0, 0, 0],// each summit sideways, world units
-    fog: 0.45,            // atmospheric fade on the far range (0 … 1)
+    fog: 0.6,             // atmospheric fade on the far range (0 … 1), measured from the camera
+    view: 'angled',       // 'angled' — from a little above, a short flight between · 'front' — straight on, near-orthographic
+    frontFov: 6,          // degrees: the long lens the front view is taken with (lower = flatter)
+    frontFill: 0.62,      // front view: the summit's height, as a share of the scene's
+    frontBase: 0.18,      // front view: how far up from the bottom edge the foot sits (share of the scene)
   },
   style: {
     activeInk: '#EEF1F8', activeInkMix: 0.45, activeBoost: 0.5,
@@ -65,6 +69,8 @@ export const BASECAMP_CONFIG = {
 const C = BASECAMP_CONFIG;
 const KEY = 'tibba.bake.basecamp';
 applyBaked(KEY, C);
+/* ?view=front (or angled) picks the view from the address, for use inside the site */
+{ const v = /[?&]view=(front|angled)\b/.exec(location.search); if (v) C.depth.view = v[1]; }
 
 const rad = d => d * Math.PI / 180;
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -72,7 +78,7 @@ const lerp = (a, b, t) => a + (b - a) * t;
 export function mountBasecamp() {
   const root = document.documentElement;
   const sec = document.getElementById('bc'), stack = document.getElementById('stack'), dock = document.getElementById('dock'),
-        panelEl = document.getElementById('bc-panel'), tabsEl = document.getElementById('tabs'), label = document.getElementById('bc-label');
+        panelEl = document.getElementById('bc-panel'), tabsEl = document.getElementById('tabs');
   const phone = matchMedia('(max-width: 900px)');
   const P = pinned(sec);
 
@@ -131,13 +137,23 @@ export function mountBasecamp() {
     const i0 = Math.floor(fi), i1 = Math.min(N - 1, i0 + 1), f = fi - i0, fs = f * f * (3 - 2 * f);
     const A = tops[i0], B = tops[i1];
     const tx = lerp(A.x + shift[i0], B.x + shift[i1], fs), tz = lerp(A.z, B.z, fs), top = lerp(A.y, B.y, fs) * sy * D.fgScale;
-    const lift = C.anim.on ? Math.sin(Math.PI * fs) * C.anim.fly : 0;
+    const front = D.view === 'front';
+    const lift = C.anim.on && !front ? Math.sin(Math.PI * fs) * C.anim.fly : 0;
     const asp = clamp((range.scene.canvas.clientWidth || 1) / (range.scene.canvas.clientHeight || 1), .5, 4);
-    const dist = D.focusDist * (1 + lift * .7) * Math.max(1, 1.9 / asp);
-    const elev = rad(D.elev + lift * 16 - pointer.y * 1.5);
-    const drift = C.anim.on ? Math.sin(now / 1000 * .11) * .5 : 0;
-    const yaw = rad(lerp(BEAR[i0], BEAR[i1], fs) + pointer.x * 2.5 + drift);
-    const ty = top * D.aim;
+    /* the front view keeps the summit the same size on screen, taken from far
+       back with a long lens, so near and far ridges stay in proportion */
+    /* front: framed by height — the base on the bar, the summit filling
+       D.frontFill of the scene, whatever the lens */
+    const half = Math.tan(rad(D.frontFov / 2));
+    const dist = front ? top / (2 * D.frontFill * half) : D.focusDist * (1 + lift * .7) * Math.max(1, 1.9 / asp);
+    const elev = front ? 0 : rad(D.elev + lift * 16 - pointer.y * 1.5);
+    const drift = C.anim.on && !front ? Math.sin(now / 1000 * .11) * .5 : 0;
+    const yaw = front ? 0 : rad(lerp(BEAR[i0], BEAR[i1], fs) + pointer.x * 2.5 + drift);
+    const ty = front ? dist * half * (1 - 2 * D.frontBase) : top * D.aim;
+    /* the haze is measured from the camera, so the far country fades to
+       nothing instead of ending in a hard horizon */
+    const near = dist + lerp(320, 15, D.fog) * (front ? 1.6 : 1);
+    range.scene.setFog(near, near + lerp(420, 110, D.fog) * (front ? 1.6 : 1));
     return { tgt: [tx, ty, tz], pos: [tx + Math.sin(yaw) * Math.cos(elev) * dist, ty + Math.sin(elev) * dist, tz + Math.cos(yaw) * Math.cos(elev) * dist] };
   }
 
@@ -156,7 +172,6 @@ export function mountBasecamp() {
     settled = Math.abs(f - shown) < .06;
     range.peakEls.forEach((el, i) => { el.classList.toggle('focused', i === shown && settled); el.classList.toggle('arriving', i === shown && !settled); });
     root.style.setProperty('--ac', S[Math.max(0, shown)].colour);
-    if (label && shown >= 0) label.innerHTML = `<b>${pad(shown)}</b> · ${S[shown].client} <span>Alt ${S[shown].alt} m</span>`;
     tabs.forEach((b, i) => b.classList.toggle('on', i === shown));
     cardState();
   }
@@ -176,7 +191,8 @@ export function mountBasecamp() {
     SUMMITS2_CONFIG.focus.chase = C.anim.on ? C.anim.camSpeed : 30;
     scene.setFocusDepth(St.dim);
     scene.setInk({ weight: C.contours.weight, opacity: .95 * St.contrast });
-    scene.setDepth(D.fog);
+    scene.setGroundVisible(false);                     // its far edge drew a hard line across the cards
+    scene.setLens(D.view === 'front' ? { fov: D.frontFov, far: 4000 } : { fov: 50, far: 600 });
     scene.group.scale.y = C.contours.spacing;
     const ext = range.ext;
     const shift = range.tops.map((t, i) => (t.x - ext.cx) * (D.spread - 1) + (D.offsets[i] || 0));
@@ -227,6 +243,11 @@ const SCHEMA = [
   ['contours.levels', 'Contour ridge lines', 16, 80, 1, '', 'rebuild'],
   ['contours.weight', 'Stroke weight', .3, 2.5, .05, '×'],
   ['contours.spacing', 'Vertical spacing', .6, 1.8, .02, '×'],
+  ['View'],
+  ['depth.view', 'View', 'select', [['angled', 'Angled — from above, flying between summits'], ['front', 'Front — straight on, orthographic']]],
+  ['depth.frontFov', 'Front view — lens (lower = flatter)', 2, 20, .5, '°'],
+  ['depth.frontFill', 'Front view — summit height in the scene', .3, .95, .01],
+  ['depth.frontBase', 'Front view — foot above the bottom edge', 0, .5, .01],
   ['Depth and position'],
   ['depth.focusDist', 'Focused summit — distance', 30, 200, 1],
   ['depth.elev', 'Camera height', 0, 40, 1, '°'],
@@ -277,6 +298,7 @@ function buildPanel(apply, range) {
     const id = 'bc-' + p.replace(/\./g, '-'), v = get(p);
     if (a === 'color') return `<div class="row"><label>${label}<i></i></label><input type="color" id="${id}" value="${v}"></div>`;
     if (a === 'check') return `<div class="row inline"><label for="${id}">${label}<i></i></label><input type="checkbox" id="${id}"${v ? ' checked' : ''}></div>`;
+    if (a === 'select') return `<div class="row"><label>${label}<i></i></label><select id="${id}">${b.map(([k, t]) => `<option value="${k}"${k === v ? ' selected' : ''}>${t}</option>`).join('')}</select></div>`;
     return `<div class="row"><label>${label}<i id="v-${id}">${v}${unit}</i></label><input type="range" id="${id}" min="${a}" max="${b}" step="${step}" value="${v}" data-unit="${unit}"${how ? ` data-how="${how}"` : ''}></div>`;
   }).join('') + bakeControls.html;
   document.body.appendChild(el);
@@ -285,6 +307,7 @@ function buildPanel(apply, range) {
     const inp = el.querySelector('#bc-' + p.replace(/\./g, '-'));
     if (a === 'check') { inp.addEventListener('change', () => { set(p, inp.checked); apply(); }); return; }
     if (a === 'color') { inp.addEventListener('input', () => { set(p, inp.value); apply(); }); return; }
+    if (a === 'select') { inp.addEventListener('change', () => { set(p, inp.value); apply(); }); return; }
     const out = el.querySelector('#v-bc-' + p.replace(/\./g, '-'));
     inp.addEventListener('input', () => { out.textContent = inp.value + inp.dataset.unit; if (inp.dataset.how !== 'rebuild') { set(p, +inp.value); apply(); } });
     /* the contour count is a re-survey of the ground: on release */

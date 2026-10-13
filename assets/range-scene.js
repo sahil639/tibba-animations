@@ -2814,6 +2814,23 @@ return {
   light(i) { lightPeak(i, 0); },
   /** the project whose summit is under the pointer, or -1 (hover must be on) */
   hoveredCase() { return caseUnderPointer(); },
+  /** Lens and haze for callers that run their own camera: field of view in
+      degrees (a narrow one from far away reads as a flat, orthographic-like
+      elevation), the far clip, and where the fog starts and ends, in world
+      units from the camera. */
+  setLens({ fov, far } = {}) {
+    if (fov != null) camera.fov = fov;
+    if (far != null) camera.far = far;
+    camera.updateProjectionMatrix();
+  },
+  lens() { return { fov: camera.fov, far: camera.far }; },
+  setFog(near, far) {
+    for (const m of [mountainMat, contourMat, trailMat]) { m.uniforms.uFogNear.value = near; m.uniforms.uFogFar.value = far; }
+    depthLock = 1;
+  },
+  /** the flat black ground plane under the range (its far edge is a line
+      across a view that is not over black) */
+  setGroundVisible(v) { ground.visible = !!v; },
   /** how tall a project's summit is drawn right now, × as built — 1 unless
       setFocusStyle's bgScale is lowering the summits not in focus */
   heightFactor(caseIdx) {
