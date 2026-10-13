@@ -101,7 +101,7 @@ export const RANGE_VIEW = {
 };
 
 export function mountSummitsV2({ layout = 'cards', onCase = null, canvas = null, stage: stageEl = null, focus: focusFn = null,
-                                 frame = 'ride', view = null, onPeakClick = null, camera = null, trails: trailMode = 'all' } = {}) {
+                                 frame = 'ride', view = null, onPeakClick = null, camera = null, trails: trailMode = 'all', quality = null } = {}) {
   const C = SUMMITS2_CONFIG;
   const V = Object.assign({}, RANGE_VIEW, view || {});
   const scope = focusFn ? null : $('#scope');
@@ -110,7 +110,7 @@ export function mountSummitsV2({ layout = 'cards', onCase = null, canvas = null,
 
   const scene = createRangeScene({
     canvas: canvas || $('#peak-canvas'), mode: 'range', palette: 'peak', hover: true, noStudio: true,
-    fill: C.fill, terrain: C.terrain,
+    fill: C.fill, terrain: C.terrain, quality,
     onPeakClick: onPeakClick || (i => { location.href = CASES[i].file; }),
   });
   scene.setAccent(ACCENT);

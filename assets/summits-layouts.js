@@ -39,14 +39,14 @@ function setGround() {
   C.terrain = { levels: LITE ? 30 : 44, width: 1 };
 }
 
-export function mountRange(box, { focus, frame = 'range', view = null, onCase = null, onPick = null, mini = false, camera = null, trails = 'all', levels = null } = {}) {
+export function mountRange(box, { focus, frame = 'range', view = null, onCase = null, onPick = null, mini = false, camera = null, trails = 'all', levels = null, quality = null } = {}) {
   setGround();
-  if (levels) C.terrain.levels = LITE ? Math.min(levels, 32) : levels;
+  if (levels) C.terrain.levels = LITE && quality !== 'high' ? Math.min(levels, 32) : levels;
   box.classList.add('sl-range'); if (mini) box.classList.add('sl-mini');
   const canvas = document.createElement('canvas'); canvas.className = 'sl-canvas';
   box.prepend(canvas);
   const pick = onPick || (i => go(S[i].file));
-  const m = mountSummitsV2({ layout: 'text', canvas, stage: box, focus, frame, view, onCase, onPeakClick: pick, camera, trails });
+  const m = mountSummitsV2({ layout: 'text', canvas, stage: box, focus, frame, view, onCase, onPeakClick: pick, camera, trails, quality });
   m.peakEls.forEach((el, i) => { el.insertAdjacentHTML('beforeend', '<b></b>'); el.addEventListener('click', () => pick(i)); });
   return m;
 }

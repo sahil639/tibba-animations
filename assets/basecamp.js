@@ -166,7 +166,7 @@ export function mountBasecamp() {
 
   let shown = -1, settled = false;
   const range = mountRange(document.getElementById('range'), {
-    focus: focusNow, camera, trails: C.focus.trail ? 'focus' : 'none', levels: C.contours.levels, onPick: jump,
+    focus: focusNow, camera, trails: C.focus.trail ? 'focus' : 'none', levels: C.contours.levels, quality: 'high', onPick: jump,
     onCase: i => { shown = i; settled = false; summitState(); },
   });
   const scene = range.scene;

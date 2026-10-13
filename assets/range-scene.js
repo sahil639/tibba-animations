@@ -617,8 +617,11 @@ const canvas = opts.canvas;
    where the eye cannot tell the difference on a moving contour sheet) and
    no MSAA on a screen dense enough not to need it. */
 const LITE = matchMedia('(max-width: 760px), (pointer: coarse)').matches;
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: !LITE || devicePixelRatio < 2, alpha: true, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(devicePixelRatio, LITE ? 1.25 : 2));
+/* opts.quality 'high': a small scene that can afford full resolution on a
+   phone too (Base Camp's dock) — antialiased, pixel ratio up to 2, a finer field */
+const HIQ = opts.quality === 'high';
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: HIQ || !LITE || devicePixelRatio < 2, alpha: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, LITE && !HIQ ? 1.25 : 2));
 renderer.setSize(vpW(), vpH(), false);
 renderer.setClearColor(0x000000, 0);
 
@@ -1195,7 +1198,7 @@ const CT = {
   W_INDEX: 2.70,
   LIFT: 0.12,        // world units the ribbon floats off the surface
   OPACITY: 0.92,
-  STEP: matchMedia('(max-width: 760px), (pointer: coarse)').matches ? 0.74 : 0.56,   // field spacing — fine enough to resolve the fluting (coarser on phones: about half the field to march)
+  STEP: opts.quality === 'high' ? 0.6 : matchMedia('(max-width: 760px), (pointer: coarse)').matches ? 0.74 : 0.56,   // field spacing — fine enough to resolve the fluting (coarser on phones: about half the field to march)
   /* The window marching squares runs over. It has to contain every landform
      that is meant to draw, and nothing outside it exists at all — a summit
      beyond the edge is not faint, it has no contours generated for it.

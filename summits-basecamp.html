@@ -102,11 +102,11 @@ html, body { background: var(--bg); }
 :root.bc-phone { --mdock: 33vh; }
 @supports (height: 1svh) { :root.bc-phone { --mdock: 33svh; } }
 .bc-phone .bc-dock { top: calc(100vh - var(--mdock)); top: calc(100svh - var(--mdock)); height: var(--mdock); margin-bottom: calc(-1 * var(--mdock));
-  pointer-events: auto; background: var(--bg); border-top: 1px solid rgba(233,236,242,.08); }
-/* the cards fade out as they pass behind the dock's top edge */
-.bc-phone .bc-dock::before { inset: auto 0 100% 0; height: 56px; background: linear-gradient(to top, var(--bg), rgba(12,11,10,0)); }
-.bc-phone #range { inset: 0 0 52px 0; -webkit-mask-image: linear-gradient(transparent, #000 18%); mask-image: linear-gradient(transparent, #000 18%); -webkit-mask-composite: source-over; mask-composite: add; }
-.bc-phone .bc-bar { width: calc(100% - 2 * var(--gut)); bottom: 12px; }
+  pointer-events: none; background: none; }
+/* no wash: the cards read straight through behind the peaks */
+.bc-phone .bc-dock::before { display: none; }
+.bc-phone #range { inset: 0 0 52px 0; -webkit-mask-image: none; mask-image: none; pointer-events: auto; }
+.bc-phone .bc-bar { pointer-events: auto; left: 0; right: 0; transform: none; width: auto; bottom: 0; padding: 12px var(--gut) 12px; background: var(--bg); }   /* a plain strip, no fade: the labels stay legible over the cards */
 .bc-phone .sl-tabs button { font-size: 9.5px; letter-spacing: .02em; } .bc-phone .sl-tabs button::before { margin-bottom: 8px; }
 .bc-phone #bc-panel { display: none; }
 .bc-phone .bc-head { padding: 92px var(--gut) 18px; }
