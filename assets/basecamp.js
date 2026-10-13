@@ -70,8 +70,17 @@ export const BASECAMP_CONFIG = {
 const C = BASECAMP_CONFIG;
 const KEY = 'tibba.bake.basecamp';
 applyBaked(KEY, C);
+/* phones: locked to these, over the defaults and any bake — desktop never uses them */
+const PHONE_LOCK = {
+  contours: { levels: 27, weight: 0.8, spacing: 1.0 },
+  depth: { view: 'front', frontFov: 17, frontFill: 0.51, frontBase: 0.18, focusDist: 34, elev: 11, fgScale: 1.11, bgScale: 0.99 },
+  style: { dim: 0.59, thin: 0.05, cool: 0.03, sparse: 0.03 },
+};
+const lock = (t, src) => Object.keys(src).forEach(k => typeof src[k] === 'object' ? lock(t[k], src[k]) : (t[k] = src[k]));
+const PHONE_AT_LOAD = matchMedia('(max-width: 900px)').matches;
+if (PHONE_AT_LOAD) lock(C, PHONE_LOCK);
 /* ?view=front (or angled) picks the view from the address, for use inside the site */
-{ const v = /[?&]view=(front|angled)\b/.exec(location.search); if (v) C.depth.view = v[1]; }
+{ const v = /[?&]view=(front|angled)\b/.exec(location.search); if (v && !PHONE_AT_LOAD) C.depth.view = v[1]; }
 
 const rad = d => d * Math.PI / 180;
 const lerp = (a, b, t) => a + (b - a) * t;
