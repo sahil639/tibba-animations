@@ -794,6 +794,15 @@ const mountainMat = new THREE.ShaderMaterial({
        rubble with no subject in it. 1 is no distinction at all. */
     uPaper:  { value: new THREE.Vector3(0.022, 0.022, 0.026) },   // the contoured body's tone, a shade over the page
     uCountryLit: { value: 1 },
+    /* focus styling — shared with the contour sheet (setFocusStyle) */
+    uLit:     { value: PEAKS.map(() => 0) },
+    uAnyLit:  { value: 0 },
+    uShift:   { value: PEAKS.map(() => 0) },
+    uBgScale: { value: 1 },
+    uLitLocal:{ value: 0 },
+    uFgScale: { value: 1 },
+    uFillTint:{ value: new THREE.Vector3(0, 0, 0) },
+    uFillGrad:{ value: 0 },
   },
   transparent: true,
   depthWrite: true,
@@ -805,8 +814,27 @@ const mountainMat = new THREE.ShaderMaterial({
     uniform float uMorphA[NP];
     uniform float uPeakH[NP];
     uniform float uFogNear, uFogFar;
+    uniform float uLit[NP]; uniform float uShift[NP]; uniform float uAnyLit, uBgScale, uLitLocal, uFgScale;
     varying float vH, vCut, vMorph, vFog, vMax, vOn, vHome;
     varying vec3 vN;
+    /* ── focus styling (setFocusStyle) ─────────────────────────────────
+       Each summit can be slid sideways (uShift, its share of the blend, so
+       the saddles stretch rather than tear), and while one is lit the rest
+       of the range can be lowered toward the horizon (uBgScale) so the lit
+       one stands forward. Applied identically to the lines and the body. */
+    vec3 focusWarp(vec3 q){
+      float ws=0.0, sx=0.0, li=0.0, wm=0.0;
+      for (int i=0;i<NP;i++){
+        vec2 dd = q.xz - uPeak[i].xy;
+        float qq = dot(dd,dd) / (uPeak[i].z * uPeak[i].z);
+        float w = 1.0 / (qq*qq + 0.02);
+        ws += w; sx += uShift[i]*w; li += uLit[i]*w; wm = max(wm, w);
+      }
+      q.x += sx/ws;
+      float lit = li/ws * mix(1.0, smoothstep(0.02, 0.3, wm), uLitLocal);
+      q.y *= mix(1.0, mix(uBgScale, uFgScale, clamp(lit, 0.0, 1.0)), uAnyLit);
+      return q;
+    }
     void main(){
       vH=position.y; vN=normalize(normalMatrix*normal);
 
@@ -834,7 +862,7 @@ const mountainMat = new THREE.ShaderMaterial({
          peak this ground actually is, and the survey line is scaled by it. */
       vOn = smoothstep(0.02, 0.85, wmax);
 
-      vec4 mv = modelViewMatrix*vec4(position,1.0);
+      vec4 mv = modelViewMatrix*vec4(focusWarp(position),1.0);
       vFog = 1.0 - smoothstep(uFogNear, uFogFar, -mv.z);
       gl_Position=projectionMatrix*mv;
     }`,
@@ -843,6 +871,7 @@ const mountainMat = new THREE.ShaderMaterial({
     varying float vH, vCut, vMorph, vFog, vMax, vOn, vHome;
     varying vec3 vN;
     uniform float uAlpha, uBand, uMode, uEdgeAmt, uCountryLit; uniform vec3 uPaper;
+    uniform vec3 uFillTint; uniform float uFillGrad;
     ${CT_PALETTE_GLSL}
     void main(){
       /* The ramp is curved, not linear. Read straight off height, an apron a
@@ -893,6 +922,8 @@ const mountainMat = new THREE.ShaderMaterial({
          let the page show through the scenery and put a hole where the far
          ridges are. */
       col *= mix(uCountryLit, 1.0, smoothstep(0.02, 0.40, vHome));
+      /* a fill tint graded up the body (setFocusStyle fill / fillGrad) */
+      col += uFillTint * uFillGrad * t;
 
       /* Opacity is now only ever reduced by distance — never by the redraw and
          never by which peak this is near. The terrain is one body. */
@@ -1688,6 +1719,19 @@ const contourMat = new THREE.ShaderMaterial({
     uInk:      { value: new THREE.Color(0x9FB0E8) },
     uInkMix:   { value: 0.52 },     // how far the lines are pulled from the height ramp to uInk
     uEdge:     { value: new THREE.Color(0xC9D4FF) },
+    /* focus styling (setFocusStyle): how the lit summit leads and the rest
+       recede — thinner, cooler, sparser, lower — and the lit one's own ink */
+    uShift:    { value: PEAKS.map(() => 0) },
+    uBgScale:  { value: 1 },
+    uLitLocal: { value: 0 },
+    uFgScale:  { value: 1 },
+    uThin:     { value: 0 },
+    uCool:     { value: 0 },
+    uCoolTint: { value: new THREE.Color(0x2E3A5C) },
+    uSparse:   { value: 0 },
+    uLitInk:   { value: new THREE.Color(0xE9ECF2) },
+    uLitInkMix:{ value: 0 },
+    uLitBoost: { value: 0 },
   },
   vertexShader: `
     attribute vec3 aPrev, aNext;
@@ -1703,6 +1747,25 @@ const contourMat = new THREE.ShaderMaterial({
     uniform float uHiWeight;
     uniform float uHoverPeak;
     uniform float uRingLift[3];
+    uniform float uShift[NP]; uniform float uBgScale, uAnyLit, uThin, uLitLocal, uFgScale;
+    /* ── focus styling (setFocusStyle) ─────────────────────────────────
+       Each summit can be slid sideways (uShift, its share of the blend, so
+       the saddles stretch rather than tear), and while one is lit the rest
+       of the range can be lowered toward the horizon (uBgScale) so the lit
+       one stands forward. Applied identically to the lines and the body. */
+    vec3 focusWarp(vec3 q){
+      float ws=0.0, sx=0.0, li=0.0, wm=0.0;
+      for (int i=0;i<NP;i++){
+        vec2 dd = q.xz - uPeak[i].xy;
+        float qq = dot(dd,dd) / (uPeak[i].z * uPeak[i].z);
+        float w = 1.0 / (qq*qq + 0.02);
+        ws += w; sx += uShift[i]*w; li += uLit[i]*w; wm = max(wm, w);
+      }
+      q.x += sx/ws;
+      float lit = li/ws * mix(1.0, smoothstep(0.02, 0.3, wm), uLitLocal);
+      q.y *= mix(1.0, mix(uBgScale, uFgScale, clamp(lit, 0.0, 1.0)), uAnyLit);
+      return q;
+    }
     varying float vY, vR, vArc, vCut, vMorph, vMax, vReveal, vFog, vOn, vLit, vSame;
     varying float vArcW, vDot, vRing, vRingHot, vMain;
     varying vec2  vXZ;
@@ -1726,6 +1789,7 @@ const contourMat = new THREE.ShaderMaterial({
         }
       }
 
+      p = focusWarp(p); pP = focusWarp(pP); pN = focusWarp(pN);
       vec4 cur = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
       vec4 prv = projectionMatrix * modelViewMatrix * vec4(pP,  1.0);
       vec4 nxt = projectionMatrix * modelViewMatrix * vec4(pN,  1.0);
@@ -1757,6 +1821,7 @@ const contourMat = new THREE.ShaderMaterial({
         wLit = max(wLit, uLit[i] / (qw*qw + 1.0));
       }
       float wid = aWidth * uWeight * (1.0 + uHiWeight * clamp(wLit, 0.0, 1.0));
+      wid *= mix(1.0, mix(1.0 - uThin, 1.0, clamp(wLit, 0.0, 1.0)), uAnyLit);   // the rest draw thinner
       cur.xy += (mi * aSide * wid * 0.5 * k) / uHalfRes * cur.w;
 
       /* the same proximity blend the surface uses, so a contour and the fill
@@ -1777,7 +1842,7 @@ const contourMat = new THREE.ShaderMaterial({
         if (i == 0) w0 = w;          // how much of this line is the main peak's
       }
       vCut = c/wsum; vMorph = m/wsum; vMax = hx/wsum; vReveal = rv/wsum;
-      vLit = li/wsum; vXZ = position.xz;
+      vLit = li/wsum * mix(1.0, smoothstep(0.02, 0.3, wmax), uLitLocal); vXZ = position.xz;
       vSame = wh / wsum;
       vMain = w0 / wsum;
       vOn = smoothstep(0.02, 0.85, wmax);
@@ -1801,6 +1866,7 @@ const contourMat = new THREE.ShaderMaterial({
     uniform vec3  uAccent;
     uniform float uDepthOp;
     uniform float uAnyLit, uDim;
+    uniform float uCool, uSparse, uLitInkMix, uLitBoost; uniform vec3 uCoolTint, uLitInk;
     uniform float uHoverY, uHoverAmt, uHoverBand, uHoverR, uPulse;
     uniform vec2  uHoverXZ;
     uniform vec3 uInk, uEdge, uHoverCol; uniform float uInkMix;
@@ -1842,6 +1908,15 @@ const contourMat = new THREE.ShaderMaterial({
       /* everything that is not the peak under discussion recedes a little, so
          the route being drawn has a quieter drawing to sit on */
       a *= mix(1.0, 1.0 - uDim, clamp(uAnyLit - vLit, 0.0, 1.0));
+      /* focus styling: the rest cooler and darker, and with fewer lines (a
+         contour is one elevation, so hashing the elevation drops whole rings
+         evenly); the lit summit in its own ink, a little stronger */
+      float offF = clamp(uAnyLit - vLit, 0.0, 1.0);
+      col = mix(col, uCoolTint, offF * uCool);
+      col = mix(col, uLitInk, clamp(vLit, 0.0, 1.0) * uLitInkMix);
+      a *= 1.0 + uLitBoost * clamp(vLit, 0.0, 1.0);
+      float lvl = fract(sin(floor(vY * 4.0 + 0.5) * 12.9898) * 43758.5453);
+      a *= 1.0 - step(lvl, uSparse) * offF;
 
       /* ── hover ──────────────────────────────────────────────────────────
          A contour is the set of points at one elevation, so pointing at the
@@ -1935,10 +2010,32 @@ mountainGroup.add(contourMesh);
    mountain stays solid to the depth test even once the shading has drained —
    which is what makes contours on the far side genuinely disappear behind the
    ridge instead of showing through like a wireframe. */
-const depthMat = new THREE.MeshBasicMaterial({
+/* the depth pass takes the same focus warp as the body (it shares the body's
+   uniforms, so a summit slid sideways or lowered occludes where it is drawn) */
+const depthMat = new THREE.ShaderMaterial({
   colorWrite: false, depthWrite: true,
   polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 2,
   side: THREE.DoubleSide,
+  defines: { NP: PEAKS.length },
+  uniforms: { uPeak: mountainMat.uniforms.uPeak, uLit: mountainMat.uniforms.uLit, uShift: mountainMat.uniforms.uShift,
+              uAnyLit: mountainMat.uniforms.uAnyLit, uBgScale: mountainMat.uniforms.uBgScale, uLitLocal: mountainMat.uniforms.uLitLocal, uFgScale: mountainMat.uniforms.uFgScale },
+  vertexShader: `
+    uniform vec3 uPeak[NP]; uniform float uLit[NP]; uniform float uShift[NP]; uniform float uAnyLit, uBgScale, uLitLocal, uFgScale;
+    vec3 focusWarp(vec3 q){
+      float ws=0.0, sx=0.0, li=0.0, wm=0.0;
+      for (int i=0;i<NP;i++){
+        vec2 dd = q.xz - uPeak[i].xy;
+        float qq = dot(dd,dd) / (uPeak[i].z * uPeak[i].z);
+        float w = 1.0 / (qq*qq + 0.02);
+        ws += w; sx += uShift[i]*w; li += uLit[i]*w; wm = max(wm, w);
+      }
+      q.x += sx/ws;
+      float lit = li/ws * mix(1.0, smoothstep(0.02, 0.3, wm), uLitLocal);
+      q.y *= mix(1.0, mix(uBgScale, uFgScale, clamp(lit, 0.0, 1.0)), uAnyLit);
+      return q;
+    }
+    void main(){ gl_Position = projectionMatrix * modelViewMatrix * vec4(focusWarp(position), 1.0); }`,
+  fragmentShader: `void main(){ gl_FragColor = vec4(0.0); }`,
 });
 const depthMesh = new THREE.Mesh(geo, depthMat);
 depthMesh.renderOrder = -1;
@@ -2117,6 +2214,8 @@ function applyMorph() {
   contourMat.uniforms.uAnyLit.value = anyLit;
   contourMat.uniforms.uHiWeight.value = MORPH.hiWeight;
   contourMat.uniforms.uDim.value = MORPH.dim;
+  mountainMat.uniforms.uLit.value = peakLit;
+  mountainMat.uniforms.uAnyLit.value = anyLit;
   mountainMat.uniforms.uCut.value = cuts;
   mountainMat.uniforms.uMorphA.value = morphs;
   mountainMat.uniforms.uBand.value = band;
@@ -2715,6 +2814,14 @@ return {
   light(i) { lightPeak(i, 0); },
   /** the project whose summit is under the pointer, or -1 (hover must be on) */
   hoveredCase() { return caseUnderPointer(); },
+  /** how tall a project's summit is drawn right now, × as built — 1 unless
+      setFocusStyle's bgScale is lowering the summits not in focus */
+  heightFactor(caseIdx) {
+    const k = PROJECT_PEAKS[caseIdx], u = contourMat.uniforms;
+    if (k == null) return 1;
+    const lit = Math.min(1, Math.max(0, peakLit[k] || 0)), any = u.uAnyLit.value;
+    return 1 + ((u.uBgScale.value + (u.uFgScale.value - u.uBgScale.value) * lit) - 1) * any;
+  },
 
   /** 0 = the peak as lit surface, 1 = fully redrawn as contour line. */
   setHeroMorph(t) {
@@ -3020,6 +3127,31 @@ return {
     const c = new THREE.Color(hex);
     ground.material.color.copy(c);
     mountainMat.uniforms.uPaper.value.set(c.r + 0.022, c.g + 0.022, c.b + 0.026);
+  },
+  /** How the summit in focus leads and the rest of the range recede, all
+      live: thin (0–1, how much thinner the rest draw), cool (0–1, how far
+      toward coolTint), coolTint, sparse (0–1, share of the rest's rings
+      dropped), litInk + litInkMix (the lit summit's line colour), litBoost
+      (its extra opacity), bgScale (0.3–1, the rest's height while one is
+      lit), fgScale (the lit one's height), local (only a summit's own body
+      counts as lit), shift (per project, world units sideways), fill + fillGrad (a
+      tint graded up the body). */
+  setFocusStyle(o) {
+    const u = contourMat.uniforms, m = mountainMat.uniforms;
+    if (o.thin != null) u.uThin.value = o.thin;
+    if (o.cool != null) u.uCool.value = o.cool;
+    if (o.coolTint != null) u.uCoolTint.value.set(o.coolTint);
+    if (o.sparse != null) u.uSparse.value = o.sparse;
+    if (o.litInk != null) u.uLitInk.value.set(o.litInk);
+    if (o.litInkMix != null) u.uLitInkMix.value = o.litInkMix;
+    if (o.litBoost != null) u.uLitBoost.value = o.litBoost;
+    if (o.bgScale != null) u.uBgScale.value = m.uBgScale.value = o.bgScale;
+    if (o.fgScale != null) u.uFgScale.value = m.uFgScale.value = o.fgScale;
+    /* local: only a summit's own body counts as lit, not every bit of country nearer it than any other */
+    if (o.local != null) u.uLitLocal.value = m.uLitLocal.value = o.local ? 1 : 0;
+    if (o.shift) o.shift.forEach((v, i) => { const k = PROJECT_PEAKS[i]; if (k != null) u.uShift.value[k] = m.uShift.value[k] = v; });
+    if (o.fill != null) { const c = new THREE.Color(o.fill); m.uFillTint.value.set(c.r, c.g, c.b); }
+    if (o.fillGrad != null) m.uFillGrad.value = o.fillGrad;
   },
   /** The contour lines' colour, and how strongly it overrides the height
       ramp (0 = the ramp alone, 1 = flat colour; the hero ships 0.52). */

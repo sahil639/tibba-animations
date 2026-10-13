@@ -37,6 +37,15 @@
                        toward the summit in focus — a side view, in place of
                        the camera riding from summit to summit
      view              overrides for that framing (see RANGE_VIEW)
+     camera(ctx)       or a framing of the layout's own: called each frame
+                       with { fi, now, dt, tops, ext, pointer, shift } and
+                       returns { pos: [x,y,z], tgt: [x,y,z] }
+     trails            'all' (each drawn once its summit arrives), 'focus'
+                       (only the summit in focus shows one) or 'none';
+                       setTrails(mode) changes it live
+     setShift([…])     each summit slid sideways (world units), in step with
+                       range-scene's setFocusStyle({ shift }): the marks and
+                       trails follow
    ═════════════════════════════════════════════════════════════════════════ */
 import * as THREE from 'three';
 import { createRangeScene } from './range-scene.js';
@@ -92,7 +101,7 @@ export const RANGE_VIEW = {
 };
 
 export function mountSummitsV2({ layout = 'cards', onCase = null, canvas = null, stage: stageEl = null, focus: focusFn = null,
-                                 frame = 'ride', view = null, onPeakClick = null } = {}) {
+                                 frame = 'ride', view = null, onPeakClick = null, camera = null, trails: trailMode = 'all' } = {}) {
   const C = SUMMITS2_CONFIG;
   const V = Object.assign({}, RANGE_VIEW, view || {});
   const scope = focusFn ? null : $('#scope');
@@ -111,8 +120,9 @@ export function mountSummitsV2({ layout = 'cards', onCase = null, canvas = null,
 
   /* ── the trails: a winding climb round each mountain ──────────────── */
   const hash = (i, k) => { const x = Math.sin(i * 127.1 + k * 311.7) * 43758.5453; return x - Math.floor(x); };
+  const shiftX = CASES.map(() => 0);
   function trailPoints(top, i) {
-    const P = C.path, R = top.spread * P.start, pts = [];
+    const P = C.path, R = top.spread * P.start, pts = [], sx = shiftX[i] || 0;
     const dir = i % 2 ? -1 : 1, a0 = Math.PI * 0.5 + (hash(i, 1) - 0.5) * 1.4;   // trailhead on the near side
     for (let s = 0; s <= 1.0001; s += 1 / 320) {
       const e = Math.pow(1 - s, 1.15);
@@ -120,9 +130,9 @@ export function mountSummitsV2({ layout = 'cards', onCase = null, canvas = null,
       const ang = a0 + dir * (s * P.turns * Math.PI * 2 + w);
       const r = R * e * (1 + w * 0.35);
       const x = top.x + Math.cos(ang) * r, z = top.z + Math.sin(ang) * r;
-      pts.push(new THREE.Vector3(x, scene.heightAt(x, z) + 0.7, z));
+      pts.push(new THREE.Vector3(x + sx, scene.heightAt(x, z) + 0.7, z));
     }
-    pts[pts.length - 1].set(top.x, top.y + 0.7, top.z);
+    pts[pts.length - 1].set(top.x + sx, top.y + 0.7, top.z);
     return pts;
   }
   const ribbonVS = `
@@ -222,7 +232,7 @@ export function mountSummitsV2({ layout = 'cards', onCase = null, canvas = null,
         m.material.uniforms.uHalfRes.value.copy(hr); m.material.uniforms.uWidth.value = w * px; m.material.uniforms.uDrop.value = drop * px;
         m.material.uniforms.uFade.value = C.path.fadeIn;
       }
-      place(peakEls[i], project(_h.set(t.top.x, t.top.y + 0.7, t.top.z), cam));
+      place(peakEls[i], project(_h.set(t.top.x + (shiftX[i] || 0), t.top.y * (scene.heightFactor ? scene.heightFactor(i) : 1) + 0.7, t.top.z), cam));
       peakEls[i].classList.toggle('arrived', t.p >= 0.999);
       place(headEls[i], t.p > 0.001 && t.p < 0.999 ? project(pointAt(t, t.p, _h), cam) : null);
     });
@@ -280,7 +290,13 @@ export function mountSummitsV2({ layout = 'cards', onCase = null, canvas = null,
   const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
   addEventListener('pointermove', e => { pointer.tx = e.clientX / innerWidth * 2 - 1; pointer.ty = e.clientY / innerHeight * 2 - 1; }, { passive: true });
 
+  function trailAlpha(k, idx) {
+    if (trailMode === 'none') return 0;
+    if (trailMode === 'focus') return k === idx ? 1 : 0;
+    return k === idx ? 1 : C.path.dim;
+  }
   function queueTrail(i) {
+    if (trailMode === 'none') return;
     const t = trails[i]; if (t.state !== 'idle') return;
     t.state = 'waiting'; t.startAt = performance.now() + C.path.delay * 1000;
   }
@@ -303,12 +319,15 @@ export function mountSummitsV2({ layout = 'cards', onCase = null, canvas = null,
     const idx = Math.max(0, Math.min(N - 1, Math.round(focus)));
     if (idx !== shown) {
       shown = idx; showCase(idx); scene.light(idx);
-      trails.forEach((t, k) => { t.alphaT = k === idx ? 1 : C.path.dim; if (k !== idx && t.state === 'waiting') t.state = 'idle'; });
+      trails.forEach((t, k) => { t.alphaT = trailAlpha(k, idx); if (k !== idx && t.state === 'waiting') t.state = 'idle'; });
     }
     /* a trail waits until its summit has actually arrived in frame */
     if (Math.abs(focus - idx) < 0.08) queueTrail(idx);
 
-    if (frame === 'range') { rangeView(fi, now); }
+    if (camera) {
+      const v = camera({ fi, now, dt, tops, ext, pointer, shift: shiftX });
+      scene.setView(v.pos, v.tgt, 0);
+    } else if (frame === 'range') { rangeView(fi, now); }
     else {
     /* Three Summits' camera: ride from summit to summit, lifting toward the
        plan view in the middle of the move and coming back down */
@@ -367,7 +386,9 @@ export function mountSummitsV2({ layout = 'cards', onCase = null, canvas = null,
     scene.clientTops().forEach((t, i) => Object.assign(tops[i], t));
     rebuild();
   }
-  return { scene, trails, CONFIG: C, VIEW: V, rebuild, goTo, setTerrain, peakEls, railBtns, tops,
+  return { scene, trails, CONFIG: C, VIEW: V, rebuild, goTo, setTerrain, peakEls, railBtns, tops, ext,
+    setTrails(mode) { trailMode = mode; trails.forEach((t, k) => { t.alphaT = trailAlpha(k, shown); }); if (mode !== 'none' && shown >= 0) queueTrail(shown); },
+    setShift(arr) { arr.forEach((v, i) => { shiftX[i] = v; }); rebuild(); },
     replay() { trails.forEach(t => { t.state = 'idle'; t.p = 0; }); },
     get focus() { return focus; } };
 }
