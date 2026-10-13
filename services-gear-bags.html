@@ -129,6 +129,17 @@ button { font: inherit; color: inherit; }
   .tier { padding: 10px 8px; align-items: center; text-align: center; } .tier .s { display: none; } .tier .l { font-size: 13px; white-space: normal; }
   .lists { grid-template-columns: 1fr; }
   .board { aspect-ratio: 1 / 1; }
+  .tier .l { font-size: 12.5px; line-height: 1.2; }
+  /* the switcher docks to the top while the section is read (script) */
+  .docked .tiers { position: fixed; z-index: 30; left: 16px; right: 16px; top: var(--dock-top, 10px); background: rgba(8,8,9,.92);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-color: var(--line-2); }
+  /* the bag: a small box in the bottom-left corner while this section is on screen */
+  .mat { position: fixed; z-index: 20; left: 12px; bottom: 12px; width: 38vw; max-width: 200px; margin: 0; background-color: #050506;
+    box-shadow: 0 10px 30px rgba(0,0,0,.6); opacity: 0; transform: translateY(12px) scale(.94); transform-origin: 0 100%; pointer-events: none;
+    transition: opacity .35s linear, transform .5s cubic-bezier(.22,1,.36,1); }
+  .bag-float .mat { opacity: 1; transform: none; }
+  .mat-bar { display: none; }
+  .gs { padding-bottom: calc(min(38vw, 200px) + 40px); }
 }
 </style>
 <link rel="stylesheet" href="assets/tune.css">
@@ -162,13 +173,14 @@ button { font: inherit; color: inherit; }
   const GEAR_CONFIG = {
     icons: true,          // each service's icon beside its name
     tiers: [
-      { name: 'Waist pack', stage: 'Early-stage', for: 'Waist pack for early-stage startups',  bag: 1 },
-      { name: 'Day pack',   stage: 'Mid-stage',   for: 'Day pack for mid-stage startups',      bag: 2 },
-      { name: 'Hiking bag', stage: 'Established', for: 'Hiking bag for established companies', bag: 0 },
+      { name: 'Early stage',         stage: '', for: 'Waist pack for early-stage startups',  bag: 1, pack: 'Waist pack' },
+      { name: 'Mid stage',           stage: '', for: 'Day pack for mid-stage startups',      bag: 2, pack: 'Day pack' },
+      { name: 'Established company', stage: '', for: 'Hiking bag for established companies', bag: 0, pack: 'Hiking bag' },
     ],
   };
-  const C = GEAR_CONFIG, KEY = 'tibba.bake.services-gear-bags';
+  const C = GEAR_CONFIG, KEY = 'tibba.bake.services-gear-bags', TIERS = C.tiers;
   applyBaked(KEY, C);
+  C.tiers = TIERS;                                    // the copy is the page's, never a bake's
   const showIcons = () => document.documentElement.classList.toggle('ic-off', !C.icons);
   showIcons();
   const S = window.TIBBA_SERVICES;
@@ -186,7 +198,7 @@ button { font: inherit; color: inherit; }
 
   /* ── the tiers ───────────────────────────────────────────────────────── */
   const tiersEl = document.getElementById('tiers');
-  tiersEl.innerHTML = C.tiers.map((t, i) => `<button class="tier" role="tab" aria-selected="false" data-i="${i}"><span class="n">0${i + 1}</span><span class="l">${t.name}</span><span class="s">${t.stage}</span></button>`).join('');
+  tiersEl.innerHTML = C.tiers.map((t, i) => `<button class="tier" role="tab" aria-selected="false" data-i="${i}"><span class="n">0${i + 1}</span><span class="l">${t.name}</span>${t.stage ? `<span class="s">${t.stage}</span>` : ""}</button>`).join('');
   const tierBtns = [...tiersEl.children];
   const $ = id => document.getElementById(id);
   const pad = (n, w = 2) => String(n).padStart(w, '0');
@@ -198,7 +210,7 @@ button { font: inherit; color: inherit; }
     want = t.bag;
     const b = bags(); if (b) b.showBag(want);
     $('m-n').textContent = pad(i + 1); $('m-i').textContent = pad(i + 1);
-    $('m-name').textContent = t.name; $('m-for').textContent = t.for;
+    $('m-name').textContent = t.pack; $('m-for').textContent = t.for;
   }
 
   function services(i) {
@@ -227,6 +239,36 @@ button { font: inherit; color: inherit; }
     const i = (cur + d + 3) % 3; pick(i); tierBtns[i].focus();
   });
   pick(0, true);
+
+  /* ── phones: the switcher docks at the top while the section is read, and
+     the bag rides in a small box in the bottom-left corner, only while this
+     section is on screen ───────────────────────────────────────────────── */
+  {
+    const phone = matchMedia('(max-width: 640px)'), root = document.documentElement;
+    const body = document.querySelector('.gs-body'), slot = tiersEl.parentNode;
+    const gap = () => root.classList.contains('wb-embed') && window.parent !== window ? 72 : 10;
+    function check() {
+      let dock = false, show = false;
+      if (phone.matches) {
+        const g = gap(), sr = slot.getBoundingClientRect(), br = body.getBoundingClientRect();
+        dock = sr.top < g && br.bottom > g + tiersEl.offsetHeight + 80;
+        show = br.top < innerHeight - 120 && br.bottom > innerHeight * .45;
+        /* in the site the frame slides away at the page's foot: let go as it starts to */
+        let fe = null; try { fe = window.frameElement; } catch {}
+        if (fe && fe.getBoundingClientRect().top < -24) { dock = false; show = false; }
+        root.style.setProperty('--dock-top', g + 'px');
+      }
+      root.classList.toggle('bag-float', show);
+      if (dock === slot.classList.contains('docked')) return;
+      slot.style.height = dock ? tiersEl.offsetHeight + 'px' : '';
+      slot.classList.toggle('docked', dock);
+    }
+    addEventListener('scroll', check, { passive: true });
+    addEventListener('resize', check);
+    phone.addEventListener('change', check);
+    try { if (window.parent !== window) window.parent.addEventListener('scroll', check, { passive: true }); } catch {}
+    check();
+  }
 
   /* ── the panel ───────────────────────────────────────────────────── */
   const el = document.createElement('div'); el.id = 'tune';
