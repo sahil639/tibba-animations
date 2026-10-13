@@ -300,6 +300,8 @@ window.TIBBA_SITE = {
           note: 'Screens inside the iPhone and MacBook frames, with a before/after mode', state: 'live' },
         { id: 'misc-reel', label: 'Work Reel', file: 'misc-work-reel.html',
           note: 'Nine turned labels along the floor; scroll opens one plate at a time', state: 'live' },
+        { id: 'misc-bags', updated: '2026-10-13T18:20:00+07:00', change: 'New: the hiking pack in 3D, topographic lines flowing over it', label: 'Bags', file: 'misc-bags.html',
+          note: 'The topographic backpack illustration as a WebGL model: every panel carries flowing contour rings, one orange strap, the Tibba mark on the lid; drag to turn, reset to the drawing’s angle', state: 'live' },
         { id: 'misc-sylva', label: 'Sylva Living World', file: 'misc-sylva-living-world.html',
           note: "ThreeUI's moss-root world, living-green, from its registered source", state: 'live' },
       ] },

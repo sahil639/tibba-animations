@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bags — topographic pack</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Bags — the hiking pack as a topographic wireframe, in 3D
+   ─────────────────────────────────────────────────────────────────────────
+   The reference illustration built as a model: a tall main body, a pillowed
+   lid with a label patch carrying the Tibba mark, a front pocket, the
+   sleeping-bag compartment, a side mesh pocket, shoulder straps with a
+   sternum strap, the hip belt and its pocket, compression straps, the one
+   orange strap down the front, buckles and the feet loops.
+
+   Every panel is near-black and carries its own contour field — rings
+   round a centre, warped by noise so they wrap the form like a map — drawn
+   in the fragment shader with screen-space line width, so the lines stay
+   crisp at any zoom and cost no geometry. The rings flow outward (speed),
+   the warp drifts (morph). Outlines are inverted hulls. Dashed dimension
+   guides sit round the pack as in the drawing.
+
+   Drag to turn it, scroll or pinch to zoom; Reset returns to the
+   reference angle. Panel: animation, lines, model, view. Rendering pauses
+   while the tab is hidden; the pixel ratio is capped (lower on phones).
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: #0b0b0c; overflow: hidden; }
+body { color: #E9ECF2; font-family: 'F37 Analog', system-ui, sans-serif; }
+#c { position: fixed; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
+#c:active { cursor: grabbing; }
+.hint { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase;
+  color: rgba(233,236,242,.4); pointer-events: none; }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<canvas id="c" aria-label="A hiking backpack drawn in topographic contour lines, in 3D"></canvas>
+<p class="hint">Drag to turn · scroll to zoom</p>
+
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.min.js","three/addons/":"https://unpkg.com/three@0.165.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
+import { applyBaked, bakeControls } from './assets/bake.js';
+
+/* ── every tunable ──────────────────────────────────────────────────────── */
+const CONFIG = {
+  anim: { play: true, speed: 0.35, morph: 0.25 },
+  lines: { density: 11.5, width: 0.75, warp: 0.22, opacity: 0.95, colour: '#F2F3F6' },
+  model: { fill: '#0E0E10', shade: 0.45, rim: 0.22, outline: 1.6, accent: '#E8572E', logo: true, guides: true },
+  view: { autoRotate: false, rotateSpeed: 0.6 },
+};
+const KEY = 'tibba.bake.misc-bags';
+applyBaked(KEY, CONFIG);
+const C = CONFIG;
+const LITE = matchMedia('(max-width: 760px), (pointer: coarse)').matches;
+
+/* ── renderer, camera, controls ─────────────────────────────────────────── */
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, LITE ? 1.5 : 2));
+renderer.setClearColor(0x0b0b0c, 1);
+const scene = new THREE.Scene();
+let VIEW_H = 10;                                     // world units across the frame's height at zoom 1 (more on tall screens, so the pack fits the width)
+const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 200);
+/* the reference angle: front-left, from above — the front pocket faces
+   right, the harness and hip belt show on the left */
+const HOME = { dir: new THREE.Vector3(-1.05, 0.78, 0.95).normalize(), target: new THREE.Vector3(0, 3.35, 0), zoom: 1.05 };
+camera.position.copy(HOME.target).addScaledVector(HOME.dir, 40);
+camera.zoom = HOME.zoom;
+const controls = new OrbitControls(camera, canvas);
+controls.target.copy(HOME.target);
+controls.enableDamping = true; controls.dampingFactor = 0.08;
+controls.enablePan = false; controls.minZoom = 0.5; controls.maxZoom = 4;
+controls.update();
+
+function resize() {
+  const w = innerWidth, h = innerHeight, a = w / h;
+  VIEW_H = Math.max(10, 7.4 / a);
+  renderer.setSize(w, h, false);
+  camera.left = -VIEW_H * a / 2; camera.right = VIEW_H * a / 2; camera.top = VIEW_H / 2; camera.bottom = -VIEW_H / 2;
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize); resize();
+
+/* ── shared uniforms ────────────────────────────────────────────────────── */
+const G = {
+  uPhase: { value: 0 }, uMorphT: { value: 0 },
+  uDensity: { value: C.lines.density }, uWidth: { value: C.lines.width }, uWarp: { value: C.lines.warp },
+  uLineOp: { value: C.lines.opacity }, uLineCol: { value: new THREE.Color(C.lines.colour) },
+  uFill: { value: new THREE.Color(C.model.fill) }, uShade: { value: C.model.shade }, uRim: { value: C.model.rim },
+  uOutline: { value: 0.02 }, uOutlineCol: { value: new THREE.Color(C.lines.colour) },
+};
+
+const VS = `
+  attribute vec3 aLocal;
+  varying vec3 vLocal, vN, vV;
+  void main(){
+    vLocal = aLocal;
+    vec4 mv = modelViewMatrix * vec4(position, 1.0);
+    vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz);
+    gl_Position = projectionMatrix * mv;
+  }`;
+const FS = `
+  precision highp float;
+  uniform float uPhase, uMorphT, uDensity, uWidth, uWarp, uLineOp, uShade, uRim, uLines, uSeed, uSolid;
+  uniform vec3 uLineCol, uFill, uBase, uK, uC;
+  varying vec3 vLocal, vN, vV;
+  float hash(vec3 p){ p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
+  float noise(vec3 x){
+    vec3 i = floor(x), f = fract(x); f = f * f * (3.0 - 2.0 * f);
+    return mix(mix(mix(hash(i), hash(i + vec3(1,0,0)), f.x), mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x), f.y),
+               mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x), mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y), f.z);
+  }
+  void main(){
+    vec3 N = normalize(vN), V = normalize(vV);
+    float facing = clamp(dot(N, V), 0.0, 1.0);
+    float ndl = dot(N, normalize(vec3(-0.35, 0.75, 0.55)));
+    vec3 base = mix(uFill, uBase, uSolid);
+    vec3 col = base * (1.0 - uShade + uShade * (0.55 + 0.45 * ndl));
+    /* the contour field: rings round the panel's centre, in world-scaled
+       local space, warped by drifting noise so they wrap the form */
+    vec3 q = vLocal * uK - uC;
+    vec3 w = vLocal * 0.55 + vec3(uSeed, uSeed * 0.7, uMorphT * 0.5);
+    float f = length(q) + uWarp * (noise(w) * 1.6 + noise(w * 2.1 + 7.3) * 0.6 - 1.1);
+    float x = f * uDensity - uPhase;
+    float fw = max(fwidth(x), 1e-4);
+    float dd = min(fract(x), 1.0 - fract(x));
+    float line = 1.0 - smoothstep(uWidth * fw * 0.5, uWidth * fw * 0.5 + fw * 0.8, dd);
+    line *= 1.0 - smoothstep(0.2, 0.42, fw);            // no moire where the rings crowd
+    line *= uLines * uLineOp * (0.5 + 0.5 * facing);
+    col = mix(col, uLineCol, line);
+    col += uLineCol * pow(1.0 - facing, 3.0) * uRim * (1.0 - uSolid);
+    gl_FragColor = vec4(col, 1.0);
+    #include <colorspace_fragment>
+  }`;
+const HULL_VS = `uniform float uOutline; void main(){ gl_Position = projectionMatrix * modelViewMatrix * vec4(position + normal * uOutline, 1.0); }`;
+const HULL_FS = `uniform vec3 uOutlineCol;
+void main(){
+  gl_FragColor = vec4(uOutlineCol, 1.0);
+  #include <colorspace_fragment>
+}`;
+const hullMat = new THREE.ShaderMaterial({ uniforms: { uOutline: G.uOutline, uOutlineCol: G.uOutlineCol }, vertexShader: HULL_VS, fragmentShader: HULL_FS, side: THREE.BackSide });
+
+const accent = { value: new THREE.Color(C.model.accent) };
+function surface({ k = [1, 1, 1], c = [0, 0, 0], lines = 1, seed = 0, solid = 0, base = null } = {}) {
+  return new THREE.ShaderMaterial({
+    uniforms: { ...G, uK: { value: new THREE.Vector3(...k) }, uC: { value: new THREE.Vector3(...c) }, uLines: { value: lines },
+      uSeed: { value: seed }, uSolid: { value: solid }, uBase: base || { value: new THREE.Color(0x141416) } },
+    vertexShader: VS, fragmentShader: FS,
+  });
+}
+
+/* ── geometry ───────────────────────────────────────────────────────────── */
+/* a rounded block, its corners turned to radius r; aLocal is the point's
+   place in the unrounded block, scaled to world units, for the contour field */
+function block(w, h, d, r, seg = [16, 24, 12], { taper = 0, deform = null } = {}) {
+  let g = new THREE.BoxGeometry(w, h, d, ...seg);
+  g.deleteAttribute('normal'); g.deleteAttribute('uv');
+  g = mergeVertices(g);
+  const P = g.attributes.position, L = new Float32Array(P.count * 3);
+  const hx = w / 2, hy = h / 2, hz = d / 2, v = new THREE.Vector3(), inner = new THREE.Vector3();
+  for (let i = 0; i < P.count; i++) {
+    v.fromBufferAttribute(P, i);
+    L[i * 3] = v.x; L[i * 3 + 1] = v.y; L[i * 3 + 2] = v.z;
+    inner.set(THREE.MathUtils.clamp(v.x, -hx + r, hx - r), THREE.MathUtils.clamp(v.y, -hy + r, hy - r), THREE.MathUtils.clamp(v.z, -hz + r, hz - r));
+    const dir = v.clone().sub(inner), len = dir.length();
+    if (len > 1e-6) v.copy(inner).addScaledVector(dir, r / len);
+    if (taper) { const s = 1 - taper * (v.y / hy); v.x *= s; v.z *= 1 - taper * 0.4 * (v.y / hy); }
+    if (deform) deform(v, L[i * 3] / hx, L[i * 3 + 1] / hy, L[i * 3 + 2] / hz);
+    P.setXYZ(i, v.x, v.y, v.z);
+  }
+  g.setAttribute('aLocal', new THREE.BufferAttribute(L, 3));
+  g.computeVertexNormals();
+  return g;
+}
+/* a block bent along a curve: its length follows the curve, its width
+   along `side`, its thickness along the curve's normal */
+function strap(points, width, thick, side, { r = 0.03, seg = 48, closed = false } = {}) {
+  const curve = new THREE.CatmullRomCurve3(points.map(p => new THREE.Vector3(...p)), closed, 'centripetal');
+  const len = curve.getLength();
+  let g = new THREE.BoxGeometry(width, len, thick, 2, seg, 1);
+  g.deleteAttribute('normal'); g.deleteAttribute('uv');
+  g = mergeVertices(g);
+  const P = g.attributes.position, L = new Float32Array(P.count * 3);
+  const b0 = new THREE.Vector3(...side).normalize(), v = new THREE.Vector3(), inner = new THREE.Vector3();
+  const hx = width / 2, hy = len / 2, hz = thick / 2;
+  for (let i = 0; i < P.count; i++) {
+    v.fromBufferAttribute(P, i);
+    L[i * 3] = v.x; L[i * 3 + 1] = v.y; L[i * 3 + 2] = v.z;
+    inner.set(THREE.MathUtils.clamp(v.x, -hx + r, hx - r), v.y, THREE.MathUtils.clamp(v.z, -hz + r, hz - r));
+    const dir = v.clone().sub(inner), dl = dir.length();
+    if (dl > 1e-6) v.copy(inner).addScaledVector(dir, Math.min(r, hz) / dl);
+    const u = THREE.MathUtils.clamp(v.y / len + 0.5, 0, 1);
+    const p = curve.getPointAt(u), t = curve.getTangentAt(u);
+    const n = new THREE.Vector3().crossVectors(b0, t).normalize(), b = new THREE.Vector3().crossVectors(t, n).normalize();   // right-handed, so the faces wind outward
+    P.setXYZ(i, p.x + b.x * v.x + n.x * v.z, p.y + b.y * v.x + n.y * v.z, p.z + b.z * v.x + n.z * v.z);
+  }
+  g.setAttribute('aLocal', new THREE.BufferAttribute(L, 3));
+  g.computeVertexNormals();
+  return { g, curve, len };
+}
+
+const bag = new THREE.Group(); scene.add(bag);
+const hulls = [];
+/* a part: its surface and its outline hull, in one group to place */
+function add(geo, mat, name, outline = true) {
+  const g = new THREE.Group(); g.name = name; bag.add(g);
+  g.add(new THREE.Mesh(geo, mat));
+  if (outline) { const h = new THREE.Mesh(geo, hullMat); g.add(h); hulls.push(h); }
+  return g;
+}
+const solidAccent = () => surface({ lines: 0, solid: 1, base: accent });
+const solidDark = () => surface({ lines: 0, solid: 1, base: { value: new THREE.Color(0x111113) } });
+
+/* the main body: tall, a little narrower at the top, the front and back
+   faces gently pillowed */
+const pillow = (amt) => (v, x, y, z) => { const k = (1 - x * x) * (1 - y * y * 0.6); v.z += Math.sign(z) * Math.max(0, Math.abs(z) - 0.6) * amt * k; };
+add(block(2.5, 4.5, 2.0, 0.42, [18, 30, 14], { taper: 0.06, deform: pillow(0.25) }).translate(0, 3.35, 0),
+  surface({ k: [1.25, 2.25, 1.0], c: [0.25, 0.4, 0.6], seed: 1.3 }), 'body');
+/* the lid: a pillow overhanging the top, rings centred on its crown */
+add(block(2.75, 1.45, 2.45, 0.62, [18, 12, 16], { deform: (v, x, y, z) => { v.y += Math.max(0, y) * 0.22 * (1 - x * x) * (1 - z * z); } }).translate(0, 6.0, 0.12),
+  surface({ k: [1.4, 0.75, 1.25], c: [0.1, 0.55, 0.2], seed: 4.1 }), 'lid');
+/* the front pocket, to the right of the orange strap */
+add(block(1.7, 2.55, 0.62, 0.28, [14, 20, 6], { deform: (v, x, y, z) => { if (z > 0) v.z += 0.22 * (1 - x * x) * (1 - y * y); } }).translate(0.32, 3.3, 1.2),
+  surface({ k: [0.85, 1.3, 0.3], c: [0.05, -0.2, 0.3], seed: 7.7 }), 'front-pocket');
+/* the sleeping-bag compartment, wide and soft at the foot */
+add(block(2.8, 1.5, 2.3, 0.6, [18, 12, 16], { deform: pillow(0.35) }).translate(0, 0.9, 0.08),
+  surface({ k: [1.4, 0.75, 1.15], c: [0.35, 0.05, 0.75], seed: 2.6 }), 'base-compartment');
+/* the side mesh pocket, low on the left */
+add(block(0.48, 1.35, 1.55, 0.2, [6, 12, 12]).translate(-1.38, 2.0, 0.05),
+  surface({ k: [0.24, 0.7, 0.8], c: [0.3, 0.1, 0.0], seed: 9.2 }), 'side-pocket');
+
+/* the harness on the back: two shoulder straps, curved off the pack and in */
+for (const sx of [-1, 1]) {
+  const s = strap([[sx * 0.62, 5.45, -1.02], [sx * 0.7, 4.75, -1.7], [sx * 0.74, 3.6, -1.86], [sx * 0.8, 2.55, -1.66], [sx * 1.05, 1.85, -1.3]], 0.62, 0.22, [1, 0, 0], { seg: 40 });
+  add(s.g, surface({ k: [0.31, s.len / 2, 0.1], c: [0, 0.4, 0], seed: 3 + sx }), 'shoulder-strap');
+}
+add(strap([[-0.72, 4.35, -1.92], [0, 4.4, -2.0], [0.72, 4.35, -1.92]], 0.13, 0.05, [0, 1, 0], { seg: 16 }).g, solidDark(), 'sternum-strap');
+add(block(0.3, 0.16, 0.08, 0.03, [2, 2, 1]).translate(0, 4.4, -2.04), solidDark(), 'sternum-buckle');
+/* load lifters, lid to shoulder strap */
+for (const sx of [-1, 1]) add(strap([[sx * 0.75, 5.5, -0.95], [sx * 0.72, 5.2, -1.45], [sx * 0.72, 4.85, -1.72]], 0.1, 0.04, [1, 0, 0], { seg: 10 }).g, solidDark(), 'load-lifter');
+
+/* the hip belt, round the back of the base and forward to the hips */
+const hip = strap([[-1.55, 1.35, 0.55], [-1.75, 1.45, -0.35], [-1.25, 1.55, -1.3], [0, 1.6, -1.55], [1.25, 1.55, -1.3], [1.75, 1.45, -0.35], [1.55, 1.35, 0.55]], 0.72, 0.24, [0, 1, 0], { seg: 64, r: 0.08 });
+add(hip.g, surface({ k: [0.36, hip.len / 2, 0.12], c: [0, 0, 0], seed: 5.4 }), 'hip-belt');
+/* the hip pocket, on the left wing, rings of its own */
+add(block(0.32, 0.6, 1.0, 0.14, [4, 8, 10]).rotateY(-0.25).translate(-1.86, 1.42, -0.15),
+  surface({ k: [0.16, 0.3, 0.5], c: [0, 0, 0.05], seed: 6.6 }), 'hip-pocket');
+add(block(0.12, 0.3, 0.22, 0.03, [1, 2, 2]).translate(-1.62, 1.38, 0.58), solidDark(), 'hip-buckle');
+
+/* the orange strap: down the front from under the lid, over the base */
+const ostrap = strap([[-0.62, 5.3, 1.2], [-0.68, 4.4, 1.12], [-0.7, 3.2, 1.11], [-0.68, 2.05, 1.16], [-0.62, 1.45, 1.42], [-0.55, 0.55, 1.5]], 0.26, 0.06, [1, 0, 0], { seg: 60 });
+add(ostrap.g, solidAccent(), 'accent-strap');
+const buckleAt = (curve, u, w = 0.36, h = 0.18, mat = solidDark()) => {
+  const p = curve.getPointAt(u), t = curve.getTangentAt(u);
+  const m = add(block(w, h, 0.08, 0.03, [2, 2, 1]), mat, 'buckle');
+  m.position.copy(p).add(new THREE.Vector3(0, 0, 0.04)); m.rotation.set(-Math.atan2(t.z, t.y), 0, 0);
+};
+buckleAt(ostrap.curve, 0.06, 0.34, 0.2, solidAccent());
+buckleAt(ostrap.curve, 0.82, 0.32, 0.18);
+
+/* compression straps across the left side and round to the front */
+const comp1 = strap([[-1.05, 4.75, -0.92], [-1.32, 4.55, -0.35], [-1.32, 4.3, 0.45], [-1.05, 4.1, 1.06], [-0.72, 4.05, 1.12]], 0.14, 0.05, [0, 1, 0], { seg: 36 });
+add(comp1.g, solidDark(), 'compression-strap');
+add(strap([[-1.32, 4.73, -0.95], [-1.36, 4.62, -0.62]], 0.16, 0.06, [0, 1, 0], { seg: 6 }).g, solidAccent(), 'compression-keeper');
+const comp2 = strap([[-1.02, 2.95, -0.95], [-1.33, 2.85, -0.3], [-1.33, 2.75, 0.45], [-1.05, 2.7, 1.07], [-0.72, 2.68, 1.12]], 0.14, 0.05, [0, 1, 0], { seg: 36 });
+add(comp2.g, solidDark(), 'compression-strap');
+for (const [c, u] of [[comp1, 0.62], [comp2, 0.6]]) {
+  const p = c.curve.getPointAt(u);
+  add(block(0.1, 0.18, 0.32, 0.03, [1, 2, 2]), solidDark(), 'side-buckle').position.copy(p);
+}
+/* lid strap round the front of the lid, and the feet loops */
+add(strap([[0.6, 6.45, 1.0], [0.62, 6.0, 1.42], [0.6, 5.4, 1.38]], 0.12, 0.045, [1, 0, 0], { seg: 16 }).g, solidDark(), 'lid-strap');
+for (const sx of [-0.75, 0.75]) {
+  add(strap([[sx - 0.12, 0.25, 1.15], [sx, -0.02, 1.32], [sx + 0.12, 0.25, 1.15]], 0.1, 0.05, [1, 0, 0], { seg: 12 }).g, solidDark(), 'foot-loop');
+}
+/* the haul loop */
+add(strap([[-0.2, 5.6, -0.98], [0, 5.92, -1.15], [0.2, 5.6, -0.98]], 0.09, 0.04, [0, 0, 1], { seg: 12 }).g, solidDark(), 'haul-loop');
+
+/* ── the Tibba mark, on a label patch on the lid ─────────────────────────── */
+const patch = add(block(1.1, 0.42, 0.06, 0.04, [2, 2, 1]), solidDark(), 'label-patch');
+patch.position.set(-0.45, 6.02, 1.36); patch.rotation.x = -0.12;
+const logoMat = new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false });
+const logo = new THREE.Mesh(new THREE.PlaneGeometry(0.92, 0.33), logoMat);
+logo.position.set(-0.45, 6.02, 1.43); logo.rotation.x = -0.12; bag.add(logo);
+{
+  const img = new Image();
+  img.onload = () => {
+    const cv = document.createElement('canvas'); cv.width = 1040; cv.height = 370;
+    cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+    const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+    logoMat.map = tex; logoMat.needsUpdate = true;
+  };
+  img.src = 'assets/brand/tibba-white.svg';
+}
+
+/* ── dimension guides, dashed, as in the drawing ─────────────────────────── */
+const guides = new THREE.Group(); scene.add(guides);
+{
+  const m = new THREE.LineDashedMaterial({ color: 0x5c5e66, dashSize: 0.14, gapSize: 0.1, transparent: true, opacity: 0.85 });
+  const seg = (a, b) => { const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...a), new THREE.Vector3(...b)]); const l = new THREE.Line(g, m); l.computeLineDistances(); guides.add(l); };
+  const solid = new THREE.LineBasicMaterial({ color: 0x7b7d86 });
+  const tick = (p, d) => { const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...p).addScaledVector(new THREE.Vector3(...d), -0.18), new THREE.Vector3(...p).addScaledVector(new THREE.Vector3(...d), 0.18)]); guides.add(new THREE.Line(g, solid)); };
+  const X0 = -2.3, X1 = 2.3, Z0 = -2.0, Z1 = 1.9, Y0 = -0.05, Y1 = 6.95;
+  seg([X0, Y0, Z1], [X1, Y0, Z1]); seg([X1, Y0, Z1], [X1, Y0, Z0]); seg([X0, Y0, Z1], [X0, Y0, Z0]);
+  seg([X1 + 0.5, Y0, Z1], [X1 + 0.5, Y1, Z1]); tick([X1 + 0.5, Y0, Z1], [1, 0, 0]); tick([X1 + 0.5, Y1, Z1], [1, 0, 0]); tick([X1 + 0.5, 3.4, Z1], [1, 0, 0]);
+  seg([X0 - 0.4, Y0, Z0], [X0 - 0.4, Y1 - 0.6, Z0]); tick([X0 - 0.4, Y1 - 0.6, Z0], [1, 0, 0]);
+  seg([X0, Y1, Z0], [X1, Y1, Z0]); tick([X0, Y1, Z0], [0, 1, 0]); tick([X1, Y1, Z0], [0, 1, 0]);
+  seg([X0, Y0 - 0.02, Z1 + 0.5], [X1, Y0 - 0.02, Z1 + 0.5]); tick([X0, Y0, Z1 + 0.5], [0, 0, 1]); tick([X1, Y0, Z1 + 0.5], [0, 0, 1]);
+}
+
+/* ── applying the config ─────────────────────────────────────────────────── */
+function apply() {
+  G.uDensity.value = C.lines.density; G.uWidth.value = C.lines.width; G.uWarp.value = C.lines.warp; G.uLineOp.value = C.lines.opacity;
+  G.uLineCol.value.set(C.lines.colour); G.uOutlineCol.value.set(C.lines.colour);
+  G.uFill.value.set(C.model.fill); G.uShade.value = C.model.shade; G.uRim.value = C.model.rim;
+  accent.value.set(C.model.accent);
+  logo.visible = C.model.logo; guides.visible = C.model.guides;
+  controls.autoRotate = C.view.autoRotate; controls.autoRotateSpeed = C.view.rotateSpeed;
+}
+apply();
+
+/* ── reset to the reference angle ──────────────────────────────────────── */
+let tween = null;
+function resetView() {
+  const from = { p: camera.position.clone(), t: controls.target.clone(), z: camera.zoom };
+  const to = { p: HOME.target.clone().addScaledVector(HOME.dir, 40), t: HOME.target.clone(), z: HOME.zoom };
+  tween = { from, to, t0: performance.now(), dur: 900 };
+}
+
+/* ── the loop: pauses with the tab ─────────────────────────────────────── */
+let last = performance.now();
+function frame(now) {
+  requestAnimationFrame(frame);
+  if (document.hidden) { last = now; return; }
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if (C.anim.play) { G.uPhase.value += dt * C.anim.speed * 2.2; G.uMorphT.value += dt * C.anim.morph; }
+  if (tween) {
+    const k = Math.min(1, (now - tween.t0) / tween.dur), e = 1 - Math.pow(1 - k, 3);
+    camera.position.lerpVectors(tween.from.p, tween.to.p, e); controls.target.lerpVectors(tween.from.t, tween.to.t, e);
+    camera.zoom = tween.from.z + (tween.to.z - tween.from.z) * e; camera.updateProjectionMatrix();
+    if (k >= 1) tween = null;
+  }
+  controls.update();
+  /* outlines a constant width on screen, whatever the zoom */
+  G.uOutline.value = C.model.outline * (VIEW_H / camera.zoom) / renderer.domElement.clientHeight;
+  /* fewer rings when the pack is drawn small, so they stay lines, not haze */
+  const pxPerUnit = renderer.domElement.clientHeight * camera.zoom / VIEW_H;
+  G.uDensity.value = C.lines.density * Math.min(1, Math.max(0.5, pxPerUnit / 90));
+  renderer.render(scene, camera);
+}
+requestAnimationFrame(frame);
+
+/* ── the panel ─────────────────────────────────────────────────────────── */
+const SCHEMA = [
+  ['Animation'],
+  ['anim.play', 'Play', 'check'],
+  ['anim.speed', 'Flow speed', 0, 2, 0.01],
+  ['anim.morph', 'Morph (the rings drifting)', 0, 1.5, 0.01],
+  ['Contour lines'],
+  ['lines.density', 'Density (rings per unit)', 3, 18, 0.1],
+  ['lines.width', 'Line width', 0.4, 3, 0.05, 'px'],
+  ['lines.warp', 'Warp — how far the rings wander', 0, 1.5, 0.01],
+  ['lines.opacity', 'Intensity', 0, 1, 0.01],
+  ['lines.colour', 'Line colour', 'color'],
+  ['Model'],
+  ['model.fill', 'Fill', 'color'],
+  ['model.shade', 'Shading', 0, 1, 0.01],
+  ['model.rim', 'Rim light', 0, 1, 0.01],
+  ['model.outline', 'Outline', 0, 4, 0.1, 'px'],
+  ['model.accent', 'Accent (strap, keeper, buckle)', 'color'],
+  ['model.logo', 'Tibba mark on the lid', 'check'],
+  ['model.guides', 'Dimension guides', 'check'],
+  ['View'],
+  ['view.autoRotate', 'Turn slowly', 'check'],
+  ['view.rotateSpeed', 'Turn speed', 0.1, 4, 0.1],
+];
+const get = p => p.split('.').reduce((o, k) => o[k], C);
+const set = (p, v) => { const ks = p.split('.'), l = ks.pop(); ks.reduce((o, k) => o[k], C)[l] = v; };
+const el = document.createElement('div'); el.id = 'tune';
+el.innerHTML = `<div id="tune-head"><b>Bags</b><button id="tune-hide" title="Hide (H)">–</button></div>` + SCHEMA.map(([p, label, a, b, step, unit = '']) => {
+  if (label == null) return `<p class="tune-sub">${p}</p>`;
+  const id = 'b-' + p.replace('.', '-'), v = get(p);
+  if (a === 'check') return `<div class="row inline"><label for="${id}">${label}<i></i></label><input type="checkbox" id="${id}"${v ? ' checked' : ''}></div>`;
+  if (a === 'color') return `<div class="row"><label>${label}<i></i></label><input type="color" id="${id}" value="${v}"></div>`;
+  return `<div class="row"><label>${label}<i id="v-${id}">${v}${unit}</i></label><input type="range" id="${id}" min="${a}" max="${b}" step="${step}" value="${v}" data-unit="${unit}"></div>`;
+}).join('') + `<div class="tune-acts"><button class="tune-btn" id="b-reset">Reset view</button></div>` + bakeControls.html;
+document.body.appendChild(el);
+SCHEMA.forEach(([p, label, a]) => {
+  if (label == null) return;
+  const inp = el.querySelector('#b-' + p.replace('.', '-'));
+  if (a === 'check') inp.addEventListener('change', () => { set(p, inp.checked); apply(); });
+  else if (a === 'color') inp.addEventListener('input', () => { set(p, inp.value); apply(); });
+  else inp.addEventListener('input', () => { el.querySelector('#v-b-' + p.replace('.', '-')).textContent = inp.value + inp.dataset.unit; set(p, +inp.value); apply(); });
+});
+el.querySelector('#b-reset').addEventListener('click', resetView);
+el.querySelector('#tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+bakeControls.bind(el, KEY, C, 'BAGS_CONFIG');
+if (window.wb && window.wb.adopt) window.wb.adopt();
+window.bags = { scene, camera, controls, bag, resetView, CONFIG };
+</script>
+</body>
+</html>
