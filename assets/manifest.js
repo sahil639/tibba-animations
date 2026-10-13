@@ -167,7 +167,7 @@ window.TIBBA_SITE = {
                  note: 'Services as boxed brick bonds either side of a compass that never moves', state: 'live' },
                { id: 'services-compass-v3', updated: '2026-09-30T12:00:00+07:00', change: 'New: tabs and compass left, services right; one-screen mobile', label: 'Compass v3', file: 'services-compass-v3.html',
                  note: 'Tabs, blurb and compass on the left, the service columns on the right; fits one phone screen', state: 'live' },
-               { id: 'services-compass-v4', updated: '2026-10-13T16:11:00+07:00', change: \"Service icons, with a Hide icons option\", label: 'Compass v4', file: 'services-compass-v4.html',
+               { id: 'services-compass-v4', updated: '2026-10-13T16:11:00+07:00', change: "Service icons, with a Hide icons option", label: 'Compass v4', file: 'services-compass-v4.html',
                  note: 'The instrument in a framed card with tabs and a readout strip, a finer compass; the stage as a statement over two brick-bond ledgers that open on hover', state: 'live' },
                { id: 'services-compass-v5', updated: '2026-10-07T17:15:00+07:00', change: 'New: Final Website v2 services in the reference layout', label: 'Compass v5 — reference layout', file: 'services-compass-v5.html',
                  note: 'Tabs centred, the stage as a statement, the two ledgers side by side, and the compass rising half into view at the foot', state: 'live' },
