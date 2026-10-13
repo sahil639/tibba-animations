@@ -49,6 +49,10 @@ body { color: #E9ECF2; font-family: 'F37 Analog', system-ui, sans-serif; }
 @media (max-width: 640px) { .switch { left: 12px; right: 12px; bottom: 12px; } .switch button { flex: 1; justify-content: center; padding: 10px 6px 11px; font-size: 10.5px; } .hint { display: none; } }
 .hint { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase;
   color: rgba(233,236,242,.4); pointer-events: none; }
+/* ?embed — a block inside another page (Services — Gear bags): no switcher,
+   no hint, no panel, a clear background; the host page picks the bag */
+.bags-embed, .bags-embed body { background: transparent; }
+.bags-embed .hint, .bags-embed .switch, .bags-embed #tune { display: none !important; }
 </style>
 <link rel="stylesheet" href="assets/tune.css">
 </head>
@@ -74,13 +78,18 @@ const CONFIG = {
 const KEY = 'tibba.bake.misc-bags';
 applyBaked(KEY, CONFIG);
 const C = CONFIG;
+const EMBED = /[?&]embed\b/.test(location.search);
+if (EMBED) {
+  document.documentElement.classList.add('bags-embed');
+  const b = /[?&]bag=(\d)/.exec(location.search); if (b) C.view.bag = +b[1];
+}
 const LITE = matchMedia('(max-width: 760px), (pointer: coarse)').matches;
 
 /* ── renderer, camera, controls ─────────────────────────────────────────── */
 const canvas = document.getElementById('c');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: EMBED, powerPreference: 'high-performance' });
 renderer.setPixelRatio(Math.min(devicePixelRatio, LITE ? 1.5 : 2));
-renderer.setClearColor(0x0b0b0c, 1);
+renderer.setClearColor(0x0b0b0c, EMBED ? 0 : 1);
 const scene = new THREE.Scene();
 let VIEW_H = 10;                                     // world units across the frame's height at zoom 1 (more on tall screens, so the pack fits the width)
 const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 200);
@@ -89,6 +98,8 @@ const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 200);
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true; controls.dampingFactor = 0.08;
 controls.enablePan = false; controls.minZoom = 0.5; controls.maxZoom = 4;
+/* embedded, the wheel scrolls the host page; on touch screens so does a drag */
+if (EMBED) { controls.enableZoom = false; if (LITE) { controls.enableRotate = false; canvas.style.touchAction = 'pan-y'; canvas.style.cursor = 'default'; } }
 controls.update();
 
 function resize() {
@@ -438,9 +449,10 @@ const easeIn = t => t * t * t;
 const easeOutBack = (t, s = 1.25) => 1 + (s + 1) * Math.pow(t - 1, 3) + s * Math.pow(t - 1, 2);
 const easeOut = t => 1 - Math.pow(1 - t, 3);
 const OUT = 360, GAP = 150, IN = 820;
-let swap = null;
+let swap = null, queued = -1;
 function showBag(i) {
-  if (i === cur || swap) return;
+  if (swap) { queued = i; return; }            // a switch asked for mid-swap runs when this one lands
+  if (i === cur) return;
   const from = BAGS[cur], to = BAGS[i];
   to.pivot.visible = true; to.pivot.scale.setScalar(0.001);
   swap = { from, to, t0: performance.now() };
@@ -464,7 +476,7 @@ function frame(now) {
     swap.to.pivot.scale.setScalar(Math.max(0.001, ki > 0 ? easeOutBack(ki) : 0.001));
     swap.to.pivot.rotation.y = -0.4 * (1 - easeOut(ki));
     if (ko >= 1) swap.from.pivot.visible = false;
-    if (ki >= 1) { swap.from.pivot.scale.setScalar(1); swap.from.pivot.rotation.y = 0; swap.to.pivot.scale.setScalar(1); swap.to.pivot.rotation.y = 0; swap = null; }
+    if (ki >= 1) { swap.from.pivot.scale.setScalar(1); swap.from.pivot.rotation.y = 0; swap.to.pivot.scale.setScalar(1); swap.to.pivot.rotation.y = 0; swap = null; if (queued >= 0) { const q = queued; queued = -1; showBag(q); } }
   }
   if (tween) {
     const k = Math.min(1, (now - tween.t0) / tween.dur), e = 1 - Math.pow(1 - k, 3);
@@ -489,6 +501,7 @@ const swBtns = [...sw.children];
 function syncSwitch() { swBtns.forEach((b, i) => { b.setAttribute('aria-pressed', String(i === cur)); }); }
 swBtns.forEach((b, i) => b.addEventListener('click', () => showBag(i)));
 addEventListener('keydown', e => {
+  if (EMBED) return;
   if (e.target.closest && e.target.closest('input, textarea, select')) return;
   if (/^[1-3]$/.test(e.key)) showBag(+e.key - 1);
   if (e.key === 'ArrowRight') showBag((cur + 1) % BAGS.length);
@@ -543,6 +556,7 @@ el.querySelector('#tune-hide').addEventListener('click', () => el.classList.togg
 bakeControls.bind(el, KEY, C, 'BAGS_CONFIG');
 if (window.wb && window.wb.adopt) window.wb.adopt();
 window.bags = { scene, camera, controls, BAGS, showBag, resetView, CONFIG };
+if (EMBED && window.parent !== window) window.parent.postMessage({ type: 'bags-ready' }, location.origin);
 </script>
 </body>
 </html>

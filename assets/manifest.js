@@ -176,7 +176,9 @@ window.TIBBA_SITE = {
                { id: 'services-compass-v7', updated: '2026-10-07T17:15:00+07:00', change: 'New: a small compass resting on a stone', label: 'Compass v7 — on a surface', file: 'services-compass-v7.html',
                  note: 'The compass small and laid flat on a contoured stone under the tabs, an accent beside the statement and ledgers', state: 'live' },
                { id: 'services-gear', updated: '2026-10-13T16:11:00+07:00', change: 'Service icons, with a Hide icons option', label: 'Gear tiers', file: 'services-gear.html',
-                 note: 'Three tiers of climbing kit laid out on a mat, upgrading as the stage grows; the services in two plain columns', state: 'live' } ] },
+                 note: 'Three tiers of climbing kit laid out on a mat, upgrading as the stage grows; the services in two plain columns', state: 'live' },
+               { id: 'services-gear-bags', updated: '2026-10-13T16:16:00+07:00', change: 'New: Gear tiers with the three 3D bags on the mat', label: 'Gear tiers — bags', file: 'services-gear-bags.html',
+                 note: 'Gear tiers with the mat under the stage switcher holding the Misc — Bags models: waist pack, day pack, hiking bag, switched with the stage', state: 'live' } ] },
 
     { id: 'testimonials', label: 'Our testimonials',
       note: 'What clients say.',
