@@ -252,7 +252,7 @@ window.TIBBA_SITE = {
 
     { id: 'about-hero', label: 'About us — hero',
       note: 'The top of the about page.',
-      pages: [ { id: 'about-hero-01', updated: '2026-10-14T17:59:00+07:00', change: "The statement reads in order — Tibba means / a higher / place. — on the left, the stone to its right", label: 'About us — hero', file: 'about-hero.html', note: "What the name means, stated large, behind a WebGL stone with the mark cut into it — lean, drag and light it with the pointer", state: 'live' } ] },
+      pages: [ { id: 'about-hero-01', updated: '2026-10-14T18:14:00+07:00', change: "New right side: a contoured peak — the camera flies from the map down to the summit; hover a ring and it turns into 'tibba design studio', the lines dither (the stone stays as an option)", label: 'About us — hero', file: 'about-hero.html', note: "What the name means, stated large, behind a WebGL stone with the mark cut into it — lean, drag and light it with the pointer", state: 'live' } ] },
 
     { id: 'about-description', label: 'About us — description',
       note: 'The studio in prose.',

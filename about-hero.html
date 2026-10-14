@@ -66,6 +66,14 @@ body { color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif;
 .shade { position: absolute; z-index: 2; left: 74%; top: 52%; width: min(46vw, 640px); height: min(70vh, 720px); transform: translate(-46%, -46%);
   background: radial-gradient(closest-side, rgba(0,0,0,.92), rgba(0,0,0,.55) 55%, rgba(0,0,0,0)); filter: blur(10px); pointer-events: none; }
 #stone { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; display: block; cursor: grab; touch-action: pan-y; opacity: 0; }
+/* the peak (assets/about-peak.js): the contoured ridge, behind the statement so
+   the words always read; the stone and its shade are the other option (?side=stone) */
+#peak { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; display: block; touch-action: pan-y; }
+.side-peak .statement { z-index: 2; }
+.side-peak #stone, .side-peak .shade { display: none; }
+.side-stone #peak { display: none; }
+.side-peak .hint { opacity: 0; transition: opacity .8s linear; }
+.side-peak.peak-live .hint { opacity: 1; }
 
 /* the small print */
 .lbl { position: absolute; z-index: 4; pointer-events: none; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-mute); }
@@ -119,6 +127,7 @@ body { color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif;
   <h1 class="statement" id="about-h"><span class="ln"><span>Tibba means</span></span><span class="ln"><span>a higher</span></span><span class="ln"><span>place<em>.</em></span></span></h1>
   <i class="shade" aria-hidden="true"></i>
   <canvas id="stone" aria-hidden="true"></canvas>
+  <canvas id="peak" aria-hidden="true"></canvas>
 
   <p class="lbl tl">[ &nbsp;About us&nbsp; ]</p>
   <p class="lbl tr"><span class="sq acc"></span><b>tibba</b> &nbsp;/ tɪb-bɑ / &nbsp;n.<br>Hindi · Punjabi</p>
@@ -128,7 +137,7 @@ body { color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif;
     <li><i class="sq"></i><span>03</span>&nbsp;&nbsp;A design studio, India</li>
   </ul>
   <p class="lbl br" id="aim">Higher place, and that's exactly where we aim to take you and your business, with design interventions.</p>
-  <p class="hint">Drag the stone</p>
+  <p class="hint" id="hint">Hover the ridge</p>
 </main>
 
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.min.js","three/addons/":"https://unpkg.com/three@0.165.0/examples/jsm/"}}</script>
@@ -140,9 +149,14 @@ body { color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif;
     { label: 'Work', href: 'final-website-v2.html#summits' }, { label: 'Services', href: 'final-website-v2.html#services' }, { label: 'About', href: 'about.html' }, { label: 'Contact', href: 'about.html#footer' }] });
 </script>
 <script type="module">
-  import { mountStone, STONE } from './assets/about-stone.js';
+  import { mountPeak, PEAK } from './assets/about-peak.js';
   const hero = document.getElementById('hero');
-  const stone = mountStone(document.getElementById('stone'), hero);
+  /* the right side: the contoured peak (default) or the engraved stone (?side=stone) */
+  const SIDE = /[?&]side=stone\b/.test(location.search) ? 'stone' : 'peak';
+  hero.classList.add('side-' + SIDE);
+  let stone = null, STONE = null, peak = null;
+  if (SIDE === 'stone') { const m = await import('./assets/about-stone.js'); STONE = m.STONE; stone = m.mountStone(document.getElementById('stone'), hero); document.getElementById('hint').textContent = 'Drag the stone'; }
+  else peak = mountPeak(document.getElementById('peak'), hero);
 
   /* the ridgelines: zigzags across the width, seeded so they are the same
      on every load; one in the accent */
@@ -186,16 +200,32 @@ body { color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif;
   const el = document.createElement('div');
   el.id = 'tune';
   const R = (id, label, min, max, step, val) => `<div class="row"><label>${label}<i id="v-${id}">${val}</i></label><input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}"></div>`;
-  el.innerHTML = `<div id="tune-head"><b>About hero — stone</b><button id="tune-hide" title="Hide (H)">–</button></div>
+  const side = `<p class="tune-sub">Right side</p><div class="row"><label>Show<i></i></label><select id="s-side"><option value="peak"${SIDE === 'peak' ? ' selected' : ''}>The peak — contour ridge</option><option value="stone"${SIDE === 'stone' ? ' selected' : ''}>The stone</option></select></div>`;
+  el.innerHTML = `<div id="tune-head"><b>About hero</b><button id="tune-hide" title="Hide (H)">–</button></div>` + side + (SIDE === 'peak' ? `
+    <p class="tune-sub">The peak</p>
+    ${R('lv', 'Contour rings', 14, 60, 1, PEAK.levels)}${R('in', 'Intro flight', 1.5, 8, .1, PEAK.intro)}
+    ${R('ep', 'End — camera height', 4, 40, 1, PEAK.endPitch)}${R('ed', 'End — distance', 1.6, 5, .05, PEAK.endDist)}
+    <p class="tune-sub">Hover</p>
+    ${R('dt', 'Dither strength', 0, 1, .01, PEAK.dither)}${R('dr', 'Dither radius', 60, 400, 5, PEAK.ditherR)}
+    <div class="row inline"><label>Intro<i></i></label><button class="tune-btn" id="s-rp">Replay</button></div>` : `
     <p class="tune-sub">The stone</p>
     ${R('dp', 'Cut depth', .02, .16, .005, STONE.depth)}${R('rg', 'Rough sides', 0, 2, .05, STONE.rough)}${R('gr', 'Grain', 0, 3, .05, STONE.grain)}
     <p class="tune-sub">The hand</p>
-    ${R('tl', 'Lean to pointer', 0, 2, .05, STONE.tilt)}${R('lt', 'Raking light', 0, 2.5, .05, STONE.light)}${R('fl', 'Idle float', 0, 2, .05, STONE.float)}`;
+    ${R('tl', 'Lean to pointer', 0, 2, .05, STONE.tilt)}${R('lt', 'Raking light', 0, 2.5, .05, STONE.light)}${R('fl', 'Idle float', 0, 2, .05, STONE.float)}`);
   document.body.appendChild(el);
   const bind = (id, fn) => el.querySelector('#s-' + id).addEventListener('input', e => { const v = +e.target.value; el.querySelector('#v-' + id).textContent = v; fn(v); });
-  let rb = 0; const later = () => { clearTimeout(rb); rb = setTimeout(() => stone.rebuild(), 120); };
-  bind('dp', v => { STONE.depth = v; later(); }); bind('rg', v => { STONE.rough = v; later(); });
-  bind('gr', v => stone.setGrain(v)); bind('tl', v => { STONE.tilt = v; }); bind('lt', v => { STONE.light = v; }); bind('fl', v => { STONE.float = v; });
+  el.querySelector('#s-side').addEventListener('change', e => { const u = new URL(location.href); if (e.target.value === 'stone') u.searchParams.set('side', 'stone'); else u.searchParams.delete('side'); location.href = u.href; });
+  if (peak) {
+    let rb = 0;
+    bind('lv', v => { PEAK.levels = v; clearTimeout(rb); rb = setTimeout(() => peak.rebuild(), 150); });
+    bind('in', v => { PEAK.intro = v; }); bind('ep', v => { PEAK.endPitch = v; }); bind('ed', v => { PEAK.endDist = v; });
+    bind('dt', v => { PEAK.dither = v; }); bind('dr', v => { PEAK.ditherR = v; });
+    el.querySelector('#s-rp').addEventListener('click', () => peak.replay());
+  } else {
+    let rb = 0; const later = () => { clearTimeout(rb); rb = setTimeout(() => stone.rebuild(), 120); };
+    bind('dp', v => { STONE.depth = v; later(); }); bind('rg', v => { STONE.rough = v; later(); });
+    bind('gr', v => stone.setGrain(v)); bind('tl', v => { STONE.tilt = v; }); bind('lt', v => { STONE.light = v; }); bind('fl', v => { STONE.float = v; });
+  }
   el.querySelector('#tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
   if (window.wb && window.wb.adopt) window.wb.adopt();
 </script>
