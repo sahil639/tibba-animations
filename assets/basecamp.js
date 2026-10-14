@@ -68,6 +68,14 @@ export const BASECAMP_CONFIG = {
   rive: { tint: 0.0, playAll: false },
   /* layers: each ridge back a step darker, the near ones a lighter silhouette */
   layers: { on: false, amt: 0.85, depth: 160, dim: 0.7, lift: 1.0 },
+  /* the country behind the summit thins out with distance, so it ends in a
+     gradient instead of a hard edge (start: how far behind the summit it
+     begins; length: how far it takes to vanish) */
+  backFade: { on: false, start: 15, length: 200 },
+  /* the fill of the summits not in focus melts toward the top of the frame,
+     so their silhouettes never cut hard across the card behind (y0 → y1:
+     frame heights, -1 bottom … 1 top, from solid to clear) */
+  bodyFade: { on: true, amt: 1, y0: -0.35, y1: 0.45 },
   dock: 46,               // vh — the scene's share of the screen under the cards
 };
 const C = BASECAMP_CONFIG;
@@ -180,6 +188,10 @@ export function mountBasecamp() {
        nothing instead of ending in a hard horizon */
     const near = dist + lerp(320, 15, D.fog) * (front ? 1.6 : 1);
     range.scene.setFog(near, near + lerp(420, 110, D.fog) * (front ? 1.6 : 1));
+    const BF = C.backFade;
+    if (range.scene.setBackFade) range.scene.setBackFade(BF.on ? dist + BF.start : 1e6, BF.on ? dist + BF.start + BF.length : 2e6);
+    const BD = C.bodyFade;
+    if (range.scene.setBodyFade) range.scene.setBodyFade({ amt: BD.on ? BD.amt : 0, y0: BD.y0, y1: BD.y1 });
     const L = C.layers;
     if (range.scene.setLayers) range.scene.setLayers({ amt: L.on ? L.amt : 0, near: dist - 25, far: dist + L.depth, dim: L.dim, lift: L.lift });
     return { tgt: [tx, ty, tz], pos: [tx + Math.sin(yaw) * Math.cos(elev) * dist, ty + Math.sin(elev) * dist, tz + Math.cos(yaw) * Math.cos(elev) * dist] };
@@ -279,6 +291,14 @@ const SCHEMA = [
   ['depth.frontFov', 'Front view — lens (lower = flatter)', 2, 20, .5, '°'],
   ['depth.frontFill', 'Front view — summit height in the scene', .3, .95, .01],
   ['depth.frontBase', 'Front view — foot above the bottom edge', 0, .5, .01],
+  ['Background'],
+  ['bodyFade.on', 'Soft silhouettes (fill fades to the top, no hard edge)', 'check'],
+  ['bodyFade.amt', 'Soft silhouettes — strength', 0, 1, .01],
+  ['bodyFade.y0', 'Soft silhouettes — solid below', -1, 1, .01],
+  ['bodyFade.y1', 'Soft silhouettes — clear above', -1, 1, .01],
+  ['backFade.on', 'Fade the far country by distance', 'check'],
+  ['backFade.start', 'Fade — starts behind the summit', 0, 150, 1],
+  ['backFade.length', 'Fade — length', 30, 500, 5],
   ['Layers'],
   ['layers.on', 'Shade the layers (far ridges darker)', 'check'],
   ['layers.amt', 'Layers — strength', 0, 1, .01],

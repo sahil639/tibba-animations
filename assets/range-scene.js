@@ -808,6 +808,10 @@ const mountainMat = new THREE.ShaderMaterial({
     uFillGrad:{ value: 0 },
     /* layers (setLayers): each ridge's body graded by its distance, so a
        nearer ridge stands as a lighter silhouette over the darker one behind */
+    uHzNear: { value: 1e6 }, uHzFar: { value: 2e6 },
+    /* the body fade (setBodyFade): the fill of the summits not in focus thins
+       toward the top of the frame, so their silhouettes melt instead of cut */
+    uBodyFade: { value: 0 }, uBodyY0: { value: -0.3 }, uBodyY1: { value: 0.45 },
     uLayer: { value: 0 }, uLayerNear: { value: 0 }, uLayerFar: { value: 1 }, uLayerLift: { value: new THREE.Vector3(0.05, 0.056, 0.075) },
   },
   transparent: true,
@@ -821,9 +825,10 @@ const mountainMat = new THREE.ShaderMaterial({
     uniform float uPeakH[NP];
     uniform float uFogNear, uFogFar;
     uniform float uLit[NP]; uniform float uShift[NP]; uniform float uAnyLit, uBgScale, uLitLocal, uFgScale;
-    uniform float uLayerNear, uLayerFar;
-    varying float vH, vCut, vMorph, vFog, vMax, vOn, vHome, vLayerT;
+    uniform float uLayerNear, uLayerFar, uHzNear, uHzFar;
+    varying float vH, vCut, vMorph, vFog, vMax, vOn, vHome, vLayerT, vHz, vNdcY, vLitB;
     varying vec3 vN;
+    float gLit;
     /* ── focus styling (setFocusStyle) ─────────────────────────────────
        Each summit can be slid sideways (uShift, its share of the blend, so
        the saddles stretch rather than tear), and while one is lit the rest
@@ -839,6 +844,7 @@ const mountainMat = new THREE.ShaderMaterial({
       }
       q.x += sx/ws;
       float lit = li/ws * mix(1.0, smoothstep(0.02, 0.3, wm), uLitLocal);
+      gLit = clamp(lit, 0.0, 1.0) * uAnyLit;
       q.y *= mix(1.0, mix(uBgScale, uFgScale, clamp(lit, 0.0, 1.0)), uAnyLit);
       return q;
     }
@@ -872,12 +878,15 @@ const mountainMat = new THREE.ShaderMaterial({
       vec4 mv = modelViewMatrix*vec4(focusWarp(position),1.0);
       vFog = 1.0 - smoothstep(uFogNear, uFogFar, -mv.z);
       vLayerT = smoothstep(uLayerNear, uLayerFar, -mv.z);
+      vHz = 1.0 - smoothstep(uHzNear, uHzFar, -mv.z);
       gl_Position=projectionMatrix*mv;
+      vNdcY = gl_Position.y / gl_Position.w; vLitB = gLit;
     }`,
   fragmentShader:`
     precision highp float;
-    varying float vH, vCut, vMorph, vFog, vMax, vOn, vHome, vLayerT;
+    varying float vH, vCut, vMorph, vFog, vMax, vOn, vHome, vLayerT, vHz, vNdcY, vLitB;
     varying vec3 vN;
+    uniform float uBodyFade, uBodyY0, uBodyY1;
     uniform float uAlpha, uBand, uMode, uEdgeAmt, uCountryLit; uniform vec3 uPaper;
     uniform vec3 uFillTint; uniform float uFillGrad;
     uniform float uLayer; uniform vec3 uLayerLift;
@@ -940,7 +949,10 @@ const mountainMat = new THREE.ShaderMaterial({
 
       /* Opacity is now only ever reduced by distance — never by the redraw and
          never by which peak this is near. The terrain is one body. */
-      float a = uAlpha * vFog;
+      /* the background fade (setBackFade): the country behind the summit
+         thins to nothing with distance, so its far edge is a gradient, not a cut */
+      float a = uAlpha * vFog * vHz;
+      a *= mix(1.0, 1.0 - smoothstep(uBodyY0, uBodyY1, vNdcY), uBodyFade * (1.0 - smoothstep(0.35, 0.8, vLitB)));
       if (a < 0.004) discard;
       gl_FragColor=vec4(col, a);
     }`,
@@ -1745,6 +1757,7 @@ const contourMat = new THREE.ShaderMaterial({
     uLitInk:   { value: new THREE.Color(0xE9ECF2) },
     uLitInkMix:{ value: 0 },
     uLitBoost: { value: 0 },
+    uHzNear: { value: 1e6 }, uHzFar: { value: 2e6 },
     uLayer: { value: 0 }, uLayerNear: { value: 0 }, uLayerFar: { value: 1 }, uLayerDim: { value: 0.7 },
   },
   vertexShader: `
@@ -1752,7 +1765,7 @@ const contourMat = new THREE.ShaderMaterial({
     attribute float aSide, aWidth, aRadius, aArc, aLevel, aArcW, aDot, aRing;
     uniform vec2 uHalfRes;
     uniform float uWeight, uFogNear, uFogFar;
-    uniform float uLayerNear, uLayerFar;
+    uniform float uLayerNear, uLayerFar, uHzNear, uHzFar;
     uniform vec3 uPeak[NP];
     uniform float uCut[NP];
     uniform float uMorphA[NP];
@@ -1781,7 +1794,7 @@ const contourMat = new THREE.ShaderMaterial({
       q.y *= mix(1.0, mix(uBgScale, uFgScale, clamp(lit, 0.0, 1.0)), uAnyLit);
       return q;
     }
-    varying float vY, vR, vArc, vCut, vMorph, vMax, vReveal, vFog, vOn, vLit, vSame, vLayerT;
+    varying float vY, vR, vArc, vCut, vMorph, vMax, vReveal, vFog, vOn, vLit, vSame, vLayerT, vHz;
     varying float vArcW, vDot, vRing, vRingHot, vMain;
     varying vec2  vXZ;
 
@@ -1865,6 +1878,7 @@ const contourMat = new THREE.ShaderMaterial({
       vec4 mv = modelViewMatrix * vec4(position, 1.0);
       vFog = 1.0 - smoothstep(uFogNear, uFogFar, -mv.z);
       vLayerT = smoothstep(uLayerNear, uLayerFar, -mv.z);
+      vHz = 1.0 - smoothstep(uHzNear, uHzFar, -mv.z);
 
       /* the sweep, the hover band and the palette all key off the contour's own
          elevation — not the height its geometry was nudged to */
@@ -1874,7 +1888,7 @@ const contourMat = new THREE.ShaderMaterial({
     }`,
   fragmentShader: `
     precision highp float;
-    varying float vY, vR, vArc, vCut, vMorph, vMax, vReveal, vFog, vOn, vLit, vSame, vLayerT;
+    varying float vY, vR, vArc, vCut, vMorph, vMax, vReveal, vFog, vOn, vLit, vSame, vLayerT, vHz;
     varying float vArcW, vDot, vRing, vRingHot, vMain;
     varying vec2  vXZ;
     uniform float uBand, uMode, uOpacity, uFadeA, uFadeB, uEdgeAmt, uOffPeak;
@@ -2015,6 +2029,7 @@ const contourMat = new THREE.ShaderMaterial({
 
       /* layers: the lines dim with distance, so each ridge back reads a step darker */
       col *= 1.0 - uLayer * uLayerDim * vLayerT;
+      a *= vHz;
 
       if (a < 0.004) discard;
       gl_FragColor = vec4(col, min(1.0, a));
@@ -2855,6 +2870,19 @@ return {
     }
     if (dim != null) contourMat.uniforms.uLayerDim.value = dim;
     if (lift != null) mountainMat.uniforms.uLayerLift.value.set(0.05, 0.056, 0.075).multiplyScalar(lift);
+  },
+  /** The background fade: everything further than `near` thins out, gone by
+      `far` (view distances), so the country behind ends in a gradient. */
+  /** The body fade: amt 0…1; y0 / y1 the frame heights (-1 bottom … 1 top)
+      the fill of the summits not in focus runs from solid to clear across. */
+  setBodyFade({ amt, y0, y1 } = {}) {
+    const u = mountainMat.uniforms;
+    if (amt != null) u.uBodyFade.value = amt;
+    if (y0 != null) u.uBodyY0.value = y0;
+    if (y1 != null) u.uBodyY1.value = y1;
+  },
+  setBackFade(near, far) {
+    for (const m of [mountainMat, contourMat]) { m.uniforms.uHzNear.value = near; m.uniforms.uHzFar.value = far; }
   },
   setFog(near, far) {
     for (const m of [mountainMat, contourMat, trailMat]) { m.uniforms.uFogNear.value = near; m.uniforms.uFogFar.value = far; }
