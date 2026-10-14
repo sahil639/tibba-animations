@@ -23,7 +23,7 @@
    ═════════════════════════════════════════════════════════════════════════ */
 
 export const PEAK = {
-  levels: 34,        // contour rings
+  levels: 40,        // contour rings (dense, as on the home page's summits)
   intro: 4.2,        // seconds, the flight from the map to the peak
   endPitch: 14,      // degrees above the horizon at the end
   endYaw: -22,       // degrees round the peak at the end
@@ -31,7 +31,10 @@ export const PEAK = {
   dither: 0.55,      // strength of the hover dither (0 = off)
   ditherR: 170,      // its radius round the pointer, px
   text: 'tibba design studio',
-  line: '233,236,242',
+  /* the summits' ink (assets/range-scene.js): a cool blue low down, the
+     range's lavender through the body, near-white on the summit */
+  inkLow: [96, 110, 168], inkMid: [170, 184, 238], inkTop: [240, 243, 250],
+  dot: true,         // the glowing, pulsing dot on the summit
   accent: '#FF4B1F',
 };
 
@@ -62,7 +65,8 @@ function height(x, z) {
   const sh = (cx, cz, rr, k) => k * Math.pow(Math.max(0, 1 - Math.hypot(x - cx, z - cz) / rr), 1.5);
   h = Math.max(h, sh(-0.5, 0.18, 0.5, 0.42), sh(0.52, -0.22, 0.42, 0.3));  // shoulders
   const away = 1 - Math.exp(-r * 5);                                 // keep the very top clean and sharp
-  h += away * (0.07 * fbm(x * 3.2 + 11, z * 3.2 + 5) + 0.045 * (1 - Math.abs(fbm(x * 6 + 3, z * 6 - 2)))) * Math.sqrt(Math.max(0, h));
+  /* rugged, as the home page's summits are: the rings wander and break */
+  h += away * (0.14 * fbm(x * 3.2 + 11, z * 3.2 + 5) + 0.06 * (1 - Math.abs(fbm(x * 6 + 3, z * 6 - 2))) + 0.035 * fbm(x * 11 - 7, z * 11 + 4)) * Math.sqrt(Math.max(0, h));
   const e = Math.max(Math.abs(x), Math.abs(z));
   return Math.max(0, h) * clamp((1 - e) / 0.22, 0, 1);
 }
@@ -120,6 +124,14 @@ function slice(levels) {
   return out;
 }
 
+/* the ink up the height: blue-grey at the foot, lavender, white at the top */
+function ink(f) {
+  const a = PEAK.inkLow, b = PEAK.inkMid, c = PEAK.inkTop;
+  const m = (p, q, t) => [0, 1, 2].map(i => Math.round(lerp(p[i], q[i], t)));
+  const col = f < .62 ? m(a, b, Math.pow(f / .62, .8)) : m(b, c, (f - .62) / .38);
+  const al = .62 + .38 * Math.pow(f, .6);
+  return `rgba(${col[0]},${col[1]},${col[2]},${al.toFixed(3)})`;
+}
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map(v => (v + .5) / 16);
 const GLYPHS = '!<>-_\\/[]{}=+*^?#%&$@0123456789abcdefghijklmnopqrstuvwxyz';
 
@@ -226,7 +238,7 @@ export function mountPeak(canvas, host) {
     if (hov && proj[hov.ring]) win = window_(proj[hov.ring], hov.idx, tlen + adv * 1.5);
 
     /* the rings, bottom to top: fill with black, then the line */
-    ctx.lineJoin = 'round'; ctx.lineWidth = 1.1;
+    ctx.lineJoin = 'round';
     for (let n = 0; n < rings.length; n++) {
       const P = proj[n]; if (!P) continue;
       const m = P.length >> 1;
@@ -234,8 +246,7 @@ export function mountPeak(canvas, host) {
       for (let i = 1; i < m; i++) ctx.lineTo(P[i * 2], P[i * 2 + 1]);
       ctx.closePath();
       ctx.fillStyle = '#030303'; ctx.fill();
-      const a = .22 + .72 * Math.pow(rings[n].frac, 1.15);
-      ctx.strokeStyle = `rgba(${PEAK.line},${a.toFixed(3)})`;
+      ctx.strokeStyle = ink(rings[n].frac); ctx.lineWidth = lerp(1.2, 2.9, Math.pow(rings[n].frac, .8));
       if (win && n === hov.ring) {
         /* the line, less the stretch the words take */
         ctx.beginPath();
@@ -248,6 +259,24 @@ export function mountPeak(canvas, host) {
 
     /* the dither: only the lines near the pointer, in an ordered pattern */
     if (active && PEAK.dither > 0) dither(ptr.x, ptr.y, PEAK.ditherR, PEAK.dither * clamp((now - (hov ? hov.t0 - 400 : now)) / 400, .6, 1));
+
+    /* the summit's dot: a white core in a soft glow, two rings pulsing out */
+    if (PEAK.dot && project(c, 0, H_WORLD * 1.0, 0, tmp)) {
+      const k = REDUCED ? 1 : clamp((now - t0) / (PEAK.intro * 1000) * 1.4 - .4, 0, 1);
+      if (k > 0) {
+        ctx.save(); ctx.globalAlpha = k;
+        const g = ctx.createRadialGradient(tmp[0], tmp[1], 0, tmp[0], tmp[1], 26);
+        g.addColorStop(0, 'rgba(238,241,248,.55)'); g.addColorStop(.35, 'rgba(159,176,232,.22)'); g.addColorStop(1, 'rgba(159,176,232,0)');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(tmp[0], tmp[1], 26, 0, 7); ctx.fill();
+        for (let q = 0; q < 2; q++) {
+          const ph = ((now / 1800) + q * .5) % 1;
+          ctx.strokeStyle = `rgba(238,241,248,${(.7 * (1 - ph)).toFixed(3)})`; ctx.lineWidth = 1.2;
+          ctx.beginPath(); ctx.arc(tmp[0], tmp[1], 4.5 + ph * 22, 0, 7); ctx.stroke();
+        }
+        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(tmp[0], tmp[1], 3.6, 0, 7); ctx.fill();
+        ctx.restore();
+      }
+    }
 
     /* the words: random characters settling, left to right, into the text */
     if (win) {
@@ -282,12 +311,13 @@ export function mountPeak(canvas, host) {
         const o = (j * w + i) * 4;
         if (d[o + 3] === 0) continue;                    // background: untouched
         const dx = i - cx, q = (dx * dx + dy * dy) / R2; if (q > 1) continue;
-        const lum = d[o] / 255; if (lum < .03) continue; // the black fill: untouched
+        const lum = Math.max(d[o], d[o + 1], d[o + 2]) / 255; if (lum < .03) continue; // the black fill: untouched
         const k = amt * (1 - q * q);
         const th = BAYER[(((j + y0) / cell | 0) & 3) * 4 + (((i + x0) / cell | 0) & 3)];
         const on = lum * 1.25 > th ? 1 : 0;
-        const v = lerp(lum, on ? 233 / 255 : 3 / 255, k);
-        d[o] = v * 255; d[o + 1] = v * 255 * (236 / 233); d[o + 2] = v * 255 * (242 / 233);
+        /* keep the line's own hue: only its brightness is dithered */
+        const mx = Math.max(d[o], d[o + 1], d[o + 2], 1), v = lerp(mx / 255, on ? 1 : 3 / 255, k) * 255 / mx;
+        d[o] *= v; d[o + 1] *= v; d[o + 2] *= v;
       }
     }
     ctx.putImageData(img, x0, y0);
