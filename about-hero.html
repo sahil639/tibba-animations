@@ -53,14 +53,17 @@ body { color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif;
 /* the statement, behind the stone */
 .statement { position: absolute; z-index: 1; left: var(--gut); right: var(--gut); top: 50%; transform: translateY(-46%); margin: 0;
   color: #fff; font-weight: 300; text-transform: uppercase; font-size: clamp(52px, 9.6vw, 188px); line-height: .9; letter-spacing: -.05em; pointer-events: none; }
-.statement .ln { display: flex; justify-content: space-between; gap: .25em; overflow: hidden; }
+/* one block, read top to bottom on the left; the stone stands to its right */
+.statement { right: auto; font-size: clamp(52px, 8.2vw, 168px); }
+.statement .ln { display: flex; gap: .25em; overflow: hidden; }
 .statement .ln > span { display: block; transform: translateY(105%); transition: transform 1.2s cubic-bezier(.22,1,.36,1); }
 .statement .ln:nth-child(2) > span { transition-delay: .08s; }
+.statement .ln:nth-child(3) > span { transition-delay: .16s; }
 .statement em { font-style: normal; color: var(--accent); }
 .hero.in .statement .ln > span { transform: none; }
 
 /* the stone's shadow on the type, then the stone */
-.shade { position: absolute; z-index: 2; left: 50%; top: 52%; width: min(46vw, 640px); height: min(70vh, 720px); transform: translate(-46%, -46%);
+.shade { position: absolute; z-index: 2; left: 74%; top: 52%; width: min(46vw, 640px); height: min(70vh, 720px); transform: translate(-46%, -46%);
   background: radial-gradient(closest-side, rgba(0,0,0,.92), rgba(0,0,0,.55) 55%, rgba(0,0,0,0)); filter: blur(10px); pointer-events: none; }
 #stone { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; display: block; cursor: grab; touch-action: pan-y; opacity: 0; }
 
@@ -83,9 +86,9 @@ body { color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif;
 .hero.in .lbl, .hero.in .hint { opacity: 1; }
 
 @media (max-width: 760px) {
-  .statement { top: auto; bottom: 33%; transform: none; font-size: clamp(44px, 14vw, 72px); }
+  .statement { top: auto; bottom: 25%; right: var(--gut); transform: none; font-size: clamp(44px, 14vw, 72px); }
   .statement .ln { display: block; } .statement .ln > span { display: inline-block; } .statement .ln > span:first-child { margin-right: .24em; }
-  .shade { top: 34%; width: 70vw; height: 40vh; }
+  .shade { left: 50%; top: 34%; width: 70vw; height: 40vh; }
   .tr { display: none; }
   .tl { top: 84px; }
   .bl { bottom: auto; top: 84px; right: var(--gut); left: auto; justify-items: end; display: none; }
@@ -113,7 +116,7 @@ body { color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif;
 
 <main class="hero" id="hero" aria-labelledby="about-h">
   <svg class="ridges" aria-hidden="true" preserveAspectRatio="none"></svg>
-  <h1 class="statement" id="about-h"><span class="ln"><span>Tibba</span><span>means</span></span><span class="ln"><span>a higher</span><span>place<em>.</em></span></span></h1>
+  <h1 class="statement" id="about-h"><span class="ln"><span>Tibba means</span></span><span class="ln"><span>a higher</span></span><span class="ln"><span>place<em>.</em></span></span></h1>
   <i class="shade" aria-hidden="true"></i>
   <canvas id="stone" aria-hidden="true"></canvas>
 

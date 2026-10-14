@@ -29,6 +29,7 @@ export const STONE = {
   tilt: 1,           // how far it leans toward the pointer
   light: 1,          // the raking light's strength
   float: 1,          // the idle float
+  shiftX: 0.24,      // wide screens: the stone moved right, as a share of the width (the statement reads on the left)
 };
 
 /* the mark: the favicon's path (assets/brand/favicon.svg), its own units */
@@ -188,6 +189,8 @@ export function mountStone(canvas, host = canvas.parentElement) {
     camera.aspect = w / h;
     narrow = w < 760;
     camera.position.z = narrow ? Math.max(11, 8 / camera.aspect * .62) : 11.2;
+    /* wide screens: the frame slid so the stone stands right of centre */
+    if (!narrow && STONE.shiftX) camera.setViewOffset(w, h, -STONE.shiftX * w, 0, w, h); else camera.clearViewOffset();
     camera.updateProjectionMatrix();
   }
   resize();
