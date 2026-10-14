@@ -47,11 +47,12 @@ export const BASECAMP_CONFIG = {
     spread: 1.22,         // the summits' spacing, × as built
     offsets: [0, 0, 0, 0],// each summit sideways, world units
     fog: 0.6,             // atmospheric fade on the far range (0 … 1), measured from the camera
-    view: 'angled',       // 'angled' — from a little above, a short flight between · 'front' — straight on, near-orthographic
+    view: 'angled',       // 'angled' — from a little above, a short flight between · 'front' — straight on, near-orthographic · 'raised' — the front's long lens, from above
     frontFov: 6,          // degrees: the long lens the front view is taken with (lower = flatter)
     frontFill: 0.62,      // front view: the summit's height, as a share of the scene's
     frontBase: 0.18,      // front view: how far up from the bottom edge the foot sits (share of the scene)
-    desk: { frontFill: 0.49, frontBase: 0.23 },   // the same two on desktop (frontFill / frontBase above are phones')
+    desk: { frontFill: 0.49, frontBase: 0.23 },
+    raisedElev: 15,       // degrees: how far above the raised view looks down   // the same two on desktop (frontFill / frontBase above are phones')
   },
   style: {
     activeInk: '#EEF1F8', activeInkMix: 0.45, activeBoost: 0.5,
@@ -65,10 +66,16 @@ export const BASECAMP_CONFIG = {
   anim: { on: true, camSpeed: 2.6, fly: 0.5, pulse: 1.8, pulseAmp: 1.0 },
   focus: { dot: true, trail: false, hoverRings: false },
   rive: { tint: 0.0, playAll: false },
+  /* layers: each ridge back a step darker, the near ones a lighter silhouette */
+  layers: { on: false, amt: 0.85, depth: 160, dim: 0.7, lift: 1.0 },
   dock: 46,               // vh — the scene's share of the screen under the cards
 };
 const C = BASECAMP_CONFIG;
-const KEY = 'tibba.bake.basecamp';
+/* a page can start from its own defaults and keep its own bake
+   (window.BASECAMP_PRESET / BASECAMP_KEY, set before this loads) */
+const lock0 = (t, src) => Object.keys(src).forEach(k => src[k] && typeof src[k] === 'object' && !Array.isArray(src[k]) ? lock0(t[k], src[k]) : (t[k] = src[k]));
+if (window.BASECAMP_PRESET) lock0(C, window.BASECAMP_PRESET);
+const KEY = window.BASECAMP_KEY || 'tibba.bake.basecamp';
 applyBaked(KEY, C);
 /* phones: locked to these, over the defaults and any bake — desktop never uses them */
 const PHONE_LOCK = {
@@ -80,7 +87,7 @@ const lock = (t, src) => Object.keys(src).forEach(k => typeof src[k] === 'object
 const PHONE_AT_LOAD = matchMedia('(max-width: 900px)').matches;
 if (PHONE_AT_LOAD) lock(C, PHONE_LOCK);
 /* ?view=front (or angled) picks the view from the address, for use inside the site */
-{ const v = /[?&]view=(front|angled)\b/.exec(location.search); if (v && !PHONE_AT_LOAD) C.depth.view = v[1]; }
+{ const v = /[?&]view=(front|angled|raised)\b/.exec(location.search); if (v && !PHONE_AT_LOAD) C.depth.view = v[1]; }
 
 const rad = d => d * Math.PI / 180;
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -155,7 +162,8 @@ export function mountBasecamp() {
     const i0 = Math.floor(fi), i1 = Math.min(N - 1, i0 + 1), f = fi - i0, fs = f * f * (3 - 2 * f);
     const A = tops[i0], B = tops[i1];
     const tx = lerp(A.x + shift[i0], B.x + shift[i1], fs), tz = lerp(A.z, B.z, fs), top = lerp(A.y, B.y, fs) * sy * D.fgScale;
-    const front = D.view === 'front';
+    const raised = D.view === 'raised', front = D.view === 'front' || raised;
+    const ce = raised ? Math.cos(rad(D.raisedElev)) : 1;
     const lift = C.anim.on && !front ? Math.sin(Math.PI * fs) * C.anim.fly : 0;
     const asp = clamp((range.scene.canvas.clientWidth || 1) / (range.scene.canvas.clientHeight || 1), .5, 4);
     /* the front view keeps the summit the same size on screen, taken from far
@@ -163,15 +171,17 @@ export function mountBasecamp() {
     /* front: framed by height — the base on the bar, the summit filling
        D.frontFill of the scene, whatever the lens */
     const half = Math.tan(rad(D.frontFov / 2));
-    const dist = front ? top / (2 * fill * half) : D.focusDist * (1 + lift * .7) * Math.max(1, 1.9 / asp);
-    const elev = front ? 0 : rad(D.elev + lift * 16 - pointer.y * 1.5);
+    const dist = front ? top * ce / (2 * fill * half) : D.focusDist * (1 + lift * .7) * Math.max(1, 1.9 / asp);
+    const elev = front ? (raised ? rad(D.raisedElev) : 0) : rad(D.elev + lift * 16 - pointer.y * 1.5);
     const drift = C.anim.on && !front ? Math.sin(now / 1000 * .11) * .5 : 0;
     const yaw = front ? 0 : rad(lerp(BEAR[i0], BEAR[i1], fs) + pointer.x * 2.5 + drift);
-    const ty = front ? dist * half * (1 - 2 * base) : top * D.aim;
+    const ty = front ? dist * half * (1 - 2 * base) / ce : top * D.aim;
     /* the haze is measured from the camera, so the far country fades to
        nothing instead of ending in a hard horizon */
     const near = dist + lerp(320, 15, D.fog) * (front ? 1.6 : 1);
     range.scene.setFog(near, near + lerp(420, 110, D.fog) * (front ? 1.6 : 1));
+    const L = C.layers;
+    if (range.scene.setLayers) range.scene.setLayers({ amt: L.on ? L.amt : 0, near: dist - 25, far: dist + L.depth, dim: L.dim, lift: L.lift });
     return { tgt: [tx, ty, tz], pos: [tx + Math.sin(yaw) * Math.cos(elev) * dist, ty + Math.sin(elev) * dist, tz + Math.cos(yaw) * Math.cos(elev) * dist] };
   }
 
@@ -210,7 +220,7 @@ export function mountBasecamp() {
     scene.setFocusDepth(St.dim);
     scene.setInk({ weight: C.contours.weight, opacity: .95 * St.contrast });
     scene.setGroundVisible(false);                     // its far edge drew a hard line across the cards
-    scene.setLens(D.view === 'front' ? { fov: D.frontFov, far: 4000 } : { fov: 50, far: 600 });
+    scene.setLens(D.view !== 'angled' ? { fov: D.frontFov, far: 4000 } : { fov: 50, far: 600 });
     scene.group.scale.y = C.contours.spacing;
     const ext = range.ext;
     const shift = range.tops.map((t, i) => (t.x - ext.cx) * (D.spread - 1) + (D.offsets[i] || 0));
@@ -264,10 +274,17 @@ const SCHEMA = [
   ['contours.weight', 'Stroke weight', .3, 2.5, .05, '×'],
   ['contours.spacing', 'Vertical spacing', .6, 1.8, .02, '×'],
   ['View'],
-  ['depth.view', 'View', 'select', [['angled', 'Angled — from above, flying between summits'], ['front', 'Front — straight on, orthographic']]],
+  ['depth.view', 'View', 'select', [['angled', 'Angled — from above, flying between summits'], ['front', 'Front — straight on, orthographic'], ['raised', 'Raised — the front view, from above']]],
+  ['depth.raisedElev', 'Raised view — camera height', 4, 35, 1, '°'],
   ['depth.frontFov', 'Front view — lens (lower = flatter)', 2, 20, .5, '°'],
   ['depth.frontFill', 'Front view — summit height in the scene', .3, .95, .01],
   ['depth.frontBase', 'Front view — foot above the bottom edge', 0, .5, .01],
+  ['Layers'],
+  ['layers.on', 'Shade the layers (far ridges darker)', 'check'],
+  ['layers.amt', 'Layers — strength', 0, 1, .01],
+  ['layers.depth', 'Layers — depth it runs over', 30, 400, 5],
+  ['layers.dim', 'Layers — far lines dimmer', 0, 1, .01],
+  ['layers.lift', 'Layers — near ridges lighter', 0, 3, .05, '×'],
   ['Depth and position'],
   ['depth.focusDist', 'Focused summit — distance', 30, 200, 1],
   ['depth.elev', 'Camera height', 0, 40, 1, '°'],

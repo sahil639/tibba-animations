@@ -806,6 +806,9 @@ const mountainMat = new THREE.ShaderMaterial({
     uFgScale: { value: 1 },
     uFillTint:{ value: new THREE.Vector3(0, 0, 0) },
     uFillGrad:{ value: 0 },
+    /* layers (setLayers): each ridge's body graded by its distance, so a
+       nearer ridge stands as a lighter silhouette over the darker one behind */
+    uLayer: { value: 0 }, uLayerNear: { value: 0 }, uLayerFar: { value: 1 }, uLayerLift: { value: new THREE.Vector3(0.05, 0.056, 0.075) },
   },
   transparent: true,
   depthWrite: true,
@@ -818,7 +821,8 @@ const mountainMat = new THREE.ShaderMaterial({
     uniform float uPeakH[NP];
     uniform float uFogNear, uFogFar;
     uniform float uLit[NP]; uniform float uShift[NP]; uniform float uAnyLit, uBgScale, uLitLocal, uFgScale;
-    varying float vH, vCut, vMorph, vFog, vMax, vOn, vHome;
+    uniform float uLayerNear, uLayerFar;
+    varying float vH, vCut, vMorph, vFog, vMax, vOn, vHome, vLayerT;
     varying vec3 vN;
     /* ── focus styling (setFocusStyle) ─────────────────────────────────
        Each summit can be slid sideways (uShift, its share of the blend, so
@@ -867,14 +871,16 @@ const mountainMat = new THREE.ShaderMaterial({
 
       vec4 mv = modelViewMatrix*vec4(focusWarp(position),1.0);
       vFog = 1.0 - smoothstep(uFogNear, uFogFar, -mv.z);
+      vLayerT = smoothstep(uLayerNear, uLayerFar, -mv.z);
       gl_Position=projectionMatrix*mv;
     }`,
   fragmentShader:`
     precision highp float;
-    varying float vH, vCut, vMorph, vFog, vMax, vOn, vHome;
+    varying float vH, vCut, vMorph, vFog, vMax, vOn, vHome, vLayerT;
     varying vec3 vN;
     uniform float uAlpha, uBand, uMode, uEdgeAmt, uCountryLit; uniform vec3 uPaper;
     uniform vec3 uFillTint; uniform float uFillGrad;
+    uniform float uLayer; uniform vec3 uLayerLift;
     ${CT_PALETTE_GLSL}
     void main(){
       /* The ramp is curved, not linear. Read straight off height, an apron a
@@ -927,6 +933,10 @@ const mountainMat = new THREE.ShaderMaterial({
       col *= mix(uCountryLit, 1.0, smoothstep(0.02, 0.40, vHome));
       /* a fill tint graded up the body (setFocusStyle fill / fillGrad) */
       col += uFillTint * uFillGrad * t;
+      /* layers: the near ridges lifted a shade, the far ones sunk toward black,
+         and a little shading down each body (a shadow under its own crest) */
+      float lt = 1.0 - vLayerT;
+      col = mix(col, (col + uLayerLift * lt * lt * (0.55 + 0.45 * t)) * mix(1.0, 0.25, vLayerT), uLayer);
 
       /* Opacity is now only ever reduced by distance — never by the redraw and
          never by which peak this is near. The terrain is one body. */
@@ -1735,12 +1745,14 @@ const contourMat = new THREE.ShaderMaterial({
     uLitInk:   { value: new THREE.Color(0xE9ECF2) },
     uLitInkMix:{ value: 0 },
     uLitBoost: { value: 0 },
+    uLayer: { value: 0 }, uLayerNear: { value: 0 }, uLayerFar: { value: 1 }, uLayerDim: { value: 0.7 },
   },
   vertexShader: `
     attribute vec3 aPrev, aNext;
     attribute float aSide, aWidth, aRadius, aArc, aLevel, aArcW, aDot, aRing;
     uniform vec2 uHalfRes;
     uniform float uWeight, uFogNear, uFogFar;
+    uniform float uLayerNear, uLayerFar;
     uniform vec3 uPeak[NP];
     uniform float uCut[NP];
     uniform float uMorphA[NP];
@@ -1769,7 +1781,7 @@ const contourMat = new THREE.ShaderMaterial({
       q.y *= mix(1.0, mix(uBgScale, uFgScale, clamp(lit, 0.0, 1.0)), uAnyLit);
       return q;
     }
-    varying float vY, vR, vArc, vCut, vMorph, vMax, vReveal, vFog, vOn, vLit, vSame;
+    varying float vY, vR, vArc, vCut, vMorph, vMax, vReveal, vFog, vOn, vLit, vSame, vLayerT;
     varying float vArcW, vDot, vRing, vRingHot, vMain;
     varying vec2  vXZ;
 
@@ -1852,6 +1864,7 @@ const contourMat = new THREE.ShaderMaterial({
 
       vec4 mv = modelViewMatrix * vec4(position, 1.0);
       vFog = 1.0 - smoothstep(uFogNear, uFogFar, -mv.z);
+      vLayerT = smoothstep(uLayerNear, uLayerFar, -mv.z);
 
       /* the sweep, the hover band and the palette all key off the contour's own
          elevation — not the height its geometry was nudged to */
@@ -1861,7 +1874,7 @@ const contourMat = new THREE.ShaderMaterial({
     }`,
   fragmentShader: `
     precision highp float;
-    varying float vY, vR, vArc, vCut, vMorph, vMax, vReveal, vFog, vOn, vLit, vSame;
+    varying float vY, vR, vArc, vCut, vMorph, vMax, vReveal, vFog, vOn, vLit, vSame, vLayerT;
     varying float vArcW, vDot, vRing, vRingHot, vMain;
     varying vec2  vXZ;
     uniform float uBand, uMode, uOpacity, uFadeA, uFadeB, uEdgeAmt, uOffPeak;
@@ -1874,6 +1887,7 @@ const contourMat = new THREE.ShaderMaterial({
     uniform vec2  uHoverXZ;
     uniform vec3 uInk, uEdge, uHoverCol; uniform float uInkMix;
     uniform float uFillOn, uFillY, uFillBand, uFillGhost, uFillGlow;
+    uniform float uLayer, uLayerDim;
     ${CT_PALETTE_GLSL}
     void main(){
       float t = clamp(vY / vMax, 0.0, 1.0);
@@ -1998,6 +2012,9 @@ const contourMat = new THREE.ShaderMaterial({
         col = mix(col, vec3(1.0), front * uFillGlow);
         a = max(a, front * uFillGlow * uOpacity * aer);
       }
+
+      /* layers: the lines dim with distance, so each ridge back reads a step darker */
+      col *= 1.0 - uLayer * uLayerDim * vLayerT;
 
       if (a < 0.004) discard;
       gl_FragColor = vec4(col, min(1.0, a));
@@ -2827,6 +2844,18 @@ return {
     camera.updateProjectionMatrix();
   },
   lens() { return { fov: camera.fov, far: camera.far }; },
+  /** Layers: amt 0…1 (0 = off), near / far the view distances the grading
+      runs across, dim how much darker the far lines draw, lift the near
+      bodies' tone. */
+  setLayers({ amt, near, far, dim, lift } = {}) {
+    for (const m of [mountainMat, contourMat]) {
+      if (amt != null) m.uniforms.uLayer.value = amt;
+      if (near != null) m.uniforms.uLayerNear.value = near;
+      if (far != null) m.uniforms.uLayerFar.value = far;
+    }
+    if (dim != null) contourMat.uniforms.uLayerDim.value = dim;
+    if (lift != null) mountainMat.uniforms.uLayerLift.value.set(0.05, 0.056, 0.075).multiplyScalar(lift);
+  },
   setFog(near, far) {
     for (const m of [mountainMat, contourMat, trailMat]) { m.uniforms.uFogNear.value = near; m.uniforms.uFogFar.value = far; }
     depthLock = 1;
