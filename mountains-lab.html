@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mountains Lab — Tibba</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<link rel="stylesheet" href="assets/mountains-lab.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+</head>
+
+<!-- Mountains Lab. A terrain editor and animation studio for the site's own
+     mountains: the landform generator is assets/landform.js — the same one
+     assets/range-scene.js draws the hero and the four summits with — and
+     everything here is assets/mountains-lab.js. Every mountain starts as a
+     contour drawing; texture, light and motion are layers on top. -->
+<body>
+
+<canvas id="lab" aria-label="The mountain"></canvas>
+
+<aside class="ml-panel" id="panel" aria-label="Controls"></aside>
+<div class="ml-tools" id="tools" role="toolbar" aria-label="Sculpt tools"></div>
+<div class="ml-time" id="timeline" aria-label="Timeline"></div>
+<div class="ml-hud" id="hud" aria-hidden="true"></div>
+<div class="ml-present" id="present-bar"></div>
+<div class="ml-busy" id="busy" hidden><div><p id="busy-t">Rendering</p><i><b id="busy-bar"></b></i><button type="button" id="busy-x">Cancel</button></div></div>
+<div class="ml-toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.min.js","three/addons/":"https://unpkg.com/three@0.165.0/examples/jsm/"}}</script>
+<script type="module" src="assets/mountains-lab.js"></script>
+</body>
+</html>

@@ -40,6 +40,7 @@
    runtime — the same trade tibba-range.html already made.
    ═════════════════════════════════════════════════════════════════════════ */
 import * as THREE from 'three';
+import { fbmN, fbm, sstep, SITE_PEAKS, clonePeak, prepareLandform, coneAt, CT_PALETTE_RAMPS, applySiteLandforms } from './landform.js';
 
 export function createRangeScene(opts) {
   const MODE_RANGE = opts.mode === 'range';
@@ -77,89 +78,13 @@ const CASES = [
   { accent: '#7B8FF5' },   // Shyft & Mindhouse
 ];
 
-/* ─── Noise ──────────────────────────────────────────────────── */
-/* An integer bit-mix rather than the usual sin-based hash. The terrain below
-   asks for roughly five times as many noise samples per point as a plain cone
-   did, and a hash built on Math.sin would have put a second on the load; this
-   is several times faster and has none of sin-hash's lattice banding. */
-function h2(x, y){
-  let n = Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263);
-  n = Math.imul(n ^ (n >>> 13), 1274126177);
-  return ((n ^ (n >>> 16)) >>> 0) / 4294967296;
-}
-function vn(x,y){
-  const ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy;
-  const ux=fx*fx*(3-2*fx),uy=fy*fy*(3-2*fy);
-  const a=h2(ix,iy),b=h2(ix+1,iy),c=h2(ix,iy+1),d=h2(ix+1,iy+1);
-  return a+(b-a)*ux+(c-a)*uy+(d-c-b+a)*ux*uy;
-}
-function fbmN(x,y,oct){ let v=0,a=0.5,f=1; for(let i=0;i<oct;i++){v+=a*vn(x*f,y*f);a*=0.5;f*=2.09;} return v; }
-function fbm(x,y){ return fbmN(x,y,5); }
-function sstep(t){ return t<=0?0:(t>=1?1:t*t*(3-2*t)); }
+/* ─── Noise — h2, vn, fbmN, fbm, sstep: assets/landform.js ─── */
 
 /* ─── The range ──────────────────────────────────────────────────────────
-   Five summits, each with its own landform rather than its own radius. A cone
-   — however you bend the exponent — reads as a dome, because the thing that
-   makes a mountain look like a mountain is not its profile but its erosion:
-   spurs running down off the summit, gullies between them, and a plan outline
-   that is nowhere near a circle.
-
-   Each peak is built from `parts` — separate masses summed together, so a
-   summit can sit on a bench which sits on a sprawling apron, which is what the
-   hero reference is: a compact cusped top on a broad lobed shelf, not a
-   pyramid. A part is either an exponential cone (`sharp`) or a flat-topped
-   mesa (`mesa`, the fraction of its radius spent falling away).
-
-   On top of that each peak carries:
-     warp    domain warp, in world units — this is what breaks the circle, and
-             it is applied once so every part of a peak distorts together.
-     spur    the coarse ridge armature: ridged noise sampled around a circle in
-             theta so it wraps with no seam, then smoothstepped so the gullies
-             come out as rounded lobes instead of V-notches.
-     flute   the same again, finer and denser, on a wobbled angle so the
-             gullies are not perfectly radial.
-   ------------------------------------------------------------------------ */
-const PEAKS = [
-  /* The studio's massif, built to the reference: a small steep summit, the
-     bench it stands on, a wide lobed apron sprawling forward, a second lobe
-     off to one side and a low bump on the front shelf. Kept deliberately
-     smooth — the reference has no fluting on it at all. */
-  { x: 5, z: -1, h:41, spread:44, seed: 11.7, rot: 0.30, aniso:1.00, warp:16,
-    spur:0.16, spurF:2.6, flute:0.05, fluteF: 9,
-    parts: [
-      { dx:  0, dz:  0, h:19.0, spread:19, sharp:2.10, aniso:1.10 }, // summit
-      { dx:  2, dz:  6, h:11.0, spread:26, sharp:2.50, aniso:1.18 }, // bench
-      { dx: -5, dz: 17, h:15.0, spread:45, mesa:0.55,  aniso:1.30 }, // apron
-      { dx: 22, dz: 10, h: 6.0, spread:28, mesa:0.50,  aniso:1.15 }, // side lobe
-      { dx: -4, dz: 15, h: 4.0, spread: 7, sharp:2.00, aniso:1.00 }, // front bump
-    ] },
-  // Groww — a broad shouldered massif, stretched across the view
-  { x:-112, z:  -98, h:23, spread:28, seed: 43.1, rot:-0.60, aniso:1.42, warp:13,
-    spur:0.34, spurF:2.0, flute:0.08, fluteF: 9,
-    parts: [ { dx:0, dz:0, h:23, spread:28, sharp:2.60, aniso:1.42 },
-             { dx:9, dz:11, h:5, spread:26, mesa:0.62, aniso:1.20 } ] },
-  // Firstpost — a horn: cusped, steep, almost no skirt
-  { x: -40, z: -124, h:23, spread:23, seed: 77.9, rot: 0.90, aniso:1.10, warp: 7,
-    spur:0.44, spurF:2.9, flute:0.12, fluteF:13,
-    parts: [ { dx:0, dz:0, h:23, spread:23, sharp:1.35, aniso:1.10 },
-             { dx:-6, dz:8, h:3, spread:20, mesa:0.70, aniso:1.10 } ] },
-  /* Breathe — a plateau, but no longer only a plateau. A mesa on its own has
-     no top: its contours stop at the rim and the middle is blank, so on the
-     walk it read as a stump next to three mountains. It keeps the flat-topped
-     bench it is built on and gains a cusped summit standing on it. */
-  { x:  44, z: -121, h:20, spread:32, seed:129.3, rot: 0.15, aniso:1.30, warp:14,
-    spur:0.30, spurF:2.2, flute:0.13, fluteF:12,
-    parts: [ { dx:0, dz:0, h: 9.5, spread:13, sharp:1.55, aniso:1.12 }, // summit
-             { dx:0, dz:0, h:13.0, spread:25, mesa:0.44, aniso:1.30 }, // the bench
-             { dx:3, dz:9, h: 5.5, spread:34, mesa:0.58, aniso:1.22 } ] },
-  /* Shyft — an even cone, near symmetric, now drawn to a point. At sharp 2.0
-     the exponential is still wide at the top and the last few rings sat almost
-     on top of each other; 1.45 gives the same mass a summit you can see. */
-  { x: 114, z:  -95, h:23, spread:26, seed:191.5, rot: 0.00, aniso:1.05, warp: 5,
-    spur:0.22, spurF:3.2, flute:0.13, fluteF:14,
-    parts: [ { dx:0, dz:0, h:23, spread:26, sharp:1.45, aniso:1.05 },
-             { dx:0, dz:6, h: 4, spread:30, mesa:0.66, aniso:1.05 } ] },
-];
+   Five summits, each with its own landform. The landform generator (parts,
+   warp, spurs, flutes) and the five peaks themselves now live in
+   assets/landform.js, so the Mountains lab sculpts with the same system. */
+const PEAKS = SITE_PEAKS.map(clonePeak);
 /* ── the hero's own country ───────────────────────────────────────────────
    In 'hero' the four client summits have no business being there. They are not
    what the section is about, and because the terrain is one mesh their
@@ -331,23 +256,10 @@ if (!MODE_RANGE && opts.terrain !== false) {
   makeCountry(seed).forEach((p, i) => { PEAKS[i + 1] = p; });
 }
 
-PEAKS.forEach(p => {
-  p._cos = Math.cos(p.rot); p._sin = Math.sin(p.rot);
-  p._ax = p.spread * p.aniso; p._az = p.spread / p.aniso;
-  let reach = 0;
-  p.parts.forEach(t => {
-    t._c = p._cos; t._s = p._sin;
-    t._ax = t.spread * t.aniso; t._az = t.spread / t.aniso;
-    /* a mesa is finished at r = 1; a cone needs a couple of radii before it is
-       numerically nothing */
-    t._lim = t.mesa ? 1.02 : 2.0;
-    reach = Math.max(reach, Math.hypot(t.dx, t.dz) + Math.max(t._ax, t._az) * t._lim);
-  });
-  /* cheap reject radius, measured before the warp so a far point never pays
-     for one — this early-out is most of what keeps the build under a second */
-  p._cut = reach + p.warp;
-  p._cut2 = p._cut * p._cut;
-});
+/* a mountain built in the Mountains lab and set to "Use in hero" / "Use as
+   summit" stands in for the authored one — in that browser only */
+if (opts.siteLandforms !== false) applySiteLandforms(PEAKS, MODE_RANGE ? 'range' : 'hero');
+PEAKS.forEach(prepareLandform);
 const PROJECT_PEAKS = [1, 2, 3, 4];        // PEAKS index per case, in CASES order
 
 const NPK = PEAKS.length;
@@ -420,50 +332,8 @@ function genFill() {
   });
 }
 if (MODE_RANGE && opts.fill) genFill();
-function coneAt(p, x, z){
-  const qx = x - p.x, qz = z - p.z;
-  if (qx*qx + qz*qz > p._cut2) return 0;
-
-  const S = p.seed;
-  // domain warp first, once — every part of this peak distorts together
-  const wx = x + p.warp * (fbmN(x*0.055 + 5.2 + S, z*0.055 - 2.1 + S, 2) - 0.5);
-  const wz = z + p.warp * (fbmN(x*0.055 - 7.7 + S, z*0.055 + 4.3 + S, 2) - 0.5);
-  const bx = wx - p.x, bz = wz - p.z;
-
-  let hSum = 0;
-  for (let k = 0; k < p.parts.length; k++){
-    const t = p.parts[k];
-    const dx = bx - t.dx, dz = bz - t.dz;
-    const px = (dx*t._c - dz*t._s) / t._ax;
-    const pz = (dx*t._s + dz*t._c) / t._az;
-    const r = Math.sqrt(px*px + pz*pz);
-    if (r > t._lim) continue;
-    hSum += t.h * (t.mesa
-      ? sstep((1 - r) / t.mesa)
-      : Math.exp(-Math.pow(r, t.sharp) * 3));
-  }
-  if (hSum < 0.02) return 0;
-
-  /* Erosion rides on the combined form, not on any one part, so a spur running
-     off the summit carries on down across the bench below it. */
-  const u = Math.min(1, hSum / p.h);
-  const flank = Math.pow(1 - u, 0.9);        // relief dies at the summit
-  const env   = 4 * u * (1 - u);             // and peaks mid-height
-
-  const ax = (bx*p._cos - bz*p._sin) / p._ax;
-  const az = (bx*p._sin + bz*p._cos) / p._az;
-  const th = Math.atan2(az, ax);
-  const sp = fbmN(Math.cos(th)*p.spurF + 31 + S, Math.sin(th)*p.spurF - 12 + S, 2);
-  const spur = sstep(1 - Math.abs(sp*2 - 1));
-
-  const thw = th + 0.38 * (fbmN(ax*0.9 + 3.3 + S, az*0.9 - 1.1 + S, 2) - 0.5);
-  const fn  = fbmN(Math.cos(thw)*p.fluteF + 57 + S, Math.sin(thw)*p.fluteF - 23 + S, 2);
-  const flute = sstep(1 - Math.abs(fn*2 - 1));
-
-  const grain = (fbmN(ax*3.4 + 2.2 + S, az*3.4 - 8.8 + S, 2) - 0.5) * 2;
-
-  return hSum + p.h * (p.spur*spur*env + p.flute*flute*env*env + 0.03*env*grain) * flank;
-}
+/* coneAt — one landform's height at a point — is in assets/landform.js,
+   shared with the Mountains lab */
 
 /* How much relief the ground between the summits carries.
 
@@ -566,45 +436,9 @@ PEAK_H[0] = MAX_H;      // keep the hero's palette mapping exactly where it was
    peak in the greys where it belongs, while peak 0 is unchanged by definition. */
 const PEAK_TONE = PEAK_H.map(h => MAX_H + (h - MAX_H) * 0.78);
 
-/* ── the survey palette ──────────────────────────────────────────────────
-   Two of them. The same GLSL function either way, so the mountain surface and
-   the contour sheet always agree — they read the ramp from one string.
-
-   'range' is this scene's own: a long dark ramp with the whole top of it
-   spent on the cap, which is what makes a peak read as lit from above when
-   the fill is still on it.
-
-   'peak' is tibba-peak.html's, lifted verbatim. It starts three times lighter
-   and tops out lower, over three bands rather than four, with a sqrt rather
-   than a 0.70 curve. On a peak drawn purely as line that is the better of the
-   two, and it is also what fixes the white cap: the range ramp puts its last
-   band between 0.42 and 0.79 brightness, so the summit rings — which are a
-   couple of pixels apart up there — all land in it at once and merge into one
-   blown-out blob. The peak ramp's top band is narrower and darker, so they
-   stay separate strokes. */
-const CT_PALETTES = {
-  range: `
-    t = pow(clamp(t, 0.0, 1.0), 0.70);
-    vec3 c0=vec3(0.048,0.054,0.108);
-    vec3 c1=vec3(0.095,0.115,0.200);
-    vec3 c2=vec3(0.210,0.250,0.380);
-    vec3 c3=vec3(0.420,0.470,0.600);
-    vec3 c4=vec3(0.790,0.820,0.905);
-    if     (t<0.25) return mix(c0,c1,t/0.25);
-    else if(t<0.50) return mix(c1,c2,(t-0.25)/0.25);
-    else if(t<0.75) return mix(c2,c3,(t-0.50)/0.25);
-    return mix(c3,c4,(t-0.75)/0.25);`,
-
-  peak: `
-    t = pow(clamp(t, 0.0, 1.0), 0.50);
-    vec3 c0 = vec3(0.170, 0.180, 0.225);
-    vec3 c1 = vec3(0.400, 0.425, 0.520);
-    vec3 c2 = vec3(0.640, 0.670, 0.775);
-    vec3 c3 = vec3(0.845, 0.870, 0.955);
-    if (t < 0.34) return mix(c0, c1, t / 0.34);
-    if (t < 0.70) return mix(c1, c2, (t - 0.34) / 0.36);
-    return mix(c2, c3, (t - 0.70) / 0.30);`,
-};
+/* the survey palettes — two ramps, now in assets/landform.js so the
+   Mountains lab draws with the same ones */
+const CT_PALETTES = CT_PALETTE_RAMPS;
 
 const CT_PALETTE_GLSL = `
   vec3 palette(float t){
