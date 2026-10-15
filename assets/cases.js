@@ -27,6 +27,8 @@ window.TIBBA_CASES = {
     id: 'groww', client: 'Groww', colour: '#4DD9C0', status: 'Work in progress',
     title: "How we helped India's largest stock broker with growwth",
     tags: ['Fintech', 'Mobile app', 'Website', 'Growth'],
+    /* the short line the v3 case heroes lead with */
+    summary: "Growth design for India's largest stock broker: a news feed inside the app, Stories that turn market events into something a first-time investor can read, and calculators that explain their own numbers.",
     meta: [
       { k: 'Expertise', v: 'Growth design, UI design, research, product strategy, design system' },
       { k: 'Deliverables', v: 'Landing pages, stocks feed, financial calculators, Groww Stories and much more' },

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-10-15T08:36:58.457Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-10-15T09:47:54.813Z by tools/make-sandbox.mjs -->
 <head>
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
@@ -46,16 +46,9 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
 <footer data-site-footer></footer>
 
 <script type="module">
-  import { mountCaHeader } from './assets/ca-nav.js';
-  import { TICKER } from './assets/site-sections.js';
-  /* Website v3's navbar, hung from the top as on the home page */
-  const h = document.getElementById('ca-header');
-  mountCaHeader(h, { announcement: TICKER, home: 'website-v3.html', nav: [
-    { label: 'Work', href: 'website-v3.html#work' }, { label: 'Services', href: 'website-v3.html#services' },
-    { label: 'About', href: 'about.html' }, { label: 'Contact', href: '#contact' }] });
-  h.classList.add('site-nav');
-  requestAnimationFrame(() => document.documentElement.classList.add('site-nav-in'));
-  h.querySelector('a[href="#contact"]').addEventListener('click', e => { e.preventDefault(); document.querySelector('[data-site-footer]').scrollIntoView({ behavior: 'smooth' }); });
+  /* Website v3's navbar, the same as the home page's (assets/site-nav.js) */
+  import { mountSiteNav } from './assets/site-nav.js';
+  mountSiteNav(document.getElementById('ca-header'), { current: 'Work' });
 </script>
 </body>
 </html>

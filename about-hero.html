@@ -20,6 +20,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="assets/ca-nav.css">
+<link rel="stylesheet" href="assets/site-shell.css">
 
 <!-- the shared control-panel design; last in the head so it wins over
      whatever styling this page declared for its own panel -->
@@ -88,10 +89,9 @@ body { color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif;
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.min.js","three/addons/":"https://unpkg.com/three@0.165.0/examples/jsm/"}}</script>
 <script type="module">
-  import { mountCaHeader } from './assets/ca-nav.js';
-  import { TICKER } from './assets/site-sections.js';
-  mountCaHeader(document.querySelector('#ca-header'), { announcement: TICKER, nav: [
-    { label: 'Work', href: 'website-v3.html#work' }, { label: 'Services', href: 'website-v3.html#services' }, { label: 'About', href: 'about.html' }, { label: 'Contact', href: 'about.html#footer' }] });
+  /* Website v3's navbar, the same as the home page's (assets/site-nav.js) */
+  import { mountSiteNav } from './assets/site-nav.js';
+  mountSiteNav(document.getElementById('ca-header'), { current: 'About' });
 </script>
 <script type="module">
   import { mountAscent, ASCENT } from './assets/about-ascent.js';

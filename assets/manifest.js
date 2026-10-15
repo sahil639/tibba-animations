@@ -137,13 +137,17 @@ window.TIBBA_SITE = {
         
         
         
-              { id: 'case-groww-v2', updated: '2026-10-08T16:31:00+07:00', change: 'New: the case study design system', label: 'v3 · Case — Groww', file: 'case-groww-v2.html',
+              { id: 'case-groww-v2', updated: '2026-10-08T16:31:00+07:00', change: 'New: the case study design system', label: 'Just. Case Study – Groww v1', file: 'case-groww-v2.html',
         note: 'Full-bleed cover, the ledger, a chapter route in the margin, numbered figures, next summit', state: 'live' },
-        { id: 'case-firstpost-v2', updated: '2026-10-08T16:31:00+07:00', change: 'New: the case study design system', label: 'v3 · Case — Firstpost', file: 'case-firstpost-v2.html',
+        { id: 'case-groww-arch', updated: '2026-10-15T18:00:00+07:00', change: 'New: the cover as a dome, the name huge over it, image plates and the next three cases', label: 'Just. Case Study – Groww v2', file: 'case-groww-arch.html',
+        note: 'Hero: the cover rising as a dome, GROWW set huge over its foot, a row of small caps under it. Then images only, at most two to a row, and three next-case cards', state: 'live' },
+        { id: 'case-groww-ledger', updated: '2026-10-15T18:00:00+07:00', change: 'New: a ruled sheet for a hero, image plates and the next three cases', label: 'Just. Case Study – Groww v3', file: 'case-groww-ledger.html',
+        note: 'Hero: hairline columns along the top, Go back, the name large on the left, the particulars and scope in ruled rows on the right, the project in justified capitals at the foot. Same plates and next cases as v2', state: 'live' },
+        { id: 'case-firstpost-v2', updated: '2026-10-08T16:31:00+07:00', change: 'New: the case study design system', label: 'Just. Case Study – Firstpost', file: 'case-firstpost-v2.html',
         note: 'The same system, Firstpost’s colour and numbers', state: 'live' },
-        { id: 'case-breathe-esg-v2', updated: '2026-10-08T16:31:00+07:00', change: 'New: the case study design system', label: 'v3 · Case — Breathe ESG', file: 'case-breathe-esg-v2.html',
+        { id: 'case-breathe-esg-v2', updated: '2026-10-08T16:31:00+07:00', change: 'New: the case study design system', label: 'Just. Case Study – Breathe ESG', file: 'case-breathe-esg-v2.html',
         note: 'The same system, with the scattered cards, the globe and the burst-and-reader kept', state: 'live' },
-        { id: 'case-shyft-mindhouse-v2', updated: '2026-10-08T16:31:00+07:00', change: 'New: the case study design system', label: 'v3 · Case — Shyft & Mindhouse', file: 'case-shyft-mindhouse-v2.html',
+        { id: 'case-shyft-mindhouse-v2', updated: '2026-10-08T16:31:00+07:00', change: 'New: the case study design system', label: 'Just. Case Study – Shyft & Mindhouse', file: 'case-shyft-mindhouse-v2.html',
         note: 'The same system, Shyft & Mindhouse’s colour and story', state: 'live' },
       ] },
 

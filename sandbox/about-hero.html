@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-10-15T08:36:58.457Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-10-15T09:47:54.813Z by tools/make-sandbox.mjs -->
 <head>
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
@@ -21,6 +21,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="assets/ca-nav.css">
+<link rel="stylesheet" href="assets/site-shell.css">
 
 <!-- the shared control-panel design; last in the head so it wins over
      whatever styling this page declared for its own panel -->
@@ -91,10 +92,9 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.min.js","three/addons/":"https://unpkg.com/three@0.165.0/examples/jsm/"}}</script>
 <script type="module">
-  import { mountCaHeader } from './assets/ca-nav.js';
-  import { TICKER } from './assets/site-sections.js';
-  mountCaHeader(document.querySelector('#ca-header'), { announcement: TICKER, nav: [
-    { label: 'Work', href: 'website-v3.html#work' }, { label: 'Services', href: 'website-v3.html#services' }, { label: 'About', href: 'about.html' }, { label: 'Contact', href: 'about.html#footer' }] });
+  /* Website v3's navbar, the same as the home page's (assets/site-nav.js) */
+  import { mountSiteNav } from './assets/site-nav.js';
+  mountSiteNav(document.getElementById('ca-header'), { current: 'About' });
 </script>
 <script type="module">
   import { mountAscent, ASCENT } from './assets/about-ascent.js';

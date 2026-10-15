@@ -140,3 +140,10 @@ html.site-locked .site-refresh { opacity: 0; pointer-events: none; }
   .site-refresh { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(10,10,12,.92); }
   .site-block .sticky { contain: strict; }
 }
+
+/* the same navbar on a page outside the shell (assets/site-nav.js): no
+   wireframe beside it on a phone, so the pill keeps both its handles */
+@media (max-width: 760px) {
+  .site-nav-solo .ca-panel { width: min(300px, calc(100vw - 48px)); }
+  .site-nav-solo .ca-panel::after { display: block; }
+}

@@ -34,7 +34,7 @@
   const S = W.SUMMITS.find(s => s.key === id), idx = W.SUMMITS.indexOf(S);
   const folder = S.folder;
 
-  document.title = C.client + ' — Tibba Design Studio';
+  document.title = 'Just. Case Study – ' + C.client + ' — Tibba Design Studio';
   document.documentElement.style.setProperty('--client', C.colour);
   const esc = W.esc, pad = n => String(n).padStart(2, '0');
   const ALT = ['4,820', '5,360', '6,190', '7,050'];
