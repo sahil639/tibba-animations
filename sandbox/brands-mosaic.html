@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- sandbox: a frozen copy of Website v3, made 2026-10-15T08:36:58.457Z by tools/make-sandbox.mjs -->
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brands — mosaic</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<script src="assets/tile-topo.js"></script>
+<script src="assets/brand-logos.js"></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Brands — the mosaic
+   ─────────────────────────────────────────────────────────────────────────
+   The same fourteen clients in boxes of different sizes. It reads as varied
+   but it is composed: a six-by-five grid with every area written out, so the
+   big blocks balance across the frame — the title and Breathe ESG as the
+   two 2×2 anchors on a falling diagonal, tall and wide tiles alternating
+   between them, and the singles filling the gaps. Random placement clumps;
+   a written grid never does.
+
+   Each tile sets its type from its own size (container queries), so a 2×2
+   brand is a headline and a single is a label, with no per-tile rules. The
+   hover is the same live contour field as the Brands page, its own
+   landform per tile. On arrival each tile opens from a hairline — top rule
+   first, then the box — in reading order, geometric and without bounce.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+
+#mosaic {
+  height: 100vh; height: 100svh; min-height: 600px;
+  display: grid; gap: 1px; background: rgba(255,255,255,.1);
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  grid-template-areas:
+    "t  t  zo zo pa gr"
+    "t  t  fp be be gr"
+    "uc hd hd be be sh"
+    "uc ti pb ie ie sh"
+    "ak ss bs bs ct ct";
+}
+.b {
+  --c: var(--accent);
+  position: relative; overflow: hidden; isolation: isolate; background: #050506;
+  container-type: size;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: clamp(12px, 1.3vw, 22px);
+  transition: background .4s linear;
+}
+.b .top, .b .bot { display: flex; justify-content: space-between; gap: 10px; font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.3); }
+.b .bot { color: var(--ink-mute); }
+.b .mark { color: #fff; line-height: 1.02; letter-spacing: -.02em; font-size: clamp(15px, 14.5cqmin, 64px); }
+.b .mark.long { font-size: clamp(13px, 10.5cqmin, 46px); }
+/* the colour logos (assets/brand-logos.js): gray at rest, colour on hover;
+   left-aligned to sit on the tile's reading line like the wordmarks did */
+.b .mark:has(.brand-logo) { display: block; }
+.b .mark .brand-logo { margin: 0; }
+.b .mark .wordmark { opacity: .62; transition: opacity var(--logo-dur, .5s) var(--logo-ease, ease); }
+.b:hover .mark .wordmark, .b:focus-visible .mark .wordmark { opacity: 1; }
+.b[data-case] .top .n { color: var(--c); }
+.b[data-case] .bot .go { color: #fff; display: inline-flex; gap: 8px; align-items: center; }
+.b[data-case] .bot .go i { width: 16px; height: 1px; background: var(--c); display: block; transition: width .3s linear; }
+.b[data-case]:hover .bot .go i { width: 34px; }
+.b .pin { position: absolute; right: 0; top: 0; width: 8px; height: 8px; background: var(--c); transform: scale(0); transition: transform .25s linear; }
+.b:hover, .b:focus-visible { background: #0c0c0e; outline: none; }
+.b:hover .pin, .b:focus-visible .pin, .b[data-case] .pin { transform: scale(1); }
+.b[data-case] .pin { opacity: .6; }
+.b:hover .pin { opacity: 1; }
+.b .tile-topo { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; opacity: 0; transition: opacity .5s linear;
+  -webkit-mask-image: radial-gradient(120% 100% at 50% 55%, #000 35%, transparent 100%); mask-image: radial-gradient(120% 100% at 50% 55%, #000 35%, transparent 100%); }
+.b.topo-on .tile-topo { opacity: .5; }
+/* a small sector readout only big tiles have room for */
+.b .sector { display: none; margin-top: 10px; font-size: 12px; color: var(--ink-mute); max-width: 26ch; }
+@container (min-width: 300px) and (min-height: 260px) { .b .sector { display: block; } }
+
+/* the title and the way in */
+.b.title { grid-area: t; background: #000; }
+.b.title .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.b.title h1 { margin-top: 14px; color: #fff; font-weight: 400; font-size: clamp(26px, 9cqmin, 60px); line-height: 1; letter-spacing: -.035em; max-width: 12ch; }
+.b.title p { color: var(--ink-mute); font-size: clamp(12px, 3.2cqmin, 15px); line-height: 1.6; max-width: 40ch; }
+.b.cta { grid-area: ct; background: #0a0a0b; justify-content: center; }
+.b.cta .q { color: #fff; font-size: clamp(18px, 12cqmin, 32px); letter-spacing: -.02em; }
+.b.cta .q em { font-style: normal; color: var(--accent); }
+.b.cta .go { margin-top: 12px; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; display: inline-flex; gap: 10px; align-items: center; }
+.b.cta .go i { width: 22px; height: 1px; background: var(--accent); display: block; transition: width .3s linear; }
+.b.cta:hover .go i { width: 44px; }
+
+/* ── the arrival ─────────────────────────────────────────────────────────
+   Once. The wall waits as the site's black, then every box fades and slides
+   in at its own random moment, the whole grid inside 600ms, and the
+   hairlines come up behind the last of them. */
+.b::before { content: none; }
+#mosaic:not(.settled) { background: #000; transition: background .2s .4s linear; }
+#mosaic.on:not(.settled) { background: rgba(255,255,255,.1); }
+#mosaic:not(.on) .b { opacity: 0; transform: translateY(14px); }
+#mosaic.on .b { animation: bm-in .24s var(--d) cubic-bezier(.22,1,.36,1) both; }
+@keyframes bm-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+#mosaic.settled .b, #mosaic.settled .b > * { animation: none !important; opacity: 1; transform: none; }
+
+/* ── mobile: one viewport ─────────────────────────────────────────────────
+   Under 760px the mosaic gives way to #mosaic-m: the heading, then four
+   rows of bordered tiles in a brick bond that run off both edges. They
+   arrive once and hold still; the panel can set the rows drifting (alternate
+   rows the other way) so the cut-off logos come round into view. No gutters anywhere: the tiles share their hairlines
+   edge to edge, row on row.
+   MOBILE_BRANDS in the script: rows, logos per row, row height, speed —
+   all on the panel under "Mobile". */
+#mosaic-m { display: none; }
+@media (max-width: 760px) {
+  #mosaic { display: none; }
+  #mosaic-m { display: flex; flex-direction: column; overflow: hidden; background: #000; }
+  #mosaic-m .head { padding: 22px 16px 18px; flex: none; }
+  #mosaic-m .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+  #mosaic-m h1 { margin-top: 12px; color: #fff; font-weight: 400; font-size: clamp(26px, 8.4vw, 40px); line-height: 1.02; letter-spacing: -.035em; max-width: 13ch; }
+  #mosaic-m .head p { margin-top: 14px; color: var(--ink-mute); font-size: 13.5px; line-height: 1.6; max-width: 44ch; }
+  #mosaic-m .rows { display: grid; gap: 0; border-top: 1px solid rgba(255,255,255,.16); }
+  #mosaic-m .row { position: relative; overflow: hidden; height: var(--row-h, 22vw); border-bottom: 1px solid rgba(255,255,255,.16); }
+  #mosaic-m .track { position: absolute; top: 0; bottom: 0; left: 0; display: flex; gap: 0; will-change: transform;
+    transform: translateX(var(--start, 0)); }
+  /* the drift used to run for ever; the wall now arrives once and holds.
+     The panel can still switch the drift back on. */
+  #mosaic-m.drift .track { animation: bm-drift var(--dur, 60s) linear infinite var(--dir, normal); }
+  #mosaic-m:not(.on) .t { opacity: 0; transform: translateY(12px); }
+  #mosaic-m.on .t { animation: bm-in .24s var(--d) cubic-bezier(.22,1,.36,1) both; }
+  @keyframes bm-drift { from { transform: translateX(var(--start, 0)); } to { transform: translateX(calc(var(--start, 0px) - 50%)); } }
+  #mosaic-m .t { flex: none; width: var(--tile-w, 40vw); height: 100%; display: grid; place-items: center;
+    border-right: 1px solid rgba(255,255,255,.16); background: #000; }
+  #mosaic-m .t .wordmark { color: #fff; font-size: 22px; letter-spacing: .02em; font-weight: 700; text-transform: uppercase; }
+}
+@media (max-width: 760px) and (prefers-reduced-motion: reduce) { #mosaic-m .track { animation: none; } }
+@media (max-width: 860px) and (min-width: 761px) {
+  #mosaic { height: auto; grid-template-columns: repeat(2, 1fr); grid-template-rows: none; grid-auto-rows: 38vw;
+    grid-template-areas: "t t" "t t" "zo zo" "pa gr" "fp gr" "be be" "be be" "uc hd" "uc ti" "pb sh" "ie sh" "ak ss" "bs bs" "ct ct"; }
+}
+@media (prefers-reduced-motion: reduce) { #mosaic .b, #mosaic .b * { animation: none !important; clip-path: none !important; } }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+<style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
+html[data-wb-dock] body { padding-right: 0 !important; }</style>
+</head>
+<body>
+
+<section id="mosaic" aria-label="Brands we have worked with">
+  <div class="b title">
+    <div>
+      <p class="eyebrow">[ &nbsp;Brands&nbsp; ]</p>
+      <h1>We've worked with start ups and market leaders</h1>
+    </div>
+    <p>Over the past decade we've helped companies deliver food, perform services,
+       insure health, provide financial services, publish news and sell products.</p>
+  </div>
+  <a class="b cta" href="mailto:hello@tibba.design">
+    <p class="q">Your summit <em>next?</em></p>
+    <span class="go">Start a project<i></i></span>
+  </a>
+</section>
+
+<section id="mosaic-m" aria-label="Brands we have worked with">
+  <div class="head">
+    <p class="eyebrow">[ &nbsp;Brands&nbsp; ]</p>
+    <h1>We've worked with start ups and market leaders</h1>
+    <p>Over the past decade we've helped companies deliver food, perform services,
+       insure health, provide financial services, publish news and sell products.</p>
+  </div>
+  <div class="rows" id="mosaic-rows"></div>
+</section>
+
+<script>
+/* MOBILE_BRANDS — the mobile layout (under 760px). Rows of equal tiles
+   with no gutters, alternate rows set half a tile over (brick bond) and
+   drifting the other way. Every value is on the panel under "Mobile". */
+const MOBILE_BRANDS = {
+  logo: { size: 0.52, maxWidth: 0.7, maxHeight: 0.34, maxWidthPx: 200, maxHeightPx: 48 },   // LOGO_CONFIG overrides for these tiles
+  rows: 4,            // how many rows
+  perRow: 2.5,        // logos across the screen in each row
+  rowHeight: 24,      // vw — the height of a row (of every box)
+  speed: 2.4,         // vw per second each row drifts
+  order: ['shyft', 'paytm', 'groww', 'firstpost', 'the-indian-express', 'zomato', 'apnaklub', 'hdfc-bank',
+          'breatheesg', 'the-times-of-india', 'policybazaar', 'simsim', 'urban-company', 'bombay-shirt-company'],
+};
+</script>
+<script>
+(function () {
+  /* area, name, sector, year — and the four with a summit carry a colour */
+  /* area, name, sector, year, colour, case file — and the logo key in
+     BrandLogos.LOGOS (assets/brand-logos.js); no key = a wordmark */
+  const BRANDS = [
+    ['zo', 'Zomato', 'Foodtech · App & website', '2015', , , 'zomato'],
+    ['pa', 'Paytm', 'Fintech · App', '2017', , , 'paytm'],
+    ['gr', 'Groww', 'Fintech · App & website', '2024', '#4DD9C0', 'case-groww-v2.html', 'groww'],
+    ['fp', 'Firstpost', 'News & media · App & website', '2023', '#E05555', 'case-firstpost-v2.html', 'firstpost'],
+    ['be', 'Breathe ESG', 'SaaS · ESG dashboard', '2023', '#4CAF70', 'case-breathe-esg-v2.html', 'breatheesg'],
+    ['uc', 'Urban Company', 'Urban services · App', '2016', , , 'urban-company'],
+    ['hd', 'HDFC Bank', 'Fintech · Rewards platform', '2019', , , 'hdfc-bank'],
+    ['ti', 'The Times of India', 'News & media · Website', '2018', , , 'the-times-of-india'],
+    ['pb', 'Policybazaar', 'Insurtech · App', '2019', , , 'policybazaar'],
+    ['ie', 'The Indian Express', 'News & media · App & website', '2021', , , 'the-indian-express'],
+    ['sh', 'Shyft & Mindhouse', 'Fitness & mental health · App', '2023', '#7B8FF5', 'case-shyft-mindhouse-v2.html', 'shyft'],
+    ['ak', 'Apnaklub', 'B2B wholesale · App', '2022', , , 'apnaklub'],
+    ['ss', 'simsim', 'Social commerce · App', '2020', , , 'simsim'],
+    ['bs', 'Bombay Shirt Company', 'Ecommerce · Website', '2018', , , 'bombay-shirt-company'],
+  ];
+  const wall = document.getElementById('mosaic');
+  const cta = wall.querySelector('.cta');
+  const esc = s => s.replace(/&/g, '&amp;');
+  BRANDS.forEach(([area, name, sector, since, colour, file, logo], i) => {
+    const el = document.createElement(file ? 'a' : 'div');
+    el.className = 'b'; el.style.gridArea = area;
+    if (file) { el.href = file; el.dataset.case = ''; el.style.setProperty('--c', colour); } else el.tabIndex = 0;
+    el.innerHTML = `
+      <span class="top"><span class="n">${String(i + 1).padStart(2, '0')}</span><span>${since}</span></span>
+      <div><span class="mark${!logo && name.length > 14 ? ' long' : ''}">${logo ? window.BrandLogos.img(logo) : `<span class="wordmark">${esc(name)}</span>`}</span><p class="sector">${esc(sector)}</p></div>
+      <span class="bot"><span>${esc(sector.split(' · ')[0])}</span>${file ? '<span class="go">Case study<i></i></span>' : ''}</span>
+      <span class="pin"></span>`;
+    el.setAttribute('aria-label', `${name} — ${sector}, since ${since}`);
+    el.dataset.logoHost = '';
+    wall.insertBefore(el, cta);
+    window.TileTopo.attach(el, { seed: i * 13 + 5, colour: colour || '#FF4B1F' });
+  });
+  window.TileTopo.attach(cta, { seed: 71, pattern: 'twin' });
+  window.BrandLogos.size(wall);
+
+  /* the mobile rows: each track holds its tiles twice, so drifting it by
+     half its width comes round seamlessly */
+  const rowsEl = document.getElementById('mosaic-rows');
+  const M = MOBILE_BRANDS;
+  function buildRows() {
+    const tileW = 100 / M.perRow, list = M.order, n = Math.max(Math.ceil(M.perRow) + 2, 5);
+    rowsEl.style.setProperty('--tile-w', tileW + 'vw');
+    rowsEl.style.setProperty('--row-h', M.rowHeight + 'vw');
+    rowsEl.innerHTML = Array.from({ length: M.rows }, (_, i) => {
+      /* each row starts a few brands further along, so no two rows read alike */
+      const keys = Array.from({ length: n }, (_, k) => list[(i * 3 + k) % list.length]);
+      const tiles = keys.map(k => `<div class="t" data-logo-host>${
+        window.BrandLogos.LOGOS[k] ? window.BrandLogos.img(k) : `<span class="wordmark">${esc(k)}</span>`}</div>`).join('');
+      const start = -(i % 2 ? tileW * 0.5 : 0) - tileW * 0.25;            // brick bond
+      const dur = (n * tileW) / Math.max(0.05, M.speed);                 // one set's width at speed
+      return `<div class="row"><div class="track" style="--start:${start}vw;--dur:${dur.toFixed(2)}s;--dir:${i % 2 ? 'reverse' : 'normal'}">${tiles}${tiles}</div></div>`;
+    }).join('');
+    window.BrandLogos.size(rowsEl, M.logo);
+  }
+  /* speed alone only retimes the drift, so the rows don't jump */
+  function retime() {
+    const tileW = 100 / M.perRow, n = Math.max(Math.ceil(M.perRow) + 2, 5);
+    rowsEl.querySelectorAll('.track').forEach(t => t.style.setProperty('--dur', ((n * tileW) / Math.max(0.05, M.speed)).toFixed(2) + 's'));
+  }
+  buildRows();
+
+  /* the arrival: each box at a random moment in the first 360ms, 240ms each
+     — the whole grid in by 600ms. Once per page view. */
+  const mobileWall = document.getElementById('mosaic-m');
+  function order(root, sel) {
+    root.querySelectorAll(sel).forEach(b => b.style.setProperty('--d', (Math.random() * 0.36).toFixed(3) + 's'));
+  }
+  function play() {
+    order(wall, ':scope > *'); order(mobileWall, '.t');
+    [wall, mobileWall].forEach(w => { w.classList.remove('on', 'settled'); void w.offsetWidth; w.classList.add('on'); });
+    setTimeout(() => wall.classList.add('settled'), 650);
+  }
+  let played = false;
+  const io = new IntersectionObserver(entries => {
+    if (played || !entries.some(e => e.isIntersecting)) return;
+    played = true; io.disconnect(); play();
+  }, { threshold: .3 });
+  io.observe(wall); io.observe(mobileWall);
+
+  const el = document.createElement('div');
+  el.id = 'tune';
+  el.innerHTML = `<div id="tune-head"><b>Brands mosaic</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <p class="tune-sub">Load-in</p><div class="row inline"><label>Arrival<i></i></label><button class="tune-btn" id="b-rp">Replay</button></div>
+    <p class="tune-sub">Mobile (under 760px)</p>
+    <div class="row"><label>Box height<i id="v-mh">${M.rowHeight}vw</i></label><input type="range" id="s-mh" min="12" max="40" step="0.5" value="${M.rowHeight}" data-u="vw"></div>
+    <div class="row"><label>Logos per row<i id="v-mp">${M.perRow}</i></label><input type="range" id="s-mp" min="1.5" max="5" step="0.5" value="${M.perRow}" data-u=""></div>
+    <div class="row"><label>Rows<i id="v-mr">${M.rows}</i></label><input type="range" id="s-mr" min="2" max="8" step="1" value="${M.rows}" data-u=""></div>
+    <div class="row inline"><label>Drift the rows<i></i></label><input type="checkbox" id="s-dr"></div>
+    <div class="row"><label>Drift speed<i id="v-ms">${M.speed}vw/s</i></label><input type="range" id="s-ms" min="0" max="12" step="0.1" value="${M.speed}" data-u="vw/s"></div>
+    ${window.logoPanel()}`;
+  document.body.appendChild(el);
+  window.bindLogoPanel(el);
+  [['mh', 'rowHeight', () => rowsEl.style.setProperty('--row-h', M.rowHeight + 'vw')], ['mp', 'perRow', buildRows], ['mr', 'rows', buildRows], ['ms', 'speed', retime]]
+    .forEach(([id, key, fn]) => el.querySelector('#s-' + id).addEventListener('input', e => {
+      M[key] = +e.target.value; el.querySelector('#v-' + id).textContent = e.target.value + e.target.dataset.u; fn();
+      if (id === 'mh') window.BrandLogos.size(rowsEl);
+    }));
+  el.querySelector('#b-rp').addEventListener('click', play);
+  el.querySelector('#s-dr').addEventListener('change', e => mobileWall.classList.toggle('drift', e.target.checked));
+  el.querySelector('#tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+})();
+</script>
+</body>
+</html>

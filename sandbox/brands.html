@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- sandbox: a frozen copy of Website v3, made 2026-10-15T08:36:58.457Z by tools/make-sandbox.mjs -->
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brands</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<script src="assets/odometer.js" defer></script>
+<script src="assets/tile-topo.js"></script>
+<script src="assets/brand-logos.js" defer></script>
+
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Brands — the logo wall as a mosaic
+   ─────────────────────────────────────────────────────────────────────────
+   Every client in its own tile, and the tiles fill the viewport: five
+   columns by four rows at desktop, split by the same hairline the rest of
+   the site draws its frames with. The title takes a 2×2 block in the top
+   left and the way in takes a 2×1 at the bottom right, so the fourteen
+   brands make up the rest of the twenty cells exactly.
+
+   The marks are the clients' own colour logos (assets/logos/), shown in
+   grayscale and turning to colour on hover of the tile. Sizing, grayscale
+   and the hover timing are LOGO_CONFIG in assets/brand-logos.js, shared
+   with brands-mosaic.html. A brand without artwork
+   is set as a wordmark in the studio face.
+
+   The tiles arrive once, the first time the wall is on screen: each at a
+   random moment, the whole grid within 600ms, on the site's black. On hover a tile lifts, a live contour field of its own
+   (assets/tile-topo.js) runs behind the mark, and the sector and year slide up; the four with a summit on the
+   range carry their route colour and link to their case study.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #000; color: var(--ink-warm);
+  font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+
+#brands {
+  height: 100vh; height: 100svh; min-height: 560px;
+  display: grid; gap: 1px; background: rgba(255,255,255,.09);
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  border-top: 1px solid rgba(255,255,255,.09); border-bottom: 1px solid rgba(255,255,255,.09);
+  overflow: hidden;
+}
+
+/* ── the tiles ─────────────────────────────────────────────────────────── */
+.tile {
+  --c: var(--accent);
+  position: relative; overflow: hidden; background: #050506;
+  display: grid; place-items: center;
+  padding: clamp(14px, 1.4vw, 22px);
+  transition: background .5s var(--ease);
+  isolation: isolate;
+}
+.tile .n, .tile .yr {
+  position: absolute; top: clamp(12px, 1.2vw, 18px);
+  font-size: 9.5px; letter-spacing: .18em; color: rgba(255,255,255,.26);
+  transition: color .3s;
+}
+.tile .n { left: clamp(14px, 1.4vw, 22px); }
+.tile .yr { right: clamp(14px, 1.4vw, 22px); }
+.tile .meta {
+  position: absolute; left: clamp(14px, 1.4vw, 22px); right: clamp(14px, 1.4vw, 22px); bottom: clamp(12px, 1.2vw, 18px);
+  display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+  font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-mute);
+  opacity: 0; transform: translateY(10px);
+  transition: opacity .35s var(--ease), transform .5s var(--ease);
+}
+.tile .meta .go { color: #fff; white-space: nowrap; display: inline-flex; gap: 8px; align-items: center; }
+.tile .meta .go i { display: block; width: 16px; height: 1px; background: var(--c); }
+
+/* the mark */
+.tile .mark {
+  position: relative; z-index: 1; text-align: center; color: #fff;
+  font-size: clamp(16px, 1.7vw, 26px); line-height: 1.05;
+  transition: transform .6s var(--ease), color .3s;
+}
+.tile .mark:has(.brand-logo) { display: grid; place-items: center; }
+.tile .mark .wordmark { opacity: .62; transition: opacity var(--logo-dur, .5s) var(--logo-ease, ease); }
+.tile:hover .mark .wordmark, .tile:focus-visible .mark .wordmark { opacity: 1; }
+
+/* A live contour field behind the mark, on hover — each tile its own
+   landform and drift (assets/tile-topo.js). Only a hovered tile runs. */
+.tile .tile-topo {
+  position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;
+  opacity: 0; transition: opacity .6s var(--ease);
+  -webkit-mask-image: radial-gradient(120% 100% at 50% 55%, #000 35%, transparent 100%);
+          mask-image: radial-gradient(120% 100% at 50% 55%, #000 35%, transparent 100%);
+}
+.tile.topo-on .tile-topo { opacity: .55; }
+/* the orange square, top right */
+.tile::after {
+  content: ''; position: absolute; right: 0; top: 0; width: 8px; height: 8px; background: var(--c);
+  transform: scale(0); transform-origin: top right; transition: transform .45s cubic-bezier(.34,1.56,.64,1);
+}
+.tile:hover, .tile:focus-visible { background: #0d0d0f; outline: none; }
+.tile:hover::after, .tile:focus-visible::after { transform: scale(1); }
+.tile:hover .mark, .tile:focus-visible .mark { transform: translateY(-8px) scale(1.04); }
+.tile:hover .meta, .tile:focus-visible .meta { opacity: 1; transform: none; }
+.tile:hover .n, .tile:hover .yr { color: rgba(255,255,255,.6); }
+.tile[data-case] .n { color: var(--c); }
+.tile[data-case]::after { transform: scale(.6); }
+.tile[data-case]:hover::after { transform: scale(1); }
+
+/* ── the title tile ────────────────────────────────────────────────────── */
+.tile.title {
+  grid-column: 1 / span 2; grid-row: 1 / span 2;
+  place-items: stretch; align-content: space-between; display: grid; background: #000;
+  padding: clamp(20px, 2.4vw, 40px);
+}
+.tile.title::after { display: none; }
+.tile.title .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.tile.title h2 {
+  margin-top: 16px; max-width: 13ch; color: #fff; font-weight: 400;
+  font-size: clamp(28px, 3.3vw, 54px); line-height: 1.02; letter-spacing: -.035em;
+}
+.tile.title p { max-width: 40ch; color: var(--ink-mute); font-size: clamp(12.5px, .95vw, 14px); line-height: 1.7; }
+.tile.title .count { display: flex; gap: 22px; margin-top: 18px; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); }
+.tile.title .count b { display: block; font-size: 22px; letter-spacing: -.02em; color: #fff; font-weight: 400; margin-bottom: 4px; }
+
+/* ── the way in ────────────────────────────────────────────────────────── */
+.tile.cta { grid-column: 4 / span 2; grid-row: 4; background: #0a0a0b; place-items: center start; padding-left: clamp(20px, 2.4vw, 40px); }
+.tile.cta .q { font-size: clamp(18px, 1.8vw, 28px); letter-spacing: -.02em; color: #fff; line-height: 1.15; }
+.tile.cta .q em { font-style: normal; color: var(--accent); }
+.tile.cta .go {
+  margin-top: 14px; display: inline-flex; align-items: center; gap: 10px;
+  font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: #fff;
+}
+.tile.cta .go i { width: 22px; height: 1px; background: var(--accent); display: block; transition: width .3s var(--ease); }
+.tile.cta:hover .go i { width: 46px; }
+.tile.cta:hover .q, .tile.cta:hover .mark { transform: none; }
+
+/* ── the load-in ─────────────────────────────────────────────────────────
+   Played once. While it waits, the wall is the site's own black — no grid
+   lines, no empty boxes. Then every box fades and slides in at its own
+   random moment, the whole grid inside 600ms (--d ≤ .36s + .24s each), and
+   the hairlines come up as the last boxes land. */
+.tile { --d: 0s; }
+#brands:not(.settled) { background: #000; transition: background .2s .4s linear; }
+#brands.on:not(.settled) { background: rgba(255,255,255,.09); }
+#brands:not(.on) .tile { opacity: 0; transform: translateY(14px); }
+#brands.on .tile { animation: b-in .24s var(--d) cubic-bezier(.22,1,.36,1) both; }
+@keyframes b-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+#brands.settled .tile { animation: none; opacity: 1; transform: none; }
+
+@media (max-width: 860px) {
+  #brands { height: auto; grid-template-columns: repeat(2, 1fr); grid-template-rows: none; grid-auto-rows: 34vw; }
+  .tile.title { grid-column: 1 / -1; grid-row: auto; min-height: 70vw; }
+  .tile.cta { grid-column: 1 / -1; grid-row: auto; }
+  .tile .meta { opacity: 1; transform: none; font-size: 8.5px; }
+  .tile .meta span:first-child { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #brands .tile, #brands .tile * { animation: none !important; clip-path: none !important; opacity: 1 !important; }
+}
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+<style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
+html[data-wb-dock] body { padding-right: 0 !important; }</style>
+</head>
+<body>
+
+<section id="brands" aria-label="Brands we have worked with">
+  <div class="tile title">
+    <div>
+      <p class="eyebrow">[ &nbsp;Brands&nbsp; ]</p>
+      <h2>We've worked with start ups and market leaders</h2>
+    </div>
+    <div>
+      <p>Over the past decade we've helped companies deliver food, perform services,
+         insure health, provide financial services, publish news and sell products.</p>
+      <div class="count"><span><b>14</b>Brands</span><span><b>06</b>Sectors</span><span><b>04</b>Summits</span></div>
+    </div>
+  </div>
+  <!-- the fourteen tiles go here, from BRANDS -->
+  <a class="tile cta" href="mailto:hello@tibba.design" id="cta">
+    <div>
+      <p class="q">Your summit <em>next?</em></p>
+      <span class="go">Start a project<i></i></span>
+    </div>
+  </a>
+</section>
+
+<script>
+/* The wall, in the order the reference sets it. `logo` is a key of
+   BrandLogos.LOGOS (assets/brand-logos.js). `type` is how a brand without
+   artwork is set as a wordmark: weight, case and tracking. */
+const BRANDS = [
+  { name: 'Zomato',               meta: 'Foodtech',        since: '2015', logo: 'zomato' },
+  { name: 'Paytm',                meta: 'Fintech',         since: '2017', logo: 'paytm' },
+  { name: 'Groww',                meta: 'Fintech',         since: '2024', logo: 'groww', colour: '#4DD9C0', file: 'case-groww-v2.html' },
+  { name: 'Firstpost',            meta: 'News & media',    since: '2023', logo: 'firstpost', colour: '#E05555', file: 'case-firstpost-v2.html' },
+  { name: 'Breathe ESG',          meta: 'SaaS · ESG',      since: '2023', logo: 'breatheesg', colour: '#4CAF70', file: 'case-breathe-esg-v2.html' },
+  { name: 'Urban Company',        meta: 'Urban services',  since: '2016', logo: 'urban-company' },
+  { name: 'HDFC Bank',            meta: 'Rewards',         since: '2019', logo: 'hdfc-bank' },
+  { name: 'The Times of India',   meta: 'News & media',    since: '2018', logo: 'the-times-of-india' },
+  { name: 'Policybazaar',         meta: 'Insurtech',       since: '2019', logo: 'policybazaar' },
+  { name: 'The Indian Express',   meta: 'News & media',    since: '2021', logo: 'the-indian-express' },
+  { name: 'Shyft & Mindhouse',    meta: 'Health',          since: '2023', logo: 'shyft', colour: '#7B8FF5', file: 'case-shyft-mindhouse-v2.html' },
+  { name: 'Apnaklub',             meta: 'B2B wholesale',   since: '2022', logo: 'apnaklub' },
+  { name: 'simsim',               meta: 'Social commerce', since: '2020', logo: 'simsim' },
+  { name: 'Bombay Shirt Company', meta: 'Ecommerce',       since: '2018', logo: 'bombay-shirt-company' },
+];
+
+addEventListener('DOMContentLoaded', function () {
+  const wall = document.getElementById('brands');
+  const cta = document.getElementById('cta');
+  const esc = s => s.replace(/&/g, '&amp;');
+
+  BRANDS.forEach((b, i) => {
+    const el = document.createElement(b.file ? 'a' : 'div');
+    el.className = 'tile';
+    if (b.file) { el.href = b.file; el.dataset.case = ''; el.style.setProperty('--c', b.colour); }
+    else el.tabIndex = 0;
+    /* each tile's rings sit a little differently, so the wall is not
+       fourteen copies of the same drawing */
+    const [w, c, ls] = b.type || [];
+    const mark = b.logo
+      ? window.BrandLogos.img(b.logo)
+      : `<span class="wordmark" style="font-weight:${w};text-transform:${c === 'upper' ? 'uppercase' : c === 'lower' ? 'lowercase' : 'none'};letter-spacing:${ls}em;${b.small ? 'font-size:.72em;max-width:12ch;display:inline-block' : ''}">${esc(b.name)}</span>`;
+    el.innerHTML = `
+      <span class="n">${String(i + 1).padStart(2, '0')}</span>
+      <span class="yr">${b.since}</span>
+      <span class="mark">${mark}</span>
+      <span class="meta"><span>${esc(b.meta)}</span>${b.file ? '<span class="go">Case study<i></i></span>' : ''}</span>`;
+    el.setAttribute('aria-label', `${b.name} — ${b.meta}, since ${b.since}`);
+    el.dataset.logoHost = '';
+    wall.insertBefore(el, cta);
+    /* its own contour animation on hover: a different landform per tile */
+    window.TileTopo.attach(el, { seed: i * 7 + 3, colour: b.colour || '#FF4B1F' });
+  });
+
+  window.TileTopo.attach(cta, { seed: 97, pattern: 'ridge' });
+  window.BrandLogos.size(wall);
+
+  /* Random arrival: each box gets its own moment in the first 360ms, so
+     with a 240ms fade the whole grid is in by 600ms. Shuffled fresh each
+     play, not a pattern sweeping across. */
+  function stagger() {
+    [...wall.children].forEach(t => t.style.setProperty('--d', (Math.random() * 0.36).toFixed(3) + 's'));
+  }
+  let played = false;
+  function play() {
+    stagger();
+    wall.classList.remove('on', 'settled'); void wall.offsetWidth;
+    wall.classList.add('on');
+    setTimeout(() => wall.classList.add('settled'), 650);
+  }
+
+  /* once per page view: the observer lets go after the first arrival */
+  const io = new IntersectionObserver(([e]) => {
+    if (!e.isIntersecting || played) return;
+    played = true; io.disconnect(); play();
+  }, { threshold: 0.35 });
+  io.observe(wall);
+
+  /* the panel: replay the wave */
+  const el = document.createElement('div');
+  el.id = 'tune';
+  el.innerHTML = `
+    <div id="tune-head"><b>Brands</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <p class="tune-sub">Load-in</p>
+    <div class="row inline"><label>Arrival<i></i></label><button class="tune-btn" id="b-replay">Replay</button></div>
+    ${logoPanel()}`;
+  document.body.appendChild(el);
+  bindLogoPanel(el, wall);
+  el.querySelector('#b-replay').addEventListener('click', play);
+  el.querySelector('#tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+  if (window.wb && window.wb.adopt) window.wb.adopt();
+});
+</script>
+</body>
+</html>

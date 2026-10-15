@@ -18,12 +18,12 @@
      Website v3 — the work, first
 
        Loader → Hero (Active Peak) → Metrics   site-hero.html, as v2
-       Selected work                           work-summits.html — the four
-                                               summits stacked, image-led
+       Our summits                             summits-basecamp-layered.html —
+                                               Base Camp, the layered range
        Brands                                  brands.html (the mosaic on phones)
        More work                               work-index.html — the index,
                                                covers following the pointer
-       Our services                            services-gear.html
+       Our services                            services-gear-bags-v2.html
        Testimonials                            testimonials-topo.html
        Our studio                              studio-polaroid-frames.html
        Footer                                  footer-dusk-grid.html
@@ -43,9 +43,11 @@
 
 <script type="module">
   import { mountSite } from './assets/site-shell.js';
-  import { V3_SECTIONS, V3_LINKS, resolveLayout, sectionsFor } from './assets/site-sections.js';
+  import { V3_SECTIONS, V3_LINKS, V3_LAYOUT_KEY, loadLayout, resolveLayout, sectionsFor } from './assets/site-sections.js';
+  /* the arrangement made in the Modular hub, if any (?default ignores it) */
+  const layout = /[?&]default\b/.test(location.search) ? resolveLayout(null, V3_SECTIONS) : loadLayout(V3_SECTIONS, V3_LAYOUT_KEY);
   window.tibba = mountSite({
-    sections: sectionsFor(resolveLayout(null, V3_SECTIONS), V3_SECTIONS),
+    sections: sectionsFor(layout, V3_SECTIONS),
     home: '#',
     links: V3_LINKS,
   });

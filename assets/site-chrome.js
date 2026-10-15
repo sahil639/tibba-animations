@@ -19,10 +19,10 @@
      the same order: the footer, the "other projects" rail at the foot of a
      case study, and the summits section on the home page. */
   const CASES = [
-    { id: 'groww',     name: 'Groww',              file: 'case-groww.html' },
-    { id: 'firstpost', name: 'Firstpost',          file: 'case-firstpost.html' },
-    { id: 'breathe',   name: 'Breathe ESG',        file: 'case-breathe-esg.html' },
-    { id: 'shyft',     name: 'Shyft & Mindhouse',  file: 'case-shyft-mindhouse.html' },
+    { id: 'groww',     name: 'Groww',              file: 'case-groww-v2.html' },
+    { id: 'firstpost', name: 'Firstpost',          file: 'case-firstpost-v2.html' },
+    { id: 'breathe',   name: 'Breathe ESG',        file: 'case-breathe-esg-v2.html' },
+    { id: 'shyft',     name: 'Shyft & Mindhouse',  file: 'case-shyft-mindhouse-v2.html' },
   ];
 
   const NAV = [

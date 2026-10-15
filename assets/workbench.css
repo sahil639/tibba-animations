@@ -105,6 +105,11 @@
   color: var(--wb-dim); border: 1px solid var(--wb-line);
 }
 .wb-home:hover { color: var(--wb-fg); border-color: var(--wb-faint); }
+/* All sections and Modular, side by side */
+.wb-homes { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 0 6px 6px; }
+.wb-homes .wb-home { margin: 0; justify-content: center; }
+.wb-modular::before { content: ''; width: 6px; height: 6px; background: var(--wb-accent); flex: none; }
+.wb-modular[aria-current="page"] { color: var(--wb-fg); border-color: var(--wb-accent); }
 
 .wb-group + .wb-group { border-top: 1px solid var(--wb-line); }
 .wb-group > summary {

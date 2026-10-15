@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- sandbox: a frozen copy of Website v3, made 2026-10-15T08:36:58.457Z by tools/make-sandbox.mjs -->
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our services — gear bags v2 (new copy)</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<script src="assets/odometer.js" defer></script>
+<script src="assets/services.js"></script>
+<script src="assets/service-icons.js"></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Our services — gear bags v2: the new copy (a copy of Gear tiers — bags)
+   ─────────────────────────────────────────────────────────────────────────
+   Same layout and bags. The content is rewritten: four services per stage,
+   each a short title and one line, shown in full; each stage adds its own
+   four and carries the earlier ones (marked "+ New" / "Carried from"); an
+   outcome per stage; a line per bag; and, as an option on the panel, the
+   typical engagement and a call to action per stage.
+   ═════════════════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════════════════
+   (the original notes)
+   ─────────────────────────────────────────────────────────────────────────
+   Gear tiers' layout and behaviour, with the mat under the stage switcher
+   holding the three bags of Misc — Bags in 3D instead of the flat kit:
+
+     01 Waist pack    early-stage startups
+     02 Day pack      mid-stage startups
+     03 Hiking bag    established companies
+
+   The bags are misc-bags.html?embed in a frame — the same model, contour
+   lines and baked settings — and a stage change plays its switch: the bag
+   shrinks away, the next one grows in with a small overshoot.
+
+   To the right, as before, the stage and its services in two columns.
+   Every value: GEAR_CONFIG in the script, on the panel, and bakeable.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --line: rgba(233,236,242,.12); --line-2: rgba(233,236,242,.22); --acc: #FF4B1F; }
+body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; }
+.gs { max-width: 1520px; margin: 0 auto; padding: clamp(84px, 12vh, 130px) var(--gut) clamp(56px, 9vh, 100px); }
+
+/* the heading */
+.gs-title { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; padding-bottom: clamp(16px, 2.4vh, 28px); border-bottom: 1px solid var(--line); }
+.gs-title .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--acc); }
+.gs-title h1 { margin-top: 12px; color: #fff; font-weight: 400; font-size: clamp(30px, 3.3vw, 56px); line-height: 1; letter-spacing: -.035em; }
+.gs-title > p { max-width: 34ch; font-size: 12.5px; line-height: 1.6; color: var(--ink-mute); text-align: right; }
+.gs-title > p b { color: #fff; font-weight: 400; }
+
+.gs-body { margin-top: clamp(24px, 4vh, 44px); display: grid; grid-template-columns: minmax(0, .74fr) minmax(0, 1.26fr); gap: clamp(28px, 4vw, 72px); align-items: start; }
+
+/* ── the tiers ─────────────────────────────────────────────────────────── */
+.tiers { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); }
+.tier { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 13px 16px 14px; background: none; border: 0; border-right: 1px solid var(--line);
+  cursor: pointer; text-align: left; color: rgba(233,236,242,.62); transition: color .2s linear, background .2s linear; min-width: 0; }
+.tier:last-child { border-right: 0; }
+.tier .n { display: inline-flex; align-items: center; gap: 8px; font-size: 10.5px; letter-spacing: .16em; color: var(--ink-faint); }
+.tier .l { font-size: clamp(13px, .95vw, 15px); color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.tier .s { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); }
+.tier::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--acc); transform: scaleX(0); transform-origin: left; transition: transform .45s cubic-bezier(.65,0,.35,1); }
+.tier:hover { color: #fff; }
+.tier[aria-selected="true"] { color: #fff; background: rgba(255,255,255,.035); }
+.tier[aria-selected="true"] .n { color: var(--acc); }
+.tier[aria-selected="true"] .n::before { content: ''; width: 6px; height: 6px; background: var(--acc); }
+.tier[aria-selected="true"]::after { transform: scaleX(1); }
+.tier:focus-visible { outline: 1px solid var(--acc); outline-offset: 2px; }
+
+/* ── the mat ───────────────────────────────────────────────────────────── */
+.mat { position: relative; margin-top: 14px; border: 1px solid var(--line); background:
+  linear-gradient(rgba(233,236,242,.035) 1px, transparent 1px) 0 0 / 24px 24px,
+  linear-gradient(90deg, rgba(233,236,242,.035) 1px, transparent 1px) 0 0 / 24px 24px,
+  radial-gradient(80% 70% at 50% 45%, rgba(255,75,31,.05), rgba(255,75,31,0) 70%), #050506; }
+.mat::before, .mat::after { content: ''; position: absolute; width: 10px; height: 10px; pointer-events: none; z-index: 3; }
+.mat::before { left: -1px; top: -1px; border-left: 1px solid var(--acc); border-top: 1px solid var(--acc); }
+.mat::after { right: -1px; bottom: -1px; border-right: 1px solid var(--acc); border-bottom: 1px solid var(--acc); }
+.mat-bar { display: flex; justify-content: space-between; align-items: center; padding: 11px 16px; border-bottom: 1px solid var(--line); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+.mat-bar b { color: #fff; font-weight: 400; }
+.mat-bar .acc { color: var(--acc); }
+.mat-bar.foot { border-bottom: 0; border-top: 1px solid var(--line); }
+.board { position: relative; aspect-ratio: 1 / 1.06; overflow: hidden; }
+
+/* the bags: misc-bags.html in a frame, its background clear over the mat */
+.board iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; background: transparent; opacity: 0; transition: opacity .6s linear; }
+.board.ready iframe { opacity: 1; }
+.board .wait { position: absolute; inset: 0; display: grid; place-items: center; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); transition: opacity .3s linear; }
+.board.ready .wait { opacity: 0; }
+@media (pointer: coarse) { .mat-bar .drag { display: none; } }
+
+/* ── the stage and its services ─────────────────────────────────────────── */
+.state .k { display: flex; align-items: center; gap: 12px; font-size: clamp(13px, .95vw, 15px); letter-spacing: .16em; text-transform: uppercase; color: #fff; }
+.state .k::before { content: ''; width: 9px; height: 9px; background: var(--acc); }
+.state .k b { color: var(--acc); font-weight: 400; }
+.state .k i { flex: 0 0 40px; height: 1px; background: var(--line-2); }
+.state .blurb { margin-top: 14px; max-width: 30ch; color: #fff; font-size: clamp(20px, 1.9vw, 32px); line-height: 1.22; letter-spacing: -.02em; min-height: 2.5em; }
+.lists { margin-top: clamp(24px, 4vh, 40px); display: grid; grid-template-columns: 1fr 1fr; gap: clamp(20px, 2.6vw, 44px); }
+.list h3 { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--line-2); font-weight: 400; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-mute); }
+.list h3 span { display: inline-flex; align-items: center; gap: 10px; } .list h3 span::before { content: ''; width: 6px; height: 6px; background: var(--acc); }
+.list h3 b { font-weight: 400; color: var(--acc); letter-spacing: .12em; }
+.list ol { list-style: none; }
+.sv { position: relative; display: grid; grid-template-columns: clamp(48px, 4.2vw, 64px) 1fr; column-gap: 12px; align-items: center; padding: 18px 0 18px; border-bottom: 1px solid var(--line); }
+.sv .ix { grid-row: 1 / span 2; font-size: clamp(22px, 1.9vw, 30px); font-weight: 300; line-height: .9; letter-spacing: -.02em; color: rgba(233,236,242,.42);
+  font-variant-numeric: tabular-nums; transition: color .25s linear; }
+.sv .nm { color: #fff; font-size: clamp(16px, 1.15vw, 19px); line-height: 1.2; letter-spacing: -.01em; padding-top: 2px; }
+/* the line under each service opens on hover (or a tap / keyboard focus), as on Compass v4 */
+.sv { cursor: default; outline: none; }
+.sv .ix { grid-row: auto; }
+.sv { grid-template-columns: clamp(48px, 4.2vw, 64px) clamp(34px, 2.6vw, 42px) 1fr; --ic-cut: var(--gear-bg, #000); }
+.sv .ic { grid-row: 1; align-self: center; width: clamp(30px, 2.4vw, 38px); height: clamp(30px, 2.4vw, 38px); opacity: .8; transition: opacity .25s linear, transform .45s cubic-bezier(.22,.9,.3,1); }
+.sv .ic svg { display: block; width: 100%; height: 100%; }
+.sv:hover .ic, .sv:focus-visible .ic, .sv.open .ic { opacity: 1; transform: translateY(-2px); }
+.ic-off .sv { grid-template-columns: clamp(48px, 4.2vw, 64px) 1fr; } .ic-off .sv .ic { display: none; } .ic-off .sv .ds { grid-column: 2; }   /* the panel's "Hide icons" */
+.sv .ds { grid-column: 3; display: grid; grid-template-rows: 0fr; transition: grid-template-rows .4s cubic-bezier(.22,.9,.3,1); }
+.sv .ds > span { overflow: hidden; font-size: 13px; line-height: 1.5; color: var(--ink-mute); max-width: 44ch; }
+.sv .ds > span::before { content: ''; display: block; height: 7px; }
+.sv:hover .ds, .sv:focus-visible .ds, .sv.open .ds { grid-template-rows: 1fr; }
+.sv:hover .ix, .sv:focus-visible .ix, .sv.open .ix { color: var(--acc); }
+.sv:focus-visible::before, .sv.open::before { transform: scaleX(1); }
+.sv::before { content: ''; position: absolute; left: 0; bottom: -1px; height: 1px; width: 100%; background: var(--acc); transform: scaleX(0); transform-origin: left; transition: transform .4s cubic-bezier(.22,.9,.3,1); }
+.sv:hover::before { transform: scaleX(1); }
+.sv:hover .ix { color: var(--acc); }
+.lists.swap .sv { animation: svc-in .5s calc(var(--k) * 40ms) cubic-bezier(.22,1,.36,1) both; }
+@keyframes svc-in { from { opacity: 0; transform: translateY(8px); } }
+
+/* ── v2: four services a stage, each line always shown; what the stage adds
+   marked, what it carries listed under; the engagement and the next step ── */
+.lists { grid-template-columns: 1fr; }
+.list ol { display: grid; grid-template-columns: 1fr 1fr; column-gap: clamp(20px, 2.6vw, 44px); }
+.sv { align-items: start; }
+.sv .ix { padding-top: 2px; }
+.sv .ds { grid-template-rows: 1fr; }
+.sv .ds > span { font-size: 13.5px; color: rgba(233,236,242,.62); }
+.sv .new { grid-column: 3; justify-self: start; margin-top: 10px; font-size: 9.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--acc); }
+.ic-off .sv .new { grid-column: 2; }
+.carry { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 16px 0 0; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); }
+.carry span { padding: 6px 10px; border: 1px solid var(--line); letter-spacing: .04em; text-transform: none; font-size: 12.5px; color: rgba(233,236,242,.7); }
+.next { margin-top: clamp(24px, 4vh, 40px); display: flex; align-items: center; justify-content: space-between; gap: 18px 28px; flex-wrap: wrap; padding: 18px 20px; border: 1px solid var(--line-2); background: rgba(255,255,255,.02); }
+.next .en { display: grid; gap: 6px; }
+.next .en small { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+.next .en b { font-weight: 400; color: #fff; font-size: clamp(17px, 1.3vw, 21px); letter-spacing: -.01em; }
+.next .en span { font-size: 13px; color: var(--ink-mute); }
+.next a { display: inline-flex; align-items: center; gap: 12px; padding: 14px 20px; background: var(--acc); color: #000; text-decoration: none; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; transition: filter .2s linear; }
+.next a:hover { filter: brightness(1.12); }
+.next a i { width: 18px; height: 1px; background: currentColor; position: relative; } .next a i::after { content: ''; position: absolute; right: 0; top: -3px; width: 7px; height: 7px; border: solid currentColor; border-width: 1px 1px 0 0; transform: rotate(45deg); }
+.no-next .next { display: none; }
+@media (max-width: 760px) { .list ol { grid-template-columns: 1fr; } .next a { width: 100%; justify-content: space-between; } }
+
+@media (max-width: 1100px) {
+  .gs-body { grid-template-columns: 1fr; }
+  .mat { max-width: 720px; }
+}
+@media (max-width: 640px) {
+  .gs { padding: 64px 16px 40px; }
+  .gs-title > p { display: none; } .gs-title h1 { font-size: 28px; }
+  .tier { padding: 10px 8px; align-items: center; text-align: center; } .tier .s { display: none; } .tier .l { font-size: 13px; white-space: normal; }
+  .lists { grid-template-columns: 1fr; }
+  .board { aspect-ratio: 1 / 1; }
+  .tier .l { font-size: 12.5px; line-height: 1.2; }
+  /* the switcher docks to the top while the section is read (script) */
+  .docked .tiers { position: fixed; z-index: 30; left: 16px; right: 16px; top: var(--dock-top, 10px); background: rgba(8,8,9,.92);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-color: var(--line-2); }
+  /* the bag: a small box in the bottom-left corner while this section is on screen */
+  .mat { position: fixed; z-index: 20; left: 12px; bottom: 12px; width: 38vw; max-width: 200px; margin: 0; background-color: #050506;
+    box-shadow: 0 10px 30px rgba(0,0,0,.6); opacity: 0; transform: translateY(12px) scale(.94); transform-origin: 0 100%; pointer-events: none;
+    transition: opacity .35s linear, transform .5s cubic-bezier(.22,1,.36,1); }
+  .bag-float .mat { opacity: 1; transform: none; }
+  .mat-bar { display: none; }
+  .gs { padding-bottom: calc(min(38vw, 200px) + 40px); }
+}
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+<style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
+html[data-wb-dock] body { padding-right: 0 !important; }</style>
+</head>
+<body>
+<main class="gs">
+  <header class="gs-title">
+    <div><p class="eyebrow">[ &nbsp;Our services&nbsp; ]</p><h1>Gear up for your climb</h1></div>
+    <p>Bigger climb, bigger pack. <b>Pick your stage</b> and see what we bring to the mountain.</p>
+  </header>
+  <div class="gs-body">
+    <section aria-label="The kit">
+      <div class="tiers" role="tablist" aria-label="Company stage" id="tiers"></div>
+      <div class="mat">
+        <p class="mat-bar"><span>Bag <b id="m-n">01</b> · <span class="acc" id="m-name">Waist pack</span></span><span class="drag" id="m-line">Pack light, move fast</span></p>
+        <div class="board" id="board"><span class="wait">Packing…</span><iframe id="bags" title="The bag for this stage, in 3D" loading="lazy" src="misc-bags.html?embed&amp;bag=1"></iframe></div>
+        <p class="mat-bar foot"><span id="m-for">Waist pack for early-stage startups</span><span><b id="m-i">01</b> / 03</span></p>
+      </div>
+    </section>
+    <section class="state" aria-live="polite">
+      <p class="k"><b id="st-n">01</b><i></i><span id="st-l">Early-stage startup</span></p>
+      <p class="blurb" id="blurb"></p>
+      <div class="lists" id="lists"></div>
+      <div class="next" id="next"></div>
+    </section>
+  </div>
+</main>
+
+<script type="module">
+  import { applyBaked, bakeControls } from './assets/bake.js';
+  /* GEAR_CONFIG — the tiers, and how the kit moves between them */
+  const GEAR_CONFIG = {
+    icons: true,          // each service's icon beside its name
+    next: true,           // the typical engagement and a call to action per stage (a business decision: an option)
+    tiers: [
+      { name: 'Early stage',         stage: '', for: 'Waist pack for early-stage startups',  bag: 1, pack: 'Waist pack' },
+      { name: 'Mid stage',           stage: '', for: 'Day pack for mid-stage startups',      bag: 2, pack: 'Day pack' },
+      { name: 'Established company', stage: '', for: 'Hiking bag for established companies', bag: 0, pack: 'Hiking bag' },
+    ],
+  };
+  const C = GEAR_CONFIG, KEY = 'tibba.bake.services-gear-bags-v2', TIERS = C.tiers;
+  applyBaked(KEY, C);
+  C.tiers = TIERS;                                    // the copy is the page's, never a bake's
+  const showIcons = () => document.documentElement.classList.toggle('ic-off', !C.icons);
+  showIcons();
+  const showNext = () => document.documentElement.classList.toggle('no-next', !C.next);
+  showNext();
+  /* the copy: an outcome per stage, four services each (title + one line),
+     the bag's line, and the engagement and next step */
+  const S = [
+    { label: 'Early-stage startup', outcome: 'From idea to a product people want.', line: 'Pack light, move fast',
+      services: [
+        { name: 'Product strategy',   icon: 'product-strategy',  line: 'Decide what to build first, and why.' },
+        { name: 'MVP design',         icon: 'product-design',    line: 'A launch-ready first version in weeks.' },
+        { name: 'Research & testing', icon: 'usability-testing', line: 'Real users, real answers, before you build.' },
+        { name: 'Brand & launch',     icon: 'marketing-growth',  line: 'An identity and a site that earn trust on day one.' },
+      ],
+      engagement: '4–8 weeks', get: 'A tested MVP, ready for users and investors', cta: 'Start your MVP' },
+    { label: 'Mid-stage startup', outcome: 'Turn traction into growth.', line: 'More ground, more kit',
+      services: [
+        { name: 'Growth design',      icon: 'optimisation',      line: 'Onboarding, pricing and funnels that convert.' },
+        { name: 'Design system',      icon: 'design-systems',    line: 'One kit, so every team ships faster.' },
+        { name: 'Design to code',     icon: 'dev-support',       line: 'Production-ready UI your developers can ship.' },
+        { name: 'Product analytics',  icon: 'market-research',   line: 'See what users do, fix what slows them down.' },
+      ],
+      engagement: '8–12 weeks', get: 'A faster product and a system your team can grow on', cta: 'Plan your next release' },
+    { label: 'Established company', outcome: 'Stay ahead while you scale.', line: 'Built for the long climb',
+      services: [
+        { name: 'Product innovation', icon: 'user-interface',    line: 'Prototype and test new bets in weeks.' },
+        { name: 'Experience audit',   icon: 'user-experience',   line: 'Find what is costing you users, and fix it.' },
+        { name: 'Embedded design team', icon: 'user-research',   line: 'Senior designers inside your team, on your cadence.' },
+        { name: 'AI features',        icon: 'optimisation',      line: 'Useful AI in your product, designed for trust.' },
+      ],
+      engagement: 'Ongoing, from 3 months', get: 'A design partner for your roadmap', cta: 'Book a strategy call' },
+  ];
+  const STAGE_LABEL = S.map(st => st.label);
+
+  /* ── the bags: misc-bags.html?embed, told which bag by the stage ─────── */
+  const board = document.getElementById('board'), frame = document.getElementById('bags');
+  let want = C.tiers[0].bag;
+  const bags = () => { try { return frame.contentWindow && frame.contentWindow.bags; } catch { return null; } };
+  addEventListener('message', e => {
+    if (e.source !== frame.contentWindow || !e.data || e.data.type !== 'bags-ready') return;
+    const b = bags(); if (b) b.showBag(want);
+    board.classList.add('ready');
+  });
+
+  /* ── the tiers ───────────────────────────────────────────────────────── */
+  const tiersEl = document.getElementById('tiers');
+  tiersEl.innerHTML = C.tiers.map((t, i) => `<button class="tier" role="tab" aria-selected="false" data-i="${i}"><span class="n">0${i + 1}</span><span class="l">${t.name}</span>${t.stage ? `<span class="s">${t.stage}</span>` : ""}</button>`).join('');
+  const tierBtns = [...tiersEl.children];
+  const $ = id => document.getElementById(id);
+  const pad = (n, w = 2) => String(n).padStart(w, '0');
+  let cur = -1;
+
+  function lay(i) {
+    const t = C.tiers[i];
+    want = t.bag;
+    const b = bags(); if (b) b.showBag(want);
+    $('m-n').textContent = pad(i + 1); $('m-i').textContent = pad(i + 1);
+    $('m-name').textContent = t.pack; $('m-for').textContent = t.for; $('m-line').textContent = S[i].line;
+  }
+
+  function services(i) {
+    const st = S[i];
+    $('st-n').textContent = pad(i + 1); $('st-l').textContent = STAGE_LABEL[i];
+    $('blurb').textContent = st.outcome;
+    const ic = s => window.TibbaServiceIcon ? TibbaServiceIcon(s.icon) : '';
+    const rows = st.services.map((s, k) => `<li class="sv" tabindex="0" style="--k:${k}"><span class="ix">${pad(k + 1)}</span><span class="ic" aria-hidden="true">${ic(s)}</span><span class="nm">${s.name}</span><span class="ds"><span>${s.line}</span></span></li>`).join('');
+    /* what the earlier stages already put in the pack */
+    const carried = S.slice(0, i);
+    const head = i ? '+ New at this stage' : 'What we bring';
+    $('lists').innerHTML = `<div class="list"><h3><span>${head}</span><b>${pad(st.services.length)}</b></h3><ol>${rows}</ol>${
+      carried.length ? `<p class="carry">Already in your pack${carried.map((p, k) => `<span title="${p.services.map(s => s.name).join(', ')}">${C.tiers[k].name} · ${p.services.length} services</span>`).join('')}</p>` : ''}</div>`;
+    const lists = $('lists'); lists.classList.remove('swap'); void lists.offsetWidth; lists.classList.add('swap');
+    $('next').innerHTML = `<div class="en"><small>Typical engagement</small><b>${st.engagement}</b><span>You get: ${st.get}</span></div><a href="#contact">${st.cta}<i></i></a>`;
+  }
+
+  function pick(i, first) {
+    if (i === cur) return;
+    tierBtns.forEach((b, k) => { b.setAttribute('aria-selected', String(k === i)); b.tabIndex = k === i ? 0 : -1; });
+    lay(i, first); services(i); cur = i;
+  }
+  tierBtns.forEach((b, i) => b.addEventListener('click', () => pick(i)));
+  tiersEl.addEventListener('keydown', e => {
+    const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (!d) return;
+    const i = (cur + d + 3) % 3; pick(i); tierBtns[i].focus();
+  });
+  pick(0, true);
+
+  /* ── phones: the switcher docks at the top while the section is read, and
+     the bag rides in a small box in the bottom-left corner, only while this
+     section is on screen ───────────────────────────────────────────────── */
+  {
+    const phone = matchMedia('(max-width: 640px)'), root = document.documentElement;
+    const body = document.querySelector('.gs-body'), slot = tiersEl.parentNode;
+    const gap = () => root.classList.contains('wb-embed') && window.parent !== window ? 72 : 10;
+    function check() {
+      let dock = false, show = false;
+      if (phone.matches) {
+        const g = gap(), sr = slot.getBoundingClientRect(), br = body.getBoundingClientRect();
+        dock = sr.top < g && br.bottom > g + tiersEl.offsetHeight + 80;
+        show = br.top < innerHeight - 120 && br.bottom > innerHeight * .45;
+        /* in the site the frame slides away at the page's foot: let go as it starts to */
+        let fe = null; try { fe = window.frameElement; } catch {}
+        if (fe && fe.getBoundingClientRect().top < -24) { dock = false; show = false; }
+        root.style.setProperty('--dock-top', g + 'px');
+      }
+      root.classList.toggle('bag-float', show);
+      if (dock === slot.classList.contains('docked')) return;
+      slot.style.height = dock ? tiersEl.offsetHeight + 'px' : '';
+      slot.classList.toggle('docked', dock);
+    }
+    addEventListener('scroll', check, { passive: true });
+    addEventListener('resize', check);
+    phone.addEventListener('change', check);
+    try { if (window.parent !== window) window.parent.addEventListener('scroll', check, { passive: true }); } catch {}
+    check();
+  }
+
+  /* ── the panel ───────────────────────────────────────────────────── */
+  const el = document.createElement('div'); el.id = 'tune';
+  const R = (id, label, min, max, step, val, unit = '') => `<div class="row"><label>${label}<i id="v-${id}">${val}${unit}</i></label><input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}" data-unit="${unit}"></div>`;
+  el.innerHTML = `<div id="tune-head"><b>Services — gear bags</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <p class="tune-sub">Services</p><div class="row inline"><label for="s-ic">Hide icons<i></i></label><input type="checkbox" id="s-ic"${C.icons ? '' : ' checked'}></div>
+    <div class="row inline"><label for="s-nx">Engagement + call to action<i></i></label><input type="checkbox" id="s-nx"${C.next ? ' checked' : ''}></div>
+    ${bakeControls.html}`;
+  document.body.appendChild(el);
+  const q = id => el.querySelector('#' + id);
+  const bind = (id, fn) => q('s-' + id).addEventListener('input', e => { const v = +e.target.value; q('v-' + id).textContent = v + e.target.dataset.unit; fn(v); });
+  q('s-ic').addEventListener('change', e => { C.icons = !e.target.checked; showIcons(); });
+  q('s-nx').addEventListener('change', e => { C.next = e.target.checked; showNext(); });
+  bakeControls.bind(el, KEY, C, 'GEAR_CONFIG');
+  q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+  if (window.wb && window.wb.adopt) window.wb.adopt();
+</script>
+</body>
+</html>

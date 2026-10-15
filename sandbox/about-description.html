@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- sandbox: a frozen copy of Website v3, made 2026-10-15T08:36:58.457Z by tools/make-sandbox.mjs -->
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About us — description</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   About us — description, the trailing fill
+   ─────────────────────────────────────────────────────────────────────────
+   The studio in prose (the same three paragraphs as about.html), set large
+   and held in place while the page scrolls past it. Scrolling fills the
+   text letter by letter from a dim gray to white, the fill's front edge
+   trailing off over a few letters, so the words seem to be written in as
+   you go. When the passage is taller than the screen, it glides up to keep
+   the line being filled near the middle; the lines above stay lit.
+   Scrolling back empties it again in reverse.
+
+   Tunables: DESCRIPTION_CONFIG in the script, all on the panel, with
+   Bake settings to keep them on the next refresh.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+
+.lead { min-height: 60vh; display: flex; align-items: flex-end; padding: 0 var(--gut) 8vh; }
+.lead p { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+
+/* the scope is as tall as the scroll the fill takes; the stage is held */
+#reveal-scope { position: relative; height: var(--scope-h, 400vh); }
+#reveal-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; display: grid; grid-template-rows: auto minmax(0, 1fr);
+  padding: clamp(72px, 11vh, 120px) var(--gut) 0; }
+.side { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 40px;
+  max-width: var(--copy-max, 92vw); padding-bottom: clamp(18px, 3vh, 32px); }
+.side .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.side h2 { margin-top: 12px; color: #fff; font-weight: 400; font-size: clamp(18px, 1.5vw, 24px); line-height: 1.15; letter-spacing: -.02em; }
+.side .meter { display: flex; align-items: center; gap: 12px; font-size: 10px; letter-spacing: .18em; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+.side .meter i { position: relative; display: block; width: 160px; height: 1px; background: rgba(255,255,255,.12); }
+.side .meter i::after { content: ''; position: absolute; inset: 0; background: var(--accent); transform-origin: left; transform: scaleX(var(--p, 0)); }
+.side .meter::before { content: ''; width: 6px; height: 6px; background: var(--accent); }
+
+/* the window the text moves in: a soft fade at its top and foot */
+.win { position: relative; min-height: 0; overflow: hidden;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 var(--fade, 9%), #000 calc(100% - var(--fade, 9%)), transparent 100%);
+          mask-image: linear-gradient(180deg, transparent 0, #000 var(--fade, 9%), #000 calc(100% - var(--fade, 9%)), transparent 100%); }
+#copy { max-width: var(--copy-max, 92vw); padding: 4vh 0 30vh; will-change: transform; }
+#copy p { color: #fff; font-size: var(--size, clamp(28px, 3.9vw, 68px)); line-height: 1.12; letter-spacing: -.03em; font-weight: var(--weight, 500); }
+#copy p + p { margin-top: .75em; }
+#copy .w { display: inline-block; white-space: nowrap; }
+/* each letter: lit by --q, 0 → the resting gray, 1 → white (or orange in a highlight) */
+#copy .c { --q: 0; color: color-mix(in srgb, var(--lit, #fff) calc(var(--q) * 100%), var(--rest, #3a3a3a)); }
+#copy .hl .c { --lit: var(--accent); }
+.after { height: 60vh; }
+@media (max-width: 640px) { #copy p { line-height: 1.16; } .side .meter i { width: 90px; } }
+@media (prefers-reduced-motion: reduce) { #copy .c { --q: 1 !important; } }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+<style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
+html[data-wb-dock] body { padding-right: 0 !important; }</style>
+</head>
+<body>
+
+<div class="lead"><p>About us — description · scroll to fill</p></div>
+
+<section id="reveal-scope" aria-labelledby="who-h">
+  <div id="reveal-stage">
+    <div class="side">
+      <div>
+        <p class="eyebrow">[ &nbsp;Who we are&nbsp; ]</p>
+        <h2 id="who-h">A lean design team, based out of India</h2>
+      </div>
+      <p class="meter"><i></i><span id="pct">000</span></p>
+    </div>
+    <div class="win">
+    <div id="copy">
+      <p>We are Tibba, a lean design team based out of India. Tibba is a young studio
+         founded in 2023, but it comes with over a decade of experience. Our team has
+         shipped <span class="hl">over 25 products</span> and generated <span class="hl">over $400 million</span> in revenue, for
+         start-ups and established businesses alike.</p>
+      <p>Design, for us, is the ability to solve real problems. We enjoy working closely
+         with stakeholders to understand and execute their vision. We love using research
+         to better understand our clients' audiences and to impact their bottom line.</p>
+      <p>Our approach to every client we work with is unique. We believe in actively
+         listening to a client's needs and modifying our processes accordingly — rather
+         than arriving with a process and fitting the client into it.</p>
+    </div>
+    </div>
+  </div>
+</section>
+<div class="after"></div>
+
+<script type="module">
+  import { applyBaked, bakeControls } from './assets/bake.js';
+
+  /* ── DESCRIPTION_CONFIG — every tunable ─────────────────────────────── */
+  const DESCRIPTION_CONFIG = {
+    length: 380,          // vh of scroll the whole fill takes (the text is held for this long)
+    trail: 9,             // letters over which the front edge fades from gray to white
+    rest: 0.22,           // how bright unfilled letters sit (0 = gone, 1 = white)
+    size: 3.9,            // vw — the text size (clamped 28–68px... and up with it)
+    weight: 500,          // 300 · 400 · 500 · 600
+    follow: 0.42,         // where the line being filled is held, as a share of the window's height
+    glide: 8,             // how quickly the text follows (higher = tighter)
+    maxWidth: 92,         // vw — the text's measure (capped at 1640px)
+    unit: 'letter',       // letter · word — what the fill steps through
+  };
+  const C = DESCRIPTION_CONFIG;
+  const BAKE_KEY = 'tibba.bake.about-description';
+  applyBaked(BAKE_KEY, C);
+  const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ── split into words (kept whole across the wrap) and letters ───────── */
+  const copy = document.getElementById('copy');
+  const letters = [];             // every letter, in reading order
+  const wordOf = [];              // the word index of each letter
+  let wi = 0;
+  copy.querySelectorAll('p').forEach(p => {
+    const walk = node => [...node.childNodes].forEach(n => {
+      if (n.nodeType === 3) {
+        const frag = document.createDocumentFragment();
+        n.textContent.split(/(\s+)/).forEach(tok => {
+          if (!tok) return;
+          if (/^\s+$/.test(tok)) { frag.appendChild(document.createTextNode(' ')); return; }
+          const w = document.createElement('span'); w.className = 'w';
+          for (const ch of tok) { const c = document.createElement('span'); c.className = 'c'; c.textContent = ch; w.appendChild(c); letters.push(c); wordOf.push(wi); }
+          wi++; frag.appendChild(w);
+        });
+        n.replaceWith(frag);
+      } else if (n.nodeType === 1) walk(n);
+    });
+    walk(p);
+  });
+  const N = letters.length, W = wi;
+
+  const scope = document.getElementById('reveal-scope');
+  const win = document.querySelector('.win');
+  const pct = document.getElementById('pct');
+  const meter = document.querySelector('.side .meter i');
+
+  function layout() {
+    scope.style.setProperty('--scope-h', (C.length + 100) + 'vh');
+    scope.style.setProperty('--copy-max', `min(${C.maxWidth}vw, 1640px)`);
+    copy.style.setProperty('--size', `clamp(28px, ${C.size}vw, ${Math.round(C.size * 17.5)}px)`);
+    copy.style.setProperty('--weight', C.weight);
+    const g = Math.round(C.rest * 255);
+    copy.style.setProperty('--rest', `rgb(${g},${g},${g})`);
+  }
+
+  /* progress through the held stretch, 0 → 1 */
+  function progress() {
+    const r = scope.getBoundingClientRect(), span = r.height - innerHeight;
+    return span > 0 ? Math.min(1, Math.max(0, -r.top / span)) : 1;
+  }
+
+  let shown = -1, y = 0, yT = 0, last = performance.now();
+  function paint(t) {
+    /* the front runs from before the first letter to past the last, so the
+       trail fully enters and fully leaves */
+    const byWord = C.unit === 'word';
+    const total = byWord ? W : N, trail = byWord ? Math.max(1, C.trail / 5) : C.trail;
+    const front = t * (total + trail);
+    let lead = 0;
+    for (let i = 0; i < N; i++) {
+      const k = byWord ? wordOf[i] : i;
+      const q = REDUCED ? 1 : Math.min(1, Math.max(0, (front - k) / trail));
+      const s = q.toFixed(3);
+      if (letters[i]._q !== s) { letters[i]._q = s; letters[i].style.setProperty('--q', s); }
+      if (q > 0) lead = i;
+    }
+    meter.style.setProperty('--p', t.toFixed(3));
+    pct.textContent = String(Math.round(t * 100)).padStart(3, '0');
+    /* hold the line being filled at C.follow of the window */
+    const wh = win.clientHeight, ch = copy.scrollHeight;
+    const lineTop = letters[lead].offsetTop - copy.offsetTop;
+    yT = Math.min(Math.max(0, ch - wh), Math.max(0, lineTop - wh * C.follow));
+  }
+  function loop(now) {
+    requestAnimationFrame(loop);
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    const t = progress();
+    if (t !== shown) { shown = t; paint(t); }
+    y += (yT - y) * (REDUCED ? 1 : 1 - Math.exp(-C.glide * dt));
+    copy.style.transform = `translateY(${(-y).toFixed(2)}px)`;
+  }
+  layout();
+  requestAnimationFrame(loop);
+  addEventListener('resize', () => { shown = -1; });
+
+  /* ── the panel ─────────────────────────────────────────────────────── */
+  const el = document.createElement('div');
+  el.id = 'tune';
+  const R = (id, label, min, max, step, val, unit = '') => `<div class="row"><label>${label}<i id="v-${id}">${val}${unit}</i></label><input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}" data-unit="${unit}"></div>`;
+  el.innerHTML = `
+    <div id="tune-head"><b>Text fill</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <p class="tune-sub">Fill</p>
+    <div class="seg" id="s-unit"><button data-u="letter">Letter</button><button data-u="word">Word</button></div>
+    ${R('ln', 'Scroll length', 120, 900, 10, C.length, 'vh')}
+    ${R('tr', 'Trail', 1, 40, 1, C.trail, ' letters')}
+    ${R('rs', 'Unfilled brightness', 0, 0.6, 0.01, C.rest)}
+    <p class="tune-sub">Type</p>
+    ${R('sz', 'Text size', 2, 6, 0.05, C.size, 'vw')}
+    <div class="seg" id="s-wt">${[300, 400, 500, 600].map(w => `<button data-w="${w}">${w}</button>`).join('')}</div>
+    ${R('mw', 'Max text width', 40, 100, 1, C.maxWidth, 'vw')}
+    <p class="tune-sub">Follow</p>
+    ${R('fo', 'Held at', 0.1, 0.8, 0.01, C.follow)}
+    ${R('gl', 'Glide', 1, 30, 0.5, C.glide)}
+    ${bakeControls.html}`;
+  document.body.appendChild(el);
+  const q = id => el.querySelector('#' + id);
+  const bind = (id, key) => q('s-' + id).addEventListener('input', e => {
+    C[key] = +e.target.value; q('v-' + id).textContent = e.target.value + e.target.dataset.unit; layout(); shown = -1;
+  });
+  bind('ln', 'length'); bind('tr', 'trail'); bind('rs', 'rest'); bind('sz', 'size'); bind('mw', 'maxWidth'); bind('fo', 'follow'); bind('gl', 'glide');
+  const seg = (id, attr, key, cast = v => v) => {
+    const g = q(id);
+    [...g.children].forEach(b => b.classList.toggle('on', String(C[key]) === b.dataset[attr]));
+    g.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+      [...g.children].forEach(c => c.classList.toggle('on', c === b)); C[key] = cast(b.dataset[attr]); layout(); shown = -1; });
+  };
+  seg('s-unit', 'u', 'unit'); seg('s-wt', 'w', 'weight', Number);
+  bakeControls.bind(el, BAKE_KEY, C, 'DESCRIPTION_CONFIG');
+  q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+  if (window.wb && window.wb.adopt) window.wb.adopt();
+</script>
+</body>
+</html>

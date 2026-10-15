@@ -23,12 +23,14 @@ const TYPES = {
   '.css': 'text/css; charset=utf-8', '.json': 'application/json',
   '.otf': 'font/otf', '.woff2': 'font/woff2', '.svg': 'image/svg+xml',
   '.png': 'image/png', '.jpg': 'image/jpeg', '.zip': 'application/zip',
+  '.webp': 'image/webp', '.wasm': 'application/wasm', '.riv': 'application/octet-stream',
 };
 
 createServer(async (req, res) => {
   const url = decodeURIComponent(req.url.split('?')[0]);
 
-  let p = url === '/' ? '/index.html' : url;
+  /* a folder serves its index.html, as on Vercel (the sandbox lives in one) */
+  let p = url.endsWith('/') ? url + 'index.html' : url;
   let file = join(ROOT, normalize(p).replace(/^(\.\.[/\\])+/, ''));
   let buf;
   try { buf = await readFile(file); }

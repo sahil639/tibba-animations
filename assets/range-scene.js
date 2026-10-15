@@ -2845,8 +2845,14 @@ return {
     } else moveCam(p, t, dur, undefined, ease);
   },
 
-  /** Light one client summit (0–3) and let the others recede; -1 for none. */
-  light(i) { lightPeak(i, 0); },
+  /** Light one client summit (0–3) and let the others recede; -1 for none.
+      instant: land on it now rather than easing in — for a page whose
+      camera move starts at once and needs the summit at its full height
+      from the first frame. */
+  light(i, instant) {
+    lightPeak(i, 0);
+    if (instant) { for (let k = 1; k < NPK; k++) peakLit[k] = peakLitT[k]; stepMorph(0); }
+  },
   /** the project whose summit is under the pointer, or -1 (hover must be on) */
   hoveredCase() { return caseUnderPointer(); },
   /** Lens and haze for callers that run their own camera: field of view in

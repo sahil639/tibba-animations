@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- sandbox: a frozen copy of Website v3, made 2026-10-15T08:36:58.457Z by tools/make-sandbox.mjs -->
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About us — foundations</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<link rel="stylesheet" href="assets/site.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   About us — foundations, as Metrics plates
+   ─────────────────────────────────────────────────────────────────────────
+   The two foundations — AGILE and CREATING VALUE — set the way the Metrics
+   section sets its numbers: glass plates with a hairline, sharing an edge
+   in a brick bond, corner brackets, a small index row, and the orange cube
+   in the corner. They open exactly as the metric boxes do — an accent line
+   draws across the middle, the plate opens from that line, the corners
+   lock on, the copy comes up, the cube lands — once, the first time the
+   cards come into view, and never again. No tilt, no 3D.
+
+   Behind each plate's glass a contour field drifts (assets/card-topo.js),
+   each card with its own ground and its own settings on the panel.
+
+   Every value: FOUNDATION_CONFIG in the script, on the panel, and bakeable.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+.mono { font-family: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace; }
+.found { padding: clamp(80px, 14vh, 150px) var(--gut); max-width: 1600px; margin: 0 auto; }
+.found .eyebrow { display: flex; align-items: center; gap: 10px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+.found .eyebrow::before { content: ''; width: 7px; height: 7px; background: var(--accent); }
+.found h2 { margin-top: 16px; color: #fff; font-weight: 400; font-size: clamp(30px, 3.6vw, 60px); line-height: 1; letter-spacing: -.035em; }
+.found .sub { margin-top: 14px; max-width: 46ch; font-size: 14px; line-height: 1.65; color: var(--ink-mute); }
+
+/* ── the plates, in a brick bond ─────────────────────────────────────── */
+.cards { margin-top: clamp(48px, 8vh, 90px); display: grid; grid-template-columns: 1fr 1fr; gap: 0; align-items: start; }
+.fcard { position: relative; min-height: clamp(460px, 40vw, 620px); padding: clamp(22px, 2.2vw, 34px) clamp(22px, 2.4vw, 36px);
+  display: flex; flex-direction: column; }
+.fcard[data-i="1"] { margin-left: -1px; margin-top: clamp(40px, 6vh, 72px); }
+.fcard .plate { position: absolute; inset: 0; border: 1px solid rgba(255,255,255,.16); background: rgba(10,10,12,.78); overflow: hidden;
+  clip-path: inset(50% 0 50% 0); }
+.fcard .plate::after { content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(10,10,12,.55) 0%, rgba(10,10,12,.15) 45%, rgba(10,10,12,.7) 100%); }
+.fcard .hl { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--accent); transform: scaleX(0); opacity: 0; pointer-events: none; }
+.fcard .cn { position: absolute; width: 10px; height: 10px; border-color: #fff; border-style: solid; opacity: 0; }
+.fcard .cn.tl { left: -1px; top: -1px; border-width: 1px 0 0 1px; }
+.fcard .cn.tr { right: -1px; top: -1px; border-width: 1px 1px 0 0; }
+.fcard .cn.bl { left: -1px; bottom: -1px; border-width: 0 0 1px 1px; }
+.fcard .cn.br { right: -1px; bottom: -1px; border-width: 0 1px 1px 0; }
+.fcard .pin { position: absolute; right: -1px; top: -1px; width: 9px; height: 9px; background: var(--accent); transform: scale(0); }
+.fcard .in { position: relative; flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.fcard .k { display: flex; justify-content: space-between; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); opacity: 0; }
+.fcard .k b { color: var(--accent); font-weight: 400; }
+.fcard .v { margin-top: clamp(28px, 5vh, 56px); color: #fff; font-weight: 300; font-size: clamp(44px, 5vw, 92px); line-height: .9; letter-spacing: -.045em; opacity: 0; }
+.fcard .body { margin-top: clamp(18px, 2.4vh, 28px); max-width: 44ch; font-size: clamp(13.5px, 1.05vw, 16px); line-height: 1.75; color: rgba(233,236,242,.78); opacity: 0; }
+.fcard .tags { margin-top: auto; padding-top: 36px; display: flex; flex-wrap: wrap; gap: 0; opacity: 0; }
+.fcard .tags span { margin: 0 -1px -1px 0; padding: 9px 13px; border: 1px solid rgba(255,255,255,.18); background: rgba(0,0,0,.45);
+  font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-mute); transition: color .25s linear, border-color .25s linear; }
+.fcard .tags span:hover { color: #fff; border-color: rgba(255,75,31,.6); position: relative; }
+@media (max-width: 860px) {
+  .cards { grid-template-columns: 1fr; }
+  .fcard[data-i="1"] { margin: -1px 0 0 0; }
+  .fcard { min-height: 0; }
+  .fcard .v { font-size: 44px; }
+}
+@media (prefers-reduced-motion: reduce) { .fcard .plate { clip-path: none; } .fcard .k, .fcard .v, .fcard .body, .fcard .tags { opacity: 1; } .fcard .pin { transform: none; } }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+<style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
+html[data-wb-dock] body { padding-right: 0 !important; }</style>
+</head>
+<body>
+
+<section class="found" aria-labelledby="found-h">
+  <p class="eyebrow">Our foundation</p>
+  <h2 id="found-h">Two things we hold to</h2>
+  <p class="sub">How we work with every client, whatever the size of the brief.</p>
+
+  <div class="cards" id="cards">
+    <article class="fcard" data-i="0">
+      <div class="plate" aria-hidden="true"></div>
+      <span class="hl"></span><span class="cn tl"></span><span class="cn tr"></span><span class="cn bl"></span><span class="cn br"></span><span class="pin"></span>
+      <div class="in">
+        <p class="k"><b>01</b><span>Foundation</span></p>
+        <h3 class="v">Agile</h3>
+        <p class="body">Different clients require different approaches. We're comfortable working as a support function to your internal design team, launching keystone projects and chasing KPIs.</p>
+        <p class="tags"><span>User feedback</span><span>Rapid prototyping</span><span>Quick turnarounds</span><span>Collaborative</span><span>Iterative</span><span>Sprint planning</span></p>
+      </div>
+    </article>
+    <article class="fcard" data-i="1">
+      <div class="plate" aria-hidden="true"></div>
+      <span class="hl"></span><span class="cn tl"></span><span class="cn tr"></span><span class="cn bl"></span><span class="cn br"></span><span class="pin"></span>
+      <div class="in">
+        <p class="k"><b>02</b><span>Foundation</span></p>
+        <h3 class="v">Creating value</h3>
+        <p class="body">We work on two tracks — the delivery track and the discovery track. The former focuses on immediate client needs and deadlines, whilst the latter seeks opportunities for our clients that we can help them capitalise on.</p>
+        <p class="tags"><span>Value-driven solutions</span><span>Client ROI focus</span><span>Strategic impact</span><span>Investment mindset</span><span>Design excellence</span><span>Maximum outcomes</span></p>
+      </div>
+    </article>
+  </div>
+</section>
+<div style="height: 30vh"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="assets/card-topo.js"></script>
+<script type="module">
+  import { applyBaked, bakeControls } from './assets/bake.js';
+  import { topoPanel } from './assets/topo-panel.js';
+
+  /* ══ FOUNDATION_CONFIG ═══════════════════════════════════════════════ */
+  const FOUNDATION_CONFIG = {
+    entrance: {
+      duration: 1.1,     // s for ONE card's full sequence (as Metrics' open.duration)
+      stagger: 0.18,     // s between the two cards
+      ease: 'power1.inOut',
+      topoFade: 1.4,     // s the contours take to come up once the plate is open
+    },
+    /* one contour field per card — see assets/card-topo.js */
+    topo: [
+      { on: true, pattern: 'twin', seed: 4, speed: 0.45, levels: 11, scale: 1, opacity: 0.7, width: 1, colour: '#C8644F', tint: 0.4 },
+      { on: true, pattern: 'ridge', seed: 9, speed: 0.35, levels: 12, scale: 1.1, opacity: 0.7, width: 1, colour: '#4FA3AD', tint: 0.4 },
+    ],
+  };
+  const C = FOUNDATION_CONFIG;
+  const BAKE_KEY = 'tibba.bake.about-foundations';
+  applyBaked(BAKE_KEY, C);
+  const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const cards = [...document.querySelectorAll('.fcard')];
+  const topos = cards.map((c, i) => CardTopo.attach(c.querySelector('.plate'), Object.assign({}, C.topo[i], { fade: REDUCED ? 1 : 0 })));
+  /* the panel edits C.topo[i]; the field reads its own settings, so copy across */
+  const syncTopo = i => { Object.assign(topos[i].settings, C.topo[i]); topos[i].reseed(); };
+
+  /* ── the open: Metrics' sequence, per card ─────────────────────────── */
+  let tl;
+  function build() {
+    if (tl) tl.kill();
+    tl = gsap.timeline({ paused: true });
+    cards.forEach((card, i) => {
+      const q = s => card.querySelectorAll(s), o = i * C.entrance.stagger / C.entrance.duration;
+      const cn = q('.cn'), sx = [-8, 8, -8, 8], sy = [-8, -8, 8, 8];
+      tl.fromTo(q('.hl'), { scaleX: 0, opacity: 1 }, { scaleX: 1, duration: .28, ease: 'power3.inOut' }, o)
+        .fromTo(q('.plate'), { clipPath: 'inset(50% 0% 50% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: .34, ease: 'power3.inOut' }, o + .24)
+        .to(q('.hl'), { opacity: 0, duration: .16, ease: 'none' }, o + .52)
+        .fromTo(cn, { opacity: 0, x: k => sx[k], y: k => sy[k] }, { opacity: .9, x: 0, y: 0, duration: .22, ease: 'expo.out' }, o + .52)
+        .fromTo(q('.k'), { opacity: 0 }, { opacity: 1, duration: .2, ease: 'none' }, o + .6)
+        .fromTo(q('.v'), { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .24, ease: 'power2.out' }, o + .64)
+        .fromTo(q('.body'), { opacity: 0 }, { opacity: 1, duration: .22, ease: 'none' }, o + .72)
+        .fromTo(q('.tags'), { opacity: 0 }, { opacity: 1, duration: .22, ease: 'none' }, o + .78)
+        .fromTo(q('.pin'), { scale: 0 }, { scale: 1, duration: .1, ease: 'none' }, o + .9);
+    });
+  }
+  function play() {
+    build();
+    topos.forEach(t => { t.settings.fade = 0; });
+    gsap.to(tl, { progress: 1, duration: REDUCED ? 0.01 : tl.duration() * C.entrance.duration, ease: C.entrance.ease });
+    /* the contours come up once each plate has opened */
+    topos.forEach((t, i) => gsap.to(t.settings, { fade: 1, duration: REDUCED ? 0.01 : C.entrance.topoFade,
+      delay: REDUCED ? 0 : (i * C.entrance.stagger + 0.55 * C.entrance.duration), ease: 'power1.out' }));
+  }
+  build();
+  if (REDUCED) { tl.progress(1); }
+  else {
+    /* once: the first time the cards come into view */
+    new IntersectionObserver(([e], io) => { if (e.isIntersecting) { io.disconnect(); play(); } }, { threshold: 0.25 })
+      .observe(document.getElementById('cards'));
+  }
+
+  /* ── the panel ─────────────────────────────────────────────────────── */
+  const el = document.createElement('div');
+  el.id = 'tune';
+  const R = (id, label, min, max, step, val, unit = '') => `<div class="row"><label>${label}<i id="v-${id}">${val}${unit}</i></label><input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}" data-unit="${unit}"></div>`;
+  const tp = topoPanel({ names: ['Agile', 'Creating value'], list: C.topo, onChange: syncTopo });
+  el.innerHTML = `
+    <div id="tune-head"><b>Foundations</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <p class="tune-sub">Entrance (plays once)</p>
+    ${R('ed', 'Duration', .3, 3, .05, C.entrance.duration, 's')}
+    ${R('es', 'Stagger', 0, 1, .02, C.entrance.stagger, 's')}
+    ${R('tf', 'Contours fade in', 0, 4, .1, C.entrance.topoFade, 's')}
+    <div class="row inline"><label>Entrance<i></i></label><button class="tune-btn" id="s-rp">Replay</button></div>
+    ${tp.html}
+    ${bakeControls.html}`;
+  document.body.appendChild(el);
+  const q = id => el.querySelector('#' + id);
+  const bind = (id, fn) => q('s-' + id).addEventListener('input', e => { const v = +e.target.value; q('v-' + id).textContent = v + e.target.dataset.unit; fn(v); });
+  bind('ed', v => { C.entrance.duration = v; }); bind('es', v => { C.entrance.stagger = v; }); bind('tf', v => { C.entrance.topoFade = v; });
+  q('s-rp').addEventListener('click', play);
+  tp.bind(el);
+  bakeControls.bind(el, BAKE_KEY, C, 'FOUNDATION_CONFIG');
+  q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+  if (window.wb && window.wb.adopt) window.wb.adopt();
+</script>
+</body>
+</html>

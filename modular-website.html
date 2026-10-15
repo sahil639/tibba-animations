@@ -11,11 +11,11 @@
 /* ══════════════════════════════════════════════════════════════════════════
    Modular Website — the home page's control hub
    ─────────────────────────────────────────────────────────────────────────
-   Every major section of the home landing (Website v2), where it
+   Every major section of the home landing (Website v3), where it
    comes from, and whether it is in. Tick a section in or out, drag it (or
    use the arrows) to reorder, pick which page fills it — the assembled home
    page on the right rebuilds as you go, and the layout is saved in this
-   browser, so final-website-v2.html opens in the same arrangement.
+   browser, so website-v3.html opens in the same arrangement.
    "Reset" goes back to the registry's order (assets/site-sections.js).
    ═════════════════════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -142,7 +142,7 @@ body.panel-off .mw-tab { transform: translate(0, -50%); opacity: 1; pointer-even
   <div class="stage" id="stage">
     <div class="device" id="device">
       <div class="chrome"><i></i><i></i><i></i><span id="dev-url">tibba.design</span></div>
-      <div class="screen"><iframe id="preview" title="Website v2, as arranged" src="final-website-v2.html"></iframe></div>
+      <div class="screen"><iframe id="preview" title="Website v3, as arranged" src="website-v3.html"></iframe></div>
     </div>
   </div>
   <p class="tag" id="tag"></p>
@@ -160,20 +160,22 @@ body.panel-off .mw-tab { transform: translate(0, -50%); opacity: 1; pointer-even
     <div class="p-acts">
       <button type="button" id="reload">Reload preview</button>
       <button type="button" id="reset">Reset order</button>
-      <a class="primary" href="final-website-v2.html" target="_blank" rel="noopener">Open home</a>
+      <a class="primary" href="website-v3.html" target="_blank" rel="noopener">Open Website v3</a>
     </div>
     <p class="p-note">The list on the left is the home page, top to bottom. Changes save in this browser and rebuild the preview straight away.</p>
   </div>
 </aside>
 
 <script type="module">
-  import { HOME_SECTIONS, LAYOUT_KEY, loadLayout, resolveLayout, sectionsFor } from './assets/site-sections.js';
-  const byId = Object.fromEntries(HOME_SECTIONS.map(s => [s.id, s]));
-  let layout = loadLayout();
+  /* the hub arranges Website v3, the current site */
+  import { V3_SECTIONS as SECTIONS, V3_LAYOUT_KEY as KEY, loadLayout, resolveLayout, sectionsFor as sectionsOf } from './assets/site-sections.js';
+  const sectionsFor = l => sectionsOf(l, SECTIONS);
+  const byId = Object.fromEntries(SECTIONS.map(s => [s.id, s]));
+  let layout = loadLayout(SECTIONS, KEY);
   const list = document.getElementById('list'), frame = document.getElementById('preview');
   const pad = n => String(n).padStart(2, '0');
 
-  function save() { try { localStorage.setItem(LAYOUT_KEY, JSON.stringify(layout)); } catch {} }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(layout)); } catch {} }
   /* the preview rebuilds in place by message; a short pause so a run of
      quick changes rebuilds once */
   let timer = 0;
@@ -279,8 +281,8 @@ body.panel-off .mw-tab { transform: translate(0, -50%); opacity: 1; pointer-even
   document.getElementById('panel-tab').addEventListener('click', () => togglePanel(!view.panel));
   applyView();
 
-  document.getElementById('reset').addEventListener('click', () => { layout = resolveLayout(null); push(); });
-  document.getElementById('reload').addEventListener('click', () => { save(); frame.src = 'final-website-v2.html?t=' + Date.now(); });
+  document.getElementById('reset').addEventListener('click', () => { layout = resolveLayout(null, SECTIONS); push(); });
+  document.getElementById('reload').addEventListener('click', () => { save(); frame.src = 'website-v3.html?t=' + Date.now(); });
   render();
 </script>
 </body>

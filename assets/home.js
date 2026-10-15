@@ -21,16 +21,16 @@ const clamp01 = t => t < 0 ? 0 : t > 1 ? 1 : t;
    display plate shows until the real artwork is dropped in. */
 const BRANDS = [
   { name: 'Zomato',                meta: 'Foodtech · App & website',      since: '2015' },
-  { name: 'Groww',                 meta: 'Fintech · App & website',       since: '2024', colour: '#4DD9C0', file: 'case-groww.html' },
+  { name: 'Groww',                 meta: 'Fintech · App & website',       since: '2024', colour: '#4DD9C0', file: 'case-groww-v2.html' },
   { name: 'Paytm',                 meta: 'Fintech · App',                 since: '2017' },
-  { name: 'Firstpost',             meta: 'News & media · App & website',  since: '2023', colour: '#E05555', file: 'case-firstpost.html' },
-  { name: 'Breathe ESG',           meta: 'SaaS · ESG dashboard',          since: '2023', colour: '#4CAF70', file: 'case-breathe-esg.html' },
+  { name: 'Firstpost',             meta: 'News & media · App & website',  since: '2023', colour: '#E05555', file: 'case-firstpost-v2.html' },
+  { name: 'Breathe ESG',           meta: 'SaaS · ESG dashboard',          since: '2023', colour: '#4CAF70', file: 'case-breathe-esg-v2.html' },
   { name: 'Urban Company',         meta: 'Urban services · App',          since: '2016' },
   { name: 'HDFC Bank',             meta: 'Fintech · Rewards platform',    since: '2019' },
   { name: 'The Times of India',    meta: 'News & media · Website',        since: '2018' },
   { name: 'Policybazaar',          meta: 'Insurtech · App',               since: '2019' },
   { name: 'The Indian Express',    meta: 'News & media · App & website',  since: '2021' },
-  { name: 'Shyft & Mindhouse',     meta: 'Fitness & mental health · App', since: '2023', colour: '#7B8FF5', file: 'case-shyft-mindhouse.html' },
+  { name: 'Shyft & Mindhouse',     meta: 'Fitness & mental health · App', since: '2023', colour: '#7B8FF5', file: 'case-shyft-mindhouse-v2.html' },
   { name: 'Apnaklub',              meta: 'B2B wholesale · App',           since: '2022' },
   { name: 'simsim',                meta: 'Social commerce · App',         since: '2020' },
   { name: 'Bombay Shirt Company',  meta: 'Ecommerce · Website',           since: '2018' },
@@ -39,19 +39,19 @@ const BRANDS = [
 /* The four summits. Order matches PROJECT_PEAKS in the scene, so cell n and
    peak n are the same client. */
 const CASES = [
-  { name: 'Groww', colour: '#4DD9C0', file: 'case-groww.html',
+  { name: 'Groww', colour: '#4DD9C0', file: 'case-groww-v2.html',
     tags: 'Fintech · App · Website',
     title: 'How we helped Groww boost engagement on their app',
     body: 'A deep engagement with Groww to design and improve features that engage users on their consumer app, along with design support for other product initiatives.' },
-  { name: 'Firstpost', colour: '#E05555', file: 'case-firstpost.html',
+  { name: 'Firstpost', colour: '#E05555', file: 'case-firstpost-v2.html',
     tags: 'News & media · App · Website',
     title: 'How we helped Firstpost 2x their traffic through a strategic redesign',
     body: "A design overhaul of Firstpost's website and the creation of their first mobile app, with a significant pivot for their business and content strategy." },
-  { name: 'Breathe ESG', colour: '#4CAF70', file: 'case-breathe-esg.html',
+  { name: 'Breathe ESG', colour: '#4CAF70', file: 'case-breathe-esg-v2.html',
     tags: 'SaaS · ESG · Dashboard',
     title: 'How we helped Breathe ESG accelerate sales, streamline releases and elevate customer experience',
     body: "An MVP to v1 redesign of Breathe ESG's SaaS platform, to make it easier for companies to track their ESG metrics and regulatory compliance." },
-  { name: 'Shyft & Mindhouse', colour: '#7B8FF5', file: 'case-shyft-mindhouse.html',
+  { name: 'Shyft & Mindhouse', colour: '#7B8FF5', file: 'case-shyft-mindhouse-v2.html',
     tags: 'Fitness · Mental health · App',
     title: 'How we helped Shyft & Mindhouse grow their business and supercharge product led growth',
     body: 'Conceptualising and designing a therapy experience, alongside redesigning their websites and apps to impact revenue.' },
@@ -599,18 +599,18 @@ const TESTIMONIALS = [
   {
     quote: 'Working with Rahul and team has been an absolute pleasure! The website they\u2019ve designed not only captures the essence of our brand but also resonates with our target audience, resulting in increased engagement and satisfaction.',
     logo: 'Firstpost', name: 'Milan Sachdeva',
-    role: 'Senior General Manager, Firstpost', file: 'case-firstpost.html',
+    role: 'Senior General Manager, Firstpost', file: 'case-firstpost-v2.html',
   },
   {
     quote: 'Collaborating with the Tibba Design Studio team on our critical design sprint was transformative for Breathe ESG.',
     logo: 'Breathe ESG', name: 'Shaayak Chaterjee',
-    role: 'Founder, Breathe ESG', file: 'case-breathe-esg.html',
+    role: 'Founder, Breathe ESG', file: 'case-breathe-esg-v2.html',
   },
   /* PLACEHOLDER — invented, not a real client quote. Replace before launch. */
   {
     quote: 'They asked the questions our own team had been avoiding, and then answered them with something we could ship. Six weeks in we had a product our sales team wanted to demo rather than apologise for.',
     logo: 'Apnaklub', name: 'Devika Rao',
-    role: 'VP Product, Apnaklub', file: 'case-groww.html', placeholder: true,
+    role: 'VP Product, Apnaklub', file: 'case-groww-v2.html', placeholder: true,
   },
 ];
 

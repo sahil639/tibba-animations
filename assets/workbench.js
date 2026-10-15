@@ -92,9 +92,18 @@
     nav.appendChild(bar);
 
     var body = el('div', 'wb-nav-body');
+    /* two ways in, side by side: every page, or the website itself as
+       modules — the Modular hub, where Website v3's sections are switched,
+       reordered and swapped */
+    var homes = el('div', 'wb-homes');
     var home = el('a', 'wb-home', 'All sections');
     home.href = 'index.html';
-    body.appendChild(home);
+    var mod = el('a', 'wb-home wb-modular', 'Modular');
+    mod.href = 'modular-website.html';
+    mod.title = 'Website v3, as modules — switch, reorder and swap its sections';
+    if (stem(mod.href) === here) mod.setAttribute('aria-current', 'page');
+    homes.appendChild(home); homes.appendChild(mod);
+    body.appendChild(homes);
 
     [SITE.feature].concat(SITE.sections).forEach(function (sec) {
       if (!sec) return;

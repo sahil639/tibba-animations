@@ -95,13 +95,13 @@
 
   /* ── the other three ─────────────────────────────────────────────────── */
   /* The data key and the file name are not the same word for every case —
-     'shyft-and-mindhouse' is the key, case-shyft-mindhouse.html is the file —
+     'shyft-and-mindhouse' is the key, case-shyft-mindhouse-v2.html is the file —
      so the mapping is stated once here rather than reconstructed inline. */
   const FILE = {
-    'groww': 'case-groww.html',
-    'firstpost': 'case-firstpost.html',
-    'breathe-esg': 'case-breathe-esg.html',
-    'shyft-and-mindhouse': 'case-shyft-mindhouse.html',
+    'groww': 'case-groww-v2.html',
+    'firstpost': 'case-firstpost-v2.html',
+    'breathe-esg': 'case-breathe-esg-v2.html',
+    'shyft-and-mindhouse': 'case-shyft-mindhouse-v2.html',
   };
 
   const others = window.TIBBA_CASE_ORDER.filter(k => k !== id);

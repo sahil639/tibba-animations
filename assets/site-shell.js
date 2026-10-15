@@ -205,6 +205,15 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
 
   /* ── the gate: hold the page while the loader runs ───────────────── */
   let locked = false, gateTimer = 0;
+  /* overflow:hidden alone is not a lock — a trackpad's momentum, a touch
+     drag on iOS and the keyboard can all still move the page — so while
+     locked, every way of scrolling is swallowed as well */
+  const SCROLL_KEYS = new Set([' ', 'PageDown', 'PageUp', 'ArrowDown', 'ArrowUp', 'Home', 'End']);
+  const swallow = e => { if (locked) e.preventDefault(); };
+  addEventListener('wheel', swallow, { passive: false });
+  addEventListener('touchmove', swallow, { passive: false });
+  addEventListener('keydown', e => { if (locked && SCROLL_KEYS.has(e.key)) e.preventDefault(); });
+  addEventListener('scroll', () => { if (locked && scrollY !== 0) scrollTo(0, 0); }, { passive: true });
   function lock(on) {
     locked = on;
     document.documentElement.classList.toggle('site-locked', on);

@@ -1,0 +1,225 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   The Content Architecture site header
+   ─────────────────────────────────────────────────────────────────────────
+   A straight port of src/components/ui/site-header.tsx from
+   github.com/sahil639/contentarchitecture-clone, together with the two
+   components it is built out of — Panel and Marquee — and the OdometerText
+   its labels roll with.
+
+   That project is Tailwind v4 with `--spacing: 0.0625rem`, so every numeric
+   utility in it reads as a pixel: `p-7` is 7px, `gap-22` is 22px, `size-26`
+   is 26px, `rounded-8` is 8px. The values below are those same numbers
+   written out, which is why they look unusually fine-grained for hand CSS.
+   Its `lg:` breakpoint is 64rem, kept here as the one media query.
+
+   Tokens are copied from that repo's globals.css rather than mapped onto
+   this site's, because the request was for the navbar exactly as it is. It
+   sets in Geist Mono and uses its own accent, neither of which is Tibba's.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+.ca {
+  /* --- tokens, from globals.css @theme ------------------------------- */
+  --ca-black-deep: #000;
+  --ca-off-white: #f1eee7;
+  --ca-white: #fff;
+  --ca-black: #232323;
+  --ca-accent: #ff9100;
+  --ca-mono: 'Geist Mono', ui-monospace, monospace;
+
+  /* Type interpolates between a 375px and a 1600px viewport. caption-10 is
+     12px at the small end and 14px at the large one. */
+  --ca-fluid-slope: calc((100vw - 375px) / (1600 - 375));
+  --ca-caption-10: clamp(12px, calc(12px + 2 * var(--ca-fluid-slope)), 14px);
+}
+
+/* ── header ─────────────────────────────────────────────────────────────
+   Fixed and pointer-transparent so it never blocks the hero beneath it; the
+   pill itself re-enables pointer events. */
+.ca-header {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 4;
+  display: flex;
+  justify-content: flex-start;
+  padding: 8px;
+  pointer-events: none;
+}
+
+/* ── Panel ──────────────────────────────────────────────────────────────
+   The site's recurring surface: a textured frame around a solid interior.
+   The frame is a 2px checkerboard laid down with a repeating conic gradient
+   — four quadrants per 4px tile, two of them lit — which reads as a halftone
+   screen at normal viewing distance. The texture is on the outer element and
+   shows only through its padding, so the band width IS the padding. */
+.ca-panel {
+  background-image:
+    repeating-conic-gradient(rgba(255, 255, 255, 0.22) 0% 25%, transparent 0% 50%);
+  background-size: 4px 4px;
+  background-color: var(--ca-black-deep);
+  border-radius: 8px;
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+  outline: 1px solid var(--ca-black-deep);
+  outline-offset: 0;
+  padding: 7px;
+  /* w-fit so the pill hugs the nav row; the marquee below is clipped to that
+     width. */
+  width: fit-content;
+  max-width: 100%;
+  pointer-events: auto;
+}
+.ca-panel-inner {
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--ca-black-deep);
+}
+
+/* ── the nav row ────────────────────────────────────────────────────── */
+.ca-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 10px;
+}
+.ca-mark {
+  display: flex;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  background: rgb(255 255 255 / 0.1);
+}
+.ca-mark svg { width: 20px; height: 20px; }
+.ca-home { display: inline-flex; }
+
+.ca-list {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ca-link {
+  position: relative;
+  display: inline-flex;
+  font-family: var(--ca-mono);
+  font-size: var(--ca-caption-10);
+  line-height: 1.25;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: rgb(241 238 231 / 0.8);
+  transition: color 150ms;
+  --odometer-progress: 0;
+}
+.ca-link:hover { color: var(--ca-off-white); }
+@media (prefers-reduced-motion: no-preference) {
+  .ca-link:hover { --odometer-progress: 1; }
+}
+/* the dot that marks the one nav item carrying an offer */
+.ca-dot {
+  position: absolute;
+  top: -1px;
+  right: -6px;
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--ca-accent);
+}
+
+/* ── OdometerText ───────────────────────────────────────────────────────
+   Each character sits in a 1em-tall window over a column of six glyphs: the
+   real character, four stand-ins, then the real character again. Driving
+   --odometer-progress from 0 to 1 translates the column by -5em, so it lands
+   back on the original glyph after rolling through the decoys. The parent
+   owns the variable, which is what lets one hover drive every character. */
+.ca-odo { display: flex; align-items: center; }
+.ca-odo-char {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: baseline;
+  height: 1em;
+  line-height: 1em;
+}
+/* reserves the character's advance width without being visible */
+.ca-odo-ghost { visibility: hidden; }
+.ca-odo-col {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(calc(var(--odometer-progress, 0) * -5em));
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ca-odo-col {
+    transition-property: transform;
+    transition-duration: 520ms;
+    transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+}
+.ca-odo-col > span { display: block; height: 1em; line-height: 1em; }
+/* spaces hold their slot in the stagger but never roll */
+.ca-odo-space { display: inline-block; height: 1em; line-height: 1em; }
+
+/* ── Marquee ────────────────────────────────────────────────────────────
+   The phrase list is rendered twice back to back and the track is translated
+   by exactly half its width, so the second copy lands where the first began
+   and the loop is seamless. */
+.ca-marquee-rule { border-top: 1px solid rgb(255 255 255 / 0.1); }
+.ca-marquee {
+  position: relative;
+  display: flex;
+  /* w-0 min-w-full keeps the track's very large intrinsic width from
+     widening the w-fit panel: the box contributes nothing to max-content,
+     then stretches back to the width the panel settled on. */
+  width: 0;
+  min-width: 100%;
+  overflow: hidden;
+  background: var(--ca-white);
+  color: var(--ca-black-deep);
+  font-family: var(--ca-mono);
+  font-size: var(--ca-caption-10);
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+.ca-marquee-track {
+  display: flex;
+  width: max-content;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ca-marquee-track {
+    animation: ca-marquee var(--ca-marquee-duration) linear infinite;
+  }
+}
+.ca-marquee-half { display: flex; flex-shrink: 0; }
+.ca-marquee-half > span { flex-shrink: 0; padding: 0 16px; }
+@keyframes ca-marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ── the one breakpoint (lg, 64rem) ─────────────────────────────────── */
+@media (min-width: 64rem) {
+  .ca-header { justify-content: center; padding: 16px; }
+  .ca-panel  { padding: 10px; }
+  .ca-row    { gap: 22px; padding-inline: 12px; }
+  .ca-list   { gap: 22px; }
+}
+
+/* screen-reader copy of each rolling label, since the glyph columns are
+   aria-hidden */
+.ca-sr {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

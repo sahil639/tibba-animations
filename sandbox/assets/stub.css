@@ -1,0 +1,43 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   The starting point for a section that has not been designed yet.
+   ─────────────────────────────────────────────────────────────────────────
+   Deliberately almost nothing: a dark ground, the face, and a marker saying
+   which section this file is. Everything here is meant to be deleted as the
+   real design goes in — the only lines worth keeping are the four in the head
+   that carry the type and the workbench.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { min-height: 100%; }
+body {
+  background: #0E0F13;
+  color: #E8EBF5;
+  font-family: 'F37 Analog', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.stub {
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+  gap: 14px; padding: 8vh clamp(24px, 6vw, 96px);
+  max-width: 760px;
+}
+.stub .eyebrow {
+  font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
+  color: rgba(232, 235, 245, .38);
+}
+.stub h1 {
+  font-size: clamp(30px, 4.6vw, 62px); font-weight: 400; letter-spacing: -.02em;
+  line-height: 1.05;
+}
+.stub p {
+  font-size: 14px; line-height: 1.8; font-weight: 300;
+  color: rgba(232, 235, 245, .52); max-width: 46ch;
+}
+.stub .rule {
+  width: 46px; height: 1px; background: #FF4B1F; margin: 6px 0 2px;
+}
+.stub code {
+  font-family: 'F37 Analog', ui-monospace, monospace;
+  color: rgba(232, 235, 245, .72);
+  border: 1px solid rgba(232, 235, 245, .14); border-radius: 2px;
+  padding: 1px 5px; font-size: 12.5px;
+}

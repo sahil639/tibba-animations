@@ -92,23 +92,23 @@ a { color: inherit; text-decoration: none; }
 .b.cta .go i { width: 22px; height: 1px; background: var(--accent); display: block; transition: width .3s linear; }
 .b.cta:hover .go i { width: 44px; }
 
-/* ── the arrival: a hairline, then the box ─────────────────────────────── */
-.b::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: var(--c); transform: scaleX(0); transform-origin: left; z-index: 2; }
-#mosaic:not(.on) .b { clip-path: inset(0 0 100% 0); }
-#mosaic.on .b { animation: bm-open .6s calc(var(--d) + .28s) cubic-bezier(.65,0,.35,1) both; }
-#mosaic.on .b::before { animation: bm-rule .32s var(--d) cubic-bezier(.65,0,.35,1) both, bm-fade .4s calc(var(--d) + .9s) linear both; }
-#mosaic.on .b > *:not(.tile-topo):not(.pin) { animation: bm-in .35s calc(var(--d) + .7s) linear both; }
-@keyframes bm-open { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
-@keyframes bm-rule { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-@keyframes bm-fade { to { opacity: 0; } }
-@keyframes bm-in { from { opacity: 0; } to { opacity: 1; } }
-#mosaic.settled .b, #mosaic.settled .b > * { animation: none !important; clip-path: none; }
+/* ── the arrival ─────────────────────────────────────────────────────────
+   Once. The wall waits as the site's black, then every box fades and slides
+   in at its own random moment, the whole grid inside 600ms, and the
+   hairlines come up behind the last of them. */
+.b::before { content: none; }
+#mosaic:not(.settled) { background: #000; transition: background .2s .4s linear; }
+#mosaic.on:not(.settled) { background: rgba(255,255,255,.1); }
+#mosaic:not(.on) .b { opacity: 0; transform: translateY(14px); }
+#mosaic.on .b { animation: bm-in .24s var(--d) cubic-bezier(.22,1,.36,1) both; }
+@keyframes bm-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+#mosaic.settled .b, #mosaic.settled .b > * { animation: none !important; opacity: 1; transform: none; }
 
 /* ── mobile: one viewport ─────────────────────────────────────────────────
    Under 760px the mosaic gives way to #mosaic-m: the heading, then four
-   rows of bordered tiles in a brick bond that run off both edges, each row
-   drifting slowly (alternate rows the other way) so the cut-off logos come
-   round into view. No gutters anywhere: the tiles share their hairlines
+   rows of bordered tiles in a brick bond that run off both edges. They
+   arrive once and hold still; the panel can set the rows drifting (alternate
+   rows the other way) so the cut-off logos come round into view. No gutters anywhere: the tiles share their hairlines
    edge to edge, row on row.
    MOBILE_BRANDS in the script: rows, logos per row, row height, speed —
    all on the panel under "Mobile". */
@@ -123,7 +123,12 @@ a { color: inherit; text-decoration: none; }
   #mosaic-m .rows { display: grid; gap: 0; border-top: 1px solid rgba(255,255,255,.16); }
   #mosaic-m .row { position: relative; overflow: hidden; height: var(--row-h, 22vw); border-bottom: 1px solid rgba(255,255,255,.16); }
   #mosaic-m .track { position: absolute; top: 0; bottom: 0; left: 0; display: flex; gap: 0; will-change: transform;
-    transform: translateX(var(--start, 0)); animation: bm-drift var(--dur, 60s) linear infinite var(--dir, normal); }
+    transform: translateX(var(--start, 0)); }
+  /* the drift used to run for ever; the wall now arrives once and holds.
+     The panel can still switch the drift back on. */
+  #mosaic-m.drift .track { animation: bm-drift var(--dur, 60s) linear infinite var(--dir, normal); }
+  #mosaic-m:not(.on) .t { opacity: 0; transform: translateY(12px); }
+  #mosaic-m.on .t { animation: bm-in .24s var(--d) cubic-bezier(.22,1,.36,1) both; }
   @keyframes bm-drift { from { transform: translateX(var(--start, 0)); } to { transform: translateX(calc(var(--start, 0px) - 50%)); } }
   #mosaic-m .t { flex: none; width: var(--tile-w, 40vw); height: 100%; display: grid; place-items: center;
     border-right: 1px solid rgba(255,255,255,.16); background: #000; }
@@ -149,7 +154,7 @@ a { color: inherit; text-decoration: none; }
     <p>Over the past decade we've helped companies deliver food, perform services,
        insure health, provide financial services, publish news and sell products.</p>
   </div>
-  <a class="b cta" href="contact.html">
+  <a class="b cta" href="mailto:hello@tibba.design">
     <p class="q">Your summit <em>next?</em></p>
     <span class="go">Start a project<i></i></span>
   </a>
@@ -187,15 +192,15 @@ const MOBILE_BRANDS = {
   const BRANDS = [
     ['zo', 'Zomato', 'Foodtech · App & website', '2015', , , 'zomato'],
     ['pa', 'Paytm', 'Fintech · App', '2017', , , 'paytm'],
-    ['gr', 'Groww', 'Fintech · App & website', '2024', '#4DD9C0', 'case-groww.html', 'groww'],
-    ['fp', 'Firstpost', 'News & media · App & website', '2023', '#E05555', 'case-firstpost.html', 'firstpost'],
-    ['be', 'Breathe ESG', 'SaaS · ESG dashboard', '2023', '#4CAF70', 'case-breathe-esg.html', 'breatheesg'],
+    ['gr', 'Groww', 'Fintech · App & website', '2024', '#4DD9C0', 'case-groww-v2.html', 'groww'],
+    ['fp', 'Firstpost', 'News & media · App & website', '2023', '#E05555', 'case-firstpost-v2.html', 'firstpost'],
+    ['be', 'Breathe ESG', 'SaaS · ESG dashboard', '2023', '#4CAF70', 'case-breathe-esg-v2.html', 'breatheesg'],
     ['uc', 'Urban Company', 'Urban services · App', '2016', , , 'urban-company'],
     ['hd', 'HDFC Bank', 'Fintech · Rewards platform', '2019', , , 'hdfc-bank'],
     ['ti', 'The Times of India', 'News & media · Website', '2018', , , 'the-times-of-india'],
     ['pb', 'Policybazaar', 'Insurtech · App', '2019', , , 'policybazaar'],
     ['ie', 'The Indian Express', 'News & media · App & website', '2021', , , 'the-indian-express'],
-    ['sh', 'Shyft & Mindhouse', 'Fitness & mental health · App', '2023', '#7B8FF5', 'case-shyft-mindhouse.html', 'shyft'],
+    ['sh', 'Shyft & Mindhouse', 'Fitness & mental health · App', '2023', '#7B8FF5', 'case-shyft-mindhouse-v2.html', 'shyft'],
     ['ak', 'Apnaklub', 'B2B wholesale · App', '2022', , , 'apnaklub'],
     ['ss', 'simsim', 'Social commerce · App', '2020', , , 'simsim'],
     ['bs', 'Bombay Shirt Company', 'Ecommerce · Website', '2018', , , 'bombay-shirt-company'],
@@ -246,22 +251,23 @@ const MOBILE_BRANDS = {
   }
   buildRows();
 
-  /* the arrival order: reading order through the grid, measured off the
-     laid-out boxes so it holds at the narrow breakpoint too */
-  function order() {
-    const r0 = wall.getBoundingClientRect();
-    [...wall.children].forEach(b => {
-      const r = b.getBoundingClientRect();
-      const d = ((r.top - r0.top) / r0.height) * 0.9 + ((r.left - r0.left) / r0.width) * 0.45;
-      b.style.setProperty('--d', d.toFixed(3) + 's');
-    });
+  /* the arrival: each box at a random moment in the first 360ms, 240ms each
+     — the whole grid in by 600ms. Once per page view. */
+  const mobileWall = document.getElementById('mosaic-m');
+  function order(root, sel) {
+    root.querySelectorAll(sel).forEach(b => b.style.setProperty('--d', (Math.random() * 0.36).toFixed(3) + 's'));
   }
   function play() {
-    wall.classList.remove('on', 'settled'); void wall.offsetWidth; order();
-    wall.classList.add('on'); setTimeout(() => wall.classList.add('settled'), 2600);
+    order(wall, ':scope > *'); order(mobileWall, '.t');
+    [wall, mobileWall].forEach(w => { w.classList.remove('on', 'settled'); void w.offsetWidth; w.classList.add('on'); });
+    setTimeout(() => wall.classList.add('settled'), 650);
   }
-  const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { io.disconnect(); play(); } }, { threshold: .3 });
-  io.observe(wall);
+  let played = false;
+  const io = new IntersectionObserver(entries => {
+    if (played || !entries.some(e => e.isIntersecting)) return;
+    played = true; io.disconnect(); play();
+  }, { threshold: .3 });
+  io.observe(wall); io.observe(mobileWall);
 
   const el = document.createElement('div');
   el.id = 'tune';
@@ -271,7 +277,8 @@ const MOBILE_BRANDS = {
     <div class="row"><label>Box height<i id="v-mh">${M.rowHeight}vw</i></label><input type="range" id="s-mh" min="12" max="40" step="0.5" value="${M.rowHeight}" data-u="vw"></div>
     <div class="row"><label>Logos per row<i id="v-mp">${M.perRow}</i></label><input type="range" id="s-mp" min="1.5" max="5" step="0.5" value="${M.perRow}" data-u=""></div>
     <div class="row"><label>Rows<i id="v-mr">${M.rows}</i></label><input type="range" id="s-mr" min="2" max="8" step="1" value="${M.rows}" data-u=""></div>
-    <div class="row"><label>Speed<i id="v-ms">${M.speed}vw/s</i></label><input type="range" id="s-ms" min="0" max="12" step="0.1" value="${M.speed}" data-u="vw/s"></div>
+    <div class="row inline"><label>Drift the rows<i></i></label><input type="checkbox" id="s-dr"></div>
+    <div class="row"><label>Drift speed<i id="v-ms">${M.speed}vw/s</i></label><input type="range" id="s-ms" min="0" max="12" step="0.1" value="${M.speed}" data-u="vw/s"></div>
     ${window.logoPanel()}`;
   document.body.appendChild(el);
   window.bindLogoPanel(el);
@@ -281,6 +288,7 @@ const MOBILE_BRANDS = {
       if (id === 'mh') window.BrandLogos.size(rowsEl);
     }));
   el.querySelector('#b-rp').addEventListener('click', play);
+  el.querySelector('#s-dr').addEventListener('change', e => mobileWall.classList.toggle('drift', e.target.checked));
   el.querySelector('#tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
 })();
 </script>

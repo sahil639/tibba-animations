@@ -112,7 +112,8 @@ function loaderFrame(now) {
     document.body.classList.add('ld-gone');
     clearInterval(coordTimer);
     setTimeout(() => document.body.classList.add('hero-in'), C.intro.duration * 300);
-    tellShell();
+    /* not tellShell() yet: the page stays still until the hero has fully
+       flown in, so nobody can scroll away mid-intro */
   }
 }
 
@@ -262,7 +263,8 @@ function frame(now) {
   if (phase === 'loading') { loaderFrame(now); scene.setHeroCam({ elev: PLAN.elev, azim: PLAN.azim, dist: PLAN.dist, tgtX: PLAN.x, tgtY: PLAN.y }); return; }
   if (phase === 'intro') {
     intro = clamp01((now - introAt) / 1000 / C.intro.duration);
-    if (intro >= 1) { phase = 'hero'; scene.setFill(null); }
+    /* the hero has landed — only now may the page scroll */
+    if (intro >= 1) { phase = 'hero'; scene.setFill(null); tellShell(); }
   }
   const t = scrollT();
   const k = smooth(clamp01((t - C.lock.from) / (C.lock.to - C.lock.from)));

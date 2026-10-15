@@ -67,14 +67,15 @@ export const HOME_SECTIONS = [
   { id: 'cases', label: 'Extra case studies', folder: 'Extra case studies', nav: 'Cases', navMinor: true,
     variants: [{ file: 'case-studies-reel.html', label: 'Case reel' }] },
   { id: 'services', label: 'Our services', folder: 'Our services', nav: 'Services',
-    variants: [{ file: 'services-compass-v4.html', label: 'Compass v4' }, { file: 'services-compass-v3.html', label: 'Compass v3' },
-               { file: 'services-topo.html', label: 'Shifting Topo' },
-               { file: 'services-compass-v5.html', label: 'Compass v5 — reference layout' }, { file: 'services-compass-v6.html', label: 'Compass v6 — half compass' },
-               { file: 'services-compass-v7.html', label: 'Compass v7 — on a surface' }, { file: 'services-gear.html', label: 'Gear tiers' }] },
+    variants: [{ file: 'services-compass-v4.html', label: 'Compass v4' },
+               { file: 'services-compass-v5.html', label: 'Compass v5 — reference layout' },
+               { file: 'services-topo-v2.html', label: 'Shifting Topo v2' },
+               { file: 'services-gear-bags.html', label: 'Gear tiers — bags' },
+               { file: 'services-gear-bags-v2.html', label: 'Gear tiers — bags v2' }] },
   { id: 'testimonials', label: 'Testimonials', folder: 'Our testimonials', nav: 'Voices', navMinor: true,
     variants: [{ file: 'testimonials-topo.html', label: 'Testimonials — topo' }] },
   { id: 'studio', label: 'Our studio', folder: 'Our studio', nav: 'Studio', navMinor: true,
-    variants: [{ file: 'studio-polaroids.html', label: 'Polaroids' }, { file: 'studio-frames.html', label: 'Framed prints' }, { file: 'studio-polaroid-frames.html', label: 'Framed polaroids' }] },
+    variants: [{ file: 'studio-polaroids.html', label: 'Polaroids' }, { file: 'studio-polaroid-frames.html', label: 'Framed polaroids' }] },
   FOOTER,
 ];
 
@@ -86,19 +87,22 @@ export const V3_SECTIONS = [
   { id: 'opening', label: 'Loader → Hero → Metrics', folder: 'Loader · Hero section · Metrics', nav: null, gate: true,
     variants: [{ file: 'site-hero.html', label: 'Loader, Active Peak and Metrics as one scene' },
                { file: 'site-hero.html?noloader', label: 'Same, without the loader' }] },
-  { id: 'work', label: 'Selected work', folder: 'Website v3', nav: 'Work',
-    variants: [{ file: 'work-summits.html', label: 'Four summits, stacked' }] },
+  { id: 'work', label: 'Our summits', folder: 'Our summits', nav: 'Work',
+    variants: [{ file: 'summits-basecamp-layered.html', label: 'Base Camp, layered' },
+               { file: 'summits-basecamp.html', label: 'Base Camp' }] },
   { id: 'brands', label: 'Brands', folder: 'Brands section', frame: '85vh',
     mobile: { file: 'brands-mosaic.html', frame: '78vh' },
     variants: [{ file: 'brands.html', label: 'Brands' }, { file: 'brands-mosaic.html', label: 'Brands — mosaic' }] },
-  { id: 'more', label: 'More work', folder: 'Website v3',
+  { id: 'more', label: 'More work', folder: 'Extra case studies',
     variants: [{ file: 'work-index.html', label: 'The index' }, { file: 'case-studies-reel.html', label: 'Case reel' }] },
   { id: 'services', label: 'Our services', folder: 'Our services', nav: 'Services',
-    variants: [{ file: 'services-gear.html', label: 'Gear tiers' }, { file: 'services-compass-v4.html', label: 'Compass v4' }] },
+    variants: [{ file: 'services-gear-bags-v2.html', label: 'Gear tiers — bags v2' },
+               { file: 'services-gear-bags.html', label: 'Gear tiers — bags' },
+               { file: 'services-compass-v4.html', label: 'Compass v4' }] },
   { id: 'testimonials', label: 'Testimonials', folder: 'Our testimonials',
     variants: [{ file: 'testimonials-topo.html', label: 'Testimonials — topo' }] },
   { id: 'studio', label: 'Our studio', folder: 'Our studio',
-    variants: [{ file: 'studio-polaroid-frames.html', label: 'Framed polaroids' }, { file: 'studio-frames.html', label: 'Framed prints' }] },
+    variants: [{ file: 'studio-polaroid-frames.html', label: 'Framed polaroids' }] },
   { id: 'footer', label: 'Footer', folder: 'Footer', nav: 'Contact',
     variants: [{ file: 'footer-dusk-grid.html', label: 'Footer — dusk grid' }, { file: 'footer-blueprint-dusk.html', label: 'Footer — blueprint dusk' },
                { file: 'footer-campfire.html', label: 'Footer — campfire' }] },
@@ -146,7 +150,6 @@ export const PAGE_CSS = {
     .tile.cta { background: #1d1d20 !important; } .tile.cta:hover { background: #232327 !important; }`,
   'studio-polaroids.html': `#reset { display: none !important; }`,
   'studio-polaroid-frames.html': `#reset { display: none !important; }`,
-  'studio-frames.html': `.studio { padding-top: 8vh !important; }`,
 };
 
 /* the strip along the navbar's foot: working with the studio */
@@ -154,13 +157,15 @@ export const TICKER = 'Have a summit in mind? Let’s climb it together  ·  Now
 
 /* the navbar's links, the same on every page; Contact goes to the footer */
 export const HOME_LINKS = [{ label: 'Work', target: 'summits' }, { label: 'Services', target: 'services' }, { label: 'About', href: 'about.html' }, { label: 'Contact', target: 'footer' }];
-export const ABOUT_LINKS = [{ label: 'Work', href: 'final-website-v2.html#summits' }, { label: 'Services', href: 'final-website-v2.html#services' }, { label: 'About', target: 'about-hero' }, { label: 'Contact', target: 'footer' }];
+export const ABOUT_LINKS = [{ label: 'Work', href: 'website-v3.html#work' }, { label: 'Services', href: 'website-v3.html#services' }, { label: 'About', target: 'about-hero' }, { label: 'Contact', target: 'footer' }];
 
 /* the Modular hub's layout, stored per browser: [{ id, on, variant }] */
 export const LAYOUT_KEY = 'tibba.site.home';
-export function loadLayout(list = HOME_SECTIONS) {
+/* Website v3's own layout — the Modular hub arranges v3 now */
+export const V3_LAYOUT_KEY = 'tibba.site.v3';
+export function loadLayout(list = HOME_SECTIONS, key = LAYOUT_KEY) {
   let saved = null;
-  try { saved = JSON.parse(localStorage.getItem(LAYOUT_KEY) || 'null'); } catch {}
+  try { saved = JSON.parse(localStorage.getItem(key) || 'null'); } catch {}
   return resolveLayout(saved, list);
 }
 /* a saved layout over the registry: unknown ids dropped, new sections

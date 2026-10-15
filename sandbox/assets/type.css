@@ -1,0 +1,51 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   F37 Analog — the studio face
+   ─────────────────────────────────────────────────────────────────────────
+   One family across the whole site. Every page links this file and every font
+   stack in the repo now starts with it, so there is one place to swap the
+   trial cut for the licensed one: change the six urls below and nothing else.
+
+   The generic fallbacks are kept behind it on purpose. The .otf files are
+   ~15 KB each and load fast, but a page that renders before they arrive
+   should still set in something sane rather than in Times.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+@font-face {
+  font-family: 'F37 Analog';
+  src: url('fonts/F37AnalogTrial-Thin.otf') format('opentype');
+  font-weight: 100; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'F37 Analog';
+  src: url('fonts/F37AnalogTrial-Light.otf') format('opentype');
+  font-weight: 300; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'F37 Analog';
+  src: url('fonts/F37AnalogTrial-Regular.otf') format('opentype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'F37 Analog';
+  src: url('fonts/F37AnalogTrial-Medium.otf') format('opentype');
+  font-weight: 500; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'F37 Analog';
+  src: url('fonts/F37AnalogTrial-SemiBold.otf') format('opentype');
+  font-weight: 600; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'F37 Analog';
+  src: url('fonts/F37AnalogTrial-Bold.otf') format('opentype');
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+
+:root {
+  --font: 'F37 Analog', system-ui, -apple-system, sans-serif;
+  /* The control panels used to be set in the system monospace, which bought
+     them one thing worth keeping: a readout that does not jump a pixel every
+     time a digit changes under a slider. The face carries tabular figures, so
+     the panels ask for those rather than for a different family. */
+  --font-ui: 'F37 Analog', system-ui, sans-serif;
+}

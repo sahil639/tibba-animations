@@ -1,0 +1,343 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Our summits — Range, in the Active Peak language
+   ─────────────────────────────────────────────────────────────────────────
+   Shared by summits-range.html and summits-range-l2.html. The ground, the
+   type and the reserve column are Active Peak's (active-peak.html); what is
+   here on top is the case copy in its two layouts, the rail, the trail's
+   markers and the control that shows and hides it.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #000;
+  color: var(--ink-warm);
+  font-family: 'F37 Analog', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  --case: var(--accent);
+}
+a { color: inherit; text-decoration: none; }
+
+/* the Active Peak journey, then four bands of case copy */
+#scope { position: relative; height: 760vh; }
+#stage {
+  position: sticky; top: 0;
+  height: 100vh; height: 100svh;
+  overflow: hidden;
+}
+#peak-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* a floor of dark down the right, so the copy sits on ground rather than on
+   contour lines — only once the peak has moved over to make room for it */
+#stage::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background: linear-gradient(270deg, rgba(0,0,0,.92) 0%, rgba(0,0,0,.74) 30%, rgba(0,0,0,.2) 48%, rgba(0,0,0,0) 58%);
+  opacity: 0; transition: opacity .8s var(--ease);
+}
+body.in-cases #stage::after { opacity: 1; }
+
+/* ── the intro, over the plan view ─────────────────────────────────────── */
+#intro {
+  position: absolute; left: var(--gut); bottom: clamp(56px, 11vh, 120px); z-index: 3;
+  max-width: 560px; pointer-events: none;
+  will-change: opacity, transform;
+}
+#intro .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+#intro h1 {
+  margin-top: 16px; font-weight: 400; color: #fff;
+  font-size: clamp(30px, 3.6vw, 56px); line-height: 1.02; letter-spacing: -.03em;
+}
+#intro p { margin-top: 16px; max-width: 46ch; font-size: 14px; line-height: 1.7; color: var(--ink-mute); }
+
+#cue {
+  position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 3;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  font-size: 10px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--ink-faint); transition: opacity .45s var(--ease); pointer-events: none;
+}
+#cue i { display: block; width: 1px; height: 26px; background: var(--line); }
+
+/* ── the rail ──────────────────────────────────────────────────────────── */
+#rail {
+  position: absolute; right: 22px; top: 50%; transform: translateY(-50%); z-index: 4;
+  display: grid; gap: 12px;
+  opacity: 0; pointer-events: none; transition: opacity .5s var(--ease);
+}
+body.in-cases #rail { opacity: 1; pointer-events: auto; }
+#rail button {
+  -webkit-appearance: none; appearance: none; background: none; border: 0; cursor: pointer;
+  display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 3px 0;
+  color: var(--ink-warm); font: 10px/1 'F37 Analog', system-ui, sans-serif; letter-spacing: .14em;
+  text-transform: uppercase; opacity: .38; transition: opacity .25s;
+}
+#rail .lbl { opacity: 0; transform: translateX(6px); transition: opacity .3s, transform .4s var(--ease); white-space: nowrap; }
+#rail button:hover { opacity: .85; }
+#rail button:hover .lbl, #rail button[aria-current="true"] .lbl { opacity: 1; transform: none; }
+/* on the second layout the cards already name the summit, and a label out
+   here would sit across them */
+body[data-layout="cards"] #rail button[aria-current="true"]:not(:hover) .lbl { opacity: 0; }
+#rail .tick { display: block; width: 14px; height: 1px; background: currentColor; transition: width .45s var(--ease), background .3s; }
+#rail button[aria-current="true"] { opacity: 1; }
+#rail button[aria-current="true"] .tick { width: 34px; background: var(--c); }
+#rail button:focus-visible { outline: 1px solid var(--ink-faint); outline-offset: 4px; }
+
+/* ── the trail's markers ───────────────────────────────────────────────── */
+.trail-layer { position: absolute; z-index: 2; pointer-events: none; transition: opacity .38s var(--ease); }
+.trail-layer.hidden { opacity: 0; }
+.trail-layer > span { position: absolute; left: 0; top: 0; will-change: transform; }
+
+.trail-head::before {
+  content: ''; position: absolute; left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%;
+  background: #fff; box-shadow: 0 0 0 3px rgba(255, 75, 31, .45), 0 0 18px 4px rgba(255, 75, 31, .55);
+}
+.trail-base::before {
+  content: ''; position: absolute; left: -3px; top: -3px; width: 6px; height: 6px;
+  border: 1px solid var(--accent); border-radius: 50%; background: #000;
+  opacity: 0; transition: opacity .4s;
+}
+.trail-layer.started .trail-base::before { opacity: 1; }
+
+.trail-camp i {
+  position: absolute; left: -3.5px; top: -3.5px; width: 7px; height: 7px;
+  background: #000; border: 1px solid rgba(255,255,255,.5); transform: rotate(45deg) scale(0);
+  transition: transform .5s cubic-bezier(.34, 1.56, .64, 1), border-color .3s, background .3s;
+}
+.trail-camp b {
+  position: absolute; left: 9px; top: -6px; font: 500 9px/1 'F37 Analog', system-ui, sans-serif;
+  letter-spacing: .12em; color: rgba(255,255,255,.55); opacity: 0; transition: opacity .4s .1s;
+}
+.trail-camp.on i { transform: rotate(45deg) scale(1); }
+.trail-camp.on b { opacity: 1; }
+body.no-camps .trail-camp { display: none; }
+
+/* the pen mark: an orange square that lands on the summit */
+.trail-pen svg {
+  position: absolute; left: -13px; top: -36px; width: 26px; height: 26px; max-width: none; display: block;
+  transform: translateY(10px) scale(.2) rotate(-18deg); transform-origin: 50% 100%; opacity: 0;
+  filter: drop-shadow(0 6px 14px rgba(255, 75, 31, .45));
+  transition: transform .75s cubic-bezier(.34, 1.56, .64, 1), opacity .3s;
+}
+.trail-pen::before {                    /* the stem down onto the summit */
+  content: ''; position: absolute; left: -.5px; top: -10px; width: 1px; height: 10px;
+  background: var(--accent); transform: scaleY(0); transform-origin: bottom; transition: transform .35s .05s var(--ease);
+}
+.trail-pen::after {                     /* one ping as it lands */
+  content: ''; position: absolute; left: -13px; top: -36px; width: 26px; height: 26px; border-radius: 3px;
+  border: 1px solid var(--accent); opacity: 0;
+}
+.trail-pen em {
+  position: absolute; left: 20px; top: -30px; font: 400 10px/1 'F37 Analog', system-ui, sans-serif;
+  font-style: normal; letter-spacing: .18em; text-transform: uppercase; color: #fff; white-space: nowrap;
+  opacity: 0; transform: translateX(-6px); transition: opacity .4s .25s, transform .6s .25s var(--ease);
+}
+.trail-layer.arrived .trail-pen svg { opacity: 1; transform: none; }
+.trail-layer.arrived .trail-pen::before { transform: none; }
+.trail-layer.arrived .trail-pen::after { animation: pen-ping 1.4s .15s cubic-bezier(.16, .62, .36, 1) both; }
+.trail-layer.arrived .trail-pen em { opacity: .9; transform: none; }
+@keyframes pen-ping { 0% { opacity: .9; transform: scale(1); } 100% { opacity: 0; transform: scale(2.6); } }
+
+/* ── the trail control ─────────────────────────────────────────────────── */
+#trail-ctl {
+  position: absolute; left: var(--gut); bottom: 22px; z-index: 5;
+  display: flex; gap: 8px; align-items: center;
+}
+#trail-ctl button {
+  -webkit-appearance: none; appearance: none; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 10px; border: 1px solid var(--line); border-radius: 2px;
+  background: rgba(10, 10, 12, .62); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  color: var(--ink-warm); font: 10.5px/1 'F37 Analog', system-ui, sans-serif;
+  letter-spacing: .14em; text-transform: uppercase;
+  transition: border-color .2s, color .2s;
+}
+#trail-ctl button:hover { border-color: rgba(255,255,255,.28); color: #fff; }
+#trail-ctl button:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
+#trail-ctl .br { color: var(--ink-faint); }
+#trail-ctl .sw {
+  position: relative; width: 22px; height: 12px; border-radius: 6px;
+  background: rgba(255,255,255,.14); transition: background .3s var(--ease);
+}
+#trail-ctl .sw i {
+  position: absolute; left: 2px; top: 2px; width: 8px; height: 8px; border-radius: 1px; background: #fff;
+  transition: transform .35s var(--ease), background .3s;
+}
+#trail-ctl .tgl[aria-pressed="true"] .sw { background: rgba(255, 75, 31, .32); }
+#trail-ctl .tgl[aria-pressed="true"] .sw i { transform: translateX(10px); background: var(--accent); }
+#trail-ctl .st { color: var(--ink-faint); min-width: 3ch; }
+#trail-ctl .rp { transition: opacity .3s; }
+body.trail-off #trail-ctl .rp { opacity: .45; }
+
+/* ── the copy, shared ──────────────────────────────────────────────────── */
+#cases { position: absolute; z-index: 3; }
+.k {
+  display: flex; justify-content: space-between; gap: 12px;
+  font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent);
+}
+.k b { font-weight: 400; }
+.k em { font-style: normal; color: var(--ink-faint); letter-spacing: .12em; }
+.hi { color: var(--c, var(--accent)); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); }
+.tags span + span::before { content: '/'; margin-right: 14px; color: rgba(255,255,255,.18); }
+.go {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: #fff;
+}
+.go i { display: block; width: 22px; height: 1px; background: var(--accent); transition: width .3s var(--ease); }
+.go:hover i { width: 40px; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LAYOUT 1 — the column (summits-range.html)
+   The Active Peak reserve, filled in.
+   ═════════════════════════════════════════════════════════════════════════ */
+body[data-layout="column"] #cases {
+  right: 0; top: 0; bottom: 0; width: 46%;
+  display: flex; align-items: center;
+  padding-left: clamp(20px, 4vw, 64px); padding-right: calc(var(--gut) + 40px);
+  opacity: 0; pointer-events: none; transition: opacity .6s var(--ease);
+}
+body[data-layout="column"] #cases.on { opacity: 1; pointer-events: auto; }
+.slot {
+  width: 100%; max-width: 440px;
+  border-left: 1px solid var(--line);
+  padding: clamp(18px, 2.4vw, 30px) 0 clamp(18px, 2.4vw, 30px) clamp(18px, 2vw, 28px);
+  position: relative;
+}
+.slot::before {                           /* the active case's mark on the rule */
+  content: ''; position: absolute; left: -1px; top: 0; width: 1px; height: 46px; background: var(--c, var(--accent));
+  transition: background .4s;
+}
+.slot .t {
+  margin-top: 18px; font-weight: 400; color: #fff;
+  font-size: clamp(22px, 2.3vw, 34px); line-height: 1.12; letter-spacing: -.02em;
+}
+.slot .tags { margin-top: 18px; }
+.slot .body { margin-top: 16px; font-size: 14px; line-height: 1.7; color: var(--ink-mute); max-width: 40ch; }
+.slot .go { margin-top: 24px; }
+.slot .prog { margin-top: 28px; height: 1px; background: var(--line); overflow: hidden; }
+.slot .prog i { display: block; height: 100%; background: var(--c, var(--accent)); transform-origin: left; transform: scaleX(var(--band, 0)); }
+
+.slot .mask { display: block; overflow: hidden; padding-bottom: .1em; margin-bottom: -.1em; }
+.slot .mask > span { display: block; }
+.slot.swap .mask > span { animation: rs-rise 1s var(--ease) both; }
+.slot.swap-back .mask > span { animation: rs-fall 1s var(--ease) both; }
+.slot.swap .k, .slot.swap .tags, .slot.swap .body, .slot.swap .go,
+.slot.swap-back .k, .slot.swap-back .tags, .slot.swap-back .body, .slot.swap-back .go { animation: rs-fade .9s var(--ease) both; }
+.slot.swap .tags, .slot.swap-back .tags { animation-delay: .08s; }
+.slot.swap .body, .slot.swap-back .body { animation-delay: .14s; }
+.slot.swap .go, .slot.swap-back .go { animation-delay: .2s; }
+@keyframes rs-rise { from { transform: translateY(105%); } to { transform: none; } }
+@keyframes rs-fall { from { transform: translateY(-105%); } to { transform: none; } }
+@keyframes rs-fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LAYOUT 2 — the containers (summits-range-l2.html)
+   Four cards up the right flank of the peak, the first at the foot and the
+   last near the top, each entering its own way. --p is the entrance, 0..1,
+   scrubbed by the scroll and eased in script.
+   ═════════════════════════════════════════════════════════════════════════ */
+body[data-layout="cards"] #cases {
+  left: 50%; right: calc(var(--gut) + 48px); top: 0; bottom: 0;
+  pointer-events: none;
+}
+#leaders { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; overflow: visible; }
+#leaders path { fill: none; stroke: var(--c); stroke-width: 1; stroke-dasharray: 2 3; transition: opacity .4s; opacity: 0; }
+#leaders circle { fill: var(--accent); transition: opacity .4s; opacity: 0; }
+
+.card {
+  --p: 0;
+  position: absolute; width: min(400px, 100%);
+  /* climbing: card 1 at the foot and furthest out, card 4 high and close in */
+  right: calc(var(--i-x) * 1%); bottom: calc(var(--i-y) * 1vh);
+  background: rgba(12, 12, 14, .72);
+  backdrop-filter: blur(14px) saturate(1.1); -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  border: 1px solid rgba(255,255,255,.08); border-radius: 3px;
+  padding: 16px 18px 16px;
+  visibility: hidden; pointer-events: none;
+  transition: border-color .4s, background .4s, opacity .45s;
+}
+.card[data-i="0"] { --i-x: 0;  --i-y: 7; }
+.card[data-i="1"] { --i-x: 7;  --i-y: 27; }
+.card[data-i="2"] { --i-x: 14; --i-y: 47; }
+.card[data-i="3"] { --i-x: 21; --i-y: 67; }
+.card.live { visibility: visible; pointer-events: auto; }
+.card.past { opacity: .5; }
+.card.past:hover { opacity: .85; }
+.card.active { border-color: color-mix(in srgb, var(--c) 45%, transparent); background: rgba(12, 12, 14, .86); }
+
+.card .t { margin-top: 10px; font-weight: 400; color: #fff; font-size: clamp(15px, 1.2vw, 18px); line-height: 1.25; letter-spacing: -.01em; }
+.card .tags { margin-top: 10px; }
+.card .pin {                              /* the orange square, top-right */
+  position: absolute; right: -1px; top: -1px; width: 8px; height: 8px; background: var(--accent);
+  transform: scale(0); transition: transform .45s cubic-bezier(.34, 1.56, .64, 1);
+}
+.card.active .pin { transform: scale(1); }
+
+/* the body opens on the active card only */
+.card .more { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .6s var(--ease); }
+.card .more > div { overflow: hidden; }
+.card.active .more { grid-template-rows: 1fr; }
+.card .body { margin-top: 12px; font-size: 13px; line-height: 1.65; color: var(--ink-mute); }
+.card .go { margin-top: 14px; margin-bottom: 2px; }
+
+.card .frame { position: absolute; inset: -1px; width: calc(100% + 2px); height: calc(100% + 2px); pointer-events: none; display: none; }
+.card .frame rect { width: calc(100% - 1px); height: calc(100% - 1px); fill: none; stroke: var(--c); stroke-width: 1; rx: 3; }
+
+/* ── 1 · wipe — a hard edge sweeps across left to right, the copy riding in
+   just behind it */
+.card[data-fx="wipe"] { clip-path: inset(0 calc((1 - var(--p)) * 100%) 0 0 round 3px); }
+.card[data-fx="wipe"] .in { transform: translateX(calc((1 - var(--p)) * -28px)); }
+.card[data-fx="wipe"]::after {
+  content: ''; position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent);
+  left: calc(var(--p) * 100% - 2px); opacity: calc(1 - var(--p) * var(--p));
+}
+
+/* ── 2 · fold — hinged at its top edge, it swings down out of the page */
+.card[data-fx="fold"] {
+  transform-origin: 50% 0;
+  transform: perspective(900px) rotateX(calc((1 - var(--p)) * -92deg));
+  opacity: clamp(0, calc(var(--p) * 2.2), 1);
+}
+.card[data-fx="fold"] .in { opacity: clamp(0, calc(var(--p) * 2 - .6), 1); }
+
+/* ── 3 · focus — arrives out of focus and slightly too close, and settles */
+.card[data-fx="focus"] {
+  filter: blur(calc((1 - var(--p)) * 16px));
+  transform: scale(calc(1.14 - var(--p) * .14)) translateY(calc((1 - var(--p)) * -12px));
+  opacity: clamp(0, calc(var(--p) * 1.6), 1);
+}
+.card[data-fx="focus"].past { opacity: .5; }
+
+/* ── 4 · draw — the frame is surveyed on first, then the lines of copy
+   come up one after another inside it */
+.card[data-fx="draw"] { background: rgba(12,12,14, calc(var(--p) * .72)); border-color: transparent;
+  backdrop-filter: blur(calc(var(--p) * 14px)); -webkit-backdrop-filter: blur(calc(var(--p) * 14px)); }
+.card[data-fx="draw"].active { background: rgba(12,12,14, calc(var(--p) * .86)); }
+.card[data-fx="draw"] .frame { display: block; }
+.card[data-fx="draw"] .frame rect { stroke-dasharray: 1; stroke-dashoffset: calc(1 - clamp(0, var(--p) * 1.7, 1)); }
+.card[data-fx="draw"] .l1, .card[data-fx="draw"] .l2, .card[data-fx="draw"] .l3, .card[data-fx="draw"] .more {
+  --q: clamp(0, calc((var(--p) - var(--d)) * 3.2), 1);
+  opacity: var(--q); transform: translateY(calc((1 - var(--q)) * 12px));
+}
+.card[data-fx="draw"] .l1 { --d: .42; }
+.card[data-fx="draw"] .l2 { --d: .52; }
+.card[data-fx="draw"] .l3 { --d: .62; }
+.card[data-fx="draw"] .more { --d: .7; }
+
+/* ── narrow windows ────────────────────────────────────────────────────── */
+@media (max-width: 820px) {
+  #stage::after { background: linear-gradient(0deg, rgba(0,0,0,.95) 0%, rgba(0,0,0,.7) 40%, rgba(0,0,0,0) 62%); }
+  #intro { right: 16px; left: 16px; bottom: 90px; }
+  #rail { right: 10px; top: 18%; transform: none; }
+  #rail .lbl { display: none; }
+  #trail-ctl { left: 16px; bottom: 16px; }
+  body[data-layout="column"] #cases { left: 0; width: auto; top: auto; bottom: 64px; padding: 0 44px 0 16px; align-items: flex-end; }
+  body[data-layout="column"] .slot .body { display: none; }
+  body[data-layout="cards"] #cases { left: 16px; right: 44px; }
+  .card { right: 0; bottom: 64px; width: 100%; }
+  .card.past { opacity: 0; visibility: hidden; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slot.swap .mask > span, .slot.swap-back .mask > span, .slot.swap *, .slot.swap-back * { animation: none !important; }
+  .trail-pen svg, .trail-camp i { transition: none; }
+}

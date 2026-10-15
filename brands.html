@@ -31,8 +31,8 @@
    with brands-mosaic.html. A brand without artwork
    is set as a wordmark in the studio face.
 
-   The tiles come in on a diagonal wave from the title, the first time the
-   wall is on screen. On hover a tile lifts, a live contour field of its own
+   The tiles arrive once, the first time the wall is on screen: each at a
+   random moment, the whole grid within 600ms, on the site's black. On hover a tile lifts, a live contour field of its own
    (assets/tile-topo.js) runs behind the mark, and the sector and year slide up; the four with a summit on the
    range carry their route colour and link to their case study.
    ═════════════════════════════════════════════════════════════════════════ */
@@ -139,16 +139,18 @@ a { color: inherit; text-decoration: none; }
 .tile.cta:hover .go i { width: 46px; }
 .tile.cta:hover .q, .tile.cta:hover .mark { transform: none; }
 
-/* ── the wave ──────────────────────────────────────────────────────────── */
+/* ── the load-in ─────────────────────────────────────────────────────────
+   Played once. While it waits, the wall is the site's own black — no grid
+   lines, no empty boxes. Then every box fades and slides in at its own
+   random moment, the whole grid inside 600ms (--d ≤ .36s + .24s each), and
+   the hairlines come up as the last boxes land. */
 .tile { --d: 0s; }
-#brands:not(.on) .tile { clip-path: inset(100% 0 0 0); }
-#brands:not(.on) .tile .mark, #brands:not(.on) .tile.title > *, #brands:not(.on) .tile.cta > * { opacity: 0; transform: translateY(24px); }
-#brands.on .tile { animation: b-open .9s var(--d) cubic-bezier(.65,0,.35,1) both; }
-#brands.on .tile .mark, #brands.on .tile.title > *, #brands.on .tile.cta > * { animation: b-rise .9s calc(var(--d) + .28s) var(--ease) both; }
-@keyframes b-open { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0 0 0 0); } }
-@keyframes b-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
-/* once the wave has passed, hover owns the mark's transform again */
-#brands.settled .tile .mark, #brands.settled .tile.title > *, #brands.settled .tile.cta > *, #brands.settled .tile { animation: none; clip-path: none; }
+#brands:not(.settled) { background: #000; transition: background .2s .4s linear; }
+#brands.on:not(.settled) { background: rgba(255,255,255,.09); }
+#brands:not(.on) .tile { opacity: 0; transform: translateY(14px); }
+#brands.on .tile { animation: b-in .24s var(--d) cubic-bezier(.22,1,.36,1) both; }
+@keyframes b-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+#brands.settled .tile { animation: none; opacity: 1; transform: none; }
 
 @media (max-width: 860px) {
   #brands { height: auto; grid-template-columns: repeat(2, 1fr); grid-template-rows: none; grid-auto-rows: 34vw; }
@@ -178,7 +180,7 @@ a { color: inherit; text-decoration: none; }
     </div>
   </div>
   <!-- the fourteen tiles go here, from BRANDS -->
-  <a class="tile cta" href="contact.html" id="cta">
+  <a class="tile cta" href="mailto:hello@tibba.design" id="cta">
     <div>
       <p class="q">Your summit <em>next?</em></p>
       <span class="go">Start a project<i></i></span>
@@ -193,15 +195,15 @@ a { color: inherit; text-decoration: none; }
 const BRANDS = [
   { name: 'Zomato',               meta: 'Foodtech',        since: '2015', logo: 'zomato' },
   { name: 'Paytm',                meta: 'Fintech',         since: '2017', logo: 'paytm' },
-  { name: 'Groww',                meta: 'Fintech',         since: '2024', logo: 'groww', colour: '#4DD9C0', file: 'case-groww.html' },
-  { name: 'Firstpost',            meta: 'News & media',    since: '2023', logo: 'firstpost', colour: '#E05555', file: 'case-firstpost.html' },
-  { name: 'Breathe ESG',          meta: 'SaaS · ESG',      since: '2023', logo: 'breatheesg', colour: '#4CAF70', file: 'case-breathe-esg.html' },
+  { name: 'Groww',                meta: 'Fintech',         since: '2024', logo: 'groww', colour: '#4DD9C0', file: 'case-groww-v2.html' },
+  { name: 'Firstpost',            meta: 'News & media',    since: '2023', logo: 'firstpost', colour: '#E05555', file: 'case-firstpost-v2.html' },
+  { name: 'Breathe ESG',          meta: 'SaaS · ESG',      since: '2023', logo: 'breatheesg', colour: '#4CAF70', file: 'case-breathe-esg-v2.html' },
   { name: 'Urban Company',        meta: 'Urban services',  since: '2016', logo: 'urban-company' },
   { name: 'HDFC Bank',            meta: 'Rewards',         since: '2019', logo: 'hdfc-bank' },
   { name: 'The Times of India',   meta: 'News & media',    since: '2018', logo: 'the-times-of-india' },
   { name: 'Policybazaar',         meta: 'Insurtech',       since: '2019', logo: 'policybazaar' },
   { name: 'The Indian Express',   meta: 'News & media',    since: '2021', logo: 'the-indian-express' },
-  { name: 'Shyft & Mindhouse',    meta: 'Health',          since: '2023', logo: 'shyft', colour: '#7B8FF5', file: 'case-shyft-mindhouse.html' },
+  { name: 'Shyft & Mindhouse',    meta: 'Health',          since: '2023', logo: 'shyft', colour: '#7B8FF5', file: 'case-shyft-mindhouse-v2.html' },
   { name: 'Apnaklub',             meta: 'B2B wholesale',   since: '2022', logo: 'apnaklub' },
   { name: 'simsim',               meta: 'Social commerce', since: '2020', logo: 'simsim' },
   { name: 'Bombay Shirt Company', meta: 'Ecommerce',       since: '2018', logo: 'bombay-shirt-company' },
@@ -238,28 +240,24 @@ addEventListener('DOMContentLoaded', function () {
   window.TileTopo.attach(cta, { seed: 97, pattern: 'ridge' });
   window.BrandLogos.size(wall);
 
-  /* The wave: each tile's delay is its distance from the title's corner, in
-     cells, so the wall opens outward from where the reading starts. Measured
-     from the laid-out grid rather than computed from an index, so it stays
-     right at the two-column breakpoint too. */
+  /* Random arrival: each box gets its own moment in the first 360ms, so
+     with a 240ms fade the whole grid is in by 600ms. Shuffled fresh each
+     play, not a pattern sweeping across. */
   function stagger() {
-    const tiles = [...wall.children];
-    const r0 = wall.getBoundingClientRect();
-    const cw = r0.width / 5, ch = r0.height / 4;
-    tiles.forEach(t => {
-      const r = t.getBoundingClientRect();
-      const cx = (r.left - r0.left) / cw, cy = (r.top - r0.top) / ch;
-      t.style.setProperty('--d', ((cx + cy) * 0.075).toFixed(3) + 's');
-    });
+    [...wall.children].forEach(t => t.style.setProperty('--d', (Math.random() * 0.36).toFixed(3) + 's'));
   }
-  stagger();
-
-  const io = new IntersectionObserver(([e]) => {
-    if (!e.isIntersecting) return;
-    io.disconnect();
+  let played = false;
+  function play() {
     stagger();
+    wall.classList.remove('on', 'settled'); void wall.offsetWidth;
     wall.classList.add('on');
-    setTimeout(() => wall.classList.add('settled'), 2200);
+    setTimeout(() => wall.classList.add('settled'), 650);
+  }
+
+  /* once per page view: the observer lets go after the first arrival */
+  const io = new IntersectionObserver(([e]) => {
+    if (!e.isIntersecting || played) return;
+    played = true; io.disconnect(); play();
   }, { threshold: 0.35 });
   io.observe(wall);
 
@@ -269,15 +267,11 @@ addEventListener('DOMContentLoaded', function () {
   el.innerHTML = `
     <div id="tune-head"><b>Brands</b><button id="tune-hide" title="Hide (H)">–</button></div>
     <p class="tune-sub">Load-in</p>
-    <div class="row inline"><label>Wave<i></i></label><button class="tune-btn" id="b-replay">Replay</button></div>
+    <div class="row inline"><label>Arrival<i></i></label><button class="tune-btn" id="b-replay">Replay</button></div>
     ${logoPanel()}`;
   document.body.appendChild(el);
   bindLogoPanel(el, wall);
-  el.querySelector('#b-replay').addEventListener('click', () => {
-    wall.classList.remove('on', 'settled'); void wall.offsetWidth;
-    stagger(); wall.classList.add('on');
-    setTimeout(() => wall.classList.add('settled'), 2200);
-  });
+  el.querySelector('#b-replay').addEventListener('click', play);
   el.querySelector('#tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
   if (window.wb && window.wb.adopt) window.wb.adopt();
 });

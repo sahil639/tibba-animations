@@ -1,0 +1,19 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   The work's image slots (assets/work.js) — the picture, or, until it
+   arrives, a placeholder in the project's colour: contour rings round an
+   off-centre summit, and the name of the file it is waiting for.
+   ═════════════════════════════════════════════════════════════════════════ */
+.wk-img { position: relative; overflow: hidden; aspect-ratio: var(--ratio, 16 / 10); background: #0e0e10; }
+.wk-img img { display: block; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .6s linear; }
+.wk-img.in img { opacity: 1; }
+.wk-img.ph { background:
+  radial-gradient(circle at 64% 42%, transparent 0 18px, color-mix(in srgb, var(--c, #FF4B1F) 22%, transparent) 18px 19px, transparent 19px 46px,
+                  color-mix(in srgb, var(--c, #FF4B1F) 16%, transparent) 46px 47px, transparent 47px 80px,
+                  color-mix(in srgb, var(--c, #FF4B1F) 12%, transparent) 80px 81px, transparent 81px 120px,
+                  color-mix(in srgb, var(--c, #FF4B1F) 9%, transparent) 120px 121px, transparent 121px 168px,
+                  color-mix(in srgb, var(--c, #FF4B1F) 7%, transparent) 168px 169px, transparent 169px 224px,
+                  color-mix(in srgb, var(--c, #FF4B1F) 5%, transparent) 224px 225px, transparent 225px),
+  linear-gradient(160deg, color-mix(in srgb, var(--c, #FF4B1F) 14%, #101012), #08080a 70%); }
+.wk-img.ph::before { content: ''; position: absolute; left: 64%; top: 42%; width: 10px; height: 10px; margin: -5px 0 0 -5px; background: var(--c, #FF4B1F); }
+.wk-img.ph::after { content: attr(data-wait); position: absolute; left: 14px; bottom: 12px; font: 400 10px/1.2 ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  letter-spacing: .12em; text-transform: uppercase; color: rgba(233,236,242,.45); }

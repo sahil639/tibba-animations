@@ -117,18 +117,14 @@ window.TIBBA_SITE = {
           note: 'Stacking cards; the mountain in one small window at the top of the words’ column that never moves — only its view follows the card in view', state: 'live' },
       ] },
 
-    { id: 'website-v3-work', label: 'Website v3 — the work',
-      note: 'Website v3’s own sections: the summits stacked, and the index of everything else.',
-      pages: [
-        { id: 'work-summits', updated: '2026-10-08T16:31:00+07:00', change: 'New: the four summits as stacked, image-led panels', label: 'v3 · Selected work', file: 'work-summits.html',
-        note: 'Each summit a full-screen panel led by its cover; the next rises over the last, outcomes on the odometer', state: 'live' },
-        { id: 'work-index', updated: '2026-10-08T16:31:00+07:00', change: 'New: every other project as an index; covers follow the pointer', label: 'v3 · More work', file: 'work-index.html',
-        note: 'A row per project; hovering one brings its cover up beside the pointer, leaning into its motion; covers inline on touch screens', state: 'live' }, ] },
+    
 
     { id: 'case-studies', label: 'Extra case studies',
       note: 'The work that does not get a summit.',
-      pages: [ { id: 'case-studies-01', label: 'Extra case studies', file: 'case-studies.html', note: '', state: 'stub' },
-               { id: 'case-studies-reel', updated: '2026-10-06T18:00:00+07:00', change: "Phones: the case title in the open room above the reel; tap a plate to go to it", label: 'Case reel', file: 'case-studies-reel.html',
+      pages: [
+        { id: 'work-index', updated: '2026-10-08T16:31:00+07:00', change: 'New: every other project as an index; covers follow the pointer', label: 'v3 · More work', file: 'work-index.html',
+        note: 'A row per project; hovering one brings its cover up beside the pointer, leaning into its motion; covers inline on touch screens', state: 'live' },
+        { id: 'case-studies-reel', updated: '2026-10-06T18:00:00+07:00', change: "Phones: the case title in the open room above the reel; tap a plate to go to it", label: 'Case reel', file: 'case-studies-reel.html',
                  note: 'The six extra cases on the Work Reel, in black, with an altitude tape that slides with the scroll', state: 'live' } ] },
 
     /* The four summits, each at full length. All four are one template and four
@@ -137,14 +133,10 @@ window.TIBBA_SITE = {
     { id: 'case-pages', label: 'Case study pages',
       note: 'The four summits at full length, off one template.',
       pages: [
-        { id: 'case-groww', label: 'Groww', file: 'case-groww.html',
-          note: 'Feed, Stories and the XIRR calculator', state: 'live' },
-        { id: 'case-firstpost', label: 'Firstpost', file: 'case-firstpost.html',
-          note: 'The video-first pivot, and what it returned', state: 'live' },
-        { id: 'case-breathe', label: 'Breathe ESG', file: 'case-breathe-esg.html',
-          note: 'A platform redesigned in eight weeks of sprints', state: 'live' },
-        { id: 'case-shyft', label: 'Shyft & Mindhouse', file: 'case-shyft-mindhouse.html',
-          note: 'Two sister brands, and the therapy flow', state: 'live' },
+        
+        
+        
+        
               { id: 'case-groww-v2', updated: '2026-10-08T16:31:00+07:00', change: 'New: the case study design system', label: 'v3 · Case — Groww', file: 'case-groww-v2.html',
         note: 'Full-bleed cover, the ledger, a chapter route in the margin, numbered figures, next summit', state: 'live' },
         { id: 'case-firstpost-v2', updated: '2026-10-08T16:31:00+07:00', change: 'New: the case study design system', label: 'v3 · Case — Firstpost', file: 'case-firstpost-v2.html',
@@ -157,28 +149,20 @@ window.TIBBA_SITE = {
 
     { id: 'services', label: 'Our services',
       note: 'What the studio sells, as a section.',
-      pages: [ { id: 'services-01', updated: '2026-09-28T12:03:28+07:00', change: 'Rebuilt on tibba.design\'s services layout', label: 'Our services', file: 'services-section.html',
-                 note: "tibba.design's layout: stage tabs, a service grid, the detail beside it, recent work", state: 'live' },
-               { id: 'services-topo', updated: '2026-09-29T12:00:00+07:00', change: 'Three hero-style peaks, sized by stage; grouped subtitles', label: 'Shifting Topo', file: 'services-topo.html',
-                 note: 'Three contour peaks, smallest to largest by company stage, fixed isometric; services either side with grouped subtitles', state: 'live' },
+      pages: [ 
+               
                { id: 'services-topo-v2', updated: '2026-09-30T12:00:00+07:00', change: 'New: the earlier stepped-slab Shifting Topo, kept', label: 'Shifting Topo v2', file: 'services-topo-v2.html',
                  note: 'The previous Shifting Topo: a stepped block of land that re-forms per stage', state: 'live' },
-               { id: 'services-compass', updated: '2026-09-29T12:00:00+07:00', change: 'Vector rings removed; subtitles grouped per side', label: 'Compass', file: 'services-compass.html',
-                 note: 'A HUD compass: click or turn it to a stage, and its services appear either side', state: 'live' },
-               { id: 'services-compass-v2', updated: '2026-09-30T12:00:00+07:00', change: 'New: every service boxed, compass held still', label: 'Compass v2', file: 'services-compass-v2.html',
-                 note: 'Services as boxed brick bonds either side of a compass that never moves', state: 'live' },
-               { id: 'services-compass-v3', updated: '2026-09-30T12:00:00+07:00', change: 'New: tabs and compass left, services right; one-screen mobile', label: 'Compass v3', file: 'services-compass-v3.html',
-                 note: 'Tabs, blurb and compass on the left, the service columns on the right; fits one phone screen', state: 'live' },
+               
+               
+               
                { id: 'services-compass-v4', updated: '2026-10-13T16:11:00+07:00', change: "Service icons, with a Hide icons option", label: 'Compass v4', file: 'services-compass-v4.html',
                  note: 'The instrument in a framed card with tabs and a readout strip, a finer compass; the stage as a statement over two brick-bond ledgers that open on hover', state: 'live' },
                { id: 'services-compass-v5', updated: '2026-10-07T17:15:00+07:00', change: 'New: Final Website v2 services in the reference layout', label: 'Compass v5 — reference layout', file: 'services-compass-v5.html',
                  note: 'Tabs centred, the stage as a statement, the two ledgers side by side, and the compass rising half into view at the foot', state: 'live' },
-               { id: 'services-compass-v6', updated: '2026-10-07T17:15:00+07:00', change: 'New: a simpler compass, only half of it on screen', label: 'Compass v6 — half compass', file: 'services-compass-v6.html',
-                 note: 'A plainer compass cut in half by the page edge (the foot, on phones); the dial turns so the chosen stage faces the services', state: 'live' },
-               { id: 'services-compass-v7', updated: '2026-10-07T17:15:00+07:00', change: 'New: a small compass resting on a stone', label: 'Compass v7 — on a surface', file: 'services-compass-v7.html',
-                 note: 'The compass small and laid flat on a contoured stone under the tabs, an accent beside the statement and ledgers', state: 'live' },
-               { id: 'services-gear', updated: '2026-10-13T16:11:00+07:00', change: 'Service icons, with a Hide icons option', label: 'Gear tiers', file: 'services-gear.html',
-                 note: 'Three tiers of climbing kit laid out on a mat, upgrading as the stage grows; the services in two plain columns', state: 'live' },
+               
+               
+               
                { id: 'services-gear-bags', updated: '2026-10-13T17:08:00+07:00', change: 'Phones: switcher docks on scroll, the bag in a small box bottom left; stages named Early stage, Mid stage, Established company', label: 'Gear tiers — bags', file: 'services-gear-bags.html',
                  note: 'Gear tiers with the mat under the stage switcher holding the Misc — Bags models: waist pack, day pack, hiking bag, switched with the stage', state: 'live' },
                { id: 'services-gear-bags-v2', updated: '2026-10-14T15:18:00+07:00', change: 'New: rewritten copy — 4 services a stage, what each stage adds, engagement and a call to action (option)', label: 'Gear tiers — bags v2 (new copy)', file: 'services-gear-bags-v2.html',
@@ -186,111 +170,78 @@ window.TIBBA_SITE = {
 
     { id: 'testimonials', label: 'Our testimonials',
       note: 'What clients say.',
-      pages: [ { id: 'testimonials-01', label: 'Our testimonials', file: 'testimonials.html', note: '', state: 'stub' },
+      pages: [ 
                { id: 'testimonials-topo', updated: '2026-10-06T18:00:00+07:00', change: "Tablets and phones: quote cards you swipe through by hand", label: 'Testimonials — topo', file: 'testimonials-topo.html',
                  note: "The final site's quotes, one pinned scene: masked word reveals, a live contour field per client, parallax", state: 'live' } ] },
 
     { id: 'studio', label: 'Our studio',
       note: 'Who we are, on the home page.',
-      pages: [ { id: 'studio-01', label: 'Our studio', file: 'studio-section.html',
-                 note: 'The section that sits between the testimonials and the footer', state: 'live' },
+      pages: [ 
                { id: 'studio-photos', label: 'Photographs', file: 'studio-photos.html',
                  note: 'Seven photographs staggered around a centred title', state: 'live' },
                { id: 'studio-polaroids', updated: '2026-10-07T17:15:00+07:00', change: "Only the studio's six photos", label: 'Polaroids', file: 'studio-polaroids.html',
                  note: 'The team and studio life as polaroids that spring in from the sides; layout editable and bakeable on the panel', state: 'live' },
-               { id: 'studio-frames', updated: '2026-10-07T17:15:00+07:00', change: 'New: the six photos in polaroid frames, captions rolled in on hover', label: 'Framed prints', file: 'studio-frames.html',
-                 note: 'The studio photos in polaroid frames built like the team cards; desktop shows only the photos until hover rolls the caption in on the odometer; tablets and phones show it always', state: 'live' },
+               
                { id: 'studio-polaroid-frames', updated: '2026-10-07T17:15:00+07:00', change: 'Hover straightens a print and brings it to the top; a rucksack behind the title; 125vh', label: 'Framed polaroids', file: 'studio-polaroid-frames.html',
                  note: "Polaroids' scattered, draggable layout and phone stack, each print in Framed prints' frame; hover rolls the words in on the odometer", state: 'live' } ] },
 
     { id: 'footer', label: 'Footer',
       note: 'The bottom of every page.',
       pages: [
-        { id: 'footer-01', updated: '2026-09-28T11:06:00+07:00', change: 'Fix to the generated skyline', label: 'Footer — skyline', file: 'footer.html',
-          note: 'The footer on the generated paper skyline', state: 'live' },
-        { id: 'footer-meadow', updated: '2026-09-29T12:00:00+07:00', change: 'New: the reference layout over a mossy green range', label: 'Footer — green range', file: 'footer-meadow.html',
-          note: 'Form, sections and links in three columns over a range of moss-grown mountains that part under the cursor', state: 'live' },
-        { id: 'footer-campfire', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — campfire', file: 'footer-campfire.html',
-          note: 'The white dithered fire with draggable windows, field notes and hanging tabs; a timeline of climbs, clocks and subscribe, a ticker, and an orange flame band with the bar-built wordmark. Its own phone layout', state: 'live' },
-        { id: 'footer-society', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — window cards', file: 'footer-society.html',
-          note: 'After The Design Society: big title, draggable window cards, a ticker and bar letters, over a dithered fire', state: 'live' },
-        { id: 'footer-vca', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — glowing fire', file: 'footer-vca.html',
-          note: 'After VCA: the details in a quiet column, the campfire large and glowing beside it', state: 'live' },
+        
+        
+        
+        
+        
         { id: 'footer-heron', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — blueprint grid', file: 'footer-heron.html',
           note: 'After Heron AI: hairline cells, an ASCII fire in the mark cell, the wordmark drawn as a blueprint', state: 'live' },
-        { id: 'footer-timeline', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — timeline of fires', file: 'footer-timeline.html',
-          note: 'After Step Into The Timeline: climbs as cards, each picture a fire at a different stage of its life', state: 'live' },
-        { id: 'footer-hackfirst', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — split screen', file: 'footer-hackfirst.html',
-          note: 'After Hackfirst: a giant wordmark over a soft white fire, about and navigation on a split screen', state: 'live' },
-        { id: 'footer-cult', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — fire diagram', file: 'footer-cult.html',
-          note: 'After Cult: contents, a fire inside an axis diagram, and a message carousel', state: 'live' },
-        { id: 'footer-human', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — orange field', file: 'footer-human.html',
-          note: 'After the yellow humankind footer: a flat orange field, a black dot fire, underlined links', state: 'live' },
-        { id: 'footer-sylvan', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — fires that grow', file: 'footer-sylvan.html',
-          note: 'After Sylvan: link columns over a row of ASCII fires growing from a spark to a blaze', state: 'live' },
-        { id: 'footer-breaver', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — flame band', file: 'footer-breaver.html',
-          note: 'After Breaver Studios: a flame band with a line-drawn campfire, three columns, a huge wordmark', state: 'live' },
-        { id: 'footer-jijo', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — dusk', file: 'footer-jijo.html',
-          note: 'After Jijo.fyi: a dusk sky, an ASCII fire, hanging tabs, a synthesised crackle and local time', state: 'live' },
-        { id: 'footer-dusk-marshmallow', updated: '2026-10-07T17:15:00+07:00', change: 'New: Dusk, with a marshmallow to toast', label: 'Footer — dusk, marshmallow', file: 'footer-dusk-marshmallow.html',
-          note: 'Footer — dusk duplicated: over the fire the pointer becomes a stick with a marshmallow that toasts the longer it is held close; click to eat it', state: 'live' },
-        { id: 'footer-blueprint-dusk', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — blueprint dusk', file: 'footer-blueprint-dusk.html',
-          note: "Blueprint grid's hairline cells over a grained teal ground, an ember streak sweeping up through the campfire", state: 'live' },
+        
+        
+        
+        
+        
+        
+        
+        
+        
         { id: 'footer-dusk-grid', updated: '2026-10-07T17:15:00+07:00', change: 'An ASCII marshmallow; a shorter footer and a better form', label: 'Footer — dusk grid', file: 'footer-dusk-grid.html',
           note: 'A contact form over the campfire on the left; page and social links, the studio and its local time, and TIBBA drawn as a blueprint on the right; orange to green to black, bottom up', state: 'live' },
-        { id: 'footer-pengon', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — halftone camp', file: 'footer-pengon.html',
-          note: 'After Pengon: lockup, clocks and a status line over a halftone landscape with the fire in it', state: 'live' },
+        
         { id: 'footer-dithered', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — dithered campfire', file: 'footer-dithered.html',
           note: 'The campfire as a one-bit dot / ASCII drawing in ink and orange; the footer on the right', state: 'live' },
-        { id: 'footer-contour-fire', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — contour ridge fire', file: 'footer-contour-fire.html',
-          note: 'The contour ridge campfire with sticks by hand, a free viewing angle and no smoke; the footer on the right', state: 'live' },
-        { id: 'footer-analytical', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — analytical campfire', file: 'footer-analytical.html',
-          note: 'A monochrome pixel fire on a grid, scanned and annotated in orange; the footer on the right', state: 'live' },
-        { id: 'footer-peak', updated: '2026-09-28T19:09:00+07:00', change: 'Layered depth, survey lines, new layout; no load-in', label: 'Footer — snow peak', file: 'footer-mountain.html',
-          note: 'Granite spires in three layered depths, survey lines on the rock, the footer laid out around the peak', state: 'live' },
+        
+        
+        
       ] },
 
-    { id: 'about-hero', label: 'About us — hero',
-      note: 'The top of the about page.',
-      pages: [ { id: 'about-hero-01', updated: '2026-10-14T18:18:00+07:00', change: "New right side: a contoured peak — the camera flies from the map down to the summit; hover a ring and it turns into 'tibba design studio', the lines dither (the stone stays as an option)", label: 'About us — hero', file: 'about-hero.html', note: "What the name means, stated large, behind a WebGL stone with the mark cut into it — lean, drag and light it with the pointer", state: 'live' } ] },
+    
 
-    { id: 'about-description', label: 'About us — description',
-      note: 'The studio in prose.',
-      pages: [ { id: 'about-description-01', updated: '2026-10-01T12:00:00+07:00', change: 'New effect: held text that fills letter by letter as you scroll', label: 'About us — description', file: 'about-description.html',
-                 note: "The studio's three paragraphs held in place and filled from gray to white as you scroll, the front edge trailing over a few letters", state: 'live' } ] },
+    
 
-    { id: 'about-team', label: 'About us — team',
-      note: 'The people.',
-      pages: [ { id: 'about-team-01', updated: '2026-10-01T12:00:00+07:00', change: 'Mountains gone: Metrics plates over live contours per member', label: 'About us — team', file: 'about-team.html', note: "Each member on a Metrics-style plate over their own drifting contours; the portrait dithers on hover", state: 'live' } ] },
+    
 
     { id: 'about', label: 'About us',
       note: 'The whole about page, its sections assembled.',
       pages: [ { id: 'about-01', updated: '2026-10-12T16:00:00+07:00', change: 'The About landing merged in: one About page, stitched, with the numbers kept', label: 'About us', file: 'about.html',
-                 note: 'The one About page: hero, description, the numbers, foundations, team and footer, with the site navbar and the dropdown index', state: 'live' },
-               { id: 'about-numbers', updated: '2026-10-12T16:00:00+07:00', change: 'New: the numbers from the old About page, as their own section', label: 'About us — numbers', file: 'about-numbers.html',
+                 note: 'The one About page: hero, description, the numbers, foundations, team and footer, with the site navbar and the dropdown index', state: 'live' } ] },
+
+    
+
+    
+
+    
+
+    { id: 'about-sections', label: 'About us — sections',
+      note: 'The pages the About page is assembled from, in the order it shows them.',
+      pages: [
+        { id: 'about-hero-01', updated: '2026-10-14T18:18:00+07:00', change: "New right side: a contoured peak — the camera flies from the map down to the summit; hover a ring and it turns into 'tibba design studio', the lines dither (the stone stays as an option)", label: 'About us — hero', file: 'about-hero.html', note: "What the name means, stated large, behind a WebGL stone with the mark cut into it — lean, drag and light it with the pointer", state: 'live' },
+        { id: 'about-description-01', updated: '2026-10-01T12:00:00+07:00', change: 'New effect: held text that fills letter by letter as you scroll', label: 'About us — description', file: 'about-description.html',
+                 note: "The studio's three paragraphs held in place and filled from gray to white as you scroll, the front edge trailing over a few letters", state: 'live' },
+        { id: 'about-numbers', updated: '2026-10-12T16:00:00+07:00', change: 'New: the numbers from the old About page, as their own section', label: 'About us — numbers', file: 'about-numbers.html',
                  note: 'Founded in 2023, a decade of work behind it: three figures on the odometer', state: 'live' },
-               { id: 'about-campfire', updated: '2026-09-29T12:00:00+07:00', change: 'New: tent and campfire at night, smoke into the section above', label: 'Campsite', file: 'about-campfire.html',
-                 note: 'An isometric night diorama in the Sylva manner: a lit tent, a campfire, moss, and smoke that climbs into the section above', state: 'live' },
-               { id: 'about-campfire-contour', updated: '2026-09-28T11:19:18+07:00', change: 'Controls, looser rocks, calmer hover, real smoke', label: 'Campfire — contour', file: 'about-campfire-contour.html',
-                 note: 'The campfire again, drawn in the hero\'s contour lines', state: 'live' },
-               { id: 'about-campfire-lowpoly', updated: '2026-09-28T19:09:00+07:00', change: 'New: the first campfire re-cut as facets', label: 'Campfire — low-poly', file: 'about-campfire-lowpoly.html',
-                 note: 'The first campfire re-cut as facets: twenty-faced stones, hex logs, crystal flames', state: 'live' },
-               { id: 'about-campfire-hd', updated: '2026-09-28T19:09:00+07:00', change: 'New: lights, coals, streak sparks, haze, orbit', label: 'Campfire — high detail', file: 'about-campfire-hd.html',
-                 note: 'Two flickering lights, coals, streak sparks, heat haze, grade, and a camera you can drag round', state: 'live' } ] },
-
-    { id: 'about-foundations', label: 'About us — foundations',
-      note: 'What the studio is built on.',
-      pages: [ { id: 'about-foundations-01', updated: '2026-10-01T12:00:00+07:00', change: 'Rebuilt as Metrics plates: open once, live contours per card', label: 'About us — foundations', file: 'about-foundations.html', note: "Agile and Creating value as Metrics-style plates that open once, each over its own drifting contours (per-card controls)", state: 'live' } ] },
-
-    { id: 'contact', label: 'Contact page',
-      note: 'The way in.',
-      pages: [ { id: 'contact-01', updated: '2026-09-29T12:00:00+07:00', change: 'The carabiner redrawn as an offset D', label: 'Contact page', file: 'contact.html',
-                 note: 'A 3D carabiner drops in on a string and answers a click; the ways in down the right; no footer', state: 'live' } ] },
-
-    { id: 'services-page', label: 'Services page',
-      note: 'Services at full length, on their own page.',
-      pages: [ { id: 'services-page-01', label: 'Services page', file: 'services-page.html', note: '', state: 'stub' } ] },
-
+        { id: 'about-foundations-01', updated: '2026-10-01T12:00:00+07:00', change: 'Rebuilt as Metrics plates: open once, live contours per card', label: 'About us — foundations', file: 'about-foundations.html', note: "Agile and Creating value as Metrics-style plates that open once, each over its own drifting contours (per-card controls)", state: 'live' },
+        { id: 'about-team-01', updated: '2026-10-01T12:00:00+07:00', change: 'Mountains gone: Metrics plates over live contours per member', label: 'About us — team', file: 'about-team.html', note: "Each member on a Metrics-style plate over their own drifting contours; the portrait dithers on hover", state: 'live' },
+      ] },
     { id: 'misc', label: 'Miscellaneous animations',
       note: 'Experiments that have not found a section yet.',
       pages: [
@@ -310,6 +261,57 @@ window.TIBBA_SITE = {
           note: 'The topographic backpack illustration as a WebGL model: every panel carries flowing contour rings, the Tibba icon on each front; switch bags bottom left (1–3); drag to turn, reset to the drawing’s angle', state: 'live' },
         { id: 'misc-sylva', label: 'Sylva Living World', file: 'misc-sylva-living-world.html',
           note: "ThreeUI's moss-root world, living-green, from its registered source", state: 'live' },
+      ] },
+
+    { id: 'archive', label: 'Archive',
+      note: 'Earlier designs, kept for reference. Nothing in here is part of Website v3.',
+      pages: [
+        { id: 'about-campfire', updated: '2026-09-29T12:00:00+07:00', change: 'New: tent and campfire at night, smoke into the section above', label: 'Campsite', file: 'about-campfire.html',
+                 note: 'An isometric night diorama in the Sylva manner: a lit tent, a campfire, moss, and smoke that climbs into the section above', state: 'live' },
+        { id: 'about-campfire-contour', updated: '2026-09-28T11:19:18+07:00', change: 'Controls, looser rocks, calmer hover, real smoke', label: 'Campfire — contour', file: 'about-campfire-contour.html',
+                 note: 'The campfire again, drawn in the hero\'s contour lines', state: 'live' },
+        { id: 'about-campfire-lowpoly', updated: '2026-09-28T19:09:00+07:00', change: 'New: the first campfire re-cut as facets', label: 'Campfire — low-poly', file: 'about-campfire-lowpoly.html',
+                 note: 'The first campfire re-cut as facets: twenty-faced stones, hex logs, crystal flames', state: 'live' },
+        { id: 'about-campfire-hd', updated: '2026-09-28T19:09:00+07:00', change: 'New: lights, coals, streak sparks, haze, orbit', label: 'Campfire — high detail', file: 'about-campfire-hd.html',
+                 note: 'Two flickering lights, coals, streak sparks, heat haze, grade, and a camera you can drag round', state: 'live' },
+        { id: 'contact-01', updated: '2026-09-29T12:00:00+07:00', change: 'The carabiner redrawn as an offset D', label: 'Contact page', file: 'contact.html',
+                 note: 'A 3D carabiner drops in on a string and answers a click; the ways in down the right; no footer', state: 'live' },
+        { id: 'footer-01', updated: '2026-09-28T11:06:00+07:00', change: 'Fix to the generated skyline', label: 'Footer — skyline', file: 'footer.html',
+          note: 'The footer on the generated paper skyline', state: 'live' },
+        { id: 'footer-meadow', updated: '2026-09-29T12:00:00+07:00', change: 'New: the reference layout over a mossy green range', label: 'Footer — green range', file: 'footer-meadow.html',
+          note: 'Form, sections and links in three columns over a range of moss-grown mountains that part under the cursor', state: 'live' },
+        { id: 'footer-campfire', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — campfire', file: 'footer-campfire.html',
+          note: 'The white dithered fire with draggable windows, field notes and hanging tabs; a timeline of climbs, clocks and subscribe, a ticker, and an orange flame band with the bar-built wordmark. Its own phone layout', state: 'live' },
+        { id: 'footer-society', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — window cards', file: 'footer-society.html',
+          note: 'After The Design Society: big title, draggable window cards, a ticker and bar letters, over a dithered fire', state: 'live' },
+        { id: 'footer-vca', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — glowing fire', file: 'footer-vca.html',
+          note: 'After VCA: the details in a quiet column, the campfire large and glowing beside it', state: 'live' },
+        { id: 'footer-timeline', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — timeline of fires', file: 'footer-timeline.html',
+          note: 'After Step Into The Timeline: climbs as cards, each picture a fire at a different stage of its life', state: 'live' },
+        { id: 'footer-hackfirst', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — split screen', file: 'footer-hackfirst.html',
+          note: 'After Hackfirst: a giant wordmark over a soft white fire, about and navigation on a split screen', state: 'live' },
+        { id: 'footer-cult', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — fire diagram', file: 'footer-cult.html',
+          note: 'After Cult: contents, a fire inside an axis diagram, and a message carousel', state: 'live' },
+        { id: 'footer-human', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — orange field', file: 'footer-human.html',
+          note: 'After the yellow humankind footer: a flat orange field, a black dot fire, underlined links', state: 'live' },
+        { id: 'footer-sylvan', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — fires that grow', file: 'footer-sylvan.html',
+          note: 'After Sylvan: link columns over a row of ASCII fires growing from a spark to a blaze', state: 'live' },
+        { id: 'footer-breaver', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — flame band', file: 'footer-breaver.html',
+          note: 'After Breaver Studios: a flame band with a line-drawn campfire, three columns, a huge wordmark', state: 'live' },
+        { id: 'footer-jijo', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — dusk', file: 'footer-jijo.html',
+          note: 'After Jijo.fyi: a dusk sky, an ASCII fire, hanging tabs, a synthesised crackle and local time', state: 'live' },
+        { id: 'footer-dusk-marshmallow', updated: '2026-10-07T17:15:00+07:00', change: 'New: Dusk, with a marshmallow to toast', label: 'Footer — dusk, marshmallow', file: 'footer-dusk-marshmallow.html',
+          note: 'Footer — dusk duplicated: over the fire the pointer becomes a stick with a marshmallow that toasts the longer it is held close; click to eat it', state: 'live' },
+        { id: 'footer-blueprint-dusk', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — blueprint dusk', file: 'footer-blueprint-dusk.html',
+          note: "Blueprint grid's hairline cells over a grained teal ground, an ember streak sweeping up through the campfire", state: 'live' },
+        { id: 'footer-pengon', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — halftone camp', file: 'footer-pengon.html',
+          note: 'After Pengon: lockup, clocks and a status line over a halftone landscape with the fire in it', state: 'live' },
+        { id: 'footer-contour-fire', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — contour ridge fire', file: 'footer-contour-fire.html',
+          note: 'The contour ridge campfire with sticks by hand, a free viewing angle and no smoke; the footer on the right', state: 'live' },
+        { id: 'footer-analytical', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — analytical campfire', file: 'footer-analytical.html',
+          note: 'A monochrome pixel fire on a grid, scanned and annotated in orange; the footer on the right', state: 'live' },
+        { id: 'footer-peak', updated: '2026-09-28T19:09:00+07:00', change: 'Layered depth, survey lines, new layout; no load-in', label: 'Footer — snow peak', file: 'footer-mountain.html',
+          note: 'Granite spires in three layered depths, survey lines on the rock, the footer laid out around the peak', state: 'live' },
       ] },
   ],
 };

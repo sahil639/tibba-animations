@@ -39,13 +39,16 @@
 
 <script type="module">
   import { mountSite } from './assets/site-shell.js';
-  import { ABOUT_SECTIONS, ABOUT_LINKS, HOME_SECTIONS, loadLayout, resolveLayout, sectionsFor } from './assets/site-sections.js';
-  /* the same footer as the home page: whichever one it is set to show */
-  const homeFooter = loadLayout(HOME_SECTIONS).find(e => e.id === 'footer');
-  const layout = resolveLayout(null, ABOUT_SECTIONS).map(e => e.id === 'footer' && homeFooter ? { ...e, variant: homeFooter.variant } : e);
+  import { ABOUT_SECTIONS, ABOUT_LINKS, V3_SECTIONS, V3_LAYOUT_KEY, loadLayout, resolveLayout, sectionsFor } from './assets/site-sections.js';
+  /* the same footer as Website v3: whichever one it is set to show (by file,
+     since v3 and the About page list their footers differently) */
+  const v3 = loadLayout(V3_SECTIONS, V3_LAYOUT_KEY).find(e => e.id === 'footer');
+  const v3Footer = V3_SECTIONS.find(s => s.id === 'footer').variants[v3 ? v3.variant : 0].file;
+  const fIx = ABOUT_SECTIONS.find(s => s.id === 'footer').variants.findIndex(v => v.file === v3Footer);
+  const layout = resolveLayout(null, ABOUT_SECTIONS).map(e => e.id === 'footer' && fIx >= 0 ? { ...e, variant: fIx } : e);
   window.tibba = mountSite({
     sections: sectionsFor(layout, ABOUT_SECTIONS),
-    home: 'final-website-v2.html',
+    home: 'website-v3.html',
     links: ABOUT_LINKS,
   });
 </script>
