@@ -263,6 +263,8 @@ window.TIBBA_SITE = {
           note: 'Nine turned labels along the floor; scroll opens one plate at a time', state: 'live' },
         { id: 'misc-bags', updated: '2026-10-13T15:55:00+07:00', change: 'Three bags (hiking pack, waist pack, daypack) with a bouncy switcher; the Tibba icon centred on each front', label: 'Bags', file: 'misc-bags.html',
           note: 'The topographic backpack illustration as a WebGL model: every panel carries flowing contour rings, the Tibba icon on each front; switch bags bottom left (1–3); drag to turn, reset to the drawing’s angle', state: 'live' },
+        { id: 'misc-mountains', updated: '2026-10-15T22:00:00+07:00', change: 'New: build, sculpt, light and animate your own mountain, then export it or send it to the hero and the four summits', label: 'Mountains Lab', file: 'mountains-lab.html',
+          note: 'A terrain editor and animation studio on the site’s own landform generator (assets/landform.js): start from a library peak, a seed or a depth map; sculpt with ten brushes, symmetry and masks; wind, glacial and river erosion and recorded time-lapses; contour, hybrid and textured rendering with time of day, fog and haze; perspective, orthographic and profile cameras with a gizmo and a keyframed path; line and terrain animation, audio or data reactive; PNG, MP4/WebM and preset export, and Use in hero / Use as summit', state: 'live' },
         { id: 'misc-sylva', label: 'Sylva Living World', file: 'misc-sylva-living-world.html',
           note: "ThreeUI's moss-root world, living-green, from its registered source", state: 'live' },
       ] },
