@@ -1,0 +1,148 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Case study — editorial template (assets/case-editorial.js)
+   ─────────────────────────────────────────────────────────────────────────
+   Benchmarked on Ashfall's Aptos case study for its hierarchy and its image
+   containers; set in this site's own brand — black ground, F37 Analog, the
+   client's colour as the one accent. The full spec, and how it scales to new
+   cases, is in docs/case-study-template.md.
+
+   ── the frame ────────────────────────────────────────────────────────────
+     --ce-g      the page gutter, and the gap between stacked containers
+     --ce-w      the content width: the screen less two gutters, to a max
+     --ce-col    a quarter of it — the grid is four columns, no inner gaps;
+                 text sits in a column, containers span 2 or 4 of them
+
+   ── the containers (one component, .ce-box) ─────────────────────────────
+     hero   2 columns, centred              16:10
+     full   4 columns                       16:10 (also 3:2, 16:9)
+     half   2 columns less half a gutter    4:5   (beside its copy)
+     card   2 columns less half a gutter    7:5   (next projects)
+     every one: radius 4px, overflow hidden, the placeholder ground, nothing
+     else — no border, no shadow, no inner padding: the work is the frame
+   ═════════════════════════════════════════════════════════════════════════ */
+body { background: #000; }
+.ce {
+  --ce-g: clamp(14px, 1.4vw, 24px);
+  --ce-w: min(100vw - 2 * var(--ce-g), 1760px);
+  --ce-col: calc(var(--ce-w) / 4);
+  --ce-r: 4px;
+  --ce-ink: #fff; --ce-body: rgba(233,236,242,.72); --ce-mute: rgba(233,236,242,.48); --ce-line: rgba(233,236,242,.16);
+  --ce-statement: clamp(30px, 4.1vw, 66px);
+  --ce-text: clamp(16px, 1.25vw, 19px);
+  --ce-label: 11.5px;
+  color: var(--ce-ink);
+}
+.ce-wrap { width: var(--ce-w); margin: 0 auto; }
+
+/* ── type ───────────────────────────────────────────────────────────────── */
+.ce-label { font-size: var(--ce-label); letter-spacing: .14em; text-transform: uppercase; color: var(--ce-mute); font-variant-numeric: tabular-nums; }
+.ce-label b { font-weight: 400; color: var(--client); }
+.ce-statement { font-weight: 400; font-size: var(--ce-statement); line-height: 1.02; letter-spacing: -.035em; color: var(--ce-ink); text-wrap: pretty; }
+.ce-statement.indent { text-indent: var(--ce-col); }
+.ce-text p { font-size: var(--ce-text); line-height: 1.32; letter-spacing: -.005em; color: var(--ce-body); }
+.ce-text p + p { margin-top: .9em; }
+.ce-title { font-weight: 400; font-size: var(--ce-text); line-height: 1.2; color: var(--ce-ink); }
+
+/* ── the container ──────────────────────────────────────────────────────── */
+.ce-box { position: relative; margin: 0; border-radius: var(--ce-r); overflow: hidden; background: #0e0e10; }
+.ce-box .wk-img { position: absolute; inset: 0; aspect-ratio: auto; height: 100%; border-radius: inherit; }
+.ce-box .wk-img img { transition: opacity .6s linear, transform 1.4s cubic-bezier(.16,1,.3,1); }
+.ce-box--hero { width: calc(var(--ce-col) * 2); aspect-ratio: 16 / 10; margin: 0 auto; }
+.ce-box--full { width: 100%; aspect-ratio: var(--ratio, 16 / 10); }
+.ce-box--half { width: calc(50% - var(--ce-g) / 2); aspect-ratio: 4 / 5; }
+.ce-box--card { width: 100%; aspect-ratio: 7 / 5; }
+.ce-cap { display: grid; grid-template-columns: var(--ce-col) 1fr; padding-top: 10px; }
+.ce-cap .ce-label + span { font-size: 13px; color: var(--ce-mute); }
+
+/* ── the hero: a small centred plate, the meta line, the statement ─────── */
+.ce-hero { padding-top: clamp(96px, 13vh, 132px); }
+.ce-meta { display: grid; grid-template-columns: repeat(4, 1fr); align-items: end; margin-top: clamp(56px, 9vh, 96px); padding-bottom: 12px; border-bottom: 1px solid var(--ce-line); }
+.ce-meta > :last-child { text-align: right; }
+.ce-meta .ce-status { color: var(--client); }
+.ce-hero h1 { margin-top: clamp(20px, 3vh, 32px); }
+.ce-ledger { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: clamp(64px, 10vh, 120px); border-top: 1px solid var(--ce-line); }
+.ce-ledger > div { padding: 14px 20px 0 0; }
+.ce-ledger dd { margin: 10px 0 0; font-size: 15px; line-height: 1.4; color: var(--ce-ink); max-width: 30ch; }
+.ce-tags { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 0; }
+.ce-tags li { padding: 5px 9px; border: 1px solid var(--ce-line); border-radius: 2px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ce-body); }
+
+/* ── the body ───────────────────────────────────────────────────────────── */
+.ce-body { display: flex; flex-direction: column; }
+/* the rhythm: containers stack a gutter apart; anything that is not a
+   container gets a section's room above it */
+.ce-body > * + * { margin-top: var(--ce-g); }
+.ce-body > .ce-sec, .ce-body > .ce-sec + *, .ce-body > .ce-bespoke, .ce-body > .ce-bespoke + * { margin-top: clamp(96px, 16vh, 200px); }
+.ce-body > :first-child { margin-top: clamp(80px, 12vh, 140px); }
+
+/* title + copy: the label in the first column, the words in the last */
+.ce-row { display: grid; grid-template-columns: repeat(4, 1fr); }
+.ce-row > .ce-title { grid-column: 1; padding-right: 20px; }
+.ce-row > .ce-text { grid-column: 4; }
+.ce-row > .ce-list { grid-column: 3 / 5; }
+.ce-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--ce-line); counter-reset: n; }
+.ce-list li { display: grid; grid-template-columns: var(--ce-col) 1fr; padding: 12px 0 13px; border-bottom: 1px solid var(--ce-line); font-size: var(--ce-text); line-height: 1.3; color: var(--ce-ink); }
+.ce-list li::before { counter-increment: n; content: counter(n, decimal-leading-zero); font-size: var(--ce-label); letter-spacing: .14em; color: var(--client); padding-top: .3em; }
+.ce-row > .ce-lead { grid-column: 3 / 5; margin-bottom: 20px; }
+
+/* copy + asset: words at the top of one half, a 4:5 container in the other */
+.ce-pair { display: flex; justify-content: space-between; gap: var(--ce-g); }
+.ce-pair.flip { flex-direction: row-reverse; }
+.ce-pair > .ce-copy { width: calc(50% - var(--ce-g) / 2); display: grid; grid-template-columns: 1fr 1fr; align-content: start; }
+.ce-pair > .ce-copy > * { grid-column: 1; }
+.ce-pair > .ce-copy .ce-title { margin-bottom: 14px; }
+.ce-half { flex: none; width: calc(50% - var(--ce-g) / 2); }
+.ce-half .ce-box--half { width: 100%; }
+
+/* numbers */
+.ce-stats .ce-nums { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 28px; border-top: 1px solid var(--ce-line); }
+.ce-stats .ce-nums > div { padding: 18px 20px 0 0; }
+.ce-stats .n { display: block; font-size: var(--ce-statement); line-height: 1; letter-spacing: -.04em; color: var(--client); font-variant-numeric: tabular-nums; }
+.ce-stats .l { display: block; margin-top: 12px; font-size: 14px; line-height: 1.4; color: var(--ce-body); max-width: 26ch; }
+
+/* a quote is a statement with its source */
+.ce-quote cite { display: block; margin-top: 24px; font-style: normal; }
+.ce-quote cite b { display: block; color: var(--ce-ink); font-weight: 400; font-size: 15px; margin-bottom: 4px; letter-spacing: 0; text-transform: none; }
+
+/* the bespoke sections keep their own layout, full bleed */
+.ce-bespoke { width: var(--ce-w); }
+
+/* ── other projects ─────────────────────────────────────────────────────── */
+.ce-more { margin-top: clamp(120px, 20vh, 240px); padding-bottom: clamp(80px, 12vh, 140px); }
+.ce-more > .ce-statement { margin-bottom: clamp(28px, 4vh, 48px); }
+.ce-cards { display: grid; grid-template-columns: 1fr 1fr; gap: var(--ce-g); }
+.ce-card { display: block; color: inherit; text-decoration: none; }
+.ce-card .ce-box .wk-img img { transform: scale(1.001); }
+.ce-card:hover .ce-box .wk-img img { transform: scale(1.03); }
+.ce-card .ce-cap { padding-top: 12px; }
+.ce-card h3 { margin: 6px 0 0; font-weight: 400; font-size: var(--ce-text); line-height: 1.25; color: var(--ce-ink); max-width: 36ch; transition: color .2s linear; }
+.ce-card:hover h3 { color: var(--c); }
+
+/* ── arrival: each block rises a little as it comes into view ───────────── */
+.ce-in { opacity: 0; transform: translateY(24px); transition: opacity .7s linear, transform 1s cubic-bezier(.16,1,.3,1); }
+.ce-in.seen { opacity: 1; transform: none; }
+
+#case-progress { position: fixed; top: 0; left: 0; height: 2px; background: var(--client); width: 0; z-index: 70; pointer-events: none; }
+
+/* ── narrower screens ──────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .ce-row > .ce-text { grid-column: 3 / 5; }
+  .ce-pair > .ce-copy { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  .ce { --ce-g: 12px; --ce-statement: clamp(28px, 8.4vw, 40px); }
+  .ce-statement.indent { text-indent: 0; }
+  .ce-box--hero { width: 100%; }
+  .ce-meta { grid-template-columns: 1fr 1fr; row-gap: 8px; }
+  .ce-meta > * { text-align: left !important; }
+  .ce-meta > :nth-child(even) { text-align: right !important; }
+  .ce-ledger { grid-template-columns: 1fr 1fr; row-gap: 18px; }
+  .ce-row { grid-template-columns: 1fr; row-gap: 12px; }
+  .ce-row > * { grid-column: 1 !important; }
+  .ce-pair, .ce-pair.flip { flex-direction: column; }
+  .ce-pair > .ce-copy, .ce-half { width: 100%; }
+  .ce-stats .ce-nums { grid-template-columns: 1fr 1fr; row-gap: 22px; }
+  .ce-cards { grid-template-columns: 1fr; }
+  .ce-cap { grid-template-columns: 64px 1fr; }
+  .ce-list li { grid-template-columns: 44px 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { .ce-in { opacity: 1; transform: none; transition: none; } }
