@@ -210,6 +210,8 @@ window.TIBBA_SITE = {
         
         { id: 'footer-dusk-grid', updated: '2026-10-07T17:15:00+07:00', change: 'An ASCII marshmallow; a shorter footer and a better form', label: 'Footer — dusk grid', file: 'footer-dusk-grid.html',
           note: 'A contact form over the campfire on the left; page and social links, the studio and its local time, and TIBBA drawn as a blueprint on the right; orange to green to black, bottom up', state: 'live' },
+        { id: 'footer-dusk-grid-light', updated: '2026-10-19T12:00:00+07:00', change: 'New: the dusk grid footer in a light theme on #F5F9FA', label: 'Footer — dusk grid, light', file: 'footer-dusk-grid-light.html',
+          note: 'The dusk grid footer on #F5F9FA: near-black ink and hairlines, a warm glow at the foot under the fire, the fire drawn in dark dots with orange running to amber; hover still stokes it', state: 'live' },
         
         { id: 'footer-dithered', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — dithered campfire', file: 'footer-dithered.html',
           note: 'The campfire as a one-bit dot / ASCII drawing in ink and orange; the footer on the right', state: 'live' },

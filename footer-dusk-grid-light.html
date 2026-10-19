@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Footer — dusk grid, light</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<link rel="stylesheet" href="assets/footer-kit.css">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Footer — dusk grid, light
+   ─────────────────────────────────────────────────────────────────────────
+   The light theme of footer-dusk-grid.html: the same grid, form, fire,
+   links and blueprint word, on #F5F9FA. The ground runs from that pale
+   blue-white at the top to a warm glow at the foot where the fire sits; the
+   ink is near-black, the hairlines are ink at low opacity, and the fire is
+   drawn in dark dots with the site's orange running to amber, so it reads
+   on paper the way the original reads on night.
+
+   Everything below is as the dark version — the original note follows.
+
+   Footer — blueprint dusk (footer-blueprint-dusk.html), duplicated and laid
+   out after the reference sketch. One hairline grid over the bottom-up
+   ground — orange at the foot, the site's deep green in the middle, black
+   at the top, grained like film:
+
+     left half    "Let's get to know you and your idea!" over a three-field
+                  form (name, email, the idea), and at the foot the campfire
+     right, top   page links | social links
+     right, mid   the extra: where we are, the studio's local time, a line
+                  from a client
+     right, foot  a thin ruler strip, then TIBBA drawn as a blueprint
+     the foot     legal, full width
+
+   The fire is the only thing at the foot: no marshmallow. Hover it and it
+   is stoked — the flame climbs, the embers thicken, it burns faster and
+   spreads a little — easing back as the pointer leaves.
+
+   Phones: one column — the form, the links two-up, the extra, the fire,
+   the word, the legal.
+   Shared parts: assets/footer-kit.js / .css. Every value: the CONFIG object
+   in the script, on the panel, and bakeable.
+   ═════════════════════════════════════════════════════════════════════════ */
+body { background: #F5F9FA; color: #0E1114; }
+.dg { --ln: rgba(14,17,20,.13); color: #0E1114; position: relative; isolation: isolate; overflow: hidden; display: grid;
+  grid-template-columns: minmax(0, 46%) minmax(0, 30%) minmax(0, 1fr); grid-template-rows: auto auto 22px minmax(140px, auto) auto;
+  border-top: 1px solid var(--ln);
+  /* #F5F9FA at the top warming to the fire's glow at the foot */
+  background: radial-gradient(70% 34% at 26% 104%, rgba(255,110,50,.30), rgba(255,110,50,0) 70%),
+    linear-gradient(0deg, #FFD3BC 0%, #FDE3D4 12%, #F9EEE8 28%, #F6F5F4 46%, #F5F9FA 62%, #F5F9FA 100%); }
+.dg .grain { position: absolute; inset: -50%; z-index: 5; pointer-events: none; opacity: .07; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1.4 -.2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: grain 1.2s steps(6) infinite; }
+@keyframes grain { 0% { transform: translate(0, 0); } 33% { transform: translate(-3%, 2%); } 66% { transform: translate(2%, -3%); } 100% { transform: translate(0, 0); } }
+.dg .k { color: rgba(14,17,20,.52); }
+.dg .cell { position: relative; min-width: 0; padding: clamp(22px, 3.2vw, 56px); }
+.dg a:hover { color: #E8400F; }
+
+/* the left half: the form, and the fire at its foot */
+.dg .talk { grid-column: 1; grid-row: 1 / 5; border-right: 1px solid var(--ln); display: flex; flex-direction: column; padding-bottom: 0; }
+.dg .talk { padding-top: clamp(22px, 2.6vw, 44px); }
+.dg .talk h2 { color: #0E1114; font-weight: 400; font-size: clamp(24px, 2.2vw, 38px); line-height: 1.15; letter-spacing: -.02em; }
+/* the form: a short sheet of labelled fields — numbered labels, hairline
+   underlines that turn orange on focus, the kind of project as chips,
+   and a solid button */
+.dg form { margin-top: clamp(18px, 2.6vh, 28px); display: grid; grid-template-columns: 1fr 1fr; gap: 18px 22px; width: min(100%, 600px); }
+.dg .fld { position: relative; display: grid; gap: 8px; min-width: 0; }
+.dg .fld.wide { grid-column: 1 / -1; }
+.dg .fld > span { display: flex; justify-content: space-between; font: 400 10px/1 ui-monospace, 'SFMono-Regular', Menlo, monospace; letter-spacing: .16em; text-transform: uppercase; color: rgba(14,17,20,.55); }
+.dg .fld > span b { font-weight: 400; color: #E8400F; }
+.dg input, .dg textarea { width: 100%; padding: 6px 0 10px; border: 0; border-bottom: 1px solid rgba(14,17,20,.28); background: none; color: #0E1114; outline: none; border-radius: 0;
+  font: 400 clamp(16px, 1.25vw, 19px)/1.35 'F37 Analog', system-ui, sans-serif; letter-spacing: -.005em; transition: border-color .25s linear; resize: none; }
+.dg textarea { height: 76px; }
+.dg input::placeholder, .dg textarea::placeholder { color: rgba(14,17,20,.32); }
+.dg .fld::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: #FF4B1F; transform: scaleX(0); transform-origin: left; transition: transform .45s cubic-bezier(.22,1,.36,1); }
+.dg .fld:focus-within::after { transform: scaleX(1); }
+.dg .fld:focus-within > span { color: #0E1114; }
+.dg .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.dg .chips label { position: relative; cursor: pointer; }
+.dg .chips input { position: absolute; opacity: 0; pointer-events: none; }
+.dg .chips span { display: inline-block; padding: 8px 12px; border: 1px solid rgba(14,17,20,.22); font-size: 13px; color: rgba(14,17,20,.8); transition: background .2s linear, border-color .2s linear, color .2s linear; }
+.dg .chips label:hover span { border-color: rgba(14,17,20,.6); }
+.dg .chips input:checked + span { background: #0E1114; color: #F5F9FA; border-color: #0E1114; }
+.dg .chips input:focus-visible + span { outline: 1px solid #FF4B1F; outline-offset: 2px; }
+.dg .send { grid-column: 1 / -1; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.dg form button { display: inline-flex; align-items: center; gap: 14px; padding: 14px 20px; border: 0; background: #FF4B1F; color: #fff; cursor: pointer;
+  font: 400 12px/1 'F37 Analog', system-ui, sans-serif; letter-spacing: .16em; text-transform: uppercase; transition: background .2s linear, color .2s linear; }
+.dg form button i { position: relative; width: 22px; height: 1px; background: currentColor; transition: width .3s cubic-bezier(.22,1,.36,1); }
+.dg form button i::after { content: ''; position: absolute; right: 0; top: -3px; width: 7px; height: 7px; border: solid currentColor; border-width: 1px 1px 0 0; transform: rotate(45deg); }
+.dg form button:hover { background: #0E1114; color: #F5F9FA; } .dg form button:hover i { width: 34px; }
+.dg form .note { font-size: 12.5px; color: rgba(14,17,20,.58); }
+.dg form .note a { color: #0E1114; border-bottom: 1px solid rgba(14,17,20,.35); }
+.dg form .sent { grid-column: 1 / -1; font-size: 13px; color: #C2370E; min-height: 1.2em; }
+@media (max-width: 520px) { .dg form { grid-template-columns: 1fr; } }
+.dg .camp { position: relative; flex: 1; min-height: 220px; margin: 8px calc(-1 * clamp(22px, 3.2vw, 56px)) 0; }
+.dg .camp canvas { position: absolute; inset: 0; }
+.dg .camp .k { position: absolute; left: clamp(22px, 3.2vw, 56px); top: 26px; z-index: 2; color: rgba(14,17,20,.6); }
+
+/* the right half */
+.dg .pages { grid-column: 2; grid-row: 1; border-right: 1px solid var(--ln); border-bottom: 1px solid var(--ln); }
+.dg .social { grid-column: 3; grid-row: 1; border-bottom: 1px solid var(--ln); }
+.dg ul { list-style: none; margin-top: 22px; display: grid; gap: 12px; font-size: clamp(17px, 1.3vw, 21px); color: #0E1114; }
+.dg .pages ul { grid-template-columns: 1fr 1fr; column-gap: 18px; }
+.dg .extra { grid-column: 2 / 4; grid-row: 2; border-bottom: 1px solid var(--ln); display: grid; grid-template-columns: 1fr 1fr 1.3fr; gap: clamp(18px, 2.4vw, 40px); align-content: start; }
+.dg .extra .t { margin-top: 14px; color: #0E1114; font-size: 15px; line-height: 1.5; }
+.dg .extra .now { margin-top: 12px; color: #0E1114; font-size: clamp(30px, 2.6vw, 44px); font-weight: 300; letter-spacing: -.03em; font-variant-numeric: tabular-nums; line-height: 1; }
+.dg .extra .now small { display: block; margin-top: 8px; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: rgba(14,17,20,.55); }
+.dg .extra blockquote { margin-top: 14px; color: #0E1114; font-size: clamp(16px, 1.2vw, 19px); line-height: 1.35; letter-spacing: -.01em; }
+.dg .extra cite { display: block; margin-top: 10px; font-style: normal; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: rgba(14,17,20,.55); }
+.dg .ruler { grid-column: 2 / 4; grid-row: 3; border-bottom: 1px solid var(--ln); background: repeating-linear-gradient(90deg, rgba(14,17,20,.32) 0 1px, transparent 1px 12px) 0 50% / 100% 9px no-repeat; }
+.dg .word { grid-column: 2 / 4; grid-row: 4; display: grid; place-items: center; padding-top: 18px; padding-bottom: 18px; }
+.dg .word svg { width: 100%; height: auto; max-height: 100%; overflow: visible; }
+.dg .word text { font: 500 220px 'F37 Analog', system-ui, sans-serif; letter-spacing: -.02em; fill: none; stroke: #0E1114; stroke-width: 1.3; stroke-dasharray: 3000; stroke-dashoffset: 3000; }
+.dg .word.on text { animation: draw 3.2s cubic-bezier(.65,0,.35,1) forwards; }
+.dg .word.on text.fill { animation: draw 3.2s cubic-bezier(.65,0,.35,1) forwards, fillin 1.2s 2.6s ease forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes fillin { to { fill: rgba(14,17,20,.05); } }
+.dg .word .tk { stroke: rgba(14,17,20,.45); stroke-width: 1; }
+.dg .legal { grid-column: 1 / -1; grid-row: 5; display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; padding: 16px clamp(22px, 3.2vw, 56px); border-top: 1px solid rgba(14,17,20,.16);
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: rgba(14,17,20,.72); }
+.dg .legal > span:last-child { display: flex; gap: 22px; }
+
+@media (max-width: 1100px) {
+  .dg .extra { grid-template-columns: 1fr 1fr; } .dg .extra .q { grid-column: 1 / -1; }
+}
+@media (max-width: 860px) {
+  .dg { grid-template-columns: 1fr 1fr; grid-template-rows: none; }
+  .dg > * { grid-column: 1 / -1 !important; grid-row: auto !important; }
+  .dg .talk { border-right: 0; border-bottom: 1px solid var(--ln); }
+  .dg .camp { min-height: 76vw; }
+  .dg .pages { grid-column: 1 !important; } .dg .social { grid-column: 2 !important; border-right: 0; }
+  .dg .pages ul { grid-template-columns: 1fr; }
+  .dg .extra { grid-template-columns: 1fr 1fr; }
+  .dg .ruler { min-height: 28px; }
+  .dg .word { padding: 26px 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .dg .grain { animation: none; } .dg .word text { stroke-dashoffset: 0; animation: none !important; } }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<footer class="foot dg" aria-label="Footer">
+  <i class="grain" aria-hidden="true"></i>
+  <section class="cell talk" aria-labelledby="talk-h">
+    <h2 id="talk-h">Let’s get to know<br>you and your idea!</h2>
+    <form id="talk">
+      <label class="fld"><span>01 · Your name</span><input type="text" name="name" placeholder="Jane Doe" autocomplete="name" required></label>
+      <label class="fld"><span>02 · Email</span><input type="email" name="email" placeholder="jane@company.com" autocomplete="email" required></label>
+      <label class="fld wide"><span>03 · Tell us about the climb <b id="cc">0 / 500</b></span><textarea name="idea" maxlength="500" placeholder="The product, the stage, where you want to get to"></textarea></label>
+      <div class="send"><button type="submit">Send it up the mountain<i></i></button><p class="note">or write to <a href="mailto:hello@tibba.design">hello@tibba.design</a></p></div>
+      <p class="sent" aria-live="polite"></p>
+    </form>
+    <div class="camp"><canvas class="fire" aria-hidden="true"></canvas><p class="k">Base camp · the fire’s lit</p></div>
+  </section>
+  <nav class="cell pages" aria-label="Pages"><p class="k">Pages</p>
+    <ul><li><a href="final-website-v2.html">Home</a></li><li><a href="summits-v3.html">Work</a></li><li><a href="services-compass-v4.html">Services</a></li>
+        <li><a href="about.html">About</a></li><li><a href="case-studies-reel.html">Case studies</a></li><li><a href="studio-polaroids.html">Studio</a></li></ul></nav>
+  <nav class="cell social" aria-label="Social"><p class="k">Social</p>
+    <ul><li><a href="https://www.instagram.com/tibba.design/">Instagram</a></li><li><a href="https://www.linkedin.com/company/tibba-design-studio/">LinkedIn</a></li>
+        <li><a href="https://medium.com/@tibbadesignstudio">Medium</a></li><li><a href="mailto:hello@tibba.design">Email</a></li></ul></nav>
+  <section class="cell extra" aria-label="The studio">
+    <div><p class="k">Base</p><p class="t">Tibba Design Studio<br>India — and remote</p><p class="t"><a href="mailto:hello@tibba.design">hello@tibba.design</a></p></div>
+    <div><p class="k">At the studio</p><p class="now"><span id="now">--:--</span><small id="today"></small></p></div>
+    <div class="q"><p class="k">From a client</p><blockquote>“The website captures the essence of our brand and resonates with our audience.”</blockquote><cite>Milan Sachdeva · Firstpost</cite></div>
+  </section>
+  <i class="ruler" aria-hidden="true"></i>
+  <section class="word" id="word" aria-label="Tibba">
+    <svg viewBox="0 0 1000 240" aria-hidden="true"><text class="fill" x="500" y="200" text-anchor="middle" textLength="900" lengthAdjust="spacingAndGlyphs">TIBBA</text><g id="ticks"></g></svg>
+  </section>
+  <p class="legal"><span>© <span class="yr"></span> Tibba Design Studio. All rights reserved.</span><span><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Cookies</a></span></p>
+</footer>
+<script type="module">
+  import { fire, panel, slider, applyBaked, year } from './assets/footer-kit.js';
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  $$('.yr').forEach(e => { e.textContent = year(); });
+  /* on paper the fire is drawn in ink: dark dots for the wood and the
+     smoke of the flame, the orange running to a deep amber at the core */
+  const CONFIG = { fire: { mode: 'dither', palette: 'warm', cell: 5, dot: .86, contrast: 1.25, flame: 1.05, embers: 1.2, speed: .9, scale: 1.05, wood: .75,
+                           ink: '#1A1D22', accent: '#FF4B1F', gold: '#E8922E' },
+                   stoke: { amount: 1 } };   // how hard hovering feeds the fire (0 = not at all)
+  const KEY = 'tibba.bake.footer-dusk-grid-light'; applyBaked(KEY, CONFIG);
+  const f = fire($('.camp canvas'), { ...CONFIG.fire, x: .5, y: .74, blowOut: false, hand: false });
+
+  /* ── stoking: the pointer over the fire feeds it ────────────────────
+     Over the camp the flame climbs, the embers thicken, it burns faster and
+     spreads a little; off it, it settles back. One eased value drives all
+     four, so the fire swells and calms as one thing rather than in steps. */
+  const camp = $('.camp');
+  let stokeT = 0, stoke = 0, last = performance.now(), laidScale = CONFIG.fire.scale;
+  camp.addEventListener('pointerenter', e => { if (e.pointerType !== 'touch') stokeT = 1; });
+  camp.addEventListener('pointerleave', () => { stokeT = 0; });
+  camp.addEventListener('pointerdown', e => { if (e.pointerType === 'touch') { stokeT = 1; setTimeout(() => { stokeT = 0; }, 1600); } });
+  (function loop(now) {
+    requestAnimationFrame(loop);
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    stoke += (stokeT - stoke) * (1 - Math.exp(-dt * (stokeT > stoke ? 5 : 2.4)));   // quick to catch, slow to settle
+    const k = stoke * CONFIG.stoke.amount, b = CONFIG.fire;
+    f.K.flame = b.flame * (1 + .45 * k);
+    f.K.embers = b.embers * (1 + 1.2 * k);
+    f.K.speed = b.speed * (1 + .5 * k);
+    f.K.scale = b.scale * (1 + .12 * k);
+    f.K.contrast = b.contrast * (1 + .12 * k);
+    /* only the size needs a relayout (it redraws the wood); the rest the
+       fire reads live every frame */
+    if (Math.abs(f.K.scale - laidScale) > .003) { laidScale = f.K.scale; f.relayout(); }
+  })(performance.now());
+
+  /* the form: no back end here, so it answers in place */
+  const idea = $('#talk textarea');
+  idea.addEventListener('input', () => { $('#cc').textContent = idea.value.length + ' / 500'; });
+  $('#talk').addEventListener('submit', e => { e.preventDefault(); e.target.reset(); $('#cc').textContent = '0 / 500'; $('.sent').textContent = 'Got it — we’ll write back within two working days.'; });
+  /* the studio's time */
+  const T = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: false }),
+        D = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', weekday: 'short', day: 'numeric', month: 'short' });
+  const tick = () => { const n = new Date(); $('#now').textContent = T.format(n); $('#today').textContent = D.format(n) + ' · IST'; }; tick(); setInterval(tick, 10000);
+  /* the word: drawn as a blueprint between construction ticks, once */
+  let t = ''; [40, 120, 200].forEach(y => { for (let x = 60; x <= 940; x += 88) t += `<path class="tk" d="M${x - 5} ${y}H${x + 5}M${x} ${y - 5}V${y + 5}"/>`; });
+  $('#ticks').innerHTML = t;
+  new IntersectionObserver(([e], io) => { if (e.isIntersecting) { io.disconnect(); $('#word').classList.add('on'); } }, { threshold: .3 }).observe($('#word'));
+  panel({ title: 'Footer — dusk grid, light', key: KEY, config: CONFIG, name: 'CONFIG', fires: [{ fire: f, cfg: CONFIG.fire }],
+    extra: `<p class="tune-sub">On hover</p>${slider('sa', 'Stoke amount', 0, 2, .05, CONFIG.stoke.amount)}`,
+    bind: (q, on) => { on('sa', v => { CONFIG.stoke.amount = v; }); } });
+</script>
+</body>
+</html>
