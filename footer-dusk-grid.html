@@ -215,5 +215,7 @@ body { background: #000; }
     extra: `<p class="tune-sub">On hover</p>${slider('sa', 'Stoke amount', 0, 2, .05, CONFIG.stoke.amount)}`,
     bind: (q, on) => { on('sa', v => { CONFIG.stoke.amount = v; }); } });
 </script>
+<!-- primary / secondary typography control (assets/type-control.js) -->
+<script type="module" src="assets/type-control.js"></script>
 </body>
 </html>

@@ -32,7 +32,7 @@ window.TIBBA_SITE = {
         note: 'Loader, hero and its three scroll states, metrics, brands, the four-summit walk, services, testimonials', state: 'live' },
       { id: 'final-website-v2', updated: '2026-10-12T16:00:00+07:00', change: 'Renamed from Final Website v2; the dropdown index added', label: 'Website v2', file: 'final-website-v2.html',
         note: 'The live sections as one website: loader into Active Peak into Metrics, Brands, Summits v3, case reel, Compass v4, testimonials, polaroids, footer; one navbar, refresh bottom left', state: 'live' },
-      { id: 'website-v3', updated: '2026-10-12T16:00:00+07:00', change: 'The dropdown index added', label: 'Website v3', file: 'website-v3.html',
+      { id: 'website-v3', updated: '2026-10-21T16:00:00+07:00', change: 'Typography control (Aa Type, bottom left): primary and secondary font, size, line height, spacing, weight and case — across v3, About and the case studies', label: 'Website v3', file: 'website-v3.html',
         note: 'Loader, hero and stats as v2, then the work: four summits stacked and image-led, brands, the index of everything else, gear-tier services, voices, studio, footer', state: 'live' },
     ],
   },
@@ -137,17 +137,17 @@ window.TIBBA_SITE = {
         
         
         
-              { id: 'case-groww-v2', updated: '2026-10-08T16:31:00+07:00', change: 'New: the case study design system', label: 'Just. Case Study – Groww v1', file: 'case-groww-v2.html',
-        note: 'Full-bleed cover, the ledger, a chapter route in the margin, numbered figures, next summit', state: 'live' },
+              { id: 'case-groww-v2', updated: '2026-10-19T18:00:00+07:00', change: 'Redesigned on the editorial template: a four-column grid, one container system (hero, full, half, card), large statements, captions', label: 'Just. Case Study – Groww v1', file: 'case-groww-v2.html',
+        note: 'The editorial template (assets/case-editorial.js): a small centred cover, the meta line, the title as a statement, the ledger; rows, copy-and-image pairs and full-width containers; Other projects', state: 'live' },
         { id: 'case-groww-arch', updated: '2026-10-15T18:00:00+07:00', change: 'New: the cover as a dome, the name huge over it, image plates and the next three cases', label: 'Just. Case Study – Groww v2', file: 'case-groww-arch.html',
         note: 'Hero: the cover rising as a dome, GROWW set huge over its foot, a row of small caps under it. Then images only, at most two to a row, and three next-case cards', state: 'live' },
         { id: 'case-groww-ledger', updated: '2026-10-15T18:00:00+07:00', change: 'New: a ruled sheet for a hero, image plates and the next three cases', label: 'Just. Case Study – Groww v3', file: 'case-groww-ledger.html',
         note: 'Hero: hairline columns along the top, Go back, the name large on the left, the particulars and scope in ruled rows on the right, the project in justified capitals at the foot. Same plates and next cases as v2', state: 'live' },
-        { id: 'case-firstpost-v2', updated: '2026-10-08T16:31:00+07:00', change: 'New: the case study design system', label: 'Just. Case Study – Firstpost', file: 'case-firstpost-v2.html',
+        { id: 'case-firstpost-v2', updated: '2026-10-19T18:00:00+07:00', change: 'Redesigned on the editorial template: a four-column grid, one container system (hero, full, half, card), large statements, captions', label: 'Just. Case Study – Firstpost', file: 'case-firstpost-v2.html',
         note: 'The same system, Firstpost’s colour and numbers', state: 'live' },
-        { id: 'case-breathe-esg-v2', updated: '2026-10-08T16:31:00+07:00', change: 'New: the case study design system', label: 'Just. Case Study – Breathe ESG', file: 'case-breathe-esg-v2.html',
+        { id: 'case-breathe-esg-v2', updated: '2026-10-19T18:00:00+07:00', change: 'Redesigned on the editorial template: a four-column grid, one container system (hero, full, half, card), large statements, captions', label: 'Just. Case Study – Breathe ESG', file: 'case-breathe-esg-v2.html',
         note: 'The same system, with the scattered cards, the globe and the burst-and-reader kept', state: 'live' },
-        { id: 'case-shyft-mindhouse-v2', updated: '2026-10-08T16:31:00+07:00', change: 'New: the case study design system', label: 'Just. Case Study – Shyft & Mindhouse', file: 'case-shyft-mindhouse-v2.html',
+        { id: 'case-shyft-mindhouse-v2', updated: '2026-10-19T18:00:00+07:00', change: 'Redesigned on the editorial template: a four-column grid, one container system (hero, full, half, card), large statements, captions', label: 'Just. Case Study – Shyft & Mindhouse', file: 'case-shyft-mindhouse-v2.html',
         note: 'The same system, Shyft & Mindhouse’s colour and story', state: 'live' },
       ] },
 
@@ -210,6 +210,8 @@ window.TIBBA_SITE = {
         
         { id: 'footer-dusk-grid', updated: '2026-10-07T17:15:00+07:00', change: 'An ASCII marshmallow; a shorter footer and a better form', label: 'Footer — dusk grid', file: 'footer-dusk-grid.html',
           note: 'A contact form over the campfire on the left; page and social links, the studio and its local time, and TIBBA drawn as a blueprint on the right; orange to green to black, bottom up', state: 'live' },
+        { id: 'footer-dusk-grid-light', updated: '2026-10-19T12:00:00+07:00', change: 'New: the dusk grid footer in a light theme on #F5F9FA', label: 'Footer — dusk grid, light', file: 'footer-dusk-grid-light.html',
+          note: 'The dusk grid footer on #F5F9FA: near-black ink and hairlines, a warm glow at the foot under the fire, the fire drawn in dark dots with orange running to amber; hover still stokes it', state: 'live' },
         
         { id: 'footer-dithered', updated: '2026-10-08T16:17:00+07:00', change: "Over the fire the cursor becomes a dithered hand, lit by the flame", label: 'Footer — dithered campfire', file: 'footer-dithered.html',
           note: 'The campfire as a one-bit dot / ASCII drawing in ink and orange; the footer on the right', state: 'live' },
@@ -257,7 +259,7 @@ window.TIBBA_SITE = {
           note: 'Contours re-extracted every frame from a moving noise field', state: 'live' },
         { id: 'misc-dither', label: 'Dither Lab', file: 'dither-lab.html',
           note: 'A separate experiment in the same folder', state: 'live' },
-        { id: 'misc-prototype', label: 'Prototype', file: 'misc-prototype.html',
+        { id: 'misc-prototype', updated: '2026-10-21T12:00:00+07:00', change: 'Export the iPhone (or MacBook) with its screen as a transparent PNG — no shadow, trimmed to the device', label: 'Prototype', file: 'misc-prototype.html',
           note: 'Screens inside the iPhone and MacBook frames, with a before/after mode', state: 'live' },
         { id: 'misc-reel', label: 'Work Reel', file: 'misc-work-reel.html',
           note: 'Nine turned labels along the floor; scroll opens one plate at a time', state: 'live' },

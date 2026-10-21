@@ -177,5 +177,7 @@ body { background: #000; }
     extra: `<p class="tune-sub">The streak</p>${slider('sw', 'Width', .3, 2, .05, CONFIG.streak.width)}${slider('sg', 'Glow', .3, 2, .05, CONFIG.streak.glow)}`,
     bind: (q, on) => { on('sw', v => { CONFIG.streak.width = v; streak(); }); on('sg', v => { CONFIG.streak.glow = v; streak(); }); } });
 </script>
+<!-- primary / secondary typography control (assets/type-control.js) -->
+<script type="module" src="assets/type-control.js"></script>
 </body>
 </html>
