@@ -295,8 +295,68 @@ export function mountPrototype(root, panel) {
   restore();
   applyAll();
 
+  /* ── export: the device with its screen, as a PNG ───────────────────────
+     For quick mockup images. Drawn on a canvas from the same two layers the
+     page uses — the screen under the frame PNG — so the Dynamic Island stays
+     in front. No shadow, no background: the frame PNG has none of its own,
+     and the canvas starts transparent. The result is trimmed to the
+     device's own edge.
+
+     What is exported is what is on screen: the screen that is showing
+     (after, or before), scrolled to where it is scrolled in the page.
+
+       size  'screen'  the opening is drawn at the screenshot's own width, so
+                       the screen keeps every pixel (a 1179-wide iPhone
+                       capture gives a ~1320 × 2700 image)
+             1, 2, 3   the frame at 1×, 2× or 3× its PNG size */
+  const loadImg = src => new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; });
+  function alphaBox(img) {
+    const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight;
+    const g = c.getContext('2d'); g.drawImage(img, 0, 0);
+    const d = g.getImageData(0, 0, c.width, c.height).data;
+    let x0 = c.width, y0 = c.height, x1 = 0, y1 = 0;
+    for (let y = 0; y < c.height; y++) for (let x = 0; x < c.width; x++) {
+      if (d[(y * c.width + x) * 4 + 3] > 8) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+    }
+    return { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 };
+  }
+  const boxes = {};
+  function showing() {
+    if (S.mode === 'compare') return S.t >= 0.5 ? 'after' : 'before';
+    return 'after';
+  }
+  async function exportMockup(kind, { which = showing(), size = 'screen' } = {}) {
+    const F = FRAMES[kind], s = F.screen;
+    const url = slots[`${kind}:${which}`] || slots[`${kind}:${which === 'after' ? 'before' : 'after'}`];
+    if (!url) throw new Error(`No ${kind === 'phone' ? 'iPhone' : 'MacBook'} screen uploaded yet`);
+    const [frame, shot] = await Promise.all([loadImg(F.src), loadImg(url)]);
+    const k = size === 'screen' ? shot.naturalWidth / s.w : +size;
+    const box = boxes[kind] || (boxes[kind] = alphaBox(frame));
+    const c = document.createElement('canvas');
+    c.width = Math.round(box.w * k); c.height = Math.round(box.h * k);
+    const g = c.getContext('2d');
+    g.imageSmoothingQuality = 'high';
+    g.translate(-box.x * k, -box.y * k);
+    /* the screen, clipped to the opening's rounded corners */
+    const sx = s.x * k, sy = s.y * k, sw = s.w * k, sh = s.h * k, r = F.radius * k;
+    g.save();
+    g.beginPath();
+    if (g.roundRect) g.roundRect(sx, sy, sw, sh, r); else g.rect(sx, sy, sw, sh);
+    g.clip();
+    g.fillStyle = '#000'; g.fillRect(sx, sy, sw, sh);
+    /* width-fitted, like the page; offset to where the page has it scrolled */
+    const scroll = dev(kind).querySelector('.proto-scroll');
+    const drawH = shot.naturalHeight * (sw / shot.naturalWidth);
+    const off = scroll.clientWidth ? Math.min(Math.max(0, drawH - sh), scroll.scrollTop * (sw / scroll.clientWidth)) : 0;
+    g.drawImage(shot, sx, sy - off, sw, drawH);
+    g.restore();
+    /* the frame over it */
+    g.drawImage(frame, 0, 0, F.w * k, F.h * k);
+    return new Promise(res => c.toBlob(b => res({ blob: b, w: c.width, h: c.height, which }), 'image/png'));
+  }
+
   return {
-    S, FRAMES, status, setSlot, autoPlace, classify,
+    S, FRAMES, status, setSlot, autoPlace, classify, exportMockup, showing,
     setMode(m) { S.mode = m; S.t = S.show === 'after' ? 1 : 0; applyAll(); },
     setStyle(s) { S.style = s; applyAll(); },
     setT(t) { if (anim) cancelAnimationFrame(anim); S.t = t; applyAll(); },
