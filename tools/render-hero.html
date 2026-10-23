@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Render — the hero mountain as video frames</title>
+<style>
+  html, body { margin: 0; background: #000; color: #ccc; font: 13px system-ui; }
+  /* the frame the video is rendered at, in CSS pixels; ?w=&h= change it */
+  #c { display: block; width: 360px; height: 640px; }
+  p { padding: 8px; margin: 0; }
+</style>
+</head>
+<body>
+<!-- ─────────────────────────────────────────────────────────────────────────
+     tools/render-hero.html — a local tool, run against dev-server.mjs
+
+     Renders the Website v3 hero mountain (range-scene, as site-hero.js sets
+     it up, landed on its hero station) frame by frame at a fixed rate, with
+     a slow camera sway that returns to where it began, and saves each frame
+     to tools/out/ through the dev server's /__save/ endpoint. Then:
+
+       ffmpeg -framerate 30 -i tools/out/hero-%04d.png -c:v libx264 -crf 24 \
+         -pix_fmt yuv420p -movflags +faststart assets/video/hero-mountain.mp4
+
+     The loop is seamless: its length is a whole number of the dotted
+     rings' cycles (DOT_PERIOD / DOT_FLOW = 2.625 s) and the sway is one
+     full sine. ?w=360&h=640&dpr=2&seconds=10.5&fps=30
+     ───────────────────────────────────────────────────────────────────── -->
+<canvas id="c"></canvas>
+<p id="log">loading…</p>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.min.js"}}</script>
+<script type="module">
+  import { createRangeScene } from '../assets/range-scene.js';
+  const q = new URLSearchParams(location.search), num = (k, d) => +(q.get(k) || d);
+  const cv = document.getElementById('c'), log = document.getElementById('log');
+  cv.style.width = num('w', 360) + 'px'; cv.style.height = num('h', 640) + 'px';
+  const SECONDS = num('seconds', 10.5), FPS = num('fps', 30), N = Math.round(SECONDS * FPS);
+
+  /* the hero, exactly as site-hero.js builds it */
+  const scene = createRangeScene({ canvas: cv, mode: 'hero', ink: false, palette: 'peak', backdrop: 'behind', hover: false, lockFade: 0.9, quality: 'high' });
+  scene.setAccent('#FF4B1F'); scene.setDepth(0.22); scene.setHover(false); scene.setFill(null); scene.lockTo(0);
+  scene.setRunning(false);
+  /* the hero station (site-hero.js FROM) */
+  const FROM = { elev: 30, azim: 6, dist: 122, x: 2, y: 22 };
+
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  async function save(i) {
+    const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+    await fetch('/__save/hero-' + String(i).padStart(4, '0') + '.png', { method: 'POST', body: blob });
+  }
+  await wait(1500);                                   // terrain and contours built
+  /* settle: let the morph and fades reach their resting values */
+  for (let i = 0; i < 90; i++) { scene.setHeroCam({ elev: FROM.elev, azim: FROM.azim, dist: FROM.dist, tgtX: FROM.x, tgtY: FROM.y }); scene.step(1 / FPS); }
+  for (let i = 0; i < N; i++) {
+    const a = (i / N) * Math.PI * 2;
+    /* a slow look round the summit and back: one full sine, so the last
+       frame leads straight into the first */
+    scene.setHeroCam({ elev: FROM.elev + Math.sin(a) * 1.2, azim: FROM.azim + Math.sin(a) * 5, dist: FROM.dist + (1 - Math.cos(a)) * 3,
+      tgtX: FROM.x, tgtY: FROM.y });
+    scene.step(1 / FPS);
+    await save(i);
+    if (i % 15 === 0) log.textContent = `frame ${i + 1} / ${N} — ${cv.width}×${cv.height}`;
+  }
+  log.textContent = `done — ${N} frames at ${cv.width}×${cv.height}`;
+  window.__done = true;
+</script>
+</body>
+</html>

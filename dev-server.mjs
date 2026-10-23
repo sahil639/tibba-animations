@@ -11,7 +11,7 @@
        PORT=3000 node dev-server.mjs
    ═════════════════════════════════════════════════════════════════════════ */
 import { createServer } from 'node:http';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { extname, join, normalize, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -24,10 +24,23 @@ const TYPES = {
   '.otf': 'font/otf', '.woff2': 'font/woff2', '.svg': 'image/svg+xml',
   '.png': 'image/png', '.jpg': 'image/jpeg', '.zip': 'application/zip',
   '.webp': 'image/webp', '.wasm': 'application/wasm', '.riv': 'application/octet-stream',
+  '.mp4': 'video/mp4', '.webm': 'video/webm',
 };
 
 createServer(async (req, res) => {
   const url = decodeURIComponent(req.url.split('?')[0]);
+
+  /* local tools only: POST /__save/<name>.png writes into tools/out/ (the
+     frame-by-frame renders, e.g. tools/render-hero.html). One flat folder,
+     plain file names — nothing else on disk can be reached. */
+  if (req.method === 'POST' && url.startsWith('/__save/')) {
+    const name = url.slice(8);
+    if (!/^[\w.-]+\.(png|jpg|json)$/.test(name)) { res.writeHead(400); return res.end('bad name'); }
+    const chunks = []; for await (const c of req) chunks.push(c);
+    await mkdir(join(ROOT, 'tools/out'), { recursive: true });
+    await writeFile(join(ROOT, 'tools/out', name), Buffer.concat(chunks));
+    res.writeHead(200); return res.end('ok');
+  }
 
   /* a folder serves its index.html, as on Vercel (the sandbox lives in one) */
   let p = url.endsWith('/') ? url + 'index.html' : url;

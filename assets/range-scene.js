@@ -2335,6 +2335,12 @@ function frame(){
   const _now = performance.now();
   const dt = Math.min(0.05, (_now - _lastT) / 1000);
   _lastT = _now;
+  tick(dt);
+}
+/* one frame of the scene, for a given time step — the loop above calls it
+   every animation frame; step() calls it on demand, so a tool can render
+   the scene frame by frame at a fixed rate (tools/render-hero.html) */
+function tick(dt){
   stepMorph(dt);
 
   /* The dotted rings drift along their own arc length. Accumulated rather than
@@ -3203,6 +3209,9 @@ return {
 
   /** Park the render loop while the section is nowhere near the viewport. */
   setRunning(on) { running = !!on; },
+  /* render exactly one frame, dt seconds after the last — for offline
+     capture; pair with setRunning(false) so the live loop stays out of it */
+  step(dt = 1 / 30) { tick(dt); },
 
   resize,
 
