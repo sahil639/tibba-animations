@@ -4,6 +4,10 @@
    1. Stages. Every slide is drawn in the design's own 1380 × 776.25
       coordinates (.cf-stage) and scaled here to the width it is given.
 
+   3. Layout (further down): the content column's max width — presets
+      Narrow 720 · Default 880 · Wide 1040 · Full 1380 and a slider, in the
+      page's control panel.
+
    2. The phone columns (Groww, the slide after Groww Stories). Four columns
       of iPhones, five phones each, looped (each column is its five, twice,
       so it wraps seamlessly). Still until pointed at; while the pointer is
@@ -24,8 +28,55 @@
   const fit = () => document.querySelectorAll('.cf-slide').forEach(s => {
     const st = s.querySelector('.cf-stage'); if (st) st.style.setProperty('--k', (s.clientWidth / W).toFixed(5));
   });
-  new ResizeObserver(fit).observe(document.documentElement);
+  /* each slide is watched, not the window: the column can change width
+     without the window changing (the Layout control) */
+  const ro = new ResizeObserver(fit);
+  document.querySelectorAll('.cf-slide').forEach(s => ro.observe(s));
   fit();
+
+  /* ── 3. layout: the content column's max width ─────────────────────────
+     Presets to compare side by side — Narrow 720, Default 880, Wide 1040,
+     Full 1380 (the Figma frame's column) — and a slider for anything in
+     between. Kept in this browser; ?maxw=960 in the address overrides. */
+  const main = document.querySelector('.cf');
+  if (main && document.querySelector('.cf-work')) {
+    const KEY = 'tibba.case.layout', PRESETS = [['Narrow', 720], ['Default', 880], ['Wide', 1040], ['Full', 1380]];
+    let L = { maxw: 880, alignHero: false };
+    try { L = { ...L, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; } catch (e) {}
+    const q = +new URLSearchParams(location.search).get('maxw'); if (q >= 480 && q <= 1920) L.maxw = q;
+    const apply = () => {
+      main.style.setProperty('--maxw', L.maxw + 'px');
+      main.classList.toggle('align-hero', !!L.alignHero);
+      try { localStorage.setItem(KEY, JSON.stringify(L)); } catch (e) {}
+      fit();
+      sync();
+    };
+    const el = document.createElement('div');
+    el.id = 'tune';
+    el.innerHTML = `
+      <div id="tune-head"><b>Case study</b><button id="tune-hide" title="Hide (H)">–</button></div>
+      <p class="tune-sub">Layout — content width</p>
+      <div class="seg" id="s-maxw">${PRESETS.map(([n, w]) => `<button data-w="${w}" title="${w}px">${n}<br><small>${w}</small></button>`).join('')}</div>
+      <div class="row"><label>Max width<i id="v-maxw"></i></label>
+        <input type="range" id="s-maxw-r" min="640" max="1380" step="10"></div>
+      <div class="row inline"><label>Hero text on the column edge<i></i></label>
+        <input type="checkbox" id="s-ah"></div>
+      <p class="tune-note" style="margin:10px 0 0;font-size:11px;line-height:1.45;color:rgba(233,236,242,.5)">The column below the hero. Type, spacing and the slides scale with it; under ~980px the facts move below the metrics, under ~640px Stories stacks.</p>`;
+    document.body.appendChild(el);
+    const $ = s => el.querySelector(s);
+    function sync() {
+      $('#v-maxw').textContent = L.maxw + 'px';
+      $('#s-maxw-r').value = L.maxw;
+      $('#s-ah').checked = !!L.alignHero;
+      el.querySelectorAll('#s-maxw button').forEach(b => b.classList.toggle('on', +b.dataset.w === L.maxw));
+    }
+    $('#s-maxw').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { L.maxw = +b.dataset.w; apply(); } });
+    $('#s-maxw-r').addEventListener('input', e => { L.maxw = +e.target.value; apply(); });
+    $('#s-ah').addEventListener('change', e => { L.alignHero = e.target.checked; apply(); });
+    $('#tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+    apply();
+    if (window.wb && window.wb.adopt) window.wb.adopt();
+  }
 
   /* ── 2. the phone columns ──────────────────────────────────────────── */
   const box = document.querySelector('.cf-phones');
