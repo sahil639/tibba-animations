@@ -44,7 +44,8 @@ export const SITE_CONFIG = {
 /* phones: load a section a screen ahead rather than one and a half, and let
    go of it two screens behind rather than four — fewer pages, scenes and
    WebGL contexts alive at once, which is what a phone runs out of first */
-if (matchMedia('(max-width: 760px), (pointer: coarse)').matches) Object.assign(SITE_CONFIG, { loadAhead: 1, unloadBeyond: 2 });
+const PHONE = matchMedia('(max-width: 760px), (pointer: coarse)').matches;
+if (PHONE) Object.assign(SITE_CONFIG, { loadAhead: 1, unloadBeyond: 2 });
 const C = SITE_CONFIG;
 
 /* the drawer's wireframe: each section as a few strokes (site-shell.css .wf) */
@@ -361,8 +362,16 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
     b.vis = on;
     try { const w = b.frame.contentWindow; if (w && w.__tibbaGate) w.__tibbaGate(on); } catch {}
   }
+  /* Desktop: once a frame. Phones: at once, on every scroll event — a
+     phone's momentum scroll runs apart from the page's scripts, and waiting
+     for the next animation frame on top of that is what leaves a section's
+     content frozen mid-fling and then jumping to catch up. sync() is one
+     pass of reads then writes, so running it per event is cheap. */
   let ticking = false;
-  addEventListener('scroll', () => { if (ticking) return; ticking = true; requestAnimationFrame(() => { ticking = false; sync(false); }); }, { passive: true });
+  addEventListener('scroll', () => {
+    if (PHONE) { sync(false); return; }
+    if (ticking) return; ticking = true; requestAnimationFrame(() => { ticking = false; sync(false); });
+  }, { passive: true });
   addEventListener('resize', () => { blocks.forEach(b => b.loaded && measure(b)); sync(true); });
 
   /* ── build, and rebuild (the Modular hub) ────────────────────────── */
@@ -379,7 +388,10 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
     blocks = list.map(make);
     drawNav();
     const first = list[0];
-    lock(!!(first && first.gate && !/noloader/.test(first.file)));
+    /* phones are never held: a touch that starts on the hero's frame slips
+       past the lock, and the lock then yanks the page back to the top
+       against the finger — the hero's fly-in plays, but scrolling is free */
+    lock(!PHONE && !!(first && first.gate && !/noloader/.test(first.file)));
     sync(true);
   }
   function rebuild(list, keepScroll) {
