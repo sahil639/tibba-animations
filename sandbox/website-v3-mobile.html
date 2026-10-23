@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-10-23T13:13:54.990Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-10-23T13:29:18.470Z by tools/make-sandbox.mjs -->
 <head>
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="assets/work.css">
 <script src="assets/work.js"></script>
 <script src="assets/service-icons.js" defer></script>
+<script src="assets/rive-slot.js" defer></script>
 <style>
 /* ══════════════════════════════════════════════════════════════════════════
    Website v3 — on a phone
@@ -52,54 +53,62 @@ section { scroll-margin-top: 64px; }
 /* ── hero ───────────────────────────────────────────────────────────────── */
 .hero { position: relative; min-height: 100svh; min-height: 100vh; display: flex; flex-direction: column; padding: 96px var(--g) 28px; overflow: hidden; }
 @supports (height: 1svh) { .hero { min-height: 100svh; } }
-.hero h1 { position: relative; z-index: 2; font-weight: 300; font-size: clamp(52px, 17vw, 84px); line-height: .9; letter-spacing: -.04em; text-transform: uppercase; color: #fff; }
+.hero h1 { position: relative; z-index: 2; text-shadow: 0 2px 28px rgba(0,0,0,.65); font-weight: 300; font-size: clamp(52px, 17vw, 84px); line-height: .9; letter-spacing: -.04em; text-transform: uppercase; color: #fff; }
 .hero h1 em { font-style: normal; color: var(--o); }
 .hero-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 62%; background: #000; }
-/* the words sit on the video: a little shade at the top and foot */
-.hero::after { content: ''; position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,0) 32%, rgba(0,0,0,0) 62%, rgba(0,0,0,.92) 100%); }
+/* the words sit on the video: a deep shade behind the title and under the
+   copy at the foot, the mountain left clear between them */
+.hero::after { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background: linear-gradient(180deg, rgba(0,0,0,.86) 0%, rgba(0,0,0,.72) 22%, rgba(0,0,0,0) 44%, rgba(0,0,0,0) 56%, rgba(0,0,0,.9) 76%, #000 100%); }
 .hero-foot { position: relative; z-index: 2; margin-top: auto; }
 .hero-foot p:first-child { font-size: 19px; line-height: 1.3; color: #fff; }
-.hero-foot p + p { margin-top: 10px; font-size: 14px; line-height: 1.5; color: var(--mute); }
+.hero-foot p + p { margin-top: 10px; font-size: 15px; line-height: 1.5; color: rgba(233,236,242,.85); }
 
-/* ── stats ──────────────────────────────────────────────────────────────── */
-.stats { display: grid; grid-template-columns: 1fr 1fr; margin: 8px var(--g) 0; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
-.stats div { padding: 16px 14px 18px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.stats small { display: block; font-size: 9.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--faint); }
-.stats small b { color: var(--o); font-weight: 400; }
-.stats strong { display: block; margin-top: 14px; font-weight: 300; font-size: 36px; line-height: .9; letter-spacing: -.04em; color: #fff; font-variant-numeric: tabular-nums; }
-.stats span { display: block; margin-top: 10px; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--mute); }
+/* ── stats: four numbers, nothing else ─────────────────────────────────── */
+.stats { display: grid; grid-template-columns: 1fr 1fr; column-gap: 20px; margin: 0 var(--g); padding: 8px 0 0; }
+.stats div { padding: 26px 0 24px; border-top: 1px solid var(--line); }
+.stats strong { display: block; font-weight: 300; font-size: 46px; line-height: .9; letter-spacing: -.04em; color: #fff; font-variant-numeric: tabular-nums; }
+.stats span { display: block; margin-top: 12px; font-size: 14px; line-height: 1.35; color: var(--mute); }
 
-/* ── our summits ────────────────────────────────────────────────────────── */
-.cases { display: grid; gap: 40px; margin-top: 28px; }
+/* ── our summits: open, like the rest of the page — no boxes ─────────── */
+.cases { display: grid; gap: 64px; margin-top: 36px; }
 .case { --c: #fff; }
-.case .txt { padding: 20px 18px 22px; background: var(--card); border: 1px solid var(--line); border-top: 2px solid var(--c); }
-.case .k { display: flex; align-items: center; gap: 10px; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--faint); }
-.case .k { flex-wrap: wrap; row-gap: 4px; letter-spacing: .14em; }
+.case .k { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--faint); }
 .case .k b { color: var(--c); font-weight: 400; white-space: nowrap; }
-.case .k i { width: 20px; height: 1px; background: var(--line); }
-.case h3 { margin-top: 14px; font-weight: 400; font-size: clamp(22px, 6.4vw, 28px); line-height: 1.15; letter-spacing: -.02em; color: #fff; }
+.case .k i { width: 20px; height: 1px; background: rgba(233,236,242,.3); }
+.case h3 { margin-top: 14px; font-weight: 400; font-size: clamp(24px, 7vw, 30px); line-height: 1.12; letter-spacing: -.02em; color: #fff; }
 .case h3 .hi { color: var(--c); }
-.case .txt > p { margin-top: 12px; font-size: 14px; line-height: 1.55; color: var(--mute); }
-.case .go { display: inline-flex; align-items: center; gap: 14px; margin-top: 18px; padding: 13px 16px; background: var(--c); color: #0a0a0b; text-decoration: none; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; }
-.case .go::after { content: '→'; font-size: 15px; letter-spacing: 0; }
-.case .wk-img { margin-top: 12px; border: 1px solid var(--line); }
-.case dl { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
-.case dl div { padding: 14px; background: var(--card); border: 1px solid var(--line); }
-.case dt { font-weight: 300; font-size: 30px; line-height: 1; letter-spacing: -.03em; color: #fff; }
-.case dd { margin-top: 8px; font-size: 12.5px; line-height: 1.4; color: var(--mute); }
+.case > p { margin-top: 12px; font-size: 15px; line-height: 1.55; color: var(--mute); }
+/* the Rive animation (assets/rive/<client>.riv), on its placeholder until it plays */
+.case .rv { position: relative; display: block; margin-top: 22px; aspect-ratio: 928 / 486; overflow: hidden; background: #0e0e10; }
+.case .rv .wk-img { position: absolute; inset: 0; aspect-ratio: auto; height: 100%; }
+.case .rv canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+.case dl { display: grid; grid-template-columns: 1fr 1fr; column-gap: 20px; margin-top: 18px; }
+.case dl div { padding-top: 14px; border-top: 1px solid var(--line); }
+.case dt { font-weight: 300; font-size: 32px; line-height: 1; letter-spacing: -.03em; color: #fff; }
+.case dd { margin-top: 8px; font-size: 13px; line-height: 1.4; color: var(--mute); }
+.case .go { display: inline-flex; align-items: center; gap: 12px; margin-top: 20px; padding-bottom: 4px; border-bottom: 1px solid var(--c);
+  color: #fff; text-decoration: none; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; }
+.case .go::after { content: '→'; color: var(--c); font-size: 15px; letter-spacing: 0; }
 
-/* ── brands ─────────────────────────────────────────────────────────────── */
-.logos { display: grid; grid-template-columns: 1fr 1fr; margin-top: 28px; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
-.logos li { list-style: none; display: grid; place-items: center; height: 84px; padding: 0 18px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.logos img { max-height: 26px; max-width: 100%; width: auto; opacity: .9; }
+/* ── brands: four rows drifting, alternate ways, slowly ─────────────────── */
+.marquee { margin: 32px calc(-1 * var(--g)) 0; display: grid; gap: 10px; overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
+.mrow { display: flex; width: max-content; animation: drift var(--d, 46s) linear infinite; animation-play-state: paused; }
+.mrow.rev { animation-direction: reverse; }
+.marquee.run .mrow { animation-play-state: running; }
+.mrow span { display: grid; place-items: center; flex: none; width: 150px; height: 64px; margin-right: 10px; border: 1px solid var(--line); }
+.mrow img { max-height: 22px; max-width: 108px; width: auto; opacity: .88; }
+@keyframes drift { to { transform: translate3d(-50%, 0, 0); } }
+@media (prefers-reduced-motion: reduce) { .mrow { animation: none; } }
 
-/* ── more work ──────────────────────────────────────────────────────────── */
-.index { margin-top: 24px; list-style: none; border-top: 1px solid var(--line); }
-.index li { padding: 18px 0; border-bottom: 1px solid var(--line); }
-.index .top { display: flex; justify-content: space-between; gap: 12px; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--faint); }
-.index h3 { margin-top: 8px; font-weight: 400; font-size: 21px; letter-spacing: -.015em; color: #fff; }
-.index p { margin-top: 6px; font-size: 13.5px; line-height: 1.5; color: var(--mute); }
+/* ── more work: a short teaser ─────────────────────────────────────────── */
+.index { margin-top: 20px; list-style: none; border-top: 1px solid var(--line); }
+.index li { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.index b { font-weight: 400; font-size: 18px; color: #fff; }
+.index span { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); white-space: nowrap; }
+.more-link { display: inline-flex; gap: 10px; margin-top: 18px; color: #fff; text-decoration: none; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; border-bottom: 1px solid var(--o); padding-bottom: 4px; }
+.more-link::after { content: '→'; color: var(--o); letter-spacing: 0; }
 
 /* ── services (the gear-bags layout, without the bag) ──────────────────── */
 .stages { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 24px; border: 1px solid var(--line); }
@@ -134,7 +143,7 @@ section { scroll-margin-top: 64px; }
 @keyframes stage-in { from { opacity: 0; transform: translateY(8px); } }
 @media (prefers-reduced-motion: reduce) { .stage-panel > * { animation: none; } }
 
-/* ── rows that swipe sideways (testimonials, studio) — native scroll-snap ── */
+/* ── testimonials: a row that swipes sideways (native scroll-snap) ─────── */
 .row { display: flex; gap: 12px; margin: 24px calc(-1 * var(--g)) 0; padding: 0 var(--g) 4px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 var(--g);
   scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
 .row::-webkit-scrollbar { display: none; }
@@ -144,31 +153,129 @@ section { scroll-margin-top: 64px; }
 .quote blockquote { margin-top: 8px; font-size: 17px; line-height: 1.4; color: #fff; }
 .quote footer { margin-top: auto; padding-top: 18px; font-size: 12.5px; color: var(--mute); }
 .quote footer b { display: block; font-weight: 400; font-size: 14px; color: #fff; }
-.photo { margin: 0; }
-.photo img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; background: var(--card); }
-.photo figcaption { margin-top: 8px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--mute); }
 .hint { margin-top: 10px; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--faint); }
 
-/* ── footer ─────────────────────────────────────────────────────────────── */
-.foot { margin-top: 96px; padding: 56px var(--g) 28px; border-top: 1px solid var(--line);
-  background: linear-gradient(180deg, #000 0%, #000 45%, #160704 72%, #6e220e 92%, #a83214 100%); }
-.foot h2 { font-weight: 400; font-size: clamp(28px, 8vw, 36px); line-height: 1.12; letter-spacing: -.02em; color: #fff; }
-.foot form { display: grid; gap: 18px; margin-top: 28px; }
-.foot label span { display: block; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--mute); }
-.foot input, .foot textarea { width: 100%; margin-top: 6px; padding: 8px 0 10px; border: 0; border-bottom: 1px solid rgba(233,236,242,.3); border-radius: 0; background: none; color: #fff;
-  font: inherit; font-size: 16px; outline: none; }
-.foot textarea { min-height: 84px; resize: vertical; }
-.foot input:focus, .foot textarea:focus { border-color: var(--o); }
-.foot button { justify-self: start; padding: 14px 20px; border: 0; background: var(--o); color: #fff; font: inherit; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; }
-.foot .sent { min-height: 1.2em; font-size: 13px; color: #ffd2b8; }
-.links { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 48px; }
-.links p { font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--mute); }
-.links ul { margin-top: 12px; list-style: none; display: grid; gap: 10px; font-size: 17px; }
-.links a { text-decoration: none; color: #fff; }
-.word { margin-top: 56px; font-weight: 500; font-size: 27vw; line-height: .8; letter-spacing: -.03em; color: rgba(255,247,239,.92); }
-.legal { margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(255,230,210,.35); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
-  font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,240,228,.85); }
-.desk { color: rgba(255,240,228,.85); }
+/* ── Team Tibba: the polaroid stack, swiped through (as studio-polaroid-frames
+   on a phone): the top print follows the finger and a swipe throws it to
+   that side, from where it tucks back in under the pile ──────────────── */
+.studio { text-align: center; }
+.studio .lede { margin-left: auto; margin-right: auto; max-width: 32ch; }
+.pile { position: relative; height: 470px; margin: 8px calc(-1 * var(--g)) 0; overflow: hidden; }
+.ruck { position: absolute; left: 50%; top: 44%; height: 66%; transform: translate(-50%, -50%); filter: invert(1); opacity: .12; pointer-events: none; }
+.pol { position: absolute; left: 0; top: 0; width: var(--w, 230px); touch-action: pan-y; cursor: grab; will-change: transform; text-align: left; }
+.pol .card { position: relative; background: #151515; border: 1px solid rgba(255,255,255,.14); padding: 10px 10px 0; box-shadow: 0 10px 26px rgba(0,0,0,.36), 0 1px 2px rgba(0,0,0,.25); }
+.pol .k { display: flex; justify-content: space-between; gap: 8px; height: 20px; font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--faint); white-space: nowrap; }
+.pol .k b { color: var(--o); font-weight: 400; }
+.pol .ph { position: relative; aspect-ratio: 1; overflow: hidden; background: #121214; }
+.pol .ph img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; user-select: none; }
+.pol .note { height: 54px; display: flex; flex-direction: column; justify-content: center; padding: 0 2px; }
+.pol .note b { color: #fff; font-weight: 300; font-size: 19px; line-height: 1; letter-spacing: -.025em; white-space: nowrap; }
+.dots { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; gap: 6px; }
+.dots i { width: 5px; height: 5px; background: rgba(255,255,255,.25); transition: background .3s linear, transform .3s ease; }
+.dots i.on { background: var(--o); transform: scale(1.4); }
+
+/* ── the footer: Footer — dusk grid (footer-dusk-grid.html), as it was ─── */
+.dg .k { font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; }
+.dg canvas.fire { display: block; width: 100%; height: 100%; }
+.dg a { text-decoration: none; }
+.dg { --ln: rgba(233,236,242,.2); position: relative; isolation: isolate; overflow: hidden; display: grid;
+  grid-template-columns: minmax(0, 46%) minmax(0, 30%) minmax(0, 1fr); grid-template-rows: auto auto 22px minmax(140px, auto) auto;
+  border-top: 1px solid var(--ln);
+  /* orange at the foot to black at the top — the fire's own light */
+  background: radial-gradient(90% 40% at 30% 102%, rgba(255,110,50,.5), rgba(255,110,50,0) 70%),
+    linear-gradient(0deg, #FF4B1F 0%, #d93f19 10%, #a83214 22%, #6e220e 36%, #3a1309 52%, #160704 68%, #050201 84%, #000 100%); }
+.dg .grain { position: absolute; inset: -50%; z-index: 5; pointer-events: none; opacity: .18; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.4 -.2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: grain 1.2s steps(6) infinite; }
+@keyframes grain { 0% { transform: translate(0, 0); } 33% { transform: translate(-3%, 2%); } 66% { transform: translate(2%, -3%); } 100% { transform: translate(0, 0); } }
+.dg .k { color: rgba(233,236,242,.55); }
+.dg .cell { position: relative; min-width: 0; padding: clamp(22px, 3.2vw, 56px); }
+.dg a:hover { color: #ff8a3d; }
+
+/* the left half: the form, and the fire at its foot */
+.dg .talk { grid-column: 1; grid-row: 1 / 5; border-right: 1px solid var(--ln); display: flex; flex-direction: column; padding-bottom: 0; }
+.dg .talk { padding-top: clamp(22px, 2.6vw, 44px); }
+.dg .talk h2 { color: #fff; font-weight: 400; font-size: clamp(24px, 2.2vw, 38px); line-height: 1.15; letter-spacing: -.02em; }
+/* the form: a short sheet of labelled fields — numbered labels, hairline
+   underlines that turn orange on focus, the kind of project as chips,
+   and a solid button */
+.dg form { margin-top: clamp(18px, 2.6vh, 28px); display: grid; grid-template-columns: 1fr 1fr; gap: 18px 22px; width: min(100%, 600px); }
+.dg .fld { position: relative; display: grid; gap: 8px; min-width: 0; }
+.dg .fld.wide { grid-column: 1 / -1; }
+.dg .fld > span { display: flex; justify-content: space-between; font: 400 10px/1 ui-monospace, 'SFMono-Regular', Menlo, monospace; letter-spacing: .16em; text-transform: uppercase; color: rgba(233,236,242,.6); }
+.dg .fld > span b { font-weight: 400; color: #ff8a3d; }
+.dg input, .dg textarea { width: 100%; padding: 6px 0 10px; border: 0; border-bottom: 1px solid rgba(233,236,242,.32); background: none; color: #fff; outline: none; border-radius: 0;
+  font: 400 clamp(16px, 1.25vw, 19px)/1.35 'F37 Analog', system-ui, sans-serif; letter-spacing: -.005em; transition: border-color .25s linear; resize: none; }
+.dg textarea { height: 76px; }
+.dg input::placeholder, .dg textarea::placeholder { color: rgba(233,236,242,.32); }
+.dg .fld::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: #ff8a3d; transform: scaleX(0); transform-origin: left; transition: transform .45s cubic-bezier(.22,1,.36,1); }
+.dg .fld:focus-within::after { transform: scaleX(1); }
+.dg .fld:focus-within > span { color: #fff; }
+.dg .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.dg .chips label { position: relative; cursor: pointer; }
+.dg .chips input { position: absolute; opacity: 0; pointer-events: none; }
+.dg .chips span { display: inline-block; padding: 8px 12px; border: 1px solid rgba(233,236,242,.28); font-size: 13px; color: rgba(255,255,255,.82); transition: background .2s linear, border-color .2s linear, color .2s linear; }
+.dg .chips label:hover span { border-color: rgba(255,255,255,.6); }
+.dg .chips input:checked + span { background: #fff; color: #000; border-color: #fff; }
+.dg .chips input:focus-visible + span { outline: 1px solid #ff8a3d; outline-offset: 2px; }
+.dg .send { grid-column: 1 / -1; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.dg form button { display: inline-flex; align-items: center; gap: 14px; padding: 14px 20px; border: 0; background: #FF4B1F; color: #fff; cursor: pointer;
+  font: 400 12px/1 'F37 Analog', system-ui, sans-serif; letter-spacing: .16em; text-transform: uppercase; transition: background .2s linear, color .2s linear; }
+.dg form button i { position: relative; width: 22px; height: 1px; background: currentColor; transition: width .3s cubic-bezier(.22,1,.36,1); }
+.dg form button i::after { content: ''; position: absolute; right: 0; top: -3px; width: 7px; height: 7px; border: solid currentColor; border-width: 1px 1px 0 0; transform: rotate(45deg); }
+.dg form button:hover { background: #fff; color: #000; } .dg form button:hover i { width: 34px; }
+.dg form .note { font-size: 12.5px; color: rgba(233,236,242,.6); }
+.dg form .note a { color: #fff; border-bottom: 1px solid rgba(255,255,255,.4); }
+.dg form .sent { grid-column: 1 / -1; font-size: 13px; color: #ffd2b8; min-height: 1.2em; }
+@media (max-width: 520px) { .dg form { grid-template-columns: 1fr; } }
+.dg .camp { position: relative; flex: 1; min-height: 220px; margin: 8px calc(-1 * clamp(22px, 3.2vw, 56px)) 0; }
+.dg .camp canvas { position: absolute; inset: 0; }
+.dg .camp .k { position: absolute; left: clamp(22px, 3.2vw, 56px); top: 26px; z-index: 2; color: rgba(255,240,228,.75); }
+
+/* the right half */
+.dg .pages { grid-column: 2; grid-row: 1; border-right: 1px solid var(--ln); border-bottom: 1px solid var(--ln); }
+.dg .social { grid-column: 3; grid-row: 1; border-bottom: 1px solid var(--ln); }
+.dg ul { list-style: none; margin-top: 22px; display: grid; gap: 12px; font-size: clamp(17px, 1.3vw, 21px); color: #fff; }
+.dg .pages ul { grid-template-columns: 1fr 1fr; column-gap: 18px; }
+.dg .extra { grid-column: 2 / 4; grid-row: 2; border-bottom: 1px solid var(--ln); display: grid; grid-template-columns: 1fr 1fr 1.3fr; gap: clamp(18px, 2.4vw, 40px); align-content: start; }
+.dg .extra .t { margin-top: 14px; color: #fff; font-size: 15px; line-height: 1.5; }
+.dg .extra .now { margin-top: 12px; color: #fff; font-size: clamp(30px, 2.6vw, 44px); font-weight: 300; letter-spacing: -.03em; font-variant-numeric: tabular-nums; line-height: 1; }
+.dg .extra .now small { display: block; margin-top: 8px; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: rgba(233,236,242,.6); }
+.dg .extra blockquote { margin-top: 14px; color: #fff; font-size: clamp(16px, 1.2vw, 19px); line-height: 1.35; letter-spacing: -.01em; }
+.dg .extra cite { display: block; margin-top: 10px; font-style: normal; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: rgba(233,236,242,.6); }
+.dg .ruler { grid-column: 2 / 4; grid-row: 3; border-bottom: 1px solid var(--ln); background: repeating-linear-gradient(90deg, rgba(244,230,216,.4) 0 1px, transparent 1px 12px) 0 50% / 100% 9px no-repeat; }
+.dg .word { grid-column: 2 / 4; grid-row: 4; display: grid; place-items: center; padding-top: 18px; padding-bottom: 18px; }
+.dg .word svg { width: 100%; height: auto; max-height: 100%; overflow: visible; }
+.dg .word text { font: 500 220px 'F37 Analog', system-ui, sans-serif; letter-spacing: -.02em; fill: none; stroke: #fff7ef; stroke-width: 1.3; stroke-dasharray: 3000; stroke-dashoffset: 3000; }
+.dg .word.on text { animation: draw 3.2s cubic-bezier(.65,0,.35,1) forwards; }
+.dg .word.on text.fill { animation: draw 3.2s cubic-bezier(.65,0,.35,1) forwards, fillin 1.2s 2.6s ease forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes fillin { to { fill: rgba(255,247,239,.1); } }
+.dg .word .tk { stroke: rgba(255,247,239,.7); stroke-width: 1; }
+.dg .legal { grid-column: 1 / -1; grid-row: 5; display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; padding: 16px clamp(22px, 3.2vw, 56px); border-top: 1px solid rgba(255,230,210,.4);
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,240,228,.85); }
+.dg .legal > span:last-child { display: flex; gap: 22px; }
+
+@media (max-width: 1100px) {
+  .dg .extra { grid-template-columns: 1fr 1fr; } .dg .extra .q { grid-column: 1 / -1; }
+}
+@media (max-width: 860px) {
+  .dg { grid-template-columns: 1fr 1fr; grid-template-rows: none; }
+  .dg > * { grid-column: 1 / -1 !important; grid-row: auto !important; }
+  .dg .talk { border-right: 0; border-bottom: 1px solid var(--ln); }
+  .dg .camp { min-height: 76vw; }
+  .dg .pages { grid-column: 1 !important; } .dg .social { grid-column: 2 !important; border-right: 0; }
+  .dg .pages ul { grid-template-columns: 1fr; }
+  .dg .extra { grid-template-columns: 1fr 1fr; }
+  .dg .ruler { min-height: 28px; }
+  .dg .word { padding: 26px 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .dg .grain { animation: none; } .dg .word text { stroke-dashoffset: 0; animation: none !important; } }
+
+/* phones: the film grain stays, still — a moving full-footer overlay is
+   repainted every frame for nothing */
+.dg .grain { animation: none; }
+.dg { margin-top: 96px; }
 </style>
 <style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
 html[data-wb-dock] body { padding-right: 0 !important; }</style>
@@ -194,10 +301,10 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   </section>
 
   <div class="stats" aria-label="The studio in numbers">
-    <div><small><b>M—01</b> · Since 2013</small><strong>12+</strong><span>Years of experience</span></div>
-    <div><small><b>M—02</b> · Apps · web · SaaS</small><strong>30+</strong><span>Products shipped</span></div>
-    <div><small><b>M—03</b> · And counting</small><strong>08</strong><span>Unicorns serviced</span></div>
-    <div><small><b>M—04</b> · For our clients</small><strong>$400M</strong><span>Revenue unlocked</span></div>
+    <div><strong>12+</strong><span>Years of experience</span></div>
+    <div><strong>30+</strong><span>Products shipped</span></div>
+    <div><strong>08</strong><span>Unicorns serviced</span></div>
+    <div><strong>$400M</strong><span>Revenue unlocked for clients</span></div>
   </div>
 
   <section id="work" class="pad" aria-labelledby="work-h">
@@ -205,44 +312,36 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     <h2 class="h2" id="work-h">Four climbs, and what they were for</h2>
     <div class="cases">
       <article class="case" style="--c:#4DD9C0">
-        <div class="txt">
-          <p class="k"><b>Summit 01</b><i></i>Fintech · 2024 — now</p>
-          <h3>How we helped Groww <span class="hi">boost engagement</span> on their app</h3>
-          <p>A deep engagement with Groww to design and improve features that engage users on their consumer app, along with design support for other product initiatives.</p>
-          <a class="go" href="case-groww-v2.html">View case study</a>
-        </div>
-        <div class="slot" data-folder="groww" data-alt="Groww — the work"></div>
+        <p class="k"><b>Summit 01</b><i></i>Fintech · 2024 — now</p>
+        <h3>How we helped Groww <span class="hi">boost engagement</span> on their app</h3>
+        <p>A deep engagement with Groww to design and improve features that engage users on their consumer app, along with design support for other product initiatives.</p>
+        <a class="rv" href="case-groww-v2.html" data-rive="groww" aria-label="Groww — the work"><span class="slot" data-folder="groww" data-alt="Groww — the work"></span></a>
         <dl><div><dt>3</dt><dd>Launches — the feed, Stories and the XIRR calculator</dd></div><div><dt>1</dt><dd>Year embedded with the growth team</dd></div></dl>
+        <a class="go" href="case-groww-v2.html">View case study</a>
       </article>
       <article class="case" style="--c:#E05555">
-        <div class="txt">
-          <p class="k"><b>Summit 02</b><i></i>News &amp; media · 2023</p>
-          <h3>How we helped Firstpost <span class="hi">2x their traffic</span> through a strategic redesign</h3>
-          <p>A design overhaul of Firstpost’s website and the creation of their first mobile app, with a significant pivot for their business and content strategy.</p>
-          <a class="go" href="case-firstpost-v2.html">View case study</a>
-        </div>
-        <div class="slot" data-folder="firstpost" data-alt="Firstpost — the work"></div>
+        <p class="k"><b>Summit 02</b><i></i>News &amp; media · 2023</p>
+        <h3>How we helped Firstpost <span class="hi">2x their traffic</span> through a strategic redesign</h3>
+        <p>A design overhaul of Firstpost’s website and the creation of their first mobile app, with a significant pivot for their business and content strategy.</p>
+        <a class="rv" href="case-firstpost-v2.html" data-rive="firstpost" aria-label="Firstpost — the work"><span class="slot" data-folder="firstpost" data-alt="Firstpost — the work"></span></a>
         <dl><div><dt>2x</dt><dd>Website traffic</dd></div><div><dt>30%</dt><dd>Increase in average session duration</dd></div></dl>
+        <a class="go" href="case-firstpost-v2.html">View case study</a>
       </article>
       <article class="case" style="--c:#4CAF70">
-        <div class="txt">
-          <p class="k"><b>Summit 03</b><i></i>SaaS · 2023</p>
-          <h3>How we helped Breathe ESG <span class="hi">accelerate sales</span>, streamline releases and elevate customer experience</h3>
-          <p>An MVP to v1 redesign of Breathe ESG’s SaaS platform, to make it easier for companies to track their ESG metrics and regulatory compliance.</p>
-          <a class="go" href="case-breathe-esg-v2.html">View case study</a>
-        </div>
-        <div class="slot" data-folder="breathe-esg" data-alt="Breathe ESG — the work"></div>
+        <p class="k"><b>Summit 03</b><i></i>SaaS · 2023</p>
+        <h3>How we helped Breathe ESG <span class="hi">accelerate sales</span>, streamline releases and elevate customer experience</h3>
+        <p>An MVP to v1 redesign of Breathe ESG’s SaaS platform, to make it easier for companies to track their ESG metrics and regulatory compliance.</p>
+        <a class="rv" href="case-breathe-esg-v2.html" data-rive="breathe-esg" aria-label="Breathe ESG — the work"><span class="slot" data-folder="breathe-esg" data-alt="Breathe ESG — the work"></span></a>
         <dl><div><dt>8</dt><dd>Weeks of design sprints, brief to platform</dd></div><div><dt>1000</dt><dd>Listed companies now required to report ESG</dd></div></dl>
+        <a class="go" href="case-breathe-esg-v2.html">View case study</a>
       </article>
       <article class="case" style="--c:#7B8FF5">
-        <div class="txt">
-          <p class="k"><b>Summit 04</b><i></i>Health · 2023</p>
-          <h3>How we helped Shyft &amp; Mindhouse <span class="hi">grow their business</span> and supercharge product led growth</h3>
-          <p>Conceptualising and designing a therapy experience, alongside redesigning their websites and apps to impact revenue.</p>
-          <a class="go" href="case-shyft-mindhouse-v2.html">View case study</a>
-        </div>
-        <div class="slot" data-folder="shyft-mindhouse" data-alt="Shyft &amp; Mindhouse — the work"></div>
+        <p class="k"><b>Summit 04</b><i></i>Health · 2023</p>
+        <h3>How we helped Shyft &amp; Mindhouse <span class="hi">grow their business</span> and supercharge product led growth</h3>
+        <p>Conceptualising and designing a therapy experience, alongside redesigning their websites and apps to impact revenue.</p>
+        <a class="rv" href="case-shyft-mindhouse-v2.html" data-rive="shyft-mindhouse" aria-label="Shyft &amp; Mindhouse — the work"><span class="slot" data-folder="shyft-mindhouse" data-alt="Shyft &amp; Mindhouse — the work"></span></a>
         <dl><div><dt>70%</dt><dd>Decrease in sales team intervention</dd></div><div><dt>15x</dt><dd>Increase in direct purchases via the landing page</dd></div></dl>
+        <a class="go" href="case-shyft-mindhouse-v2.html">View case study</a>
       </article>
     </div>
   </section>
@@ -251,35 +350,24 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     <p class="eyebrow">[ Brands ]</p>
     <h2 class="h2" id="brands-h">We’ve worked with start-ups and market leaders</h2>
     <p class="lede">Over the past decade we’ve helped companies deliver food, perform services, insure health, provide financial services, publish news and sell products.</p>
-    <ul class="logos">
-      <li><img src="assets/logos/groww.svg" alt="Groww" loading="lazy"></li>
-      <li><img src="assets/logos/paytm.svg" alt="Paytm" loading="lazy"></li>
-      <li><img src="assets/logos/zomato.svg" alt="Zomato" loading="lazy"></li>
-      <li><img src="assets/logos/firstpost.svg" alt="Firstpost" loading="lazy"></li>
-      <li><img src="assets/logos/urban-company.svg" alt="Urban Company" loading="lazy"></li>
-      <li><img src="assets/logos/hdfc-bank.svg" alt="HDFC Bank" loading="lazy" style="filter:brightness(1.5)"></li>
-      <li><img src="assets/logos/the-indian-express.svg" alt="The Indian Express" loading="lazy"></li>
-      <li><img src="assets/logos/the-times-of-india.svg" alt="The Times of India" loading="lazy"></li>
-      <li><img src="assets/logos/policybazaar.svg" alt="Policybazaar" loading="lazy" style="filter:brightness(2.6)"></li>
-      <li><img src="assets/logos/breatheesg.svg" alt="Breathe ESG" loading="lazy"></li>
-      <li><img src="assets/logos/shyft.svg" alt="Shyft" loading="lazy"></li>
-      <li><img src="assets/logos/apnaklub.svg" alt="Apnaklub" loading="lazy"></li>
-      <li><img src="assets/logos/simsim.svg" alt="simsim" loading="lazy"></li>
-      <li><img src="assets/logos/bombay-shirt-company.svg" alt="Bombay Shirt Company" loading="lazy"></li>
-    </ul>
+    <div class="marquee" id="marquee" aria-label="Brands we have worked with">
+      <div class="mrow" style="--d:44s"><span><img src="assets/logos/groww.svg" alt="Groww" loading="lazy"></span><span><img src="assets/logos/paytm.svg" alt="Paytm" loading="lazy"></span><span><img src="assets/logos/zomato.svg" alt="Zomato" loading="lazy"></span><span><img src="assets/logos/firstpost.svg" alt="Firstpost" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/groww.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/paytm.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/zomato.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/firstpost.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/groww.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/paytm.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/zomato.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/firstpost.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/groww.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/paytm.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/zomato.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/firstpost.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/groww.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/paytm.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/zomato.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/firstpost.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/groww.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/paytm.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/zomato.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/firstpost.svg" alt="" loading="lazy"></span></div>
+      <div class="mrow rev" style="--d:52s"><span><img src="assets/logos/urban-company.svg" alt="Urban Company" loading="lazy"></span><span><img src="assets/logos/hdfc-bank.svg" alt="HDFC Bank" loading="lazy" style="filter:brightness(1.5)"></span><span><img src="assets/logos/the-indian-express.svg" alt="The Indian Express" loading="lazy"></span><span><img src="assets/logos/the-times-of-india.svg" alt="The Times of India" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/urban-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/hdfc-bank.svg" alt="" loading="lazy" style="filter:brightness(1.5)"></span><span aria-hidden="true"><img src="assets/logos/the-indian-express.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/the-times-of-india.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/urban-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/hdfc-bank.svg" alt="" loading="lazy" style="filter:brightness(1.5)"></span><span aria-hidden="true"><img src="assets/logos/the-indian-express.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/the-times-of-india.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/urban-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/hdfc-bank.svg" alt="" loading="lazy" style="filter:brightness(1.5)"></span><span aria-hidden="true"><img src="assets/logos/the-indian-express.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/the-times-of-india.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/urban-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/hdfc-bank.svg" alt="" loading="lazy" style="filter:brightness(1.5)"></span><span aria-hidden="true"><img src="assets/logos/the-indian-express.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/the-times-of-india.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/urban-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/hdfc-bank.svg" alt="" loading="lazy" style="filter:brightness(1.5)"></span><span aria-hidden="true"><img src="assets/logos/the-indian-express.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/the-times-of-india.svg" alt="" loading="lazy"></span></div>
+      <div class="mrow" style="--d:48s"><span><img src="assets/logos/policybazaar.svg" alt="Policybazaar" loading="lazy" style="filter:brightness(2.6)"></span><span><img src="assets/logos/breatheesg.svg" alt="Breathe ESG" loading="lazy"></span><span><img src="assets/logos/shyft.svg" alt="Shyft" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/policybazaar.svg" alt="" loading="lazy" style="filter:brightness(2.6)"></span><span aria-hidden="true"><img src="assets/logos/breatheesg.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/shyft.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/policybazaar.svg" alt="" loading="lazy" style="filter:brightness(2.6)"></span><span aria-hidden="true"><img src="assets/logos/breatheesg.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/shyft.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/policybazaar.svg" alt="" loading="lazy" style="filter:brightness(2.6)"></span><span aria-hidden="true"><img src="assets/logos/breatheesg.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/shyft.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/policybazaar.svg" alt="" loading="lazy" style="filter:brightness(2.6)"></span><span aria-hidden="true"><img src="assets/logos/breatheesg.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/shyft.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/policybazaar.svg" alt="" loading="lazy" style="filter:brightness(2.6)"></span><span aria-hidden="true"><img src="assets/logos/breatheesg.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/shyft.svg" alt="" loading="lazy"></span></div>
+      <div class="mrow rev" style="--d:56s"><span><img src="assets/logos/apnaklub.svg" alt="Apnaklub" loading="lazy"></span><span><img src="assets/logos/simsim.svg" alt="simsim" loading="lazy"></span><span><img src="assets/logos/bombay-shirt-company.svg" alt="Bombay Shirt Company" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/apnaklub.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/simsim.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/bombay-shirt-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/apnaklub.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/simsim.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/bombay-shirt-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/apnaklub.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/simsim.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/bombay-shirt-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/apnaklub.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/simsim.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/bombay-shirt-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/apnaklub.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/simsim.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/bombay-shirt-company.svg" alt="" loading="lazy"></span></div>
+    </div>
   </section>
 
   <section class="pad" aria-labelledby="more-h">
     <p class="eyebrow">[ More work ]</p>
-    <h2 class="h2" id="more-h">Every other climb</h2>
+    <h2 class="h2" id="more-h">More climbs</h2>
     <ol class="index">
-      <li><p class="top"><span>Commerce</span><span>2022</span></p><h3>Apnaklub</h3><p>Research into users and market, and an app designed to reach product–market fit.</p></li>
-      <li><p class="top"><span>News &amp; media</span><span>2021</span></p><h3>The Indian Express</h3><p>A brand new mobile app for the flagship product, and a monetisation strategy to go with it.</p></li>
-      <li><p class="top"><span>Fintech</span><span>2022</span></p><h3>Zeta’s Cipher Docs</h3><p>A documentation portal rebuilt from scratch, tested with the developers who use it.</p></li>
-      <li><p class="top"><span>Services</span><span>2016</span></p><h3>Urban Company</h3><p>The first market versions of the apps, and research brought into the design workflow.</p></li>
-      <li><p class="top"><span>Foodtech</span><span>2015</span></p><h3>Zomato</h3><p>The first version of Zomato’s food delivery app, and more products besides.</p></li>
-      <li><p class="top"><span>Fintech</span><span>2019</span></p><h3>HDFC’s Smart Buy</h3><p>Layouts designed and tested for the bank’s rewards platform.</p></li>
+      <li><b>Zomato</b><span>Foodtech · 2015</span></li>
+      <li><b>Urban Company</b><span>Services · 2016</span></li>
+      <li><b>The Indian Express</b><span>News · 2021</span></li>
+      <li><b>Apnaklub</b><span>Commerce · 2022</span></li>
     </ol>
+    <a class="more-link" href="work-index.html">All the work</a>
   </section>
 
   <section id="services" class="pad" aria-labelledby="svc-h">
@@ -307,36 +395,46 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     <p class="hint">Swipe →</p>
   </section>
 
-  <section class="pad" aria-labelledby="studio-h">
+  <section class="pad studio" id="studio" aria-labelledby="studio-h">
     <p class="eyebrow">[ Our studio ]</p>
     <h2 class="h2" id="studio-h">Team Tibba</h2>
     <p class="lede">A lean design team based out of India, and the places we go to think.</p>
-    <div class="row">
-      <figure class="photo"><img src="assets/studio/team-01-ridge.webp" alt="The team on a ridge" loading="lazy" decoding="async"><figcaption>On the ridge</figcaption></figure>
-      <figure class="photo"><img src="assets/studio/team-02-review.webp" alt="A design review" loading="lazy" decoding="async"><figcaption>Crit hour</figcaption></figure>
-      <figure class="photo"><img src="assets/studio/team-03-talk.webp" alt="Speaking at VizChitra" loading="lazy" decoding="async"><figcaption>Speaking at VizChitra</figcaption></figure>
-      <figure class="photo"><img src="assets/studio/team-04-desk.webp" alt="At the studio" loading="lazy" decoding="async"><figcaption>Home base</figcaption></figure>
-      <figure class="photo"><img src="assets/studio/team-05-cheers.webp" alt="After a launch" loading="lazy" decoding="async"><figcaption>After the launch</figcaption></figure>
+    <div class="pile" id="pile">
+      <img class="ruck" src="assets/studio/rucksack.webp" alt="" aria-hidden="true">
+      <div class="dots" id="dots" aria-hidden="true"></div>
     </div>
-    <p class="hint">Swipe →</p>
+    <p class="hint">Swipe the photos</p>
   </section>
 </main>
 
-<footer class="foot" id="footer">
-  <h2>Let’s get to know<br>you and your idea!</h2>
-  <form id="talk" action="mailto:hello@tibba.design" method="post" enctype="text/plain">
-    <label><span>01 · Your name</span><input type="text" name="name" autocomplete="name" required></label>
-    <label><span>02 · Email</span><input type="email" name="email" autocomplete="email" required></label>
-    <label><span>03 · Tell us about the climb</span><textarea name="idea" maxlength="500"></textarea></label>
-    <button type="submit">Send it up the mountain</button>
-    <p class="sent" aria-live="polite"></p>
-  </form>
-  <div class="links">
-    <div><p>Pages</p><ul><li><a href="#work">Work</a></li><li><a href="#services">Services</a></li><li><a href="about.html">About</a></li><li><a href="mailto:hello@tibba.design">Email</a></li></ul></div>
-    <div><p>Social</p><ul><li><a href="https://www.instagram.com/tibba.design/">Instagram</a></li><li><a href="https://www.linkedin.com/company/tibba-design-studio/">LinkedIn</a></li><li><a href="https://medium.com/@tibbadesignstudio">Medium</a></li></ul></div>
-  </div>
-  <p class="word" aria-hidden="true">TIBBA</p>
-  <p class="legal"><span>© <span id="yr">2026</span> Tibba Design Studio</span><a class="desk" href="website-v3.html?desktop">Desktop site</a></p>
+<footer class="foot dg" id="footer" aria-label="Footer">
+  <i class="grain" aria-hidden="true"></i>
+  <section class="cell talk" aria-labelledby="talk-h">
+    <h2 id="talk-h">Let’s get to know<br>you and your idea!</h2>
+    <form id="talk">
+      <label class="fld"><span>01 · Your name</span><input type="text" name="name" placeholder="Jane Doe" autocomplete="name" required></label>
+      <label class="fld"><span>02 · Email</span><input type="email" name="email" placeholder="jane@company.com" autocomplete="email" required></label>
+      <label class="fld wide"><span>03 · Tell us about the climb <b id="cc">0 / 500</b></span><textarea name="idea" maxlength="500" placeholder="The product, the stage, where you want to get to"></textarea></label>
+      <div class="send"><button type="submit">Send it up the mountain<i></i></button><p class="note">or write to <a href="mailto:hello@tibba.design">hello@tibba.design</a></p></div>
+      <p class="sent" aria-live="polite"></p>
+    </form>
+    <div class="camp"><canvas class="fire" aria-hidden="true"></canvas><p class="k">Base camp · the fire’s lit</p></div>
+  </section>
+  <nav class="cell pages" aria-label="Pages"><p class="k">Pages</p>
+    <ul><li><a href="#work">Work</a></li><li><a href="#services">Services</a></li><li><a href="about.html">About</a></li><li><a href="#studio">Studio</a></li><li><a href="work-index.html">More work</a></li><li><a href="website-v3.html?desktop">Desktop site</a></li></ul></nav>
+  <nav class="cell social" aria-label="Social"><p class="k">Social</p>
+    <ul><li><a href="https://www.instagram.com/tibba.design/">Instagram</a></li><li><a href="https://www.linkedin.com/company/tibba-design-studio/">LinkedIn</a></li>
+        <li><a href="https://medium.com/@tibbadesignstudio">Medium</a></li><li><a href="mailto:hello@tibba.design">Email</a></li></ul></nav>
+  <section class="cell extra" aria-label="The studio">
+    <div><p class="k">Base</p><p class="t">Tibba Design Studio<br>India — and remote</p><p class="t"><a href="mailto:hello@tibba.design">hello@tibba.design</a></p></div>
+    <div><p class="k">At the studio</p><p class="now"><span id="now">--:--</span><small id="today"></small></p></div>
+    <div class="q"><p class="k">From a client</p><blockquote>“The website captures the essence of our brand and resonates with our audience.”</blockquote><cite>Milan Sachdeva · Firstpost</cite></div>
+  </section>
+  <i class="ruler" aria-hidden="true"></i>
+  <section class="word" id="word" aria-label="Tibba">
+    <svg viewBox="0 0 1000 240" aria-hidden="true"><text class="fill" x="500" y="200" text-anchor="middle" textLength="900" lengthAdjust="spacingAndGlyphs">TIBBA</text><g id="ticks"></g></svg>
+  </section>
+  <p class="legal"><span>© <span class="yr"></span> Tibba Design Studio. All rights reserved.</span><span><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Cookies</a></span></p>
 </footer>
 
 <script>
@@ -346,7 +444,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     s.outerHTML = TibbaWork.img(s.dataset.folder, 'cover', s.dataset.alt, '16 / 10');
   });
   document.querySelectorAll('.case .wk-img').forEach(el => el.style.setProperty('--c', el.closest('.case').style.getPropertyValue('--c')));
-  document.getElementById('yr').textContent = new Date().getFullYear();
+  document.querySelectorAll('.yr').forEach(e => { e.textContent = new Date().getFullYear(); });
 
   /* services: the three stages, as services-gear-bags-v2.html has them —
      the outcome, what we bring (four, with their icons) and the engagement */
@@ -381,6 +479,8 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     pick(0);
   });
   /* the form opens the visitor's mail app with the message filled in */
+  const idea = document.querySelector('#talk textarea'), cc = document.getElementById('cc');
+  if (idea && cc) idea.addEventListener('input', () => { cc.textContent = idea.value.length + ' / 500'; });
   document.getElementById('talk').addEventListener('submit', e => {
     e.preventDefault();
     const f = e.target, body = `${f.idea.value}\n\n— ${f.name.value} (${f.email.value})`;
@@ -401,6 +501,140 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     const still = matchMedia('(prefers-reduced-motion: reduce)').matches || (navigator.connection && navigator.connection.saveData);
     if (still) { v.removeAttribute('autoplay'); v.preload = 'none'; v.pause(); }
   })();
+</script>
+<script>
+  /* ── summits: each card's Rive animation (assets/rive/<client>.riv) ──────
+     loaded as its card comes near, played only while it is on screen */
+  addEventListener('DOMContentLoaded', () => {
+    const slots = [...document.querySelectorAll('.case .rv')], players = new Map();
+    const near = new IntersectionObserver(es => es.forEach(e => {
+      if (!e.isIntersecting || players.has(e.target) || !window.TibbaRive) return;
+      players.set(e.target, window.TibbaRive.mount(e.target, { names: [e.target.dataset.rive], autoplay: false }));
+      near.unobserve(e.target);
+    }), { rootMargin: '60% 0px' });
+    const seen = new IntersectionObserver(es => es.forEach(e => {
+      const r = players.get(e.target); if (!r) return;
+      e.isIntersecting ? r.play() : r.pause();
+    }), { threshold: .25 });
+    slots.forEach(el => { near.observe(el); seen.observe(el); });
+
+    /* ── brands: the rows drift only while the section is on screen ────── */
+    const mq = document.getElementById('marquee');
+    new IntersectionObserver(([e]) => mq.classList.toggle('run', e.isIntersecting)).observe(mq);
+  });
+
+  /* ── Team Tibba: the polaroid stack (studio-polaroid-frames on a phone) ──
+     The top print follows the finger, turning with the drag; past the
+     threshold, or on a flick, it is thrown to that side and tucks back in
+     at the bottom of the pile. Every print rides its own spring to its
+     place, so a swipe is one continuous move. The loop runs only while
+     something is moving. */
+  (function () {
+    const pile = document.getElementById('pile'), dotsEl = document.getElementById('dots');
+    const PICS = ['team-01-ridge.webp', 'team-02-review.webp', 'team-03-talk.webp', 'team-04-desk.webp', 'team-05-cheers.webp', 'team-06-placeholder.svg'];
+    const TITLES = ['On the ridge', 'Crit hour', 'Speaking at VizChitra', 'Home base', 'After the launch', 'Next climb'];
+    const KINDS = ['Off-site', 'Studio', 'On stage', 'Base camp', 'After', 'Soon'];
+    const K = { spring: 170, damping: 22, threshold: .26 };
+    const els = PICS.map((f, i) => {
+      const el = document.createElement('figure'); el.className = 'pol'; el.dataset.i = i;
+      el.innerHTML = `<div class="card"><p class="k"><b>S—0${i + 1}</b><span>${KINDS[i]}</span></p>
+        <div class="ph"><img src="assets/studio/${f}" alt="${TITLES[i]}" draggable="false" loading="lazy" decoding="async"></div>
+        <figcaption class="note"><b>${TITLES[i]}</b></figcaption></div>`;
+      pile.insertBefore(el, dotsEl); return el;
+    });
+    dotsEl.innerHTML = PICS.map(() => '<i></i>').join('');
+    let order = PICS.map((_, i) => i), raf = 0, last = 0;
+    const S = PICS.map(() => ({ x: 0, y: 0, r: 0, s: 1, vx: 0, vy: 0, vr: 0, vs: 0, hold: null, fly: 0, side: 0 }));
+    const jit = (i, k) => { const v = Math.sin(i * 127.1 + k * 311.7) * 43758.5453; return (v - Math.floor(v)) * 2 - 1; };
+    const width = () => Math.round(Math.min(pile.clientWidth * .62, 280));
+    function slot(i, d) {
+      const W = pile.clientWidth, H = pile.clientHeight, w = els[i].offsetWidth || width(), h = els[i].offsetHeight || w * 1.45, D = Math.min(d, 6);
+      return { x: W / 2 - w / 2 + (d ? jit(i, 1) * 16 : jit(i, 1) * 3), y: Math.min(H * .5, H - h / 2 - 40) - h / 2 + D * 7 + (d ? jit(i, 2) * 6 : 0),
+               r: d ? jit(i, 3) * 9 : jit(i, 3) * 2.5, s: 1 - D * .028 };
+    }
+    function step(now) {
+      raf = 0;
+      const dt = Math.min(1 / 30, (now - (last || now)) / 1000); last = now;
+      let moving = false;
+      order.forEach((i, d) => {
+        const st = S[i], el = els[i];
+        let T = slot(i, d);
+        if (st.hold) T = st.hold;
+        else if (st.fly) T = { x: T.x + st.side * pile.clientWidth * .62, y: T.y - 24, r: st.side * 22, s: 1 };
+        const k = st.hold ? 900 : K.spring, dm = st.hold ? 60 : K.damping;
+        for (let n = 0; n < 3; n++) {
+          const h = dt / 3;
+          st.vx += (k * (T.x - st.x) - dm * st.vx) * h; st.x += st.vx * h;
+          st.vy += (k * (T.y - st.y) - dm * st.vy) * h; st.y += st.vy * h;
+          st.vr += (k * (T.r - st.r) - dm * st.vr) * h; st.r += st.vr * h;
+          st.vs += (k * (T.s - st.s) - dm * st.vs) * h; st.s += st.vs * h;
+        }
+        if (st.fly && Math.abs(st.x - T.x) < pile.clientWidth * .18) { st.fly = 0; order = order.filter(q => q !== i).concat(i); }
+        el.style.zIndex = st.fly ? 200 : 100 - order.indexOf(i);
+        el.style.transform = `translate3d(${st.x.toFixed(1)}px, ${st.y.toFixed(1)}px, 0) rotate(${st.r.toFixed(2)}deg) scale(${st.s.toFixed(4)})`;
+        el.style.visibility = d < 7 || st.fly ? '' : 'hidden';
+        if (Math.abs(T.x - st.x) + Math.abs(T.y - st.y) + Math.abs(st.vx) + Math.abs(st.vy) + Math.abs(T.r - st.r) > .05 || st.hold || st.fly) moving = true;
+      });
+      [...dotsEl.children].forEach((dot, k) => dot.classList.toggle('on', k === order[0]));
+      if (moving) raf = requestAnimationFrame(step);
+    }
+    const kick = () => { if (!raf) { last = performance.now(); raf = requestAnimationFrame(step); } };
+    function layout() { els.forEach(el => { el.style.width = width() + 'px'; }); }
+    layout();
+    /* dealt in from below, the first time the pile is seen */
+    order.forEach((i, d) => { const T = slot(i, d); Object.assign(S[i], { x: T.x + jit(i, 5) * 40, y: pile.clientHeight + 80 + d * 40, r: jit(i, 6) * 30 }); });
+    els.forEach(el => { el.style.transform = `translate3d(0, ${pile.clientHeight + 200}px, 0)`; });
+    new IntersectionObserver(([e], io) => { if (e.isIntersecting) { io.disconnect(); kick(); } }, { threshold: .25 }).observe(pile);
+    /* the swipe, on whichever print is on top */
+    let sw = null;
+    pile.addEventListener('pointerdown', e => {
+      const el = e.target.closest('.pol'); if (!el || +el.dataset.i !== order[0]) return;
+      const i = order[0], base = slot(i, 0);
+      sw = { i, id: e.pointerId, x0: e.clientX, y0: e.clientY, base, t: performance.now(), lx: e.clientX, vx: 0 };
+      el.setPointerCapture(e.pointerId); S[i].hold = { ...base }; kick();
+    });
+    pile.addEventListener('pointermove', e => {
+      if (!sw || e.pointerId !== sw.id) return;
+      const dx = e.clientX - sw.x0, dy = e.clientY - sw.y0, now = performance.now();
+      sw.vx = sw.vx * .6 + ((e.clientX - sw.lx) / Math.max(1, now - sw.t)) * .4; sw.lx = e.clientX; sw.t = now;
+      S[sw.i].hold = { x: sw.base.x + dx, y: sw.base.y + dy * .35, r: sw.base.r + dx * .07, s: 1.02 }; kick();
+    });
+    const release = e => {
+      if (!sw || e.pointerId !== sw.id) return;
+      const st = S[sw.i], dx = e.clientX - sw.x0, w = els[sw.i].offsetWidth;
+      st.hold = null;
+      if (e.type === 'pointerup' && (Math.abs(dx) > w * K.threshold || Math.abs(sw.vx) > .55)) { st.side = Math.sign(dx || sw.vx); st.fly = 1; }
+      sw = null; kick();
+    };
+    pile.addEventListener('pointerup', release); pile.addEventListener('pointercancel', release);
+    addEventListener('resize', () => { layout(); kick(); });
+  })();
+</script>
+<script type="module">
+  /* ── the footer (as footer-dusk-grid.html): the fire, stoked by a tap;
+     the studio's time; TIBBA drawn as a blueprint, once ─────────────────── */
+  import { fire } from './assets/footer-kit.js';
+  const $ = s => document.querySelector(s);
+  const FIRE = { mode: 'dither', palette: 'warm', cell: 5, dot: .86, contrast: 1.25, flame: 1.05, embers: 1.2, speed: .9, scale: 1.05, wood: .75 };
+  const f = fire($('.camp canvas'), { ...FIRE, x: .5, y: .74, blowOut: false, hand: false });
+  /* a tap stokes it for a moment — the loop runs only while it settles */
+  let stoke = 0, target = 0, last = 0, raf = 0, laid = FIRE.scale;
+  function loop(now) {
+    raf = 0;
+    const dt = Math.min(.05, (now - (last || now)) / 1000); last = now;
+    stoke += (target - stoke) * (1 - Math.exp(-dt * (target > stoke ? 5 : 2.4)));
+    f.K.flame = FIRE.flame * (1 + .45 * stoke); f.K.embers = FIRE.embers * (1 + 1.2 * stoke);
+    f.K.speed = FIRE.speed * (1 + .5 * stoke); f.K.scale = FIRE.scale * (1 + .12 * stoke); f.K.contrast = FIRE.contrast * (1 + .12 * stoke);
+    if (Math.abs(f.K.scale - laid) > .003) { laid = f.K.scale; f.relayout(); }
+    if (Math.abs(target - stoke) > .002) raf = requestAnimationFrame(loop); else last = 0;
+  }
+  $('.camp').addEventListener('pointerdown', () => { target = 1; if (!raf) raf = requestAnimationFrame(loop); setTimeout(() => { target = 0; if (!raf) raf = requestAnimationFrame(loop); }, 1600); });
+  const T = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: false }),
+        D = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', weekday: 'short', day: 'numeric', month: 'short' });
+  const tick = () => { const n = new Date(); $('#now').textContent = T.format(n); $('#today').textContent = D.format(n) + ' · IST'; }; tick(); setInterval(tick, 30000);
+  let t = ''; [40, 120, 200].forEach(y => { for (let x = 60; x <= 940; x += 88) t += `<path class="tk" d="M${x - 5} ${y}H${x + 5}M${x} ${y - 5}V${y + 5}"/>`; });
+  $('#ticks').innerHTML = t;
+  new IntersectionObserver(([e], io) => { if (e.isIntersecting) { io.disconnect(); $('#word').classList.add('on'); } }, { threshold: .3 }).observe($('#word'));
 </script>
 <!-- primary / secondary typography control (assets/type-control.js) -->
 <script type="module" src="assets/type-control.js"></script>
