@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  /* phones get Website v3 as one ordinary page (website-v3-mobile.html):
+     the framed sections below cannot scroll natively on a phone. ?desktop
+     keeps this version. Runs first, before anything else loads. */
+  if (matchMedia('(max-width: 760px)').matches && !/[?&]desktop\b/.test(location.search))
+    location.replace('website-v3-mobile.html' + location.hash);
+</script>
 <!-- the hero's three.js and GSAP come from these: open the connections early -->
 <link rel="preconnect" href="https://unpkg.com" crossorigin>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>

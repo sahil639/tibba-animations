@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- sandbox: a frozen copy of Website v3, made 2026-10-23T12:54:06.108Z by tools/make-sandbox.mjs -->
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Tibba Design Studio — product design for ambitious teams</title>
+<meta name="description" content="Tibba Design Studio partners with founders and design leaders to turn ambitious ideas into shipped, high-impact products — Groww, Firstpost, Breathe ESG, Shyft & Mindhouse and more.">
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/ca-nav.css">
+<link rel="stylesheet" href="assets/site-shell.css">
+<link rel="stylesheet" href="assets/work.css">
+<script src="assets/work.js"></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Website v3 — on a phone
+   ─────────────────────────────────────────────────────────────────────────
+   One ordinary page. Website v3 on a desktop is a stack of section pages in
+   frames, moved by script as the page scrolls; on a phone that can never
+   feel native — a fling moves the page on its own thread while the frames
+   catch up late, so content freezes, jumps and doubles at the edges. So a
+   phone visiting website-v3.html is sent here (?desktop keeps the frames):
+   the same sections and copy, in one document, scrolled by the phone itself.
+
+     no WebGL, no frames, no scroll handlers, no scroll-driven animation
+     the hero's mountain is drawn ONCE, as lines, on a 2D canvas, from the
+     same landform generator the 3D site uses (assets/landform.js)
+     everything else is HTML and CSS; the few scripts are small and deferred
+
+   The copy is the sections' own (site-hero, summits-data, brand-logos,
+   work.js, services-gear-bags-v2, testimonials-topo, studio-polaroid-frames,
+   footer-dusk-grid); change it there and here.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body { margin: 0; background: #000; color: #E9ECF2; font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+img { display: block; max-width: 100%; }
+a { color: inherit; }
+p, h1, h2, h3, ul, ol, dl, dd, figure, blockquote { margin: 0; padding: 0; }
+:root { --g: 18px; --o: #FF4B1F; --mute: rgba(233,236,242,.6); --faint: rgba(233,236,242,.4); --line: rgba(233,236,242,.12); --card: #121110; }
+section { scroll-margin-top: 64px; }
+.eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--o); }
+.h2 { margin-top: 12px; font-weight: 400; font-size: clamp(28px, 8vw, 38px); line-height: 1.08; letter-spacing: -.025em; color: #fff; }
+.lede { margin-top: 12px; font-size: 15px; line-height: 1.5; color: var(--mute); }
+.pad { padding: 72px var(--g) 0; }
+
+/* ── hero ───────────────────────────────────────────────────────────────── */
+.hero { position: relative; min-height: 100svh; min-height: 100vh; display: flex; flex-direction: column; padding: 96px var(--g) 28px; overflow: hidden; }
+@supports (height: 1svh) { .hero { min-height: 100svh; } }
+.hero h1 { position: relative; z-index: 1; font-weight: 300; font-size: clamp(52px, 17vw, 84px); line-height: .9; letter-spacing: -.04em; text-transform: uppercase; color: #fff; }
+.hero h1 em { font-style: normal; color: var(--o); }
+.hero canvas { position: absolute; left: 0; right: 0; top: 28%; width: 100%; height: 52%; }
+.hero-foot { position: relative; z-index: 1; margin-top: auto; }
+.hero-foot p:first-child { font-size: 19px; line-height: 1.3; color: #fff; }
+.hero-foot p + p { margin-top: 10px; font-size: 14px; line-height: 1.5; color: var(--mute); }
+
+/* ── stats ──────────────────────────────────────────────────────────────── */
+.stats { display: grid; grid-template-columns: 1fr 1fr; margin: 8px var(--g) 0; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.stats div { padding: 16px 14px 18px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.stats small { display: block; font-size: 9.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--faint); }
+.stats small b { color: var(--o); font-weight: 400; }
+.stats strong { display: block; margin-top: 14px; font-weight: 300; font-size: 36px; line-height: .9; letter-spacing: -.04em; color: #fff; font-variant-numeric: tabular-nums; }
+.stats span { display: block; margin-top: 10px; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--mute); }
+
+/* ── our summits ────────────────────────────────────────────────────────── */
+.cases { display: grid; gap: 40px; margin-top: 28px; }
+.case { --c: #fff; }
+.case .txt { padding: 20px 18px 22px; background: var(--card); border: 1px solid var(--line); border-top: 2px solid var(--c); }
+.case .k { display: flex; align-items: center; gap: 10px; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--faint); }
+.case .k { flex-wrap: wrap; row-gap: 4px; letter-spacing: .14em; }
+.case .k b { color: var(--c); font-weight: 400; white-space: nowrap; }
+.case .k i { width: 20px; height: 1px; background: var(--line); }
+.case h3 { margin-top: 14px; font-weight: 400; font-size: clamp(22px, 6.4vw, 28px); line-height: 1.15; letter-spacing: -.02em; color: #fff; }
+.case h3 .hi { color: var(--c); }
+.case .txt > p { margin-top: 12px; font-size: 14px; line-height: 1.55; color: var(--mute); }
+.case .go { display: inline-flex; align-items: center; gap: 14px; margin-top: 18px; padding: 13px 16px; background: var(--c); color: #0a0a0b; text-decoration: none; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; }
+.case .go::after { content: '→'; font-size: 15px; letter-spacing: 0; }
+.case .wk-img { margin-top: 12px; border: 1px solid var(--line); }
+.case dl { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.case dl div { padding: 14px; background: var(--card); border: 1px solid var(--line); }
+.case dt { font-weight: 300; font-size: 30px; line-height: 1; letter-spacing: -.03em; color: #fff; }
+.case dd { margin-top: 8px; font-size: 12.5px; line-height: 1.4; color: var(--mute); }
+
+/* ── brands ─────────────────────────────────────────────────────────────── */
+.logos { display: grid; grid-template-columns: 1fr 1fr; margin-top: 28px; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.logos li { list-style: none; display: grid; place-items: center; height: 84px; padding: 0 18px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.logos img { max-height: 26px; max-width: 100%; width: auto; opacity: .9; }
+
+/* ── more work ──────────────────────────────────────────────────────────── */
+.index { margin-top: 24px; list-style: none; border-top: 1px solid var(--line); }
+.index li { padding: 18px 0; border-bottom: 1px solid var(--line); }
+.index .top { display: flex; justify-content: space-between; gap: 12px; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--faint); }
+.index h3 { margin-top: 8px; font-weight: 400; font-size: 21px; letter-spacing: -.015em; color: #fff; }
+.index p { margin-top: 6px; font-size: 13.5px; line-height: 1.5; color: var(--mute); }
+
+/* ── services ───────────────────────────────────────────────────────────── */
+.tiers { display: grid; gap: 10px; margin-top: 24px; }
+.tier { border: 1px solid var(--line); background: var(--card); }
+.tier summary { list-style: none; cursor: pointer; padding: 18px 16px; display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: baseline; }
+.tier summary::-webkit-details-marker { display: none; }
+.tier summary small { font-size: 10px; letter-spacing: .16em; color: var(--o); }
+.tier summary b { font-weight: 400; font-size: 17px; color: #fff; }
+.tier summary span { color: var(--faint); font-size: 18px; transition: transform .25s; }
+.tier[open] summary span { transform: rotate(45deg); }
+.tier .in { padding: 0 16px 18px; }
+.tier .out { font-size: 15px; color: #fff; }
+.tier ul { margin-top: 14px; list-style: none; border-top: 1px solid var(--line); }
+.tier li { padding: 12px 0; border-bottom: 1px solid var(--line); }
+.tier li b { display: block; font-weight: 400; font-size: 15px; color: #fff; }
+.tier li span { display: block; margin-top: 4px; font-size: 13px; color: var(--mute); }
+.tier .eng { margin-top: 14px; font-size: 13px; color: var(--mute); }
+.tier .eng b { display: block; margin-bottom: 4px; font-weight: 400; font-size: 20px; color: #fff; }
+.tier .cta { display: inline-block; margin-top: 14px; padding: 12px 16px; background: var(--o); color: #000; text-decoration: none; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; }
+
+/* ── rows that swipe sideways (testimonials, studio) — native scroll-snap ── */
+.row { display: flex; gap: 12px; margin: 24px calc(-1 * var(--g)) 0; padding: 0 var(--g) 4px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 var(--g);
+  scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+.row::-webkit-scrollbar { display: none; }
+.row > * { flex: 0 0 84%; scroll-snap-align: start; }
+.quote { --c: var(--o); display: flex; flex-direction: column; padding: 20px 18px; background: var(--card); border: 1px solid var(--line); border-top: 2px solid var(--c); }
+.quote .qm { font-size: 46px; line-height: .8; color: var(--c); }
+.quote blockquote { margin-top: 8px; font-size: 17px; line-height: 1.4; color: #fff; }
+.quote footer { margin-top: auto; padding-top: 18px; font-size: 12.5px; color: var(--mute); }
+.quote footer b { display: block; font-weight: 400; font-size: 14px; color: #fff; }
+.photo { margin: 0; }
+.photo img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; background: var(--card); }
+.photo figcaption { margin-top: 8px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--mute); }
+.hint { margin-top: 10px; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--faint); }
+
+/* ── footer ─────────────────────────────────────────────────────────────── */
+.foot { margin-top: 96px; padding: 56px var(--g) 28px; border-top: 1px solid var(--line);
+  background: linear-gradient(180deg, #000 0%, #000 45%, #160704 72%, #6e220e 92%, #a83214 100%); }
+.foot h2 { font-weight: 400; font-size: clamp(28px, 8vw, 36px); line-height: 1.12; letter-spacing: -.02em; color: #fff; }
+.foot form { display: grid; gap: 18px; margin-top: 28px; }
+.foot label span { display: block; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--mute); }
+.foot input, .foot textarea { width: 100%; margin-top: 6px; padding: 8px 0 10px; border: 0; border-bottom: 1px solid rgba(233,236,242,.3); border-radius: 0; background: none; color: #fff;
+  font: inherit; font-size: 16px; outline: none; }
+.foot textarea { min-height: 84px; resize: vertical; }
+.foot input:focus, .foot textarea:focus { border-color: var(--o); }
+.foot button { justify-self: start; padding: 14px 20px; border: 0; background: var(--o); color: #fff; font: inherit; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; }
+.foot .sent { min-height: 1.2em; font-size: 13px; color: #ffd2b8; }
+.links { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 48px; }
+.links p { font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--mute); }
+.links ul { margin-top: 12px; list-style: none; display: grid; gap: 10px; font-size: 17px; }
+.links a { text-decoration: none; color: #fff; }
+.word { margin-top: 56px; font-weight: 500; font-size: 27vw; line-height: .8; letter-spacing: -.03em; color: rgba(255,247,239,.92); }
+.legal { margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(255,230,210,.35); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,240,228,.85); }
+.desk { color: rgba(255,240,228,.85); }
+</style>
+<style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
+html[data-wb-dock] body { padding-right: 0 !important; }</style>
+</head>
+<body>
+
+<header id="ca-header"></header>
+
+<main>
+  <section class="hero" aria-labelledby="hero-title">
+    <h1 id="hero-title">Tibba<br>Design<br>Studio<em>.</em></h1>
+    <canvas id="peak" aria-hidden="true"></canvas>
+    <div class="hero-foot">
+      <p>Helping ambitious teams reach the next peak.</p>
+      <p>We partner with founders and design leaders to turn ambitious ideas into shipped, high-impact work.</p>
+    </div>
+  </section>
+
+  <div class="stats" aria-label="The studio in numbers">
+    <div><small><b>M—01</b> · Since 2013</small><strong>12+</strong><span>Years of experience</span></div>
+    <div><small><b>M—02</b> · Apps · web · SaaS</small><strong>30+</strong><span>Products shipped</span></div>
+    <div><small><b>M—03</b> · And counting</small><strong>08</strong><span>Unicorns serviced</span></div>
+    <div><small><b>M—04</b> · For our clients</small><strong>$400M</strong><span>Revenue unlocked</span></div>
+  </div>
+
+  <section id="work" class="pad" aria-labelledby="work-h">
+    <p class="eyebrow">[ Our summits ]</p>
+    <h2 class="h2" id="work-h">Four climbs, and what they were for</h2>
+    <div class="cases">
+      <article class="case" style="--c:#4DD9C0">
+        <div class="txt">
+          <p class="k"><b>Summit 01</b><i></i>Fintech · 2024 — now</p>
+          <h3>How we helped Groww <span class="hi">boost engagement</span> on their app</h3>
+          <p>A deep engagement with Groww to design and improve features that engage users on their consumer app, along with design support for other product initiatives.</p>
+          <a class="go" href="case-groww-v2.html">View case study</a>
+        </div>
+        <div class="slot" data-folder="groww" data-alt="Groww — the work"></div>
+        <dl><div><dt>3</dt><dd>Launches — the feed, Stories and the XIRR calculator</dd></div><div><dt>1</dt><dd>Year embedded with the growth team</dd></div></dl>
+      </article>
+      <article class="case" style="--c:#E05555">
+        <div class="txt">
+          <p class="k"><b>Summit 02</b><i></i>News &amp; media · 2023</p>
+          <h3>How we helped Firstpost <span class="hi">2x their traffic</span> through a strategic redesign</h3>
+          <p>A design overhaul of Firstpost’s website and the creation of their first mobile app, with a significant pivot for their business and content strategy.</p>
+          <a class="go" href="case-firstpost-v2.html">View case study</a>
+        </div>
+        <div class="slot" data-folder="firstpost" data-alt="Firstpost — the work"></div>
+        <dl><div><dt>2x</dt><dd>Website traffic</dd></div><div><dt>30%</dt><dd>Increase in average session duration</dd></div></dl>
+      </article>
+      <article class="case" style="--c:#4CAF70">
+        <div class="txt">
+          <p class="k"><b>Summit 03</b><i></i>SaaS · 2023</p>
+          <h3>How we helped Breathe ESG <span class="hi">accelerate sales</span>, streamline releases and elevate customer experience</h3>
+          <p>An MVP to v1 redesign of Breathe ESG’s SaaS platform, to make it easier for companies to track their ESG metrics and regulatory compliance.</p>
+          <a class="go" href="case-breathe-esg-v2.html">View case study</a>
+        </div>
+        <div class="slot" data-folder="breathe-esg" data-alt="Breathe ESG — the work"></div>
+        <dl><div><dt>8</dt><dd>Weeks of design sprints, brief to platform</dd></div><div><dt>1000</dt><dd>Listed companies now required to report ESG</dd></div></dl>
+      </article>
+      <article class="case" style="--c:#7B8FF5">
+        <div class="txt">
+          <p class="k"><b>Summit 04</b><i></i>Health · 2023</p>
+          <h3>How we helped Shyft &amp; Mindhouse <span class="hi">grow their business</span> and supercharge product led growth</h3>
+          <p>Conceptualising and designing a therapy experience, alongside redesigning their websites and apps to impact revenue.</p>
+          <a class="go" href="case-shyft-mindhouse-v2.html">View case study</a>
+        </div>
+        <div class="slot" data-folder="shyft-mindhouse" data-alt="Shyft &amp; Mindhouse — the work"></div>
+        <dl><div><dt>70%</dt><dd>Decrease in sales team intervention</dd></div><div><dt>15x</dt><dd>Increase in direct purchases via the landing page</dd></div></dl>
+      </article>
+    </div>
+  </section>
+
+  <section class="pad" aria-labelledby="brands-h">
+    <p class="eyebrow">[ Brands ]</p>
+    <h2 class="h2" id="brands-h">We’ve worked with start-ups and market leaders</h2>
+    <p class="lede">Over the past decade we’ve helped companies deliver food, perform services, insure health, provide financial services, publish news and sell products.</p>
+    <ul class="logos">
+      <li><img src="assets/logos/groww.svg" alt="Groww" loading="lazy"></li>
+      <li><img src="assets/logos/paytm.svg" alt="Paytm" loading="lazy"></li>
+      <li><img src="assets/logos/zomato.svg" alt="Zomato" loading="lazy"></li>
+      <li><img src="assets/logos/firstpost.svg" alt="Firstpost" loading="lazy"></li>
+      <li><img src="assets/logos/urban-company.svg" alt="Urban Company" loading="lazy"></li>
+      <li><img src="assets/logos/hdfc-bank.svg" alt="HDFC Bank" loading="lazy" style="filter:brightness(1.5)"></li>
+      <li><img src="assets/logos/the-indian-express.svg" alt="The Indian Express" loading="lazy"></li>
+      <li><img src="assets/logos/the-times-of-india.svg" alt="The Times of India" loading="lazy"></li>
+      <li><img src="assets/logos/policybazaar.svg" alt="Policybazaar" loading="lazy" style="filter:brightness(2.6)"></li>
+      <li><img src="assets/logos/breatheesg.svg" alt="Breathe ESG" loading="lazy"></li>
+      <li><img src="assets/logos/shyft.svg" alt="Shyft" loading="lazy"></li>
+      <li><img src="assets/logos/apnaklub.svg" alt="Apnaklub" loading="lazy"></li>
+      <li><img src="assets/logos/simsim.svg" alt="simsim" loading="lazy"></li>
+      <li><img src="assets/logos/bombay-shirt-company.svg" alt="Bombay Shirt Company" loading="lazy"></li>
+    </ul>
+  </section>
+
+  <section class="pad" aria-labelledby="more-h">
+    <p class="eyebrow">[ More work ]</p>
+    <h2 class="h2" id="more-h">Every other climb</h2>
+    <ol class="index">
+      <li><p class="top"><span>Commerce</span><span>2022</span></p><h3>Apnaklub</h3><p>Research into users and market, and an app designed to reach product–market fit.</p></li>
+      <li><p class="top"><span>News &amp; media</span><span>2021</span></p><h3>The Indian Express</h3><p>A brand new mobile app for the flagship product, and a monetisation strategy to go with it.</p></li>
+      <li><p class="top"><span>Fintech</span><span>2022</span></p><h3>Zeta’s Cipher Docs</h3><p>A documentation portal rebuilt from scratch, tested with the developers who use it.</p></li>
+      <li><p class="top"><span>Services</span><span>2016</span></p><h3>Urban Company</h3><p>The first market versions of the apps, and research brought into the design workflow.</p></li>
+      <li><p class="top"><span>Foodtech</span><span>2015</span></p><h3>Zomato</h3><p>The first version of Zomato’s food delivery app, and more products besides.</p></li>
+      <li><p class="top"><span>Fintech</span><span>2019</span></p><h3>HDFC’s Smart Buy</h3><p>Layouts designed and tested for the bank’s rewards platform.</p></li>
+    </ol>
+  </section>
+
+  <section id="services" class="pad" aria-labelledby="svc-h">
+    <p class="eyebrow">[ Our services ]</p>
+    <h2 class="h2" id="svc-h">Gear up for your climb</h2>
+    <div class="tiers">
+      <details class="tier" open>
+        <summary><small>01</small><b>Early-stage startup</b><span>+</span></summary>
+        <div class="in">
+          <p class="out">From idea to a product people want.</p>
+          <ul>
+            <li><b>Product strategy</b><span>Decide what to build first, and why.</span></li>
+            <li><b>MVP design</b><span>A launch-ready first version in weeks.</span></li>
+            <li><b>Research &amp; testing</b><span>Real users, real answers, before you build.</span></li>
+            <li><b>Brand &amp; launch</b><span>An identity and a site that earn trust on day one.</span></li>
+          </ul>
+          <p class="eng"><b>4–8 weeks</b>You get: a tested MVP, ready for users and investors</p>
+          <a class="cta" href="#footer">Start your MVP</a>
+        </div>
+      </details>
+      <details class="tier">
+        <summary><small>02</small><b>Mid-stage startup</b><span>+</span></summary>
+        <div class="in">
+          <p class="out">Turn traction into growth.</p>
+          <ul>
+            <li><b>Growth design</b><span>Onboarding, pricing and funnels that convert.</span></li>
+            <li><b>Design system</b><span>One kit, so every team ships faster.</span></li>
+            <li><b>Design to code</b><span>Production-ready UI your developers can ship.</span></li>
+            <li><b>Product analytics</b><span>See what users do, fix what slows them down.</span></li>
+          </ul>
+          <p class="eng"><b>8–12 weeks</b>You get: a faster product and a system your team can grow on</p>
+          <a class="cta" href="#footer">Plan your next release</a>
+        </div>
+      </details>
+      <details class="tier">
+        <summary><small>03</small><b>Established company</b><span>+</span></summary>
+        <div class="in">
+          <p class="out">Stay ahead while you scale.</p>
+          <ul>
+            <li><b>Product innovation</b><span>Prototype and test new bets in weeks.</span></li>
+            <li><b>Experience audit</b><span>Find what is costing you users, and fix it.</span></li>
+            <li><b>Embedded design team</b><span>Senior designers inside your team, on your cadence.</span></li>
+            <li><b>AI features</b><span>Useful AI in your product, designed for trust.</span></li>
+          </ul>
+          <p class="eng"><b>Ongoing, from 3 months</b>You get: a design partner for your roadmap</p>
+          <a class="cta" href="#footer">Book a strategy call</a>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section class="pad" aria-labelledby="voices-h">
+    <p class="eyebrow">[ Our testimonials ]</p>
+    <h2 class="h2" id="voices-h">What our clients say about us</h2>
+    <div class="row">
+      <figure class="quote" style="--c:#E05555"><p class="qm" aria-hidden="true">“</p>
+        <blockquote>Working with Rahul and team has been an absolute pleasure! The website they’ve designed not only captures the essence of our brand but also resonates with our target audience, resulting in increased engagement and satisfaction.</blockquote>
+        <footer><b>Milan Sachdeva</b>Senior General Manager, Firstpost</footer></figure>
+      <figure class="quote" style="--c:#4CAF70"><p class="qm" aria-hidden="true">“</p>
+        <blockquote>Collaborating with the Tibba Design Studio team on our critical design sprint was transformative for Breathe ESG.</blockquote>
+        <footer><b>Shaayak Chaterjee</b>Founder, Breathe ESG</footer></figure>
+    </div>
+    <p class="hint">Swipe →</p>
+  </section>
+
+  <section class="pad" aria-labelledby="studio-h">
+    <p class="eyebrow">[ Our studio ]</p>
+    <h2 class="h2" id="studio-h">Team Tibba</h2>
+    <p class="lede">A lean design team based out of India, and the places we go to think.</p>
+    <div class="row">
+      <figure class="photo"><img src="assets/studio/team-01-ridge.webp" alt="The team on a ridge" loading="lazy" decoding="async"><figcaption>On the ridge</figcaption></figure>
+      <figure class="photo"><img src="assets/studio/team-02-review.webp" alt="A design review" loading="lazy" decoding="async"><figcaption>Crit hour</figcaption></figure>
+      <figure class="photo"><img src="assets/studio/team-03-talk.webp" alt="Speaking at VizChitra" loading="lazy" decoding="async"><figcaption>Speaking at VizChitra</figcaption></figure>
+      <figure class="photo"><img src="assets/studio/team-04-desk.webp" alt="At the studio" loading="lazy" decoding="async"><figcaption>Home base</figcaption></figure>
+      <figure class="photo"><img src="assets/studio/team-05-cheers.webp" alt="After a launch" loading="lazy" decoding="async"><figcaption>After the launch</figcaption></figure>
+    </div>
+    <p class="hint">Swipe →</p>
+  </section>
+</main>
+
+<footer class="foot" id="footer">
+  <h2>Let’s get to know<br>you and your idea!</h2>
+  <form id="talk" action="mailto:hello@tibba.design" method="post" enctype="text/plain">
+    <label><span>01 · Your name</span><input type="text" name="name" autocomplete="name" required></label>
+    <label><span>02 · Email</span><input type="email" name="email" autocomplete="email" required></label>
+    <label><span>03 · Tell us about the climb</span><textarea name="idea" maxlength="500"></textarea></label>
+    <button type="submit">Send it up the mountain</button>
+    <p class="sent" aria-live="polite"></p>
+  </form>
+  <div class="links">
+    <div><p>Pages</p><ul><li><a href="#work">Work</a></li><li><a href="#services">Services</a></li><li><a href="about.html">About</a></li><li><a href="mailto:hello@tibba.design">Email</a></li></ul></div>
+    <div><p>Social</p><ul><li><a href="https://www.instagram.com/tibba.design/">Instagram</a></li><li><a href="https://www.linkedin.com/company/tibba-design-studio/">LinkedIn</a></li><li><a href="https://medium.com/@tibbadesignstudio">Medium</a></li></ul></div>
+  </div>
+  <p class="word" aria-hidden="true">TIBBA</p>
+  <p class="legal"><span>© <span id="yr">2026</span> Tibba Design Studio</span><a class="desk" href="website-v3.html?desktop">Desktop site</a></p>
+</footer>
+
+<script>
+  /* the cover of each summit: a real image the moment it lands in
+     assets/work/<folder>/, its placeholder until then (assets/work.js) */
+  document.querySelectorAll('.slot').forEach(s => {
+    s.outerHTML = TibbaWork.img(s.dataset.folder, 'cover', s.dataset.alt, '16 / 10');
+  });
+  document.querySelectorAll('.case .wk-img').forEach(el => el.style.setProperty('--c', el.closest('.case').style.getPropertyValue('--c')));
+  document.getElementById('yr').textContent = new Date().getFullYear();
+  /* the form opens the visitor's mail app with the message filled in */
+  document.getElementById('talk').addEventListener('submit', e => {
+    e.preventDefault();
+    const f = e.target, body = `${f.idea.value}\n\n— ${f.name.value} (${f.email.value})`;
+    location.href = 'mailto:hello@tibba.design?subject=' + encodeURIComponent('A new climb — ' + f.name.value) + '&body=' + encodeURIComponent(body);
+    f.querySelector('.sent').textContent = 'Opening your mail app…';
+  });
+</script>
+<script type="module">
+  import { mountSiteNav } from './assets/site-nav.js';
+  mountSiteNav(document.getElementById('ca-header'), { home: 'website-v3-mobile.html', nav: [
+    { label: 'Work', href: '#work' }, { label: 'Services', href: '#services' }, { label: 'About', href: 'about.html' }, { label: 'Contact', href: '#footer' }] });
+</script>
+<script type="module">
+  /* ── the hero's mountain, drawn once ────────────────────────────────────
+     The studio's massif from assets/landform.js (the generator the 3D hero
+     uses), as ridgelines: one profile per row of the land, back to front,
+     each filled black beneath so nearer rows hide farther ones. One pass,
+     on a 2D canvas, when the page opens — nothing runs after it. */
+  import { SITE_PEAKS, clonePeak, prepareLandform, coneAt, fbm } from './assets/landform.js';
+  const cv = document.getElementById('peak');
+  function draw() {
+    const dpr = Math.min(2, devicePixelRatio || 1), W = cv.clientWidth, H = cv.clientHeight;
+    if (!W || !H) return;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+    const P = prepareLandform(clonePeak(SITE_PEAKS[0]));
+    const h = (x, z) => Math.max(0, 6 * (fbm(x * .058 + 1.7, z * .058 + 2.3) - .45) + coneAt(P, x, z));
+    const SPAN = 170, ROWS = 92, COLS = 140, cx = P.x, cz = P.z;
+    const lift = H * .5 / 48;
+    for (let r = 0; r < ROWS; r++) {
+      const depth = r / (ROWS - 1);                                    // 0 far … 1 near
+      const z = cz - SPAN * .5 + depth * SPAN * .75;
+      const yRow = H * (.42 + depth * .55);                           // far rows high, near rows low
+      const pts = [];
+      for (let c = 0; c <= COLS; c++) {
+        const x = cx - SPAN / 2 + (c / COLS) * SPAN;
+        pts.push([c / COLS * W, yRow - h(x, z) * lift * (.7 + depth * .3)]);
+      }
+      /* black beneath the line, so this row hides the rows behind it */
+      g.beginPath(); g.moveTo(0, pts[0][1]);
+      pts.forEach(p => g.lineTo(p[0], p[1]));
+      g.lineTo(W, H); g.lineTo(0, H); g.closePath();
+      g.fillStyle = '#000'; g.fill();
+      /* the line itself — the profile only, never the fill's edges */
+      g.beginPath(); g.moveTo(pts[0][0], pts[0][1]);
+      for (let i = 1; i < pts.length; i++) g.lineTo(pts[i][0], pts[i][1]);
+      const t = Math.min(1, .15 + depth * .95), fade = Math.min(1, depth * 4) * (1 - Math.max(0, depth - .8) * 3);
+      g.strokeStyle = `rgba(${Math.round(150 + 90 * t)},${Math.round(160 + 80 * t)},${Math.round(215 + 35 * t)},${(.18 + .55 * t * fade).toFixed(2)})`;
+      g.lineWidth = .7 + depth * .5; g.stroke();
+    }
+  }
+  draw();
+  addEventListener('resize', () => { clearTimeout(draw.t); draw.t = setTimeout(draw, 200); });
+</script>
+<!-- primary / secondary typography control (assets/type-control.js) -->
+<script type="module" src="assets/type-control.js"></script>
+</body>
+</html>
