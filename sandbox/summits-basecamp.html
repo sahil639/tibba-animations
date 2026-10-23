@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-10-23T12:05:23.432Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-10-23T12:09:04.655Z by tools/make-sandbox.mjs -->
 <head>
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
@@ -102,10 +102,12 @@ html, body { background: var(--bg); }
    progress bar are docked in the bottom third the whole way through ─── */
 :root.bc-phone { --mdock: clamp(200px, 30vh, 280px); }
 @supports (height: 1svh) { :root.bc-phone { --mdock: clamp(200px, 30svh, 280px); } }
-/* phones: the range in its own framed box, in the flow under the heading —
-   not docked over the cards: nothing is ever drawn across them */
-.bc-phone .bc-dock { position: relative; top: auto; height: var(--mdock); margin: 0 var(--gut) 28px; z-index: 1;
-  border: 1px solid rgba(233,236,242,.1); border-radius: 4px; overflow: hidden; background: #100f0e; pointer-events: auto; }
+/* phones: the range in its own framed, solid box, docked to the foot of
+   the screen for the length of the section — the cards scroll behind a
+   box, never under bare lines */
+.bc-phone .bc-dock { position: sticky; top: calc(100vh - var(--mdock) - 12px); top: calc(100svh - var(--mdock) - 12px); height: var(--mdock);
+  margin: 0 var(--gut) calc(-1 * var(--mdock)); z-index: 20;
+  border: 1px solid rgba(233,236,242,.12); border-radius: 4px; overflow: hidden; background: #100f0e; pointer-events: auto; }
 .bc-phone .bc-dock::before { display: none; }
 .bc-phone #range { inset: 0 0 var(--barh, 40px) 0; pointer-events: auto;
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent), linear-gradient(transparent, #000 16%);
@@ -122,7 +124,7 @@ html, body { background: var(--bg); }
 .bc-phone .pn .rv, .bc-phone .pn:not(.active):not(.hovered) .rv { filter: none; transition: opacity .4s linear; }
 .bc-phone .pn:not(.active) .rv { opacity: .6; }
 .bc-phone .bc-head { padding: 92px var(--gut) 18px; }
-.bc-phone #stack { display: flex; flex-direction: column; gap: 48px; padding: 6px var(--gut) 40px; }
+.bc-phone #stack { display: flex; flex-direction: column; gap: 48px; padding: 6px var(--gut) calc(var(--mdock) + 40px); }
 .bc-phone .pn { position: relative; height: auto; overflow: visible; background: none; box-shadow: none; }
 .bc-phone .pn + .pn { box-shadow: none; }
 .bc-phone .pn .in { position: relative; inset: auto; display: flex; flex-direction: column; gap: 12px; padding: 0; transform: none; filter: none; }
