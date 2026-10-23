@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+<!-- sandbox: a frozen copy of Website v3, made 2026-10-23T12:40:48.562Z by tools/make-sandbox.mjs -->
 <head>
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
@@ -99,16 +100,29 @@ html, body { background: var(--bg); }
 
 /* ── phones: the cards scroll in the top two-thirds; the range and the
    progress bar are docked in the bottom third the whole way through ─── */
-:root.bc-phone { --mdock: 33vh; }
-@supports (height: 1svh) { :root.bc-phone { --mdock: 33svh; } }
-.bc-phone .bc-dock { top: calc(100vh - var(--mdock)); top: calc(100svh - var(--mdock)); height: var(--mdock); margin-bottom: calc(-1 * var(--mdock));
-  pointer-events: none; background: none; }
-/* no wash: the cards read straight through behind the peaks */
+:root.bc-phone { --mdock: clamp(200px, 30vh, 280px); }
+@supports (height: 1svh) { :root.bc-phone { --mdock: clamp(200px, 30svh, 280px); } }
+/* phones: the range in its own framed, solid box, docked to the foot of
+   the screen for the length of the section — the cards scroll behind a
+   box, never under bare lines */
+.bc-phone .bc-dock { position: sticky; top: calc(100vh - var(--mdock) - 12px); top: calc(100svh - var(--mdock) - 12px); height: var(--mdock);
+  margin: 0 var(--gut) calc(-1 * var(--mdock)); z-index: 20;
+  border: 1px solid rgba(233,236,242,.12); border-radius: 4px; overflow: hidden; background: #100f0e; pointer-events: auto; }
 .bc-phone .bc-dock::before { display: none; }
-.bc-phone #range { inset: 0 0 var(--barh, 40px) 0; -webkit-mask-image: none; mask-image: none; pointer-events: auto; }
-.bc-phone .bc-bar { pointer-events: auto; left: 0; right: 0; transform: none; width: auto; bottom: 0; padding: 0 var(--gut) 12px; background: var(--bg); }   /* a plain strip, no fade, its progress line right under the range */
+.bc-phone #range { inset: 0 0 var(--barh, 40px) 0; pointer-events: auto;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent), linear-gradient(transparent, #000 16%);
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent), linear-gradient(transparent, #000 16%);
+  -webkit-mask-composite: source-in; mask-composite: intersect; }
+.bc-phone .bc-bar { pointer-events: auto; left: 0; right: 0; transform: none; width: auto; bottom: 0; padding: 0 14px 12px; background: transparent; }   /* a plain strip, no fade, its progress line right under the range */
 .bc-phone .sl-tabs button { font-size: 9.5px; letter-spacing: .02em; } .bc-phone .sl-tabs button::before { margin-bottom: 8px; }
 .bc-phone #bc-panel { display: none; }
+/* phones: nothing that has to be repainted while the page scrolls — the
+   peak dot keeps a solid ring instead of two wide blurred glows, and the
+   cards out of focus are dimmed by opacity (composited) rather than by a
+   grayscale filter (repainted) */
+.bc-phone .fs-peak.bc-mark i { box-shadow: 0 0 0 2px var(--c); }
+.bc-phone .pn .rv, .bc-phone .pn:not(.active):not(.hovered) .rv { filter: none; transition: opacity .4s linear; }
+.bc-phone .pn:not(.active) .rv { opacity: .6; }
 .bc-phone .bc-head { padding: 92px var(--gut) 18px; }
 .bc-phone #stack { display: flex; flex-direction: column; gap: 48px; padding: 6px var(--gut) calc(var(--mdock) + 40px); }
 .bc-phone .pn { position: relative; height: auto; overflow: visible; background: none; box-shadow: none; }
@@ -129,6 +143,8 @@ html, body { background: var(--bg); }
 @media (prefers-reduced-motion: reduce) { .fs-peak.bc-mark::before, .fs-peak.bc-mark::after { animation: none; opacity: 0; } }
 </style>
 <link rel="stylesheet" href="assets/tune.css">
+<style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
+html[data-wb-dock] body { padding-right: 0 !important; }</style>
 </head>
 <body>
 <header class="bc-head"><p class="eyebrow">[ &nbsp;Our summits&nbsp; ]</p><h2>Four climbs, and what they were for</h2></header>

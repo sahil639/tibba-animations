@@ -2,20 +2,11 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
   "redirects": [
-    {
-      "source": "/contour-ridge-studies",
-      "destination": "/",
-      "permanent": false
-    },
-    {
-      "source": "/tibba-studio",
-      "destination": "/",
-      "permanent": false
-    },
-    {
-      "source": "/about-landing",
-      "destination": "/about",
-      "permanent": true
-    }
+    { "source": "/final-website", "destination": "/", "permanent": false },
+    { "source": "/final-website-v2", "destination": "/", "permanent": false },
+    { "source": "/website-v3", "destination": "/", "permanent": false }
+  ],
+  "headers": [
+    { "source": "/(.*)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }] }
   ]
 }

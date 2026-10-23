@@ -44,7 +44,8 @@ export const SITE_CONFIG = {
 /* phones: load a section a screen ahead rather than one and a half, and let
    go of it two screens behind rather than four — fewer pages, scenes and
    WebGL contexts alive at once, which is what a phone runs out of first */
-if (matchMedia('(max-width: 760px), (pointer: coarse)').matches) Object.assign(SITE_CONFIG, { loadAhead: 1, unloadBeyond: 2 });
+const PHONE = matchMedia('(max-width: 760px), (pointer: coarse)').matches;
+if (PHONE) Object.assign(SITE_CONFIG, { loadAhead: 1, unloadBeyond: 2 });
 const C = SITE_CONFIG;
 
 /* the drawer's wireframe: each section as a few strokes (site-shell.css .wf) */
@@ -130,10 +131,10 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
     let raf = 0, y = 0, ty = 0, scale = .5, total = 0, parts = [], drawn = '';
     function draw() {
       const vh = innerHeight || 800;
-      const key = blocks.map(b => b.s.id + ':' + Math.round((b.H || b.sec.offsetHeight) / 50)).join();
+      const key = blocks.map(b => b.s.id + ':' + Math.round((b.H || b.h || 0) / 50)).join();
       if (key === drawn) return; drawn = key;
       track.innerHTML = blocks.map(b => {
-        const H = b.H || b.sec.offsetHeight || vh;
+        const H = b.H || b.h || vh;
         const k = Math.min(2.4, Math.max(b.s.frame ? .7 : 1, H / vh * .45));
         return `<div class="wf wf-${b.s.id}" data-id="${b.s.id}" style="--k:${k.toFixed(2)}">${WIRES[b.s.id] || WIRES.generic}<b>${b.s.label}</b></div>`;
       }).join('');
@@ -150,7 +151,7 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
       const c = scrollY + innerHeight / 2, view = box.clientHeight / scale;
       let w = 0;
       for (let i = 0; i < blocks.length; i++) {
-        const top = blocks[i].sec.offsetTop, h = blocks[i].sec.offsetHeight || 1, p = parts[i];
+        const top = blocks[i].top || 0, h = blocks[i].h || 1, p = parts[i];
         if (!p) break;
         if (c < top + h || i === blocks.length - 1) { w = p.top + Math.min(1, Math.max(0, (c - top) / h)) * p.h; break; }
       }
@@ -162,16 +163,17 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
       if (Math.abs(ty - y) < .3) y = ty; else raf = requestAnimationFrame(frame);
       track.style.transform = `scale(${scale}) translate3d(0,${(-y).toFixed(1)}px,0)`;
     }
+    let boxW = 0;
     function follow() {
-      if (!host.offsetWidth) return;                          // hidden: wider than a phone
-      scale = box.clientWidth / WIRE_W;
+      if (!boxW) return;                                      // hidden: wider than a phone
+      scale = boxW / WIRE_W;
       draw();
       ty = target();
       if (!raf) raf = requestAnimationFrame(frame);
     }
     /* as tall as the pill, whatever the pill is doing (the drawer opening) */
-    const ro = new ResizeObserver(() => { host.style.height = panel.offsetHeight + 'px'; follow(); });
-    ro.observe(panel);
+    const ro = new ResizeObserver(() => { host.style.height = panel.offsetHeight + 'px'; boxW = host.offsetWidth ? box.clientWidth : 0; follow(); });
+    ro.observe(panel); ro.observe(box);
     return {
       follow, mark,
       redraw() { drawn = ''; follow(); },
@@ -279,7 +281,7 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
     b.loaded = true; b.lastY = -1;
     b.frame.addEventListener('load', function onload() {
       b.frame.removeEventListener('load', onload);
-      inject(b); measure(b);
+      inject(b); installGate(b); measure(b);
       try { b.ro = new ResizeObserver(() => measure(b)); b.ro.observe(b.frame.contentDocument.body); } catch {}
       [300, 1000, 2500, 5000].forEach(t => setTimeout(() => measure(b), t));
       sync(true);
@@ -295,11 +297,17 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
 
   /* ── the scroll: drive each frame's own document ─────────────────── */
   let current = null;
+  /* Every scroll frame: ALL the layout reads first (one rect per section),
+     then the writes. Reading a rect after writing a style forces the
+     browser to lay the page out again on the spot — once per section per
+     frame — which is exactly the stutter a phone shows mid-swipe. */
   function sync(force) {
-    const vh = innerHeight;
+    const vh = innerHeight, sy = scrollY;
+    const rects = blocks.map(b => b.sec.getBoundingClientRect());
     let now = null;
-    blocks.forEach(b => {
-      const r = b.sec.getBoundingClientRect();
+    blocks.forEach((b, i) => {
+      const r = rects[i];
+      b.top = r.top + sy; b.h = r.height;                       // kept for the wireframe: no reads of its own
       const near = r.bottom > -vh * C.loadAhead && r.top < vh * (1 + C.loadAhead);
       const far = r.bottom < -vh * C.unloadBeyond || r.top > vh * (1 + C.unloadBeyond);
       /* while the loader holds the page, nothing else loads: it would take
@@ -307,7 +315,11 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
       if (near && (!locked || b === blocks[0])) load(b); else if (far) unload(b);
       if (r.top <= vh * 0.5 && r.bottom > vh * 0.5) now = b;
       /* the seam: the incoming edge is soft while it travels up the screen */
-      b.seam.style.opacity = r.top > 0 && r.top < vh ? clamp01((r.top - vh * (1 - C.seam * 2.6)) / (vh * C.seam * 1.6)).toFixed(3) : '0';
+      const seam = r.top > 0 && r.top < vh ? clamp01((r.top - vh * (1 - C.seam * 2.6)) / (vh * C.seam * 1.6)).toFixed(2) : '0';
+      if (seam !== b.seamV) { b.seamV = seam; b.seam.style.opacity = seam; }
+      /* a section wholly off screen stops animating (see gate()) */
+      const vis = r.bottom > -vh * 0.1 && r.top < vh * 1.1;
+      if (vis !== b.vis) gate(b, vis);
       if (!b.loaded) return;
       const fh = b.FH || vh;
       const y = Math.round(Math.min(Math.max(0, -r.top), Math.max(0, (b.H || fh) - fh)));
@@ -319,10 +331,47 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
       if (wire) wire.mark();
     }
     if (wire) wire.follow();
-    if (logo) logo.to(Math.floor(scrollY / (vh * C.logoStep)));
+    if (logo) logo.to(Math.floor(sy / (vh * C.logoStep)));
   }
+
+  /* ── the gate: a section off screen stops drawing ─────────────────────
+     Each framed page runs its own requestAnimationFrame loops — WebGL
+     scenes, the fire, the topo tiles — and they all keep running while
+     scrolled away, on the same main thread the scroll needs. When a page
+     loads, its requestAnimationFrame is wrapped: while the section is off
+     screen, callbacks are held instead of run, so its loops simply pause;
+     back on screen, the held ones run and the loops carry on where they
+     were. cancelAnimationFrame is wrapped to match, so a loop that is
+     restarted while paused is not run twice. */
+  function installGate(b) {
+    try {
+      const w = b.frame.contentWindow;
+      if (w.__tibbaGate) return;
+      const raf = w.requestAnimationFrame.bind(w), caf = w.cancelAnimationFrame.bind(w);
+      const held = new Map(); let paused = false, n = 0;
+      w.requestAnimationFrame = cb => { if (!paused) return raf(cb); const id = -(++n); held.set(id, cb); return id; };
+      w.cancelAnimationFrame = id => { if (id < 0) held.delete(id); else caf(id); };
+      w.__tibbaGate = on => {
+        paused = !on;
+        if (on && held.size) { const l = [...held.values()]; held.clear(); l.forEach(cb => raf(cb)); }
+      };
+      w.__tibbaGate(b.vis !== false);
+    } catch {}
+  }
+  function gate(b, on) {
+    b.vis = on;
+    try { const w = b.frame.contentWindow; if (w && w.__tibbaGate) w.__tibbaGate(on); } catch {}
+  }
+  /* Desktop: once a frame. Phones: at once, on every scroll event — a
+     phone's momentum scroll runs apart from the page's scripts, and waiting
+     for the next animation frame on top of that is what leaves a section's
+     content frozen mid-fling and then jumping to catch up. sync() is one
+     pass of reads then writes, so running it per event is cheap. */
   let ticking = false;
-  addEventListener('scroll', () => { if (ticking) return; ticking = true; requestAnimationFrame(() => { ticking = false; sync(false); }); }, { passive: true });
+  addEventListener('scroll', () => {
+    if (PHONE) { sync(false); return; }
+    if (ticking) return; ticking = true; requestAnimationFrame(() => { ticking = false; sync(false); });
+  }, { passive: true });
   addEventListener('resize', () => { blocks.forEach(b => b.loaded && measure(b)); sync(true); });
 
   /* ── build, and rebuild (the Modular hub) ────────────────────────── */
@@ -339,7 +388,10 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
     blocks = list.map(make);
     drawNav();
     const first = list[0];
-    lock(!!(first && first.gate && !/noloader/.test(first.file)));
+    /* phones are never held: a touch that starts on the hero's frame slips
+       past the lock, and the lock then yanks the page back to the top
+       against the finger — the hero's fly-in plays, but scrolling is free */
+    lock(!PHONE && !!(first && first.gate && !/noloader/.test(first.file)));
     sync(true);
   }
   function rebuild(list, keepScroll) {

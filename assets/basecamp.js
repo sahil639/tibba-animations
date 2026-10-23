@@ -88,7 +88,9 @@ applyBaked(KEY, C);
 /* phones: locked to these, over the defaults and any bake — desktop never uses them */
 const PHONE_LOCK = {
   contours: { levels: 27, weight: 0.8, spacing: 1.0 },
-  depth: { view: 'front', frontFov: 17, frontFill: 0.51, frontBase: 0.18, focusDist: 34, elev: 11, fgScale: 1.11, bgScale: 0.99 },
+  /* the summit stands on the bar (foot low) with room above its dot for the
+     pulse, inside the docked band */
+  depth: { view: 'front', frontFov: 17, frontFill: 0.5, frontBase: 0.08, focusDist: 34, elev: 11, fgScale: 1.11, bgScale: 0.99 },
   style: { dim: 0.59, thin: 0.05, cool: 0.03, sparse: 0.03 },
 };
 const lock = (t, src) => Object.keys(src).forEach(k => typeof src[k] === 'object' ? lock(t[k], src[k]) : (t[k] = src[k]));
@@ -132,7 +134,9 @@ export function mountBasecamp() {
   const rv = cards.map(() => null);
   const io = new IntersectionObserver(es => es.forEach(e => {
     const i = +e.target.dataset.i;
-    if (e.isIntersecting && !rv[i] && window.TibbaRive) {
+    /* not on a phone: the cards show their still, and the Rive runtime and
+       files (several MB) are never fetched — the scroll stays the phone's */
+    if (e.isIntersecting && !rv[i] && window.TibbaRive && !phone.matches) {
       rv[i] = window.TibbaRive.mount(e.target.querySelector('.rv'), { names: [S[i].folder], autoplay: false });
       cardState();
     }
