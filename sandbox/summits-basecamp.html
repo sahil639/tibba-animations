@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-10-23T11:48:13.030Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-10-23T12:05:23.432Z by tools/make-sandbox.mjs -->
 <head>
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
@@ -102,20 +102,16 @@ html, body { background: var(--bg); }
    progress bar are docked in the bottom third the whole way through ─── */
 :root.bc-phone { --mdock: clamp(200px, 30vh, 280px); }
 @supports (height: 1svh) { :root.bc-phone { --mdock: clamp(200px, 30svh, 280px); } }
-.bc-phone .bc-dock { top: calc(100vh - var(--mdock)); top: calc(100svh - var(--mdock)); height: var(--mdock); margin-bottom: calc(-1 * var(--mdock));
-  pointer-events: none; background: var(--bg); }
-/* the range is ground, not an overlay: the dock is solid, and the cards
-   dissolve into it over a short fade just above its edge as they pass
-   under — the lines never draw across a card's image or numbers */
-.bc-phone .bc-dock::before { display: block; inset: auto 0 100% 0; height: 48px; z-index: 0;
-  background: linear-gradient(to bottom, rgba(12,11,10,0), var(--bg)); }
-/* and the peaks fade out at the band's sides and top, as on desktop,
-   instead of being clipped hard by its edges */
+/* phones: the range in its own framed box, in the flow under the heading —
+   not docked over the cards: nothing is ever drawn across them */
+.bc-phone .bc-dock { position: relative; top: auto; height: var(--mdock); margin: 0 var(--gut) 28px; z-index: 1;
+  border: 1px solid rgba(233,236,242,.1); border-radius: 4px; overflow: hidden; background: #100f0e; pointer-events: auto; }
+.bc-phone .bc-dock::before { display: none; }
 .bc-phone #range { inset: 0 0 var(--barh, 40px) 0; pointer-events: auto;
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent), linear-gradient(transparent, #000 16%);
   mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent), linear-gradient(transparent, #000 16%);
   -webkit-mask-composite: source-in; mask-composite: intersect; }
-.bc-phone .bc-bar { pointer-events: auto; left: 0; right: 0; transform: none; width: auto; bottom: 0; padding: 0 var(--gut) 12px; background: var(--bg); }   /* a plain strip, no fade, its progress line right under the range */
+.bc-phone .bc-bar { pointer-events: auto; left: 0; right: 0; transform: none; width: auto; bottom: 0; padding: 0 14px 12px; background: transparent; }   /* a plain strip, no fade, its progress line right under the range */
 .bc-phone .sl-tabs button { font-size: 9.5px; letter-spacing: .02em; } .bc-phone .sl-tabs button::before { margin-bottom: 8px; }
 .bc-phone #bc-panel { display: none; }
 /* phones: nothing that has to be repainted while the page scrolls — the
@@ -126,7 +122,7 @@ html, body { background: var(--bg); }
 .bc-phone .pn .rv, .bc-phone .pn:not(.active):not(.hovered) .rv { filter: none; transition: opacity .4s linear; }
 .bc-phone .pn:not(.active) .rv { opacity: .6; }
 .bc-phone .bc-head { padding: 92px var(--gut) 18px; }
-.bc-phone #stack { display: flex; flex-direction: column; gap: 48px; padding: 6px var(--gut) calc(var(--mdock) + 40px); }
+.bc-phone #stack { display: flex; flex-direction: column; gap: 48px; padding: 6px var(--gut) 40px; }
 .bc-phone .pn { position: relative; height: auto; overflow: visible; background: none; box-shadow: none; }
 .bc-phone .pn + .pn { box-shadow: none; }
 .bc-phone .pn .in { position: relative; inset: auto; display: flex; flex-direction: column; gap: 12px; padding: 0; transform: none; filter: none; }
