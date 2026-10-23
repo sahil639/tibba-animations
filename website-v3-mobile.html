@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-10-23T12:54:06.108Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-10-23T13:13:54.990Z by tools/make-sandbox.mjs -->
 <head>
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="assets/site-shell.css">
 <link rel="stylesheet" href="assets/work.css">
 <script src="assets/work.js"></script>
+<script src="assets/service-icons.js" defer></script>
 <style>
 /* ══════════════════════════════════════════════════════════════════════════
    Website v3 — on a phone
@@ -24,8 +25,11 @@
    the same sections and copy, in one document, scrolled by the phone itself.
 
      no WebGL, no frames, no scroll handlers, no scroll-driven animation
-     the hero's mountain is drawn ONCE, as lines, on a 2D canvas, from the
-     same landform generator the 3D site uses (assets/landform.js)
+     no loader: it opens on the hero — the 3D mountain as a seamless muted
+     video loop (assets/video/hero-mountain.mp4, rendered from the real
+     scene by tools/render-hero.html; a still for reduced motion or data)
+     services as the gear-bags page has them — stage tabs, what we bring,
+     the engagement — without the 3D bag
      everything else is HTML and CSS; the few scripts are small and deferred
 
    The copy is the sections' own (site-hero, summits-data, brand-logos,
@@ -48,10 +52,13 @@ section { scroll-margin-top: 64px; }
 /* ── hero ───────────────────────────────────────────────────────────────── */
 .hero { position: relative; min-height: 100svh; min-height: 100vh; display: flex; flex-direction: column; padding: 96px var(--g) 28px; overflow: hidden; }
 @supports (height: 1svh) { .hero { min-height: 100svh; } }
-.hero h1 { position: relative; z-index: 1; font-weight: 300; font-size: clamp(52px, 17vw, 84px); line-height: .9; letter-spacing: -.04em; text-transform: uppercase; color: #fff; }
+.hero h1 { position: relative; z-index: 2; font-weight: 300; font-size: clamp(52px, 17vw, 84px); line-height: .9; letter-spacing: -.04em; text-transform: uppercase; color: #fff; }
 .hero h1 em { font-style: normal; color: var(--o); }
-.hero canvas { position: absolute; left: 0; right: 0; top: 28%; width: 100%; height: 52%; }
-.hero-foot { position: relative; z-index: 1; margin-top: auto; }
+.hero-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 62%; background: #000; }
+/* the words sit on the video: a little shade at the top and foot */
+.hero::after { content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,0) 32%, rgba(0,0,0,0) 62%, rgba(0,0,0,.92) 100%); }
+.hero-foot { position: relative; z-index: 2; margin-top: auto; }
 .hero-foot p:first-child { font-size: 19px; line-height: 1.3; color: #fff; }
 .hero-foot p + p { margin-top: 10px; font-size: 14px; line-height: 1.5; color: var(--mute); }
 
@@ -94,24 +101,38 @@ section { scroll-margin-top: 64px; }
 .index h3 { margin-top: 8px; font-weight: 400; font-size: 21px; letter-spacing: -.015em; color: #fff; }
 .index p { margin-top: 6px; font-size: 13.5px; line-height: 1.5; color: var(--mute); }
 
-/* ── services ───────────────────────────────────────────────────────────── */
-.tiers { display: grid; gap: 10px; margin-top: 24px; }
-.tier { border: 1px solid var(--line); background: var(--card); }
-.tier summary { list-style: none; cursor: pointer; padding: 18px 16px; display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: baseline; }
-.tier summary::-webkit-details-marker { display: none; }
-.tier summary small { font-size: 10px; letter-spacing: .16em; color: var(--o); }
-.tier summary b { font-weight: 400; font-size: 17px; color: #fff; }
-.tier summary span { color: var(--faint); font-size: 18px; transition: transform .25s; }
-.tier[open] summary span { transform: rotate(45deg); }
-.tier .in { padding: 0 16px 18px; }
-.tier .out { font-size: 15px; color: #fff; }
-.tier ul { margin-top: 14px; list-style: none; border-top: 1px solid var(--line); }
-.tier li { padding: 12px 0; border-bottom: 1px solid var(--line); }
-.tier li b { display: block; font-weight: 400; font-size: 15px; color: #fff; }
-.tier li span { display: block; margin-top: 4px; font-size: 13px; color: var(--mute); }
-.tier .eng { margin-top: 14px; font-size: 13px; color: var(--mute); }
-.tier .eng b { display: block; margin-bottom: 4px; font-weight: 400; font-size: 20px; color: #fff; }
-.tier .cta { display: inline-block; margin-top: 14px; padding: 12px 16px; background: var(--o); color: #000; text-decoration: none; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; }
+/* ── services (the gear-bags layout, without the bag) ──────────────────── */
+.stages { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 24px; border: 1px solid var(--line); }
+.stages button { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 12px 12px 13px; border: 0; border-right: 1px solid var(--line); background: none;
+  color: var(--mute); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.stages button:last-child { border-right: 0; }
+.stages small { font-size: 10px; letter-spacing: .16em; color: var(--faint); }
+.stages button[aria-selected="true"] { color: #fff; background: rgba(255,255,255,.04); }
+.stages button[aria-selected="true"] small { color: var(--o); }
+.stages button::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--o); transform: scaleX(0); transform-origin: left; transition: transform .35s cubic-bezier(.65,0,.35,1); }
+.stages button[aria-selected="true"]::after { transform: scaleX(1); }
+.stage-panel { margin-top: 22px; }
+.stage-panel .lbl { display: flex; align-items: center; gap: 10px; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--mute); }
+.stage-panel .lbl::before { content: ''; width: 6px; height: 6px; background: var(--o); }
+.stage-panel .out { margin-top: 10px; font-weight: 400; font-size: 24px; line-height: 1.15; letter-spacing: -.015em; color: #fff; }
+.stage-panel .bring { display: flex; justify-content: space-between; margin-top: 26px; padding-bottom: 10px; border-bottom: 1px solid var(--line);
+  font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--faint); }
+.stage-panel .bring b { color: var(--o); font-weight: 400; }
+.svc { list-style: none; }
+.svc li { display: grid; grid-template-columns: 34px 26px 1fr; gap: 10px; align-items: start; padding: 14px 0; border-bottom: 1px solid var(--line); --ic-cut: #000; }
+.svc svg { width: 30px; height: 30px; }
+.svc .n { padding-top: 3px; font-size: 11px; letter-spacing: .1em; color: var(--faint); }
+.svc b { display: block; font-weight: 400; font-size: 16px; color: #fff; }
+.svc span { display: block; margin-top: 4px; font-size: 13px; line-height: 1.45; color: var(--mute); }
+.eng { margin-top: 22px; padding: 18px 16px; background: var(--card); border: 1px solid var(--line); }
+.eng small { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--faint); }
+.eng b { display: block; margin-top: 8px; font-weight: 400; font-size: 22px; color: #fff; }
+.eng p { margin-top: 6px; font-size: 13px; line-height: 1.45; color: var(--mute); }
+.eng a { display: inline-flex; align-items: center; gap: 12px; margin-top: 14px; padding: 13px 16px; background: var(--o); color: #000; text-decoration: none; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; }
+.eng a::after { content: '→'; font-size: 15px; letter-spacing: 0; }
+.stage-panel > * { animation: stage-in .4s cubic-bezier(.16,1,.3,1) both; }
+@keyframes stage-in { from { opacity: 0; transform: translateY(8px); } }
+@media (prefers-reduced-motion: reduce) { .stage-panel > * { animation: none; } }
 
 /* ── rows that swipe sideways (testimonials, studio) — native scroll-snap ── */
 .row { display: flex; gap: 12px; margin: 24px calc(-1 * var(--g)) 0; padding: 0 var(--g) 4px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 var(--g);
@@ -159,7 +180,13 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
 <main>
   <section class="hero" aria-labelledby="hero-title">
     <h1 id="hero-title">Tibba<br>Design<br>Studio<em>.</em></h1>
-    <canvas id="peak" aria-hidden="true"></canvas>
+    <!-- the 3D hero mountain, rendered to a seamless 10.5 s loop
+         (tools/render-hero.html): a muted H.264 video the phone decodes in
+         hardware — the 3D look with none of the 3D work -->
+    <video class="hero-vid" id="hero-vid" autoplay muted loop playsinline preload="auto"
+      poster="assets/video/hero-mountain.jpg" aria-hidden="true" tabindex="-1">
+      <source src="assets/video/hero-mountain.mp4" type="video/mp4">
+    </video>
     <div class="hero-foot">
       <p>Helping ambitious teams reach the next peak.</p>
       <p>We partner with founders and design leaders to turn ambitious ideas into shipped, high-impact work.</p>
@@ -258,50 +285,12 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   <section id="services" class="pad" aria-labelledby="svc-h">
     <p class="eyebrow">[ Our services ]</p>
     <h2 class="h2" id="svc-h">Gear up for your climb</h2>
-    <div class="tiers">
-      <details class="tier" open>
-        <summary><small>01</small><b>Early-stage startup</b><span>+</span></summary>
-        <div class="in">
-          <p class="out">From idea to a product people want.</p>
-          <ul>
-            <li><b>Product strategy</b><span>Decide what to build first, and why.</span></li>
-            <li><b>MVP design</b><span>A launch-ready first version in weeks.</span></li>
-            <li><b>Research &amp; testing</b><span>Real users, real answers, before you build.</span></li>
-            <li><b>Brand &amp; launch</b><span>An identity and a site that earn trust on day one.</span></li>
-          </ul>
-          <p class="eng"><b>4–8 weeks</b>You get: a tested MVP, ready for users and investors</p>
-          <a class="cta" href="#footer">Start your MVP</a>
-        </div>
-      </details>
-      <details class="tier">
-        <summary><small>02</small><b>Mid-stage startup</b><span>+</span></summary>
-        <div class="in">
-          <p class="out">Turn traction into growth.</p>
-          <ul>
-            <li><b>Growth design</b><span>Onboarding, pricing and funnels that convert.</span></li>
-            <li><b>Design system</b><span>One kit, so every team ships faster.</span></li>
-            <li><b>Design to code</b><span>Production-ready UI your developers can ship.</span></li>
-            <li><b>Product analytics</b><span>See what users do, fix what slows them down.</span></li>
-          </ul>
-          <p class="eng"><b>8–12 weeks</b>You get: a faster product and a system your team can grow on</p>
-          <a class="cta" href="#footer">Plan your next release</a>
-        </div>
-      </details>
-      <details class="tier">
-        <summary><small>03</small><b>Established company</b><span>+</span></summary>
-        <div class="in">
-          <p class="out">Stay ahead while you scale.</p>
-          <ul>
-            <li><b>Product innovation</b><span>Prototype and test new bets in weeks.</span></li>
-            <li><b>Experience audit</b><span>Find what is costing you users, and fix it.</span></li>
-            <li><b>Embedded design team</b><span>Senior designers inside your team, on your cadence.</span></li>
-            <li><b>AI features</b><span>Useful AI in your product, designed for trust.</span></li>
-          </ul>
-          <p class="eng"><b>Ongoing, from 3 months</b>You get: a design partner for your roadmap</p>
-          <a class="cta" href="#footer">Book a strategy call</a>
-        </div>
-      </details>
+    <div class="stages" role="tablist" aria-label="Your stage">
+      <button type="button" role="tab" aria-selected="true" data-i="0"><small>01</small>Early stage</button>
+      <button type="button" role="tab" aria-selected="false" data-i="1"><small>02</small>Mid stage</button>
+      <button type="button" role="tab" aria-selected="false" data-i="2"><small>03</small>Established</button>
     </div>
+    <div class="stage-panel" id="stage-panel" role="tabpanel" aria-live="polite"></div>
   </section>
 
   <section class="pad" aria-labelledby="voices-h">
@@ -358,6 +347,39 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   });
   document.querySelectorAll('.case .wk-img').forEach(el => el.style.setProperty('--c', el.closest('.case').style.getPropertyValue('--c')));
   document.getElementById('yr').textContent = new Date().getFullYear();
+
+  /* services: the three stages, as services-gear-bags-v2.html has them —
+     the outcome, what we bring (four, with their icons) and the engagement */
+  addEventListener('DOMContentLoaded', () => {
+    const S = [
+      { label: 'Early-stage startup', outcome: 'From idea to a product people want.',
+        services: [['Product strategy', 'product-strategy', 'Decide what to build first, and why.'], ['MVP design', 'product-design', 'A launch-ready first version in weeks.'],
+                   ['Research & testing', 'usability-testing', 'Real users, real answers, before you build.'], ['Brand & launch', 'marketing-growth', 'An identity and a site that earn trust on day one.']],
+        engagement: '4–8 weeks', get: 'A tested MVP, ready for users and investors', cta: 'Start your MVP' },
+      { label: 'Mid-stage startup', outcome: 'Turn traction into growth.',
+        services: [['Growth design', 'optimisation', 'Onboarding, pricing and funnels that convert.'], ['Design system', 'design-systems', 'One kit, so every team ships faster.'],
+                   ['Design to code', 'dev-support', 'Production-ready UI your developers can ship.'], ['Product analytics', 'market-research', 'See what users do, fix what slows them down.']],
+        engagement: '8–12 weeks', get: 'A faster product and a system your team can grow on', cta: 'Plan your next release' },
+      { label: 'Established company', outcome: 'Stay ahead while you scale.',
+        services: [['Product innovation', 'user-interface', 'Prototype and test new bets in weeks.'], ['Experience audit', 'user-experience', 'Find what is costing you users, and fix it.'],
+                   ['Embedded design team', 'user-research', 'Senior designers inside your team, on your cadence.'], ['AI features', 'optimisation', 'Useful AI in your product, designed for trust.']],
+        engagement: 'Ongoing, from 3 months', get: 'A design partner for your roadmap', cta: 'Book a strategy call' },
+    ];
+    const esc = t => t.replace(/&/g, '&amp;');
+    const panel = document.getElementById('stage-panel'), tabs = [...document.querySelectorAll('.stages button')];
+    const ic = k => window.TibbaServiceIcon ? TibbaServiceIcon(k) : '';
+    function pick(i) {
+      const st = S[i];
+      tabs.forEach((b, k) => b.setAttribute('aria-selected', String(k === i)));
+      panel.innerHTML = `<p class="lbl">${String(i + 1).padStart(2, '0')} · ${st.label}</p>
+        <p class="out">${st.outcome}</p>
+        <p class="bring"><span>What we bring</span><b>04</b></p>
+        <ol class="svc">${st.services.map(([n, k, l], j) => `<li><span aria-hidden="true">${ic(k)}</span><span class="n">0${j + 1}</span><span><b>${esc(n)}</b><span>${esc(l)}</span></span></li>`).join('')}</ol>
+        <div class="eng"><small>Typical engagement</small><b>${st.engagement}</b><p>You get: ${st.get}</p><a href="#footer">${st.cta}</a></div>`;
+    }
+    tabs.forEach((b, i) => b.addEventListener('click', () => pick(i)));
+    pick(0);
+  });
   /* the form opens the visitor's mail app with the message filled in */
   document.getElementById('talk').addEventListener('submit', e => {
     e.preventDefault();
@@ -371,47 +393,14 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   mountSiteNav(document.getElementById('ca-header'), { home: 'website-v3-mobile.html', nav: [
     { label: 'Work', href: '#work' }, { label: 'Services', href: '#services' }, { label: 'About', href: 'about.html' }, { label: 'Contact', href: '#footer' }] });
 </script>
-<script type="module">
-  /* ── the hero's mountain, drawn once ────────────────────────────────────
-     The studio's massif from assets/landform.js (the generator the 3D hero
-     uses), as ridgelines: one profile per row of the land, back to front,
-     each filled black beneath so nearer rows hide farther ones. One pass,
-     on a 2D canvas, when the page opens — nothing runs after it. */
-  import { SITE_PEAKS, clonePeak, prepareLandform, coneAt, fbm } from './assets/landform.js';
-  const cv = document.getElementById('peak');
-  function draw() {
-    const dpr = Math.min(2, devicePixelRatio || 1), W = cv.clientWidth, H = cv.clientHeight;
-    if (!W || !H) return;
-    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
-    const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
-    const P = prepareLandform(clonePeak(SITE_PEAKS[0]));
-    const h = (x, z) => Math.max(0, 6 * (fbm(x * .058 + 1.7, z * .058 + 2.3) - .45) + coneAt(P, x, z));
-    const SPAN = 170, ROWS = 92, COLS = 140, cx = P.x, cz = P.z;
-    const lift = H * .5 / 48;
-    for (let r = 0; r < ROWS; r++) {
-      const depth = r / (ROWS - 1);                                    // 0 far … 1 near
-      const z = cz - SPAN * .5 + depth * SPAN * .75;
-      const yRow = H * (.42 + depth * .55);                           // far rows high, near rows low
-      const pts = [];
-      for (let c = 0; c <= COLS; c++) {
-        const x = cx - SPAN / 2 + (c / COLS) * SPAN;
-        pts.push([c / COLS * W, yRow - h(x, z) * lift * (.7 + depth * .3)]);
-      }
-      /* black beneath the line, so this row hides the rows behind it */
-      g.beginPath(); g.moveTo(0, pts[0][1]);
-      pts.forEach(p => g.lineTo(p[0], p[1]));
-      g.lineTo(W, H); g.lineTo(0, H); g.closePath();
-      g.fillStyle = '#000'; g.fill();
-      /* the line itself — the profile only, never the fill's edges */
-      g.beginPath(); g.moveTo(pts[0][0], pts[0][1]);
-      for (let i = 1; i < pts.length; i++) g.lineTo(pts[i][0], pts[i][1]);
-      const t = Math.min(1, .15 + depth * .95), fade = Math.min(1, depth * 4) * (1 - Math.max(0, depth - .8) * 3);
-      g.strokeStyle = `rgba(${Math.round(150 + 90 * t)},${Math.round(160 + 80 * t)},${Math.round(215 + 35 * t)},${(.18 + .55 * t * fade).toFixed(2)})`;
-      g.lineWidth = .7 + depth * .5; g.stroke();
-    }
-  }
-  draw();
-  addEventListener('resize', () => { clearTimeout(draw.t); draw.t = setTimeout(draw, 200); });
+<script>
+  /* the video stays a still (its poster) for anyone who asks for less
+     motion or less data */
+  (function () {
+    const v = document.getElementById('hero-vid');
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches || (navigator.connection && navigator.connection.saveData);
+    if (still) { v.removeAttribute('autoplay'); v.preload = 'none'; v.pause(); }
+  })();
 </script>
 <!-- primary / secondary typography control (assets/type-control.js) -->
 <script type="module" src="assets/type-control.js"></script>
