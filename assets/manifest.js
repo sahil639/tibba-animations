@@ -34,6 +34,8 @@ window.TIBBA_SITE = {
         note: 'The live sections as one website: loader into Active Peak into Metrics, Brands, Summits v3, case reel, Compass v4, testimonials, polaroids, footer; one navbar, refresh bottom left', state: 'live' },
       { id: 'website-v3', updated: '2026-10-23T18:00:00+07:00', change: 'Phones: stats straight under the hero (no turn), plain Base Camp without Rive, off-screen sections paused, smoother scroll', label: 'Website v3', file: 'website-v3.html',
         note: 'Loader, hero and stats as v2, then the work: four summits stacked and image-led, brands, the index of everything else, gear-tier services, voices, studio, footer', state: 'live' },
+      { id: 'website-v3-mobile', updated: '2026-10-23T22:00:00+07:00', change: 'New: Website v3 for phones as one native-scrolling page — no 3D, no frames', label: 'Website v3 — phone', file: 'website-v3-mobile.html',
+        note: 'What a phone gets when it opens Website v3: every section in one ordinary page, the hero mountain drawn once as ridgelines, services as tap-to-open tiers, swipeable testimonials and studio photos', state: 'live' },
     ],
   },
 
