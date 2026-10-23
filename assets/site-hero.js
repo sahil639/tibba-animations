@@ -254,6 +254,31 @@ addEventListener('keydown', e => { if (e.key === 'Escape') closeCard(); });
 
 /* ══ the frame: loader, intro, then the scroll ═════════════════════════ */
 const scope = $('#scope');
+
+/* ── phones: no turn, the stats straight away ───────────────────────────
+   On a phone the hero is one screen and nothing is scroll-driven: the
+   peak stays as it lands, and the stats sit in the flow directly below it
+   as a plain 2 × 2 grid, already filled in — no turn-aside, no boxes
+   drawing themselves, no counting. That leaves the page nothing to compute
+   while it scrolls, and the stats are there the moment they are reached. */
+const PHONE = matchMedia('(max-width: 760px)');
+function phoneLayout() {
+  const on = PHONE.matches;
+  document.documentElement.classList.toggle('hero-phone', on);
+  if (on) {
+    if (host.parentNode !== scope) scope.appendChild(host);
+    if (drive) drive.kill();
+    tl.progress(1);                                   // the boxes as they finish drawing, at once
+    boxes.forEach(el => { const v = el.querySelector('.v'); if (v && v.dataset.v) v.textContent = v.dataset.v; });
+    mState = 'open';
+  } else if (host.parentNode === scope) {
+    stage.appendChild(host);
+    tl.progress(0);
+    mState = 'closed';
+  }
+}
+phoneLayout();
+PHONE.addEventListener('change', phoneLayout);
 function scrollT() {
   const travel = scope.offsetHeight - innerHeight;
   return travel > 0 ? clamp01(-scope.getBoundingClientRect().top / travel) : 0;
@@ -266,7 +291,7 @@ function frame(now) {
     /* the hero has landed — only now may the page scroll */
     if (intro >= 1) { phase = 'hero'; scene.setFill(null); tellShell(); }
   }
-  const t = scrollT();
+  const t = PHONE.matches ? 0 : scrollT();
   const k = smooth(clamp01((t - C.lock.from) / (C.lock.to - C.lock.from)));
   const narrow = innerWidth <= 820;
   /* where the scroll says the camera is, eased in from the plan by the intro */
@@ -291,6 +316,7 @@ function frame(now) {
   scene.setHover(intro > 0.6);
   ringsLive = intro >= 1 && k < 0.25;
   if (!ringsLive && cardOpen) closeCard();
+  if (PHONE.matches) return;
   if (t >= C.metrics.openAt) { if (mState !== 'open' && mState !== 'opening') run(1); }
   else if (t < C.metrics.closeBelow) { if (mState !== 'closed' && mState !== 'closing') run(0); }
 }

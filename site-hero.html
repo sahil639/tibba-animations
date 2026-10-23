@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- the hero's three.js and GSAP come from these: open the connections early -->
+<link rel="preconnect" href="https://unpkg.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 <title>Site hero — loader, Active Peak, Metrics</title>
 <link rel="stylesheet" href="assets/type.css">
 <link rel="stylesheet" href="assets/site.css">
@@ -130,6 +133,20 @@ body:not(.ld-gone) { overflow: hidden; }
   .mbox .v { font-size: 32px; }
   .foot-fade { height: 8vh; }
   .hero-title { top: 27%; } .hero-side { left: var(--gut); max-width: none; } .hero-cue { display: none; }
+}
+/* ── phones: one screen of hero, then the stats in the flow ───────────── */
+@media (max-width: 760px) {
+  #scope { height: auto; }
+  #stage { position: relative; }
+  .hero-phone #metrics { position: relative; inset: auto; z-index: auto; opacity: 1; pointer-events: auto; padding: 4px 16px 56px; background: #000; }
+  .hero-phone .mcluster { position: relative; left: 0; right: 0; top: 0; bottom: auto; width: auto; height: auto; aspect-ratio: auto;
+    display: grid; grid-template-columns: 1fr 1fr; }
+  .hero-phone .mbox { position: relative; left: auto; top: auto; width: auto; height: auto; min-height: 128px; margin: 0 -1px -1px 0; }
+  .hero-phone .mbox .plate { clip-path: none; background: #0a0a0c; -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .hero-phone .mbox .hl { display: none; }
+  .hero-phone .mbox .cn { opacity: .9; }
+  .hero-phone .mbox .k, .hero-phone .mbox .v, .hero-phone .mbox .l { opacity: 1; }
+  .hero-phone .foot-fade { height: 14vh; }
 }
 </style>
 <link rel="stylesheet" href="assets/tune.css">

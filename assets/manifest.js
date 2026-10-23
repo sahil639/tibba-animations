@@ -32,7 +32,7 @@ window.TIBBA_SITE = {
         note: 'Loader, hero and its three scroll states, metrics, brands, the four-summit walk, services, testimonials', state: 'live' },
       { id: 'final-website-v2', updated: '2026-10-12T16:00:00+07:00', change: 'Renamed from Final Website v2; the dropdown index added', label: 'Website v2', file: 'final-website-v2.html',
         note: 'The live sections as one website: loader into Active Peak into Metrics, Brands, Summits v3, case reel, Compass v4, testimonials, polaroids, footer; one navbar, refresh bottom left', state: 'live' },
-      { id: 'website-v3', updated: '2026-10-21T16:00:00+07:00', change: 'Typography control (Aa Type, bottom left): primary and secondary font, size, line height, spacing, weight and case — across v3, About and the case studies', label: 'Website v3', file: 'website-v3.html',
+      { id: 'website-v3', updated: '2026-10-23T18:00:00+07:00', change: 'Phones: stats straight under the hero (no turn), plain Base Camp without Rive, off-screen sections paused, smoother scroll', label: 'Website v3', file: 'website-v3.html',
         note: 'Loader, hero and stats as v2, then the work: four summits stacked and image-led, brands, the index of everything else, gear-tier services, voices, studio, footer', state: 'live' },
     ],
   },

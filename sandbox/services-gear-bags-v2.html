@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-10-23T11:10:45.064Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-10-23T11:46:18.942Z by tools/make-sandbox.mjs -->
 <head>
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
@@ -312,6 +312,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     const phone = matchMedia('(max-width: 640px)'), root = document.documentElement;
     const body = document.querySelector('.gs-body'), slot = tiersEl.parentNode;
     const gap = () => root.classList.contains('wb-embed') && window.parent !== window ? 72 : 10;
+    let lastGap = -1, queued = 0;
     function check() {
       let dock = false, show = false;
       if (phone.matches) {
@@ -321,17 +322,20 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
         /* in the site the frame slides away at the page's foot: let go as it starts to */
         let fe = null; try { fe = window.frameElement; } catch {}
         if (fe && fe.getBoundingClientRect().top < -24) { dock = false; show = false; }
-        root.style.setProperty('--dock-top', g + 'px');
+        if (g !== lastGap) { lastGap = g; root.style.setProperty('--dock-top', g + 'px'); }
       }
       root.classList.toggle('bag-float', show);
       if (dock === slot.classList.contains('docked')) return;
       slot.style.height = dock ? tiersEl.offsetHeight + 'px' : '';
       slot.classList.toggle('docked', dock);
     }
-    addEventListener('scroll', check, { passive: true });
-    addEventListener('resize', check);
-    phone.addEventListener('change', check);
-    try { if (window.parent !== window) window.parent.addEventListener('scroll', check, { passive: true }); } catch {}
+    /* at most once a frame, however many scroll events arrive (its own,
+       and the site's around it) — and off screen, not at all */
+    const queue = () => { if (!queued) queued = requestAnimationFrame(() => { queued = 0; check(); }); };
+    addEventListener('scroll', queue, { passive: true });
+    addEventListener('resize', queue);
+    phone.addEventListener('change', queue);
+    try { if (window.parent !== window) window.parent.addEventListener('scroll', queue, { passive: true }); } catch {}
     check();
   }
 

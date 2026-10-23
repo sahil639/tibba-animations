@@ -59,8 +59,15 @@
 
   /* one slot: tries .webp, .jpg, .png; when none is there it becomes the
      placeholder (the class does the drawing, the label says what's missing) */
+  /* slots already found empty this session: drawn as their placeholder
+     straight away, without asking the server three times again — on a
+     phone, every section page would otherwise re-probe every missing file */
+  const MISS_KEY = 'tibba.work.missing';
+  let missing;
+  try { missing = new Set(JSON.parse(sessionStorage.getItem(MISS_KEY) || '[]')); } catch (e) { missing = new Set(); }
   function img(folder, name, alt, ratio, cls) {
     const base = DIR + folder + '/' + name;
+    if (missing.has(base)) return `<div class="wk-img ph${cls ? ' ' + cls : ''}"${ratio ? ` style="--ratio:${ratio}"` : ''} data-wait="${esc(folder + ' / ' + name)}"></div>`;
     return `<div class="wk-img${cls ? ' ' + cls : ''}"${ratio ? ` style="--ratio:${ratio}"` : ''} data-wait="${esc(folder + ' / ' + name)}">`
       + `<img src="${base}.${EXT[0]}" data-base="${base}" data-try="0" alt="${esc(alt || '')}" loading="lazy" decoding="async" onerror="TibbaWork.next(this)" onload="this.parentNode.classList.add('in')"></div>`;
   }
@@ -68,6 +75,8 @@
     const i = +el.dataset.try + 1;
     if (i < EXT.length) { el.dataset.try = i; el.src = el.dataset.base + '.' + EXT[i]; return; }
     el.parentNode.classList.add('ph');
+    missing.add(el.dataset.base);
+    try { sessionStorage.setItem(MISS_KEY, JSON.stringify([...missing])); } catch (e) {}
     el.remove();
   }
 

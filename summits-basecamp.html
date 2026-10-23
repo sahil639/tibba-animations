@@ -109,6 +109,13 @@ html, body { background: var(--bg); }
 .bc-phone .bc-bar { pointer-events: auto; left: 0; right: 0; transform: none; width: auto; bottom: 0; padding: 0 var(--gut) 12px; background: var(--bg); }   /* a plain strip, no fade, its progress line right under the range */
 .bc-phone .sl-tabs button { font-size: 9.5px; letter-spacing: .02em; } .bc-phone .sl-tabs button::before { margin-bottom: 8px; }
 .bc-phone #bc-panel { display: none; }
+/* phones: nothing that has to be repainted while the page scrolls — the
+   peak dot keeps a solid ring instead of two wide blurred glows, and the
+   cards out of focus are dimmed by opacity (composited) rather than by a
+   grayscale filter (repainted) */
+.bc-phone .fs-peak.bc-mark i { box-shadow: 0 0 0 2px var(--c); }
+.bc-phone .pn .rv, .bc-phone .pn:not(.active):not(.hovered) .rv { filter: none; transition: opacity .4s linear; }
+.bc-phone .pn:not(.active) .rv { opacity: .6; }
 .bc-phone .bc-head { padding: 92px var(--gut) 18px; }
 .bc-phone #stack { display: flex; flex-direction: column; gap: 48px; padding: 6px var(--gut) calc(var(--mdock) + 40px); }
 .bc-phone .pn { position: relative; height: auto; overflow: visible; background: none; box-shadow: none; }

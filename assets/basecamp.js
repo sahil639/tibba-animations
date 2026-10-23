@@ -132,7 +132,9 @@ export function mountBasecamp() {
   const rv = cards.map(() => null);
   const io = new IntersectionObserver(es => es.forEach(e => {
     const i = +e.target.dataset.i;
-    if (e.isIntersecting && !rv[i] && window.TibbaRive) {
+    /* not on a phone: the cards show their still, and the Rive runtime and
+       files (several MB) are never fetched — the scroll stays the phone's */
+    if (e.isIntersecting && !rv[i] && window.TibbaRive && !phone.matches) {
       rv[i] = window.TibbaRive.mount(e.target.querySelector('.rv'), { names: [S[i].folder], autoplay: false });
       cardState();
     }

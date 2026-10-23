@@ -88,6 +88,9 @@ export const V3_SECTIONS = [
     variants: [{ file: 'site-hero.html', label: 'Loader, Active Peak and Metrics as one scene' },
                { file: 'site-hero.html?noloader', label: 'Same, without the loader' }] },
   { id: 'work', label: 'Our summits', folder: 'Our summits', nav: 'Work',
+    /* a phone gets Base Camp without the layering: one range, no depth
+       layers, no Rive per card — the same section at a fraction of the work */
+    mobile: { file: 'summits-basecamp.html' },
     variants: [{ file: 'summits-basecamp-layered.html', label: 'Base Camp, layered' },
                { file: 'summits-basecamp.html', label: 'Base Camp' }] },
   { id: 'brands', label: 'Brands', folder: 'Brands section', frame: '85vh',
