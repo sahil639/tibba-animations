@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-10-23T11:46:18.942Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-10-23T11:48:13.030Z by tools/make-sandbox.mjs -->
 <head>
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
@@ -100,13 +100,21 @@ html, body { background: var(--bg); }
 
 /* ── phones: the cards scroll in the top two-thirds; the range and the
    progress bar are docked in the bottom third the whole way through ─── */
-:root.bc-phone { --mdock: 33vh; }
-@supports (height: 1svh) { :root.bc-phone { --mdock: 33svh; } }
+:root.bc-phone { --mdock: clamp(200px, 30vh, 280px); }
+@supports (height: 1svh) { :root.bc-phone { --mdock: clamp(200px, 30svh, 280px); } }
 .bc-phone .bc-dock { top: calc(100vh - var(--mdock)); top: calc(100svh - var(--mdock)); height: var(--mdock); margin-bottom: calc(-1 * var(--mdock));
-  pointer-events: none; background: none; }
-/* no wash: the cards read straight through behind the peaks */
-.bc-phone .bc-dock::before { display: none; }
-.bc-phone #range { inset: 0 0 var(--barh, 40px) 0; -webkit-mask-image: none; mask-image: none; pointer-events: auto; }
+  pointer-events: none; background: var(--bg); }
+/* the range is ground, not an overlay: the dock is solid, and the cards
+   dissolve into it over a short fade just above its edge as they pass
+   under — the lines never draw across a card's image or numbers */
+.bc-phone .bc-dock::before { display: block; inset: auto 0 100% 0; height: 48px; z-index: 0;
+  background: linear-gradient(to bottom, rgba(12,11,10,0), var(--bg)); }
+/* and the peaks fade out at the band's sides and top, as on desktop,
+   instead of being clipped hard by its edges */
+.bc-phone #range { inset: 0 0 var(--barh, 40px) 0; pointer-events: auto;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent), linear-gradient(transparent, #000 16%);
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent), linear-gradient(transparent, #000 16%);
+  -webkit-mask-composite: source-in; mask-composite: intersect; }
 .bc-phone .bc-bar { pointer-events: auto; left: 0; right: 0; transform: none; width: auto; bottom: 0; padding: 0 var(--gut) 12px; background: var(--bg); }   /* a plain strip, no fade, its progress line right under the range */
 .bc-phone .sl-tabs button { font-size: 9.5px; letter-spacing: .02em; } .bc-phone .sl-tabs button::before { margin-bottom: 8px; }
 .bc-phone #bc-panel { display: none; }
