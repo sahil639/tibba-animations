@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Test — the phone page's scene videos</title>
+<style>html, body { margin: 0; background: #000; } iframe { width: 390px; height: 844px; border: 0; }</style>
+</head>
+<body>
+<!-- tools/test-scene-video.html — a local check, run against dev-server.mjs
+     (headless: chrome --headless=new --autoplay-policy=no-user-gesture-required
+     --window-size=400,860 http://localhost:8794/tools/test-scene-video.html).
+     Scrolls the phone page's summits down and back, picks the stages, and
+     writes what the videos did to tools/out/test-scene-video.json. -->
+<iframe id="f" src="/website-v3-mobile.html"></iframe>
+<script type="module">
+  const f = document.getElementById('f');
+  await new Promise(r => f.onload = r);
+  const W = f.contentWindow, D = f.contentDocument, wait = ms => new Promise(r => setTimeout(r, ms));
+  const log = [], dock = D.getElementById('dock'), cards = [...D.querySelectorAll('#work .case')];
+  const snap = l => log.push([l, +performance.now().toFixed(0), dock.className, [...dock.querySelectorAll('video')].map(v => v.currentTime.toFixed(2) + (v.paused ? 'p' : '>') + (v.classList.contains('on') ? '*' : '')).join(' ')]);
+  const to = async (i, ms, label) => {
+    W.scrollTo({ top: cards[i].getBoundingClientRect().top + W.scrollY - 200, behavior: 'instant' });
+    for (let t = 0; t < ms; t += 150) { await wait(150); snap(label); }
+  };
+  await to(0, 3000, 'load 0');
+  await to(1, 2500, 'to 1');
+  await to(3, 3500, 'to 3');
+  await to(2, 2500, 'back 2');
+  await to(0, 3500, 'back 0');
+  /* the packs */
+  const pack = D.getElementById('pack');
+  pack.scrollIntoView({ block: 'center' });
+  await wait(2500);
+  const ps = () => [...pack.querySelectorAll('.pk')].map(p => p.className + ':' + (p.querySelector('video') ? p.querySelector('video').currentTime.toFixed(2) + (p.querySelector('video').paused ? 'p' : '>') : '-')).join(' | ');
+  log.push(['pack', ps()]);
+  D.querySelectorAll('.stages button')[2].click(); await wait(1600); log.push(['pack 2', ps(), D.getElementById('pack-name').textContent]);
+  D.querySelectorAll('.stages button')[1].click(); await wait(1600); log.push(['pack 1', ps(), D.getElementById('pack-name').textContent]);
+  await fetch('/__save/test-scene-video.json', { method: 'POST', body: JSON.stringify(log) });
+  document.title = 'done';
+</script>
+</body>
+</html>

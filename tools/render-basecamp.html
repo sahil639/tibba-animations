@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Render — Base Camp's four summits as video frames</title>
+<style>
+  html, body { margin: 0; background: #000; color: #ccc; font: 13px system-ui; }
+  iframe { width: 390px; height: 844px; border: 0; float: left; }
+  canvas { width: 390px; float: left; margin-left: 12px; }
+  p { padding: 8px; margin: 0; clear: both; }
+</style>
+</head>
+<body>
+<!-- ─────────────────────────────────────────────────────────────────────────
+     tools/render-basecamp.html — a local tool, run against dev-server.mjs
+
+     Renders the phone Base Camp range (summits-basecamp.html at 390 × 844,
+     as a phone lays it out) as one flight across the four summits: a short
+     hold on each, an eased flight between. The page runs on a virtual clock
+     (requestAnimationFrame / performance.now are replaced before it loads),
+     so every frame is exactly 1/fps apart however slow the rendering is.
+
+     The box's own CSS mask (the fade at the sides and top) and its
+     background are baked into each frame. Frames go to tools/out/bc-NNNN.png
+     and the timing — where each summit rests, and where its dot stands — to
+     tools/out/bc-timeline.json. Then tools/encode-basecamp.sh.
+
+     ?dpr=3&fps=30&fly=1.3&hold=0.4
+     ───────────────────────────────────────────────────────────────────── -->
+<iframe id="f"></iframe>
+<canvas id="out"></canvas>
+<p id="log">loading…</p>
+<script type="module">
+  const q = new URLSearchParams(location.search), num = (k, d) => +(q.get(k) || d);
+  const DPR = num('dpr', 3), FPS = num('fps', 30), FLY = num('fly', 1.3), HOLD = num('hold', 0.4);
+  const log = document.getElementById('log'), out = document.getElementById('out');
+  const N = 4, dt = 1000 / FPS;
+
+  /* the virtual clock, in place before any of the page's own scripts */
+  const SHIM = `<base href="${location.origin}/"><script>(() => {
+    let t = 0, id = 0; const q = [];
+    performance.now = () => t; const d0 = Date.now(); Date.now = () => d0 + t;
+    window.requestAnimationFrame = cb => { q.push([++id, cb]); return id; };
+    window.cancelAnimationFrame = i => { const k = q.findIndex(e => e[0] === i); if (k >= 0) q.splice(k, 1); };
+    Object.defineProperty(window, 'devicePixelRatio', { get: () => ${DPR} });
+    window.__advance = ms => { t += ms; q.splice(0).forEach(([, cb]) => cb(t)); };
+    window.__bcFocus = 0;
+  })();<\/script>`;
+  const html = await (await fetch('/summits-basecamp.html')).text();
+  const f = document.getElementById('f');
+  f.srcdoc = html.replace(/<head>/i, '<head>' + SHIM);
+  await new Promise(r => f.onload = r);
+  const W = f.contentWindow, D = f.contentDocument;
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  /* the range built (terrain, contours) — it advances only when told to */
+  for (let i = 0; i < 40 && !D.querySelector('#range canvas'); i++) { W.__advance(dt); await wait(100); }
+  await wait(1200);
+  W.scrollTo(0, D.getElementById('bc').offsetTop + 300);
+
+  const box = D.getElementById('range'), cv = box.querySelector('canvas');
+  const peaks = [...box.querySelectorAll('.fs-peak')];
+  const step = focus => { W.__bcFocus = focus; W.__advance(dt); };
+  for (let i = 0; i < 120; i++) step(0);            // settle: fades, the lit summit, the mask
+
+  /* the frame: the range over the box's background, with the box's fade
+     (transparent → solid over the outer 10% each side and the top 16%) */
+  const w = cv.width, h = cv.height;
+  out.width = w; out.height = h;
+  const o = out.getContext('2d'), layer = new OffscreenCanvas(w, h), l = layer.getContext('2d');
+  const gx = l.createLinearGradient(0, 0, w, 0);
+  gx.addColorStop(0, 'rgba(0,0,0,0)'); gx.addColorStop(.1, '#000'); gx.addColorStop(.9, '#000'); gx.addColorStop(1, 'rgba(0,0,0,0)');
+  const gy = l.createLinearGradient(0, 0, 0, h);
+  gy.addColorStop(0, 'rgba(0,0,0,0)'); gy.addColorStop(.16, '#000');
+  async function save(n) {
+    l.globalCompositeOperation = 'copy'; l.drawImage(cv, 0, 0);
+    l.globalCompositeOperation = 'destination-in'; l.fillStyle = gx; l.fillRect(0, 0, w, h); l.fillStyle = gy; l.fillRect(0, 0, w, h);
+    o.fillStyle = '#100f0e'; o.fillRect(0, 0, w, h); o.drawImage(layer, 0, 0);
+    const blob = await new Promise(r => out.toBlob(r, 'image/png'));
+    await fetch('/__save/bc-' + String(n).padStart(4, '0') + '.png', { method: 'POST', body: blob });
+  }
+  /* where summit i's dot stands, as a share of the box */
+  const dot = i => {
+    const m = /translate3d\(([-\d.]+)px,\s*([-\d.]+)px/.exec(peaks[i].style.transform) || [0, 0, 0];
+    return [+(m[1] / box.clientWidth).toFixed(4), +(m[2] / box.clientHeight).toFixed(4)];
+  };
+
+  const ease = u => u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;   // in-out cubic
+  const plan = [];                                  // the focus for every frame
+  const rests = [];
+  const hold = (i) => { rests.push({ summit: i, frame: plan.length + 1 }); for (let k = 0; k < Math.round(HOLD * FPS); k++) plan.push(i); };
+  hold(0);
+  for (let i = 0; i < N - 1; i++) {
+    const n = Math.round(FLY * FPS);
+    for (let k = 1; k <= n; k++) plan.push(i + ease(k / n));
+    hold(i + 1);
+  }
+  for (let n = 0; n < plan.length; n++) {
+    step(plan[n]);
+    const r = rests.find(r => r.frame === n); if (r) r.dot = dot(r.summit);
+    await save(n);
+    if (n % 10 === 0) log.textContent = `frame ${n + 1} / ${plan.length} — ${w}×${h}`;
+  }
+  const timeline = { fps: FPS, frames: plan.length, width: w, height: h,
+    /* each summit's rest: the time to stop at (the middle of its frame) and its dot */
+    rests: rests.map(r => ({ t: +((r.frame + .5) / FPS).toFixed(4), dot: r.dot })) };
+  await fetch('/__save/bc-timeline.json', { method: 'POST', body: JSON.stringify(timeline, null, 1) });
+  log.textContent = `done — ${plan.length} frames at ${w}×${h}`;
+  window.__done = true;
+</script>
+</body>
+</html>

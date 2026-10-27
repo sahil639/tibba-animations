@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-10-23T13:29:18.470Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-10-27T11:10:25.987Z by tools/make-sandbox.mjs -->
 <head>
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
@@ -14,6 +14,7 @@
 <script src="assets/work.js"></script>
 <script src="assets/service-icons.js" defer></script>
 <script src="assets/rive-slot.js" defer></script>
+<script src="assets/scene-video.js" defer></script>
 <style>
 /* ══════════════════════════════════════════════════════════════════════════
    Website v3 — on a phone
@@ -71,8 +72,33 @@ section { scroll-margin-top: 64px; }
 .stats span { display: block; margin-top: 12px; font-size: 14px; line-height: 1.35; color: var(--mute); }
 
 /* ── our summits: open, like the rest of the page — no boxes ─────────── */
-.cases { display: grid; gap: 64px; margin-top: 36px; }
+.cases { display: grid; gap: 64px; padding-bottom: calc(var(--dh) + 32px); }
 .case { --c: #fff; }
+
+/* the summits, docked to the foot of the screen for the length of the
+   cards: the scene as video, a still until (or unless) it can play
+   smoothly (assets/scene-video.js) */
+.climb { --dh: calc((100vw - 2 * var(--g)) * 428 / 696 + 38px); position: relative; margin-top: 36px; }
+.dock { --c: #4DD9C0; position: sticky; z-index: 5; top: calc(100vh - var(--dh) - 12px); top: calc(100svh - var(--dh) - 12px);
+  height: var(--dh); margin-bottom: calc(-1 * var(--dh)); overflow: hidden; border: 1px solid var(--line); border-radius: 4px; background: #100f0e; }
+.dock-view { position: relative; height: calc(100% - 38px); }
+.dock-view img, .dock-view video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.dock-view img { opacity: 0; transition: opacity .5s linear; }
+.dock-view img.on { opacity: 1; }
+.dock-view video { opacity: 0; }
+.dock-view video.on { opacity: 1; }
+.dock-dot { position: absolute; z-index: 2; left: 50%; top: var(--dy, 42%); width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%;
+  background: #fff; box-shadow: 0 0 0 2px var(--c); opacity: 0; transition: opacity .3s linear; }
+.dock.rest .dock-dot { opacity: 1; }
+.dock-dot::before, .dock-dot::after { content: ''; position: absolute; inset: -1.5px; border: 1.5px solid var(--c); border-radius: 50%; opacity: 0; animation: pulse 1.8s cubic-bezier(.16,.62,.36,1) infinite; }
+.dock-dot::after { animation-delay: .9s; }
+@keyframes pulse { 0% { transform: scale(1); opacity: .75; } 70% { opacity: .1; } 100% { transform: scale(6); opacity: 0; } }
+.dock-bar { display: grid; grid-template-columns: repeat(4, 1fr); height: 38px; border-top: 1px solid var(--line); }
+.dock-bar button { position: relative; padding: 0 4px; border: 0; background: none; color: var(--faint); font: inherit; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+.dock-bar button.on { color: #fff; }
+.dock-bar button::after { content: ''; position: absolute; left: 8px; right: 8px; top: -1px; height: 2px; background: var(--c); transform: scaleX(0); transition: transform .35s cubic-bezier(.65,0,.35,1); }
+.dock-bar button.on::after { transform: scaleX(1); }
+@media (prefers-reduced-motion: reduce) { .dock-dot::before, .dock-dot::after { animation: none; } }
 .case .k { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--faint); }
 .case .k b { color: var(--c); font-weight: 400; white-space: nowrap; }
 .case .k i { width: 20px; height: 1px; background: rgba(233,236,242,.3); }
@@ -110,7 +136,17 @@ section { scroll-margin-top: 64px; }
 .more-link { display: inline-flex; gap: 10px; margin-top: 18px; color: #fff; text-decoration: none; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; border-bottom: 1px solid var(--o); padding-bottom: 4px; }
 .more-link::after { content: '→'; color: var(--o); letter-spacing: 0; }
 
-/* ── services (the gear-bags layout, without the bag) ──────────────────── */
+/* ── services (the gear-bags layout; the bag as video) ──────────────────── */
+.pack { margin: 18px 0 0; border: 1px solid var(--line); background: #0b0b0c; }
+.pack-bar { display: flex; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--line); font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--faint); }
+.pack-bar b { color: #fff; font-weight: 400; }
+.pack-view { position: relative; aspect-ratio: 780 / 660; overflow: hidden; }
+.pk { position: absolute; inset: 0; transform: scale(.001); transform-origin: 50% 62%; opacity: 0; }
+.pk img, .pk video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* out: shrinking away; in, a beat later: growing past full size and settling */
+.pk.on { transform: none; opacity: 1; transition: transform .82s cubic-bezier(.34,1.56,.64,1) .5s, opacity .15s linear .5s; }
+.pk.off { transition: transform .36s cubic-bezier(.55,0,1,.45), opacity .36s ease-in; }
+@media (prefers-reduced-motion: reduce) { .pk, .pk.on, .pk.off { transition: opacity .3s linear; transform: none; } }
 .stages { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 24px; border: 1px solid var(--line); }
 .stages button { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 12px 12px 13px; border: 0; border-right: 1px solid var(--line); background: none;
   color: var(--mute); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
@@ -310,6 +346,17 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   <section id="work" class="pad" aria-labelledby="work-h">
     <p class="eyebrow">[ Our summits ]</p>
     <h2 class="h2" id="work-h">Four climbs, and what they were for</h2>
+    <div class="climb">
+    <div class="dock" id="dock" role="group" aria-label="The four summits">
+      <div class="dock-view">
+        <img class="on" src="assets/video/summit-0.jpg" alt="" decoding="async">
+        <img src="assets/video/summit-1.jpg" alt="" loading="lazy" decoding="async">
+        <img src="assets/video/summit-2.jpg" alt="" loading="lazy" decoding="async">
+        <img src="assets/video/summit-3.jpg" alt="" loading="lazy" decoding="async">
+        <i class="dock-dot" aria-hidden="true"></i>
+      </div>
+      <div class="dock-bar"><button type="button" class="on">Groww</button><button type="button">Firstpost</button><button type="button">Breathe ESG</button><button type="button">Shyft</button></div>
+    </div>
     <div class="cases">
       <article class="case" style="--c:#4DD9C0">
         <p class="k"><b>Summit 01</b><i></i>Fintech · 2024 — now</p>
@@ -343,6 +390,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
         <dl><div><dt>70%</dt><dd>Decrease in sales team intervention</dd></div><div><dt>15x</dt><dd>Increase in direct purchases via the landing page</dd></div></dl>
         <a class="go" href="case-shyft-mindhouse-v2.html">View case study</a>
       </article>
+    </div>
     </div>
   </section>
 
@@ -378,6 +426,14 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
       <button type="button" role="tab" aria-selected="false" data-i="1"><small>02</small>Mid stage</button>
       <button type="button" role="tab" aria-selected="false" data-i="2"><small>03</small>Established</button>
     </div>
+    <figure class="pack" id="pack">
+      <figcaption class="pack-bar"><span>The pack for this climb</span><b id="pack-name">Waist pack</b></figcaption>
+      <div class="pack-view">
+        <div class="pk on" data-name="Waist pack" data-src="assets/video/bag1.mp4"><img src="assets/video/bag1.jpg" alt="A waist pack" decoding="async"></div>
+        <div class="pk" data-name="Day pack" data-src="assets/video/bag2.mp4"><img src="assets/video/bag2.jpg" alt="A day pack" decoding="async"></div>
+        <div class="pk" data-name="Hiking bag" data-src="assets/video/bag0.mp4"><img src="assets/video/bag0.jpg" alt="A hiking bag" decoding="async"></div>
+      </div>
+    </figure>
     <div class="stage-panel" id="stage-panel" role="tabpanel" aria-live="polite"></div>
   </section>
 

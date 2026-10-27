@@ -152,6 +152,8 @@ export function mountBasecamp() {
   const top = el => el.getBoundingClientRect().top + scrollY;          // page position, whatever the offset parent
   /* desktop: a rest on each card, the flight while the next one rises */
   const focusNow = () => {
+    /* tools/render-basecamp.html drives the focus itself, frame by frame */
+    if (window.__bcFocus != null) { SUMMITS2_CONFIG.focus.chase = 1e3; return window.__bcFocus; }
     if (phone.matches) {
       /* the card crossing the middle of the scroll area (the top two-thirds)
          is the one in focus; the flight to the next starts as it leaves */
