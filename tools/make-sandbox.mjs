@@ -56,6 +56,16 @@ for (const js of ['assets/site-chrome.js', 'assets/work.js', 'assets/cases.js', 
 /* the chrome off: one stylesheet appended after every page's own */
 const OFF = `<style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
 html[data-wb-dock] body { padding-right: 0 !important; }</style>`;
+/* Google Analytics (staging), first thing in every page's <head>. The
+   desktop site is a shell of framed sections, so the tag loads only in
+   the top window: one page view per visit, not one per section frame. */
+const GA = 'G-DZS8N17C9N';
+const GTAG = `<!-- Google tag (gtag.js) -->
+<script>
+if (window.top === window) { var g = document.createElement('script'); g.async = true; g.src = 'https://www.googletagmanager.com/gtag/js?id=${GA}'; document.head.appendChild(g); }
+window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date());
+gtag('config', '${GA}');
+</script>`;
 const STAMP = `<!-- sandbox: a frozen copy of Website v3, made ${new Date().toISOString()} by tools/make-sandbox.mjs -->`;
 
 await rm(OUT, { recursive: true, force: true });
@@ -63,7 +73,7 @@ await mkdir(OUT, { recursive: true });
 await cp(join(ROOT, 'assets'), join(OUT, 'assets'), { recursive: true });
 for (const f of pages) {
   let html = await readFile(join(ROOT, f), 'utf8');
-  html = html.replace('</head>', OFF + '\n</head>').replace(/<html[^>]*>/, m => m + '\n' + STAMP);
+  html = html.replace(/<head[^>]*>/i, m => m + '\n' + GTAG).replace('</head>', OFF + '\n</head>').replace(/<html[^>]*>/, m => m + '\n' + STAMP);
   await writeFile(join(OUT, f), html);
 }
 await writeFile(join(OUT, 'index.html'), await readFile(join(OUT, 'website-v3.html'), 'utf8'));
