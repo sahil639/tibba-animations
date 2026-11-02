@@ -629,7 +629,7 @@ const mountainMat = new THREE.ShaderMaterial({
        fills, everything on screen is mesh and everything on screen competes;
        the massif has to lead, or the plan view reads as an even field of
        rubble with no subject in it. 1 is no distinction at all. */
-    uPaper:  { value: new THREE.Vector3(0.022, 0.022, 0.026) },   // the contoured body's tone, a shade over the page
+    uPaper:  { value: new THREE.Vector3(0, 0, 0) },   // the contoured body's tone: exactly the page's (#000), no edge between them
     uCountryLit: { value: 1 },
     /* focus styling — shared with the contour sheet (setFocusStyle) */
     uLit:     { value: PEAKS.map(() => 0) },
@@ -757,14 +757,10 @@ const mountainMat = new THREE.ShaderMaterial({
       }
 
       /* The shading drains, but the mountain does not. What leaves is the light,
-         not the body: the surface settles onto a near-black paper tone a shade
-         under the page and stays fully opaque, so a contoured peak is a solid
-         silhouette carrying its lines rather than a transparent shell you can
-         read the page through. A trace of the shading is added back rather than
-         mixed in — mixing keeps a fixed share, which on a summit that was nearly
-         white leaves a grey cap sitting on an otherwise black mountain. */
-      vec3 paper = uPaper;
-      col = mix(col, paper + col * 0.055, 1.0 - solid);
+         not the body: the surface settles onto exactly the page's colour and
+         stays fully opaque, so a contoured peak still hides the lines behind
+         it, with no visible edge between the body and the page. */
+      col = mix(col, uPaper, 1.0 - solid);
 
       float live = uEdgeAmt * vOn;
       col += vec3(0.34,0.40,0.66) * edge * live;
@@ -3049,7 +3045,7 @@ return {
   setBackground(hex) {
     const c = new THREE.Color(hex);
     ground.material.color.copy(c);
-    mountainMat.uniforms.uPaper.value.set(c.r + 0.022, c.g + 0.022, c.b + 0.026);
+    mountainMat.uniforms.uPaper.value.copy(srgbVec(hex));
   },
   /** How the summit in focus leads and the rest of the range recede, all
       live: thin (0–1, how much thinner the rest draw), cool (0–1, how far

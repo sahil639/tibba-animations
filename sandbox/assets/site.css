@@ -40,6 +40,10 @@
   /* ── measure ─────────────────────────────────────────────────────────── */
   --max:         1600px;    /* the brief's one hard number */
   --gut:         clamp(20px, 4vw, 72px);
+  /* every section's content column on wide screens: 1440px, centred; the
+     side padding that gives it (never less than the gutter) */
+  --wrap:        1440px;
+  --side:        max(var(--gut), calc((100vw - var(--wrap)) / 2));
   --nav-h:       64px;
 
   /* ── motion ──────────────────────────────────────────────────────────── */
@@ -602,4 +606,50 @@ a { color: inherit; }
   display: flex; align-items: center; gap: 7px;
   font-size: 10.5px; color: rgba(255,255,255,.62);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   The primary button — every main call to action on the site
+   ─────────────────────────────────────────────────────────────────────────
+     <a class="btn-p" href="…">View case study<span class="btn-p-ic" aria-hidden="true"></span></a>
+
+   Square corners, the studio orange, a semibold label. At rest an arrow
+   sits in the icon slot; on hover the arrow slides out and a compass swings
+   in (needle overshoots north, settles). Pressing sinks it a touch, darker,
+   and it springs back on release. A <button> takes the same class; set
+   --btn-bg on it for another colour (the summit cards use their client's).
+   ═════════════════════════════════════════════════════════════════════════ */
+.btn-p {
+  --btn-bg: #FF4B1F; --btn-ink: #000;
+  position: relative; display: inline-flex; align-items: center; justify-content: space-between; gap: 14px;
+  padding: 15px 20px 15px 22px; border: 0; border-radius: 0; background: var(--btn-bg); color: var(--btn-ink);
+  font: inherit; font-size: 11.5px; font-weight: 600; letter-spacing: .16em; line-height: 1; text-transform: uppercase; text-decoration: none;
+  cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
+  transition: transform .45s cubic-bezier(.34,1.56,.64,1), filter .2s linear, box-shadow .3s ease;
+}
+.btn-p:hover { filter: brightness(1.06); box-shadow: 0 10px 28px -10px color-mix(in srgb, var(--btn-bg) 60%, transparent); }
+.btn-p:active { transform: scale(.955) translateY(1px); filter: brightness(.9); box-shadow: inset 0 2px 0 rgba(0,0,0,.22); transition-duration: .08s; }
+.btn-p:focus-visible { outline: 1px solid #fff; outline-offset: 3px; }
+.btn-p-ic { position: relative; flex: none; width: 18px; height: 18px; }
+.btn-p-ic::before, .btn-p-ic::after { content: ''; position: absolute; inset: 0; background: currentColor; -webkit-mask: var(--m) center / contain no-repeat; mask: var(--m) center / contain no-repeat; }
+/* the arrow */
+.btn-p-ic::before { --m: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Cpath d='M2 9h13M10 4l5 5-5 5' fill='none' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E");
+  transition: transform .3s cubic-bezier(.22,1,.36,1), opacity .2s linear; }
+/* the compass: a ring and its needle, north half solid */
+.btn-p-ic::after { --m: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Ccircle cx='9' cy='9' r='7.6' fill='none' stroke='%23000' stroke-width='1.4'/%3E%3Cpath d='M9 2.8 11.1 9H6.9z'/%3E%3Cpath d='M6.9 9h4.2L9 15.2z' fill='none' stroke='%23000' stroke-width='1.1' stroke-linejoin='miter'/%3E%3Ccircle cx='9' cy='9' r='1'/%3E%3C/svg%3E");
+  opacity: 0; transform: rotate(-160deg) scale(.4); }
+.btn-p:hover .btn-p-ic::before, .btn-p:focus-visible .btn-p-ic::before { opacity: 0; transform: translateX(10px); }
+.btn-p:hover .btn-p-ic::after, .btn-p:focus-visible .btn-p-ic::after { opacity: 1; animation: btn-compass .9s cubic-bezier(.22,1,.36,1) both; }
+@keyframes btn-compass {
+  0%   { opacity: 0; transform: rotate(-160deg) scale(.4); }
+  45%  { opacity: 1; transform: rotate(24deg) scale(1.08); }
+  70%  { transform: rotate(-10deg) scale(1); }
+  86%  { transform: rotate(4deg); }
+  100% { opacity: 1; transform: rotate(0) scale(1); }
+}
+/* the light version, for an orange or bright ground */
+.btn-p.light { --btn-bg: #fff; --btn-ink: #000; }
+@media (prefers-reduced-motion: reduce) {
+  .btn-p, .btn-p-ic::before { transition: none; }
+  .btn-p:hover .btn-p-ic::after, .btn-p:focus-visible .btn-p-ic::after { animation: none; transform: none; }
 }

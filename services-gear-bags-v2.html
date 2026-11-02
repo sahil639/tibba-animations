@@ -22,7 +22,7 @@
    each a short title and one line, shown in full; each stage adds its own
    four and carries the earlier ones (marked "+ New" / "Carried from"); an
    outcome per stage; a line per bag; and, as an option on the panel, the
-   typical engagement and a call to action per stage.
+   case study per company size (Breathe ESG, Firstpost, Groww) as cards.
    ═════════════════════════════════════════════════════════════════════════ */
 /* ══════════════════════════════════════════════════════════════════════════
    (the original notes)
@@ -45,14 +45,12 @@
 :root { --line: rgba(233,236,242,.12); --line-2: rgba(233,236,242,.22); --acc: #FF4B1F; }
 body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
 button { font: inherit; color: inherit; }
-.gs { max-width: 1520px; margin: 0 auto; padding: clamp(84px, 12vh, 130px) var(--gut) clamp(56px, 9vh, 100px); }
+.gs { padding: clamp(84px, 12vh, 130px) var(--side) clamp(56px, 9vh, 100px); }
 
 /* the heading */
 .gs-title { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; padding-bottom: clamp(16px, 2.4vh, 28px); border-bottom: 1px solid var(--line); }
 .gs-title .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--acc); }
 .gs-title h1 { margin-top: 12px; color: #fff; font-weight: 400; font-size: clamp(30px, 3.3vw, 56px); line-height: 1; letter-spacing: -.035em; }
-.gs-title > p { max-width: 34ch; font-size: 12.5px; line-height: 1.6; color: var(--ink-mute); text-align: right; }
-.gs-title > p b { color: #fff; font-weight: 400; }
 
 .gs-body { margin-top: clamp(24px, 4vh, 44px); display: grid; grid-template-columns: minmax(0, .74fr) minmax(0, 1.26fr); gap: clamp(28px, 4vw, 72px); align-items: start; }
 
@@ -80,10 +78,6 @@ button { font: inherit; color: inherit; }
 .mat::before, .mat::after { content: ''; position: absolute; width: 10px; height: 10px; pointer-events: none; z-index: 3; }
 .mat::before { left: -1px; top: -1px; border-left: 1px solid var(--acc); border-top: 1px solid var(--acc); }
 .mat::after { right: -1px; bottom: -1px; border-right: 1px solid var(--acc); border-bottom: 1px solid var(--acc); }
-.mat-bar { display: flex; justify-content: space-between; align-items: center; padding: 11px 16px; border-bottom: 1px solid var(--line); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
-.mat-bar b { color: #fff; font-weight: 400; }
-.mat-bar .acc { color: var(--acc); }
-.mat-bar.foot { border-bottom: 0; border-top: 1px solid var(--line); }
 .board { position: relative; aspect-ratio: 1 / 1.06; overflow: hidden; }
 
 /* the bags: misc-bags.html in a frame, its background clear over the mat */
@@ -91,7 +85,6 @@ button { font: inherit; color: inherit; }
 .board.ready iframe { opacity: 1; }
 .board .wait { position: absolute; inset: 0; display: grid; place-items: center; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); transition: opacity .3s linear; }
 .board.ready .wait { opacity: 0; }
-@media (pointer: coarse) { .mat-bar .drag { display: none; } }
 
 /* ── the stage and its services ─────────────────────────────────────────── */
 .state .k { display: flex; align-items: center; gap: 12px; font-size: clamp(13px, .95vw, 15px); letter-spacing: .16em; text-transform: uppercase; color: #fff; }
@@ -129,7 +122,7 @@ button { font: inherit; color: inherit; }
 @keyframes svc-in { from { opacity: 0; transform: translateY(8px); } }
 
 /* ── v2: four services a stage, each line always shown; what the stage adds
-   marked, what it carries listed under; the engagement and the next step ── */
+   marked, what it carries listed under; then the case studies by stage ── */
 .lists { grid-template-columns: 1fr; }
 .list ol { display: grid; grid-template-columns: 1fr 1fr; column-gap: clamp(20px, 2.6vw, 44px); }
 .sv { align-items: start; }
@@ -140,16 +133,20 @@ button { font: inherit; color: inherit; }
 .ic-off .sv .new { grid-column: 2; }
 .carry { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 16px 0 0; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); }
 .carry span { padding: 6px 10px; border: 1px solid var(--line); letter-spacing: .04em; text-transform: none; font-size: 12.5px; color: rgba(233,236,242,.7); }
-.next { margin-top: clamp(24px, 4vh, 40px); display: flex; align-items: center; justify-content: space-between; gap: 18px 28px; flex-wrap: wrap; padding: 18px 20px; border: 1px solid var(--line-2); background: rgba(255,255,255,.02); }
-.next .en { display: grid; gap: 6px; }
-.next .en small { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
-.next .en b { font-weight: 400; color: #fff; font-size: clamp(17px, 1.3vw, 21px); letter-spacing: -.01em; }
-.next .en span { font-size: 13px; color: var(--ink-mute); }
-.next a { display: inline-flex; align-items: center; gap: 12px; padding: 14px 20px; background: var(--acc); color: #000; text-decoration: none; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; transition: filter .2s linear; }
-.next a:hover { filter: brightness(1.12); }
-.next a i { width: 18px; height: 1px; background: currentColor; position: relative; } .next a i::after { content: ''; position: absolute; right: 0; top: -3px; width: 7px; height: 7px; border: solid currentColor; border-width: 1px 1px 0 0; transform: rotate(45deg); }
+/* the work, by company size: one case study per stage, the stage picked
+   above lit, the other two stepped back */
+.next { margin-top: clamp(24px, 4vh, 40px); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.cs { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 18px 18px 18px; border: 1px solid var(--line); border-top: 2px solid var(--c);
+  background: rgba(255,255,255,.02); opacity: .5; transition: opacity .35s linear, background .35s linear; }
+.cs.on, .cs:hover, .cs:focus-within { opacity: 1; background: rgba(255,255,255,.04); }
+.cs small { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+.cs b { font-weight: 400; color: #fff; font-size: clamp(17px, 1.3vw, 21px); letter-spacing: -.01em; }
+.cs p { flex: 1; font-size: 13px; line-height: 1.5; color: var(--ink-mute); }
+.cs p em { font-style: normal; color: var(--c); }
+.cs .btn-p { margin-top: 6px; padding: 13px 16px 13px 18px; font-size: 10.5px; }
 .no-next .next { display: none; }
-@media (max-width: 760px) { .list ol { grid-template-columns: 1fr; } .next a { width: 100%; justify-content: space-between; } }
+@media (max-width: 1100px) and (min-width: 761px) { .cs .btn-p { width: 100%; } }
+@media (max-width: 760px) { .list ol { grid-template-columns: 1fr; } .next { grid-template-columns: 1fr; } .cs { opacity: 1; } .cs .btn-p { width: 100%; } }
 
 @media (max-width: 1100px) {
   .gs-body { grid-template-columns: 1fr; }
@@ -157,7 +154,7 @@ button { font: inherit; color: inherit; }
 }
 @media (max-width: 640px) {
   .gs { padding: 64px 16px 40px; }
-  .gs-title > p { display: none; } .gs-title h1 { font-size: 28px; }
+  .gs-title h1 { font-size: 28px; }
   .tier { padding: 10px 8px; align-items: center; text-align: center; } .tier .s { display: none; } .tier .l { font-size: 13px; white-space: normal; }
   .lists { grid-template-columns: 1fr; }
   .board { aspect-ratio: 1 / 1; }
@@ -170,7 +167,6 @@ button { font: inherit; color: inherit; }
     box-shadow: 0 10px 30px rgba(0,0,0,.6); opacity: 0; transform: translateY(12px) scale(.94); transform-origin: 0 100%; pointer-events: none;
     transition: opacity .35s linear, transform .5s cubic-bezier(.22,1,.36,1); }
   .bag-float .mat { opacity: 1; transform: none; }
-  .mat-bar { display: none; }
   .gs { padding-bottom: calc(min(38vw, 200px) + 40px); }
 }
 </style>
@@ -180,22 +176,26 @@ button { font: inherit; color: inherit; }
 <main class="gs">
   <header class="gs-title">
     <div><p class="eyebrow">[ &nbsp;Our services&nbsp; ]</p><h1>Gear up for your climb</h1></div>
-    <p>Bigger climb, bigger pack. <b>Pick your stage</b> and see what we bring to the mountain.</p>
   </header>
   <div class="gs-body">
     <section aria-label="The kit">
       <div class="tiers" role="tablist" aria-label="Company stage" id="tiers"></div>
       <div class="mat">
-        <p class="mat-bar"><span>Bag <b id="m-n">01</b> · <span class="acc" id="m-name">Waist pack</span></span><span class="drag" id="m-line">Pack light, move fast</span></p>
         <div class="board" id="board"><span class="wait">Packing…</span><iframe id="bags" title="The bag for this stage, in 3D" loading="lazy" src="misc-bags.html?embed&amp;bag=1"></iframe></div>
-        <p class="mat-bar foot"><span id="m-for">Waist pack for early-stage startups</span><span><b id="m-i">01</b> / 03</span></p>
       </div>
     </section>
     <section class="state" aria-live="polite">
       <p class="k"><b id="st-n">01</b><i></i><span id="st-l">Early-stage startup</span></p>
       <p class="blurb" id="blurb"></p>
       <div class="lists" id="lists"></div>
-      <div class="next" id="next"></div>
+      <div class="next" id="next">
+        <div class="cs" style="--c:#4CAF70"><small>Early-stage companies</small><b>Breathe ESG</b><p>How we helped Breathe ESG <em>accelerate sales</em></p>
+          <a class="btn-p" href="case-breathe-esg-v2.html" target="_top">View case study<span class="btn-p-ic" aria-hidden="true"></span></a></div>
+        <div class="cs" style="--c:#E05555"><small>Mid-size companies</small><b>Firstpost</b><p>How we helped Firstpost <em>2x their traffic</em></p>
+          <a class="btn-p" href="case-firstpost-v2.html" target="_top">View case study<span class="btn-p-ic" aria-hidden="true"></span></a></div>
+        <div class="cs" style="--c:#4DD9C0"><small>Established companies</small><b>Groww</b><p>How we helped Groww <em>boost engagement</em></p>
+          <a class="btn-p" href="case-groww-v2.html" target="_top">View case study<span class="btn-p-ic" aria-hidden="true"></span></a></div>
+      </div>
     </section>
   </div>
 </main>
@@ -205,7 +205,7 @@ button { font: inherit; color: inherit; }
   /* GEAR_CONFIG — the tiers, and how the kit moves between them */
   const GEAR_CONFIG = {
     icons: true,          // each service's icon beside its name
-    next: true,           // the typical engagement and a call to action per stage (a business decision: an option)
+    next: true,           // a case study per stage, as cards under the services (an option)
     tiers: [
       { name: 'Early stage',         stage: '', for: 'Waist pack for early-stage startups',  bag: 1, pack: 'Waist pack' },
       { name: 'Mid stage',           stage: '', for: 'Day pack for mid-stage startups',      bag: 2, pack: 'Day pack' },
@@ -271,8 +271,6 @@ button { font: inherit; color: inherit; }
     const t = C.tiers[i];
     want = t.bag;
     const b = bags(); if (b) b.showBag(want);
-    $('m-n').textContent = pad(i + 1); $('m-i').textContent = pad(i + 1);
-    $('m-name').textContent = t.pack; $('m-for').textContent = t.for; $('m-line').textContent = S[i].line;
   }
 
   function services(i) {
@@ -287,7 +285,7 @@ button { font: inherit; color: inherit; }
     $('lists').innerHTML = `<div class="list"><h3><span>${head}</span><b>${pad(st.services.length)}</b></h3><ol>${rows}</ol>${
       carried.length ? `<p class="carry">Already in your pack${carried.map((p, k) => `<span title="${p.services.map(s => s.name).join(', ')}">${C.tiers[k].name} · ${p.services.length} services</span>`).join('')}</p>` : ''}</div>`;
     const lists = $('lists'); lists.classList.remove('swap'); void lists.offsetWidth; lists.classList.add('swap');
-    $('next').innerHTML = `<div class="en"><small>Typical engagement</small><b>${st.engagement}</b><span>You get: ${st.get}</span></div><a href="#contact">${st.cta}<i></i></a>`;
+    [...$('next').children].forEach((c, k) => c.classList.toggle('on', k === i));
   }
 
   function pick(i, first) {
@@ -341,7 +339,7 @@ button { font: inherit; color: inherit; }
   const R = (id, label, min, max, step, val, unit = '') => `<div class="row"><label>${label}<i id="v-${id}">${val}${unit}</i></label><input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}" data-unit="${unit}"></div>`;
   el.innerHTML = `<div id="tune-head"><b>Services — gear bags</b><button id="tune-hide" title="Hide (H)">–</button></div>
     <p class="tune-sub">Services</p><div class="row inline"><label for="s-ic">Hide icons<i></i></label><input type="checkbox" id="s-ic"${C.icons ? '' : ' checked'}></div>
-    <div class="row inline"><label for="s-nx">Engagement + call to action<i></i></label><input type="checkbox" id="s-nx"${C.next ? ' checked' : ''}></div>
+    <div class="row inline"><label for="s-nx">Case studies by stage<i></i></label><input type="checkbox" id="s-nx"${C.next ? ' checked' : ''}></div>
     ${bakeControls.html}`;
   document.body.appendChild(el);
   const q = id => el.querySelector('#' + id);

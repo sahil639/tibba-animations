@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-10-28T08:28:31.737Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-02T11:36:13.511Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -55,8 +55,11 @@ a { color: inherit; text-decoration: none; }
   display: grid; gap: 1px; background: rgba(255,255,255,.09);
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(4, 1fr);
-  border-top: 1px solid rgba(255,255,255,.09); border-bottom: 1px solid rgba(255,255,255,.09);
+  border: 1px solid rgba(255,255,255,.09);
   overflow: hidden;
+  /* the site's content column on wide screens (--wrap in assets/site.css);
+     edge to edge below it */
+  margin: 0 max(0px, calc((100vw - var(--wrap)) / 2));
 }
 
 /* ── the tiles ─────────────────────────────────────────────────────────── */
@@ -130,9 +133,8 @@ a { color: inherit; text-decoration: none; }
   margin-top: 16px; max-width: 13ch; color: #fff; font-weight: 400;
   font-size: clamp(28px, 3.3vw, 54px); line-height: 1.02; letter-spacing: -.035em;
 }
-.tile.title p { max-width: 40ch; color: var(--ink-mute); font-size: clamp(12.5px, .95vw, 14px); line-height: 1.7; }
-.tile.title .count { display: flex; gap: 22px; margin-top: 18px; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); }
-.tile.title .count b { display: block; font-size: 22px; letter-spacing: -.02em; color: #fff; font-weight: 400; margin-bottom: 4px; }
+.tile.title p:not(.eyebrow) { max-width: 34ch; padding-top: clamp(16px, 2vh, 24px); border-top: 1px solid rgba(255,255,255,.12);
+  color: var(--ink-warm); font-size: clamp(14px, 1.15vw, 18px); line-height: 1.6; letter-spacing: -.005em; }
 
 /* ── the way in ────────────────────────────────────────────────────────── */
 .tile.cta { grid-column: 4 / span 2; grid-row: 4; background: #0a0a0b; place-items: center start; padding-left: clamp(20px, 2.4vw, 40px); }
@@ -160,7 +162,7 @@ a { color: inherit; text-decoration: none; }
 #brands.settled .tile { animation: none; opacity: 1; transform: none; }
 
 @media (max-width: 860px) {
-  #brands { height: auto; grid-template-columns: repeat(2, 1fr); grid-template-rows: none; grid-auto-rows: 34vw; }
+  #brands { height: auto; margin: 0; border-width: 1px 0; grid-template-columns: repeat(2, 1fr); grid-template-rows: none; grid-auto-rows: 34vw; }
   .tile.title { grid-column: 1 / -1; grid-row: auto; min-height: 70vw; }
   .tile.cta { grid-column: 1 / -1; grid-row: auto; }
   .tile .meta { opacity: 1; transform: none; font-size: 8.5px; }
@@ -185,7 +187,6 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     <div>
       <p>Over the past decade we've helped companies deliver food, perform services,
          insure health, provide financial services, publish news and sell products.</p>
-      <div class="count"><span><b>14</b>Brands</span><span><b>06</b>Sectors</span><span><b>04</b>Summits</span></div>
     </div>
   </div>
   <!-- the fourteen tiles go here, from BRANDS -->

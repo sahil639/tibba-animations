@@ -114,15 +114,13 @@ export function mountBasecamp() {
     <article class="pn" style="--c:${s.colour}" data-i="${i}" aria-label="${s.client}">
       <div class="in">
         <div class="txt">
-          <p class="sl-k"><b>Summit ${pad(i)}</b><i></i><span>${s.sector} · ${s.year}</span></p>
           <h3 class="sl-title">${s.title}</h3>
           <ul class="sl-tags">${s.tagList.map(t => `<li>${t}</li>`).join('')}</ul>
           <p class="sl-body">${s.body}</p>
-          <a class="sl-cta" href="${s.file}">View case study<i></i></a>
+          <a class="btn-p" style="--btn-bg:${s.colour}" href="${s.file}">View case study<span class="btn-p-ic" aria-hidden="true"></span></a>
         </div>
         <div class="media">
-          <a class="rv" href="${s.file}" data-rive="${s.folder}" aria-label="${s.client} — the work">${S.slot(s, 0, '928 / 486')}<i class="tint"></i><span class="cap">${s.client} · Alt ${s.alt} m</span></a>
-          <div class="sl-stats">${s.stats.map(t => `<div><b>${t.n}</b><span>${t.l}</span></div>`).join('')}</div>
+          <a class="rv" href="${s.file}" data-rive="${s.folder}" aria-label="${s.client} — the work">${S.slot(s, 0, '928 / 486')}<i class="tint"></i></a>
         </div>
       </div>
     </article>`).join('');

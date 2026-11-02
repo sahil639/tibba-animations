@@ -20,8 +20,8 @@
    round the title, springing in from the sides, dragged about, a messy
    stack to swipe through on a phone — with the prints of Framed prints
    (studio-frames.html): each photo in a dark glass frame on a hairline,
-   an index row across its top (S—01 and what kind of moment it was), and
-   the deep polaroid margin at its foot for the title and a line.
+   nothing over the photo, and the deep polaroid margin at its foot for
+   the title. Three prints down each side of the title.
 
    Desktop: only the photos. Hover a print and it lifts and tilts toward
    the pointer, takes the orange hairline, corner brackets and cube, and
@@ -55,7 +55,7 @@ body.stacked .ruck { top: 30%; height: 40%; opacity: .14; }
 .pol.drag { cursor: grabbing; }
 /* the shadow: one soft drop (--sh-*, from POLAROID_CONFIG.shadow) that
    lengthens as the print lifts, over a hairline contact shadow */
-.pol .card { position: relative; background: #151515; border: 1px solid rgba(255,255,255,.14); padding: 10px 10px 0;
+.pol .card { position: relative; background: #151515; border: 1px solid rgba(255,255,255,.14); padding: 10px 10px 0;   /* no label row over the photo */
   transform: rotateX(var(--tx)) rotateY(var(--ty)) translateZ(calc(var(--lift) * 24px)) scale(calc(1 + var(--lift) * .03));
   box-shadow: 0 calc(var(--sh-y, 8px) + var(--lift) * 12px) calc(var(--sh-blur, 22px) + var(--lift) * 18px) rgba(0,0,0,calc(var(--sh-a, .26) + var(--lift) * .12)),
               0 1px 2px rgba(0,0,0,.25);
@@ -69,8 +69,6 @@ body.stacked .ruck { top: 30%; height: 40%; opacity: .14; }
 .pol .cn.bl { left: -1px; bottom: -1px; border-width: 0 0 1px 1px; transform: translate(-6px, 6px); }
 .pol .cn.br { right: -1px; bottom: -1px; border-width: 0 1px 1px 0; transform: translate(6px, 6px); }
 .pol .pin { position: absolute; right: -1px; top: -1px; width: 8px; height: 8px; background: var(--accent); z-index: 3; transform: scale(0); transition: transform .3s cubic-bezier(.22,1,.36,1); }
-.pol .k { display: flex; justify-content: space-between; gap: 8px; height: 20px; font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); white-space: nowrap; }
-.pol .k b { color: var(--accent); font-weight: 400; }
 .pol .ph { position: relative; aspect-ratio: 1; overflow: hidden; background: #121214; }
 .pol .ph img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; user-select: none; filter: saturate(.92) contrast(1.03); transition: transform .9s cubic-bezier(.22,1,.36,1); }
 .pol .ph::after { content: ''; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
@@ -78,18 +76,18 @@ body.stacked .ruck { top: 30%; height: 40%; opacity: .14; }
 .pol .note b { color: #fff; font-weight: 300; font-size: calc(var(--w, 220px) * .085); line-height: 1; letter-spacing: -.025em; white-space: nowrap; outline: none; }
 .pol .note b[contenteditable="true"] { background: rgba(255,75,31,.12); }
 .pol .note .s { display: none; font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pol .k > *, .pol .note b, .pol .note .s { --odo-h: 1.12em; }
+.pol .note b, .pol .note .s { --odo-h: 1.12em; }
 /* desktop at rest: only the photo; hover shows and rolls the words */
-.pol .k > *, .pol .note > * { visibility: hidden; }
-.pol.hot .k > *, .pol.hot .note > *, .pol .note b[contenteditable="true"] { visibility: visible; }
+.pol .note > * { visibility: hidden; }
+.pol.hot .note > *, .pol .note b[contenteditable="true"] { visibility: visible; }
 .pol .card { rotate: 0deg; transition: box-shadow .25s ease, border-color .35s linear, rotate .5s cubic-bezier(.22,1,.36,1); }
 .pol.hot .card { border-color: rgba(255,75,31,.55); rotate: calc(-1 * var(--r)); }   /* straightened */
 .pol.hot .cn { opacity: .9; transform: none; }
 .pol.hot .pin { transform: scale(1); }
 .pol.hot .ph img { transform: scale(1.05); }
-@media (hover: none), (max-width: 1024px) { .pol .k > *, .pol .note > * { visibility: visible; } }
+@media (hover: none), (max-width: 1024px) { .pol .note > * { visibility: visible; } }
 
-.reset { position: absolute; right: var(--gut); bottom: 22px; z-index: 50; padding: 9px 12px; border: 1px solid rgba(255,255,255,.16); background: rgba(0,0,0,.4);
+.reset { position: absolute; right: var(--side); bottom: 22px; z-index: 50; padding: 9px 12px; border: 1px solid rgba(255,255,255,.16); background: rgba(0,0,0,.4);
   color: var(--ink-warm); font: 10.5px/1 'F37 Analog', system-ui, sans-serif; letter-spacing: .16em; text-transform: uppercase; cursor: pointer; }
 .reset:hover { border-color: rgba(255,255,255,.4); }
 @media (max-width: 760px) { .pol .note { height: 54px; } }
@@ -141,17 +139,18 @@ const POLAROID_CONFIG = {
   roll: { duration: .5, stagger: .018 },   // the odometer
   /* mobile: the stack, and the swipe that cycles it */
   stack: { spring: 170, damping: 22, threshold: 0.26, spread: 1, tilt: 1 },
-  /* x, y: the print's top-left as a fraction of the table; r: degrees */
+  /* x, y: the print's top-left as a fraction of the table; r: degrees.
+     Three down the left of the title, three down the right, mirrored. */
   cards: [
-    { x: 0.07, y: 0.07, r: -5 },
-    { x: 0.42, y: 0.04, r: 3 },
-    { x: 0.78, y: 0.08, r: -3 },
-    { x: 0.06, y: 0.56, r: 4 },
-    { x: 0.43, y: 0.66, r: -2 },
-    { x: 0.79, y: 0.57, r: 5 },
+    { x: 0.13, y: 0.05, r: -4 },
+    { x: 0.19, y: 0.37, r: 3 },
+    { x: 0.12, y: 0.68, r: -3 },
+    { x: 0.72, y: 0.07, r: 4 },
+    { x: 0.66, y: 0.39, r: -3 },
+    { x: 0.73, y: 0.70, r: 2 },
   ],
 };
-const BAKE_KEY = 'tibba.polaroid-frames.layout';
+const BAKE_KEY = 'tibba.polaroid-frames.layout-v2';   // v2: the two columns (an older bake would put the scatter back)
 
 (function () {
   const C = POLAROID_CONFIG;
@@ -177,7 +176,6 @@ const BAKE_KEY = 'tibba.polaroid-frames.layout';
     el.dataset.i = i;
     el.innerHTML = `<div class="card">
       <span class="cn tl"></span><span class="cn tr"></span><span class="cn bl"></span><span class="cn br"></span><span class="pin"></span>
-      <p class="k"><b>S—${String(i + 1).padStart(2, '0')}</b><span>${esc((C.kinds || [])[i] || '')}</span></p>
       <div class="ph"><img src="${p.person || p.img}" alt="${esc(title(i))}" draggable="false"></div>
       <figcaption class="note"><b>${esc(title(i))}</b></figcaption></div>`;
     table.appendChild(el);
@@ -367,7 +365,7 @@ const BAKE_KEY = 'tibba.polaroid-frames.layout';
   /* the words: rolled in on the odometer — on hover on desktop; once, as the
      section arrives, where there is no hover */
   const always = () => matchMedia('(hover: none), (max-width: 1024px)').matches;
-  const parts = el => [...el.querySelectorAll('.k > *'), el.querySelector('.note b')];
+  const parts = el => [el.querySelector('.note b')];
   function rollIn(el, delay = 0) {
     const O = window.Odometer; if (!O || REDUCED) return;
     let d = delay;
