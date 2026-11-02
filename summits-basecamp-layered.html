@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-10-28T08:28:31.737Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-02T11:36:13.511Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -34,16 +34,17 @@ gtag('config', 'G-DZS8N17C9N');
    pulsing at its top. The rest of the range recedes — dimmer, thinner,
    cooler, sparser, lower — with no dot and no trail. Each card plays its
    project's Rive thumbnail (assets/rive/<client>.riv) while it is the one
-   in focus or under the pointer, tinted toward the summit's colour.
+   in focus or under the pointer, tinted toward the summit's colour. No
+   summit/sector line, altitude caption or numbers on the cards.
 
    Scene, state machine, panel: assets/basecamp.js (BASECAMP_CONFIG).
    Phones: the range and the progress bar docked in the bottom third; above
    them the cards scroll — a primary card (title, subtitle, the way in),
-   the Rive slideshow, the numbers as cards — one project after another.
+   the Rive slideshow — one project after another.
    ═════════════════════════════════════════════════════════════════════════ */
-:root { --dock: 46vh; --ac: #4DD9C0; --pulse-s: 1.8s; --pulse-k: 1; --rv-tint: 0; --bg: #0c0b0a; }
+:root { --dock: 46vh; --ac: #4DD9C0; --pulse-s: 1.8s; --pulse-k: 1; --rv-tint: 0; --bg: #000; }
 html, body { background: var(--bg); }
-.bc-head { padding: clamp(96px, 14vh, 150px) var(--gut) clamp(30px, 5vh, 60px); }
+.bc-head { padding: clamp(96px, 14vh, 150px) var(--side) clamp(30px, 5vh, 60px); }
 .bc-head .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
 .bc-head h2 { margin-top: 14px; color: #fff; font-weight: 400; font-size: clamp(26px, 2.6vw, 44px); line-height: 1.1; letter-spacing: -.025em; max-width: 22ch; }
 
@@ -52,14 +53,14 @@ html, body { background: var(--bg); }
 /* ── the scene, docked under the cards ─────────────────────────────────── */
 .bc-dock { position: sticky; top: calc(100vh - var(--dock)); height: var(--dock); margin-bottom: calc(-1 * var(--dock)); z-index: 20; pointer-events: none; }
 .bc-dock::before { content: ''; position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(to top, var(--bg) 0%, rgba(12,11,10,.55) 12%, rgba(12,11,10,0) 26%); z-index: 1; }
+  background: linear-gradient(to top, var(--bg) 0%, rgba(0,0,0,.55) 12%, rgba(0,0,0,0) 26%); z-index: 1; }
 #range { position: absolute; inset: 0;
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent), linear-gradient(transparent, #000 22%);
   mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent), linear-gradient(transparent, #000 22%);
   -webkit-mask-composite: source-in; mask-composite: intersect; }
 #range .fs-layer { z-index: 3; }
 .bc-bar { position: absolute; z-index: 4; left: 50%; bottom: clamp(16px, 3vh, 30px); transform: translateX(-50%); width: min(52vw, 820px); pointer-events: auto; }
-.bc-bar .lbl { display: flex; justify-content: center; gap: 10px; width: max-content; margin: 0 auto 12px; padding: 5px 10px; background: rgba(12,11,10,.82); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: rgba(233,236,242,.55); }
+.bc-bar .lbl { display: flex; justify-content: center; gap: 10px; width: max-content; margin: 0 auto 12px; padding: 5px 10px; background: rgba(0,0,0,.82); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: rgba(233,236,242,.55); }
 .bc-bar .lbl b { color: var(--ac); font-weight: 400; transition: color .4s linear; }
 .bc-bar .lbl span { color: rgba(233,236,242,.35); }
 
@@ -82,27 +83,21 @@ html, body { background: var(--bg); }
 .pn { --c: #fff; position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; background: var(--bg); }
 .pn + .pn { box-shadow: 0 -30px 60px rgba(0,0,0,.55); }
 .pn .in { position: absolute; inset: 0; display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); gap: clamp(28px, 5vw, 96px); align-items: center;
-  padding: clamp(84px, 11vh, 120px) var(--gut) calc(var(--dock) * .82); transform-origin: 50% 0;
+  padding: clamp(84px, 11vh, 120px) var(--side) calc(var(--dock) * .82); transform-origin: 50% 0;
   transform: scale(calc(1 - var(--sink, 0) * .06)) translateY(calc(var(--sink, 0) * -3vh)); filter: brightness(calc(1 - var(--sink, 0) * .55)); }
 .pn .txt { display: flex; flex-direction: column; gap: clamp(12px, 2vh, 22px); align-items: flex-start; }
 .pn .txt .sl-title { font-size: clamp(26px, 2.7vw, 48px); }
 .pn .media { display: flex; flex-direction: column; gap: clamp(10px, 1.6vh, 16px); min-height: 0; }
 
-/* the Rive thumbnail: plays while active or hovered; tinted toward the summit */
+/* the Rive thumbnail: plays while active or hovered; tinted toward the summit.
+   No border change, glow or corner marks on hover. */
 .rv { position: relative; display: block; aspect-ratio: 928 / 486; max-height: calc(100vh - var(--dock) * .82 - 220px); overflow: hidden; background: #141210;
-  border: 1px solid rgba(233,236,242,.1); transition: border-color .4s linear, box-shadow .4s ease, filter .5s ease; }
+  border: 1px solid rgba(233,236,242,.1); transition: filter .5s ease; }
 .rv .wk-img { position: absolute; inset: 0; height: 100%; aspect-ratio: auto; }
 .rv .rv-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; opacity: 0; transition: opacity .5s linear; }
 .rv.rv-live .rv-canvas { opacity: 1; }
 .rv .tint { position: absolute; inset: 0; z-index: 3; background: var(--c); mix-blend-mode: color; opacity: var(--rv-tint); pointer-events: none; }
-.rv .cap { position: absolute; z-index: 4; left: 0; bottom: 0; padding: 7px 10px; background: rgba(12,11,10,.78);
-  font-size: 9.5px; letter-spacing: .18em; text-transform: uppercase; color: rgba(233,236,242,.7); }
-.rv::before, .rv::after { content: ''; position: absolute; z-index: 5; width: 12px; height: 12px; border: solid var(--c); pointer-events: none; opacity: 0; transition: opacity .4s linear; }
-.rv::before { left: -1px; top: -1px; border-width: 1px 0 0 1px; } .rv::after { right: -1px; bottom: -1px; border-width: 0 1px 1px 0; }
 .pn:not(.active):not(.hovered) .rv { filter: grayscale(.7) brightness(.62); }
-.pn.active .rv::before, .pn.active .rv::after, .pn.hovered .rv::before, .pn.hovered .rv::after { opacity: 1; }
-.pn.hovered .rv { border-color: color-mix(in srgb, var(--c) 55%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--c) 30%, transparent), 0 20px 50px rgba(0,0,0,.5); }
-.pn .sl-stats { max-width: none; }
 
 /* ── phones: the cards scroll in the top two-thirds; the range and the
    progress bar are docked in the bottom third the whole way through ─── */
@@ -113,11 +108,11 @@ html, body { background: var(--bg); }
 /* no wash: the cards read straight through behind the peaks */
 .bc-phone .bc-dock::before { display: none; }
 .bc-phone #range { inset: 0 0 var(--barh, 40px) 0; -webkit-mask-image: none; mask-image: none; pointer-events: auto; }
-.bc-phone .bc-bar { pointer-events: auto; left: 0; right: 0; transform: none; width: auto; bottom: 0; padding: 0 var(--gut) 12px; background: var(--bg); }   /* a plain strip, no fade, its progress line right under the range */
+.bc-phone .bc-bar { pointer-events: auto; left: 0; right: 0; transform: none; width: auto; bottom: 0; padding: 0 var(--side) 12px; background: var(--bg); }   /* a plain strip, no fade, its progress line right under the range */
 .bc-phone .sl-tabs button { font-size: 9.5px; letter-spacing: .02em; } .bc-phone .sl-tabs button::before { margin-bottom: 8px; }
 .bc-phone #bc-panel { display: none; }
-.bc-phone .bc-head { padding: 92px var(--gut) 18px; }
-.bc-phone #stack { display: flex; flex-direction: column; gap: 48px; padding: 6px var(--gut) calc(var(--mdock) + 40px); }
+.bc-phone .bc-head { padding: 92px var(--side) 18px; }
+.bc-phone #stack { display: flex; flex-direction: column; gap: 48px; padding: 6px var(--side) calc(var(--mdock) + 40px); }
 .bc-phone .pn { position: relative; height: auto; overflow: visible; background: none; box-shadow: none; }
 .bc-phone .pn + .pn { box-shadow: none; }
 .bc-phone .pn .in { position: relative; inset: auto; display: flex; flex-direction: column; gap: 12px; padding: 0; transform: none; filter: none; }
@@ -126,13 +121,10 @@ html, body { background: var(--bg); }
 .bc-phone .pn .txt .sl-title { font-size: clamp(22px, 6.2vw, 30px); }
 .bc-phone .pn .sl-tags { display: none; }
 .bc-phone .pn .sl-body { font-size: 13.5px; }
-.bc-phone .pn .sl-cta { padding: 12px 16px; font-size: 11px; }
-/* then the Rive slideshow, then the numbers as cards */
+.bc-phone .pn .btn-p { padding: 12px 16px; font-size: 11px; }
+
 .bc-phone .pn .media { gap: 12px; }
 .bc-phone .rv { max-height: none; }
-.bc-phone .pn .sl-stats { border-top: 0; gap: 12px; }
-.bc-phone .pn .sl-stats div, .bc-phone .pn .sl-stats div + div { padding: 14px; border: 1px solid rgba(233,236,242,.1); background: #151413; }
-.bc-phone .pn .sl-stats b { font-size: 26px; } .bc-phone .pn .sl-stats div > span { font-size: 11.5px; }
 @media (prefers-reduced-motion: reduce) { .fs-peak.bc-mark::before, .fs-peak.bc-mark::after { animation: none; opacity: 0; } }
 </style>
 <link rel="stylesheet" href="assets/tune.css">
@@ -156,7 +148,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   /* Base Camp with the ridges shaded in layers and the raised view (desktop);
      phones keep their locked settings. Its own bake. (A classic script: a
      module's imports would run before these were set.) */
-  window.BASECAMP_PRESET = { depth: { view: 'raised', raisedElev: 15 }, layers: { on: true } };
+  window.BASECAMP_PRESET = { depth: { view: 'raised', raisedElev: 15 }, layers: { on: true, lift: 0 } };
   window.BASECAMP_KEY = 'tibba.bake.basecamp-layered';
 </script>
 <script type="module">
