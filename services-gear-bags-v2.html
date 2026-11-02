@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-02T11:36:13.511Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-02T14:47:45.317Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -29,7 +29,7 @@ gtag('config', 'G-DZS8N17C9N');
    each a short title and one line, shown in full; each stage adds its own
    four and carries the earlier ones (marked "+ New" / "Carried from"); an
    outcome per stage; a line per bag; and, as an option on the panel, the
-   case study per company size (Breathe ESG, Firstpost, Groww) as cards.
+   stage's case study (Breathe ESG, Firstpost or Groww) as one card.
    ═════════════════════════════════════════════════════════════════════════ */
 /* ══════════════════════════════════════════════════════════════════════════
    (the original notes)
@@ -140,20 +140,20 @@ button { font: inherit; color: inherit; }
 .ic-off .sv .new { grid-column: 2; }
 .carry { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 16px 0 0; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); }
 .carry span { padding: 6px 10px; border: 1px solid var(--line); letter-spacing: .04em; text-transform: none; font-size: 12.5px; color: rgba(233,236,242,.7); }
-/* the work, by company size: one case study per stage, the stage picked
-   above lit, the other two stepped back */
-.next { margin-top: clamp(24px, 4vh, 40px); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-.cs { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 18px 18px 18px; border: 1px solid var(--line); border-top: 2px solid var(--c);
-  background: rgba(255,255,255,.02); opacity: .5; transition: opacity .35s linear, background .35s linear; }
-.cs.on, .cs:hover, .cs:focus-within { opacity: 1; background: rgba(255,255,255,.04); }
-.cs small { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
-.cs b { font-weight: 400; color: #fff; font-size: clamp(17px, 1.3vw, 21px); letter-spacing: -.01em; }
-.cs p { flex: 1; font-size: 13px; line-height: 1.5; color: var(--ink-mute); }
+/* the work, by company size: one case study, the one for the stage picked
+   above — its label, client and line to the left, the way in to the right */
+.next { margin-top: clamp(24px, 4vh, 40px); }
+.cs { display: none; position: relative; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'k go' 'b go' 'p go'; align-items: center; gap: 8px 28px;
+  padding: 20px 22px; border: 1px solid var(--line); border-top: 2px solid var(--c); background: rgba(255,255,255,.03); }
+.cs.on { display: grid; animation: cs-in .5s cubic-bezier(.22,1,.36,1) both; }
+@keyframes cs-in { from { opacity: 0; transform: translateY(8px); } }
+.cs small { grid-area: k; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+.cs b { grid-area: b; font-weight: 400; color: #fff; font-size: clamp(18px, 1.4vw, 23px); letter-spacing: -.01em; }
+.cs p { grid-area: p; font-size: 13.5px; line-height: 1.5; color: var(--ink-mute); }
 .cs p em { font-style: normal; color: var(--c); }
-.cs .btn-p { margin-top: 6px; padding: 13px 16px 13px 18px; font-size: 10.5px; }
+.cs .btn-p { grid-area: go; }
 .no-next .next { display: none; }
-@media (max-width: 1100px) and (min-width: 761px) { .cs .btn-p { width: 100%; } }
-@media (max-width: 760px) { .list ol { grid-template-columns: 1fr; } .next { grid-template-columns: 1fr; } .cs { opacity: 1; } .cs .btn-p { width: 100%; } }
+@media (max-width: 760px) { .list ol { grid-template-columns: 1fr; } .cs { grid-template-columns: 1fr; grid-template-areas: 'k' 'b' 'p' 'go'; } .cs .btn-p { width: 100%; margin-top: 8px; } }
 
 @media (max-width: 1100px) {
   .gs-body { grid-template-columns: 1fr; }
@@ -214,7 +214,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   /* GEAR_CONFIG — the tiers, and how the kit moves between them */
   const GEAR_CONFIG = {
     icons: true,          // each service's icon beside its name
-    next: true,           // a case study per stage, as cards under the services (an option)
+    next: true,           // the stage's case study, one card under the services (an option)
     tiers: [
       { name: 'Early stage',         stage: '', for: 'Waist pack for early-stage startups',  bag: 1, pack: 'Waist pack' },
       { name: 'Mid stage',           stage: '', for: 'Day pack for mid-stage startups',      bag: 2, pack: 'Day pack' },

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-02T11:36:13.511Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-02T14:47:45.317Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -149,14 +149,14 @@ const POLAROID_CONFIG = {
   /* mobile: the stack, and the swipe that cycles it */
   stack: { spring: 170, damping: 22, threshold: 0.26, spread: 1, tilt: 1 },
   /* x, y: the print's top-left as a fraction of the table; r: degrees.
-     Three down the left of the title, three down the right, mirrored. */
+     Three overlapping down the left of the title, three down the right. */
   cards: [
-    { x: 0.13, y: 0.05, r: -4 },
-    { x: 0.19, y: 0.37, r: 3 },
-    { x: 0.12, y: 0.68, r: -3 },
-    { x: 0.72, y: 0.07, r: 4 },
-    { x: 0.66, y: 0.39, r: -3 },
-    { x: 0.73, y: 0.70, r: 2 },
+    { x: 0.178, y: 0.140, r: -4 },
+    { x: 0.072, y: 0.351, r: 3 },
+    { x: 0.164, y: 0.550, r: -3 },
+    { x: 0.768, y: 0.140, r: 4 },
+    { x: 0.708, y: 0.371, r: 2 },
+    { x: 0.766, y: 0.579, r: 1 },
   ],
 };
 const BAKE_KEY = 'tibba.polaroid-frames.layout-v2';   // v2: the two columns (an older bake would put the scatter back)
