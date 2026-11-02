@@ -11,7 +11,6 @@
 <script src="assets/manifest.js"></script>
 <script src="assets/whats-new.js"></script>
 <script src="assets/workbench.js" defer></script>
-<script src="assets/tile-topo.js"></script>
 <style>
 /* ══════════════════════════════════════════════════════════════════════════
    Our testimonials — an alternate take
@@ -22,9 +21,7 @@
 
      reveal    the quote comes up word by word out of masks, each word rising
                into its own slot; the attribution follows on a hairline
-     topo      behind it, a live contour field — a different landform for
-               each client (assets/tile-topo.js), crossfaded as the quote
-               changes
+     ground    plain black behind the quote: no contour texture
      parallax  the index column, the quote and the big quotation mark move
                at three rates with the pointer and the scroll, so the scene
                has depth without anything tilting
@@ -41,11 +38,6 @@ a { color: inherit; text-decoration: none; }
 #stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden;
   display: grid; grid-template-columns: minmax(200px, .3fr) 1fr; column-gap: clamp(24px, 5vw, 96px);
   padding: clamp(80px, 12vh, 130px) var(--side) clamp(32px, 6vh, 64px); }
-.fields { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
-.field { position: absolute; inset: 0; opacity: 0; transition: opacity 1s linear; }
-.field.on { opacity: .42; }
-.field .tile-topo { position: absolute; inset: 0; width: 100%; height: 100%;
-  -webkit-mask-image: radial-gradient(70% 70% at 68% 50%, #000 20%, transparent 100%); mask-image: radial-gradient(70% 70% at 68% 50%, #000 20%, transparent 100%); }
 
 .idx { position: relative; z-index: 2; align-self: stretch; display: flex; flex-direction: column; justify-content: space-between; will-change: transform; }
 .idx .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
@@ -113,7 +105,6 @@ a { color: inherit; text-decoration: none; }
   .tnav { display: flex; gap: 0; position: absolute; right: var(--side); bottom: 44px; }
   .tnav button { margin-left: -1px; width: 46px; height: 40px; border: 1px solid rgba(255,255,255,.2); background: none; color: #fff; font-size: 16px; cursor: pointer; }
   .tnav button:hover { border-color: var(--accent); position: relative; }
-  .field.on { opacity: .3; }
   /* the quotes as a row of cards the hand drags across — the primary way
      through them; chips and arrows follow along and move the row too */
   .q { display: none; }
@@ -148,7 +139,6 @@ a { color: inherit; text-decoration: none; }
 
 <div id="scope">
   <section id="stage" aria-labelledby="testi-h">
-    <div class="fields" aria-hidden="true"></div>
     <aside class="idx">
       <div>
         <p class="eyebrow">[ &nbsp;Our testimonials&nbsp; ]</p>
@@ -184,22 +174,16 @@ a { color: inherit; text-decoration: none; }
   const $ = s => document.querySelector(s);
   const stage = $('#stage'), q = $('.q'), bq = q.querySelector('blockquote'), who = q.querySelector('.who p'), go = q.querySelector('.go'), pic = q.querySelector('.pic');
   const photo = t => t.photo ? `<img src="${t.photo}" alt="${t.name}">` : '';
-  const list = $('.idx ol'), fields = $('.fields'), count = $('.count');
+  const list = $('.idx ol'), count = $('.count');
 
   list.innerHTML = T.map((t, i) => `<li data-i="${i}" style="--c:${t.colour}"><span class="n">${pad(i)}</span><span>${t.logo}</span><i></i></li>`).join('');
   const items = [...list.children];
-  const topo = T.map((t, i) => {
-    const f = document.createElement('div'); f.className = 'field'; fields.appendChild(f);
-    return { f, ctl: window.TileTopo.attach(f, { seed: 31 + i * 17, colour: t.colour, pattern: t.pattern }) };
-  });
 
   let cur = -1, swapT = 0;
   function show(i) {
     if (i === cur) return;
     const first = cur < 0;
-    if (cur >= 0) { topo[cur].f.classList.remove('on'); topo[cur].ctl.leave(); }
     cur = i;
-    topo[i].f.classList.add('on'); topo[i].ctl.enter();
     items.forEach((li, k) => li.classList.toggle('on', k === i));
     count.innerHTML = `<b>${pad(i)}</b>&thinsp;/&thinsp;${pad(T.length - 1)}`;
     q.classList.remove('in'); q.classList.add('out');
@@ -279,12 +263,9 @@ a { color: inherit; text-decoration: none; }
   el.id = 'tune';
   el.innerHTML = `<div id="tune-head"><b>Testimonials</b><button id="tune-hide" title="Hide (H)">–</button></div>
     <p class="tune-sub">Depth</p>
-    <div class="row"><label>Parallax<i id="v-pd">1.00</i></label><input type="range" id="s-pd" min="0" max="250" value="100"></div>
-    <div class="row"><label>Topo opacity<i id="v-to">0.42</i></label><input type="range" id="s-to" min="0" max="100" value="42"></div>`;
+    <div class="row"><label>Parallax<i id="v-pd">1.00</i></label><input type="range" id="s-pd" min="0" max="250" value="100"></div>`;
   document.body.appendChild(el);
   el.querySelector('#s-pd').addEventListener('input', e => { P.depth = e.target.value / 100; el.querySelector('#v-pd').textContent = P.depth.toFixed(2); });
-  const st = document.createElement('style'); document.head.appendChild(st);
-  el.querySelector('#s-to').addEventListener('input', e => { const v = e.target.value / 100; el.querySelector('#v-to').textContent = v.toFixed(2); st.textContent = `.field.on { opacity: ${v}; }`; });
   el.querySelector('#tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
 })();
 </script>
