@@ -17,6 +17,10 @@
                    shrinks and steps aside — and the four Metrics boxes open
                    in the room it leaves, exactly as the Metrics section.
 
+   Routes: as the hero lands, one line in the accent climbs the peak; when
+   the turn into the metrics has finished, four more, in the clients'
+   colours, climb it from other sides.
+
    When embedded in the site shell (assets/site-shell.js) it tells the shell
    the moment scrolling may begin: postMessage({ tibba: 'ready' }).
 
@@ -29,7 +33,7 @@ const clamp01 = t => t < 0 ? 0 : t > 1 ? 1 : t;
 const lerp = (a, b, t) => a + (b - a) * t;
 const smooth = t => t * t * (3 - 2 * t);
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const ACCENT = '#FF4B1F';
+const ACCENT = '#7FD4FF';
 const SKIP = /[?&]noloader\b/.test(location.search);
 
 export const SITE_HERO_CONFIG = {
@@ -43,10 +47,11 @@ export const SITE_HERO_CONFIG = {
 };
 const C = SITE_HERO_CONFIG;
 
-const PLAN = { elev: 90, azim: 0, dist: 248, x: 0, y: 12 };
-const FROM = { elev: 30, azim: 6, dist: 122, x: 2, y: 22 };   // the hero (a closer, larger peak)
-const TO   = { elev: 26, azim: 14, dist: 150, x: 46, y: 20 }; // aside, for the metrics
-const NARROW_TO = { dist: 108, x: -44, y: -20 };                  // a phone: above the metrics
+/* distances are ×1.25 of what they were: the mountain at 80% of its old size */
+const PLAN = { elev: 90, azim: 0, dist: 310, x: 0, y: 12 };
+const FROM = { elev: 30, azim: 6, dist: 152, x: 2, y: 22 };   // the hero (a closer, larger peak)
+const TO   = { elev: 26, azim: 14, dist: 188, x: 46, y: 20 }; // aside, for the metrics
+const NARROW_TO = { dist: 135, x: -44, y: -20 };                  // a phone: above the metrics
 
 const scene = createRangeScene({
   canvas: $('#peak-canvas'), mode: 'hero', ink: false, palette: 'peak', backdrop: 'behind',
@@ -86,7 +91,7 @@ let t0 = performance.now(), intro = phase === 'hero' ? 1 : 0, introAt = 0;
 function tellShell() {
   try { if (window.parent !== window) window.parent.postMessage({ tibba: 'ready' }, '*'); } catch {}
 }
-if (phase === 'hero') { document.body.classList.add('ld-gone', 'hero-in'); scene.setFill(null); clearInterval(coordTimer); tellShell(); }
+if (phase === 'hero') { document.body.classList.add('ld-gone', 'hero-in'); scene.setFill(null); clearInterval(coordTimer); tellShell(); scene.climbHero(true, 0.5); }
 
 /* the loader's clock starts on its first drawn frame, not when the script
    ran: building the terrain takes a moment, and a clock started before it
@@ -131,9 +136,7 @@ const host = $('#metrics');
 host.innerHTML = `<div class="mcluster">${METRICS.map((m, i) => `
   <article class="mbox" data-i="${i}">
     <span class="plate"></span><span class="hl"></span>
-    <span class="cn tl"></span><span class="cn tr"></span><span class="cn bl"></span><span class="cn br"></span>
-    <div class="in"><span class="k"><b>M—${String(i + 1).padStart(2, '0')}</b><span>${m.k}</span></span>
-      <span class="v" data-v="${m.v}">${m.v}</span><span class="l">${m.l}</span></div>
+    <div class="in"><span class="v" data-v="${m.v}">${m.v}</span><span class="l">${m.l}</span></div>
   </article>`).join('')}</div>`;
 const cluster = host.querySelector('.mcluster');
 const boxes = [...host.querySelectorAll('.mbox')];
@@ -148,12 +151,9 @@ function build() {
   const st = C.metrics.stagger / Math.max(0.05, C.metrics.open);
   [0, 1, 2, 3].forEach((bi, n) => {
     const el = boxes[bi], q = s => el.querySelectorAll(s), o = n * st;
-    const sx = [-8, 8, -8, 8], sy = [-8, -8, 8, 8];
     tl.fromTo(q('.hl'), { scaleX: 0, opacity: 1 }, { scaleX: 1, duration: .28, ease: 'power3.inOut' }, o)
       .fromTo(q('.plate'), { clipPath: 'inset(50% 0% 50% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: .34, ease: 'power3.inOut' }, o + .24)
       .to(q('.hl'), { opacity: 0, duration: .16, ease: 'none' }, o + .52)
-      .fromTo(q('.cn'), { opacity: 0, x: k => sx[k], y: k => sy[k] }, { opacity: .9, x: 0, y: 0, duration: .22, ease: 'expo.out' }, o + .52)
-      .fromTo(q('.k'), { opacity: 0 }, { opacity: 1, duration: .2, ease: 'none' }, o + .6)
       .fromTo(q('.v'), { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .24, ease: 'power2.out' }, o + .64)
       .fromTo(q('.l'), { opacity: 0 }, { opacity: 1, duration: .2, ease: 'none' }, o + .72);
   });
@@ -283,13 +283,14 @@ function scrollT() {
   const travel = scope.offsetHeight - innerHeight;
   return travel > 0 ? clamp01(-scope.getBoundingClientRect().top / travel) : 0;
 }
+let statsRoutes = false;
 function frame(now) {
   requestAnimationFrame(frame);
   if (phase === 'loading') { loaderFrame(now); scene.setHeroCam({ elev: PLAN.elev, azim: PLAN.azim, dist: PLAN.dist, tgtX: PLAN.x, tgtY: PLAN.y }); return; }
   if (phase === 'intro') {
     intro = clamp01((now - introAt) / 1000 / C.intro.duration);
     /* the hero has landed — only now may the page scroll */
-    if (intro >= 1) { phase = 'hero'; scene.setFill(null); tellShell(); }
+    if (intro >= 1) { phase = 'hero'; scene.setFill(null); tellShell(); scene.climbHero(true, 0.15); }
   }
   const t = PHONE.matches ? 0 : scrollT();
   const k = smooth(clamp01((t - C.lock.from) / (C.lock.to - C.lock.from)));
@@ -317,6 +318,10 @@ function frame(now) {
   ringsLive = intro >= 1 && k < 0.25;
   if (!ringsLive && cardOpen) closeCard();
   if (PHONE.matches) return;
+  /* the turn has finished: the routes in the clients' colours climb the peak
+     while the numbers roll; back above it, they go */
+  if (k >= 0.97 && !statsRoutes) { statsRoutes = true; scene.climbStats(true); }
+  else if (k < 0.6 && statsRoutes) { statsRoutes = false; scene.climbStats(false); }
   if (t >= C.metrics.openAt) { if (mState !== 'open' && mState !== 'opening') run(1); }
   else if (t < C.metrics.closeBelow) { if (mState !== 'closed' && mState !== 'closing') run(0); }
 }
@@ -344,7 +349,7 @@ requestAnimationFrame(frame);
   bind('in', v => { C.intro.duration = v; }); bind('oa', v => { C.metrics.openAt = v; C.metrics.closeBelow = Math.max(0, v - .04); });
   bind('lt', v => { C.lock.to = v; });
   q('s-rp').addEventListener('click', () => {
-    scrollTo(0, 0); phase = 'loading'; clockStarted = false; t0 = performance.now(); intro = 0; closeCard();
+    scrollTo(0, 0); scene.climbHero(false); scene.climbStats(false); statsRoutes = false; phase = 'loading'; clockStarted = false; t0 = performance.now(); intro = 0; closeCard();
     document.body.classList.remove('ld-gone', 'hero-in', 'ld-done');
     clearInterval(coordTimer); coordTimer = setInterval(pushCoord, 260);
   });

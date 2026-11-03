@@ -155,7 +155,7 @@ function panel() {
   const root = document.createElement('div');
   root.id = 'tc-root';
   root.innerHTML = `<style>
-    #tc-root { --o: #FF4B1F; font: 400 12px/1.4 'F37 Analog', system-ui, sans-serif; color: #E9ECF2; }
+    #tc-root { --o: #7FD4FF; font: 400 12px/1.4 'F37 Analog', system-ui, sans-serif; color: #E9ECF2; }
     #tc-root * { box-sizing: border-box; font-family: inherit; }
     .tc-btn { position: fixed; z-index: 2147483000; left: 12px; bottom: 12px; display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px 8px 10px;
       background: rgba(10,10,11,.92); border: 1px solid rgba(233,236,242,.16); color: #fff; cursor: pointer; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; backdrop-filter: blur(8px); }

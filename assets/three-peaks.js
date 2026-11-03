@@ -64,7 +64,7 @@ export const THREE_PEAKS_CONFIG = {
 
   view: { elev: 35.264, azim: 45, padding: 0.08 },   // isometric; padding = fraction of the frame
 
-  colour: { ink: '#9FB0E8', accent: '#FF4B1F' },
+  colour: { ink: '#9FB0E8', accent: '#7FD4FF' },
   inactive: 0.42,        // line opacity of the two peaks not selected
   fade: 0.9,             // s, the cross-fade when the stage changes
 };

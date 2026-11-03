@@ -24,7 +24,7 @@ import { createRangeScene } from './range-scene.js';
 const $ = s => document.querySelector(s);
 const clamp01 = t => t < 0 ? 0 : t > 1 ? 1 : t;
 
-const ACCENT = '#FF4B1F';          // Page 05's accent, not the site's #E85D3D
+const ACCENT = '#7FD4FF';          // Page 05's accent, not the site's #7FD4FF
 
 const scene = createRangeScene({
   canvas: $('#peak-canvas'),
