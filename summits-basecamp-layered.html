@@ -38,8 +38,8 @@
 :root { --dock: 46vh; --ac: #4DD9C0; --pulse-s: 1.8s; --pulse-k: 1; --rv-tint: 0; --bg: #000; }
 html, body { background: var(--bg); }
 .bc-head { padding: clamp(96px, 14vh, 150px) var(--side) clamp(30px, 5vh, 60px); }
-.bc-head .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
-.bc-head h2 { margin-top: 14px; color: #fff; font-weight: 400; font-size: clamp(26px, 2.6vw, 44px); line-height: 1.1; letter-spacing: -.025em; max-width: 22ch; }
+/* "Our work", set as the stats' numbers are, so the hierarchy holds */
+.bc-head h2 { color: #fff; font-weight: 300; font-size: clamp(40px, 4.4vw, 84px); line-height: .95; letter-spacing: -.04em; }
 
 #bc { position: relative; }
 
@@ -54,6 +54,10 @@ html, body { background: var(--bg); }
 #range .fs-layer { z-index: 3; }
 .bc-bar { position: absolute; z-index: 4; left: 50%; bottom: clamp(16px, 3vh, 30px); transform: translateX(-50%); width: min(52vw, 820px); pointer-events: auto; }
 .bc-bar .lbl { display: flex; justify-content: center; gap: 10px; width: max-content; margin: 0 auto 12px; padding: 5px 10px; background: rgba(0,0,0,.82); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: rgba(233,236,242,.55); }
+.bc-bar .sl-tabs button { color: rgba(233,236,242,.42); font-size: clamp(10.5px, .85vw, 13px); }
+.bc-bar .sl-tabs button:hover { color: rgba(233,236,242,.75); }
+.bc-bar .sl-tabs button.on { color: color-mix(in srgb, var(--c) 70%, rgba(233,236,242,.6)); }
+.bc-bar .sl-tabs button::before { background-color: rgba(233,236,242,.16); height: 2px; }
 .bc-bar .lbl b { color: var(--ac); font-weight: 400; transition: color .4s linear; }
 .bc-bar .lbl span { color: rgba(233,236,242,.35); }
 
@@ -61,10 +65,10 @@ html, body { background: var(--bg); }
 .fs-peak.bc-mark { opacity: 1; transition: opacity .5s ease; }
 .fs-peak.bc-mark:not(.on) { display: none; }
 .fs-peak.bc-mark.arriving { opacity: .35; }
-.fs-peak.bc-mark i { left: -4.5px; top: -4.5px; width: 9px; height: 9px; background: #fff;
-  box-shadow: 0 0 0 2px var(--c), 0 0 16px 5px color-mix(in srgb, var(--c) 70%, transparent), 0 0 40px 10px color-mix(in srgb, var(--c) 30%, transparent); }
-.fs-peak.bc-mark.on i { left: -4.5px; top: -4.5px; width: 9px; height: 9px; }
-.fs-peak.bc-mark::before, .fs-peak.bc-mark::after { left: -4.5px; top: -4.5px; width: 9px; height: 9px; border-width: 1.5px;
+/* a small solid dot in the summit's colour, the rings pulsing out of it */
+.fs-peak.bc-mark i { left: -3px; top: -3px; width: 6px; height: 6px; background: var(--c); box-shadow: none; }
+.fs-peak.bc-mark.on i { left: -3px; top: -3px; width: 6px; height: 6px; }
+.fs-peak.bc-mark::before, .fs-peak.bc-mark::after { left: -3px; top: -3px; width: 6px; height: 6px; border-width: 1px;
   animation: bcPulse var(--pulse-s) cubic-bezier(.16,.62,.36,1) infinite; }
 .fs-peak.bc-mark::after { animation-delay: calc(var(--pulse-s) / 2); }
 .fs-peak.bc-mark.on::before, .fs-peak.bc-mark.on::after { animation-duration: var(--pulse-s); }
@@ -74,7 +78,6 @@ html, body { background: var(--bg); }
 
 /* ── the cards ─────────────────────────────────────────────────────────── */
 .pn { --c: #fff; position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; background: var(--bg); }
-.pn + .pn { box-shadow: 0 -30px 60px rgba(0,0,0,.55); }
 .pn .in { position: absolute; inset: 0; display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); gap: clamp(28px, 5vw, 96px); align-items: center;
   padding: clamp(84px, 11vh, 120px) var(--side) calc(var(--dock) * .82); transform-origin: 50% 0;
   transform: scale(calc(1 - var(--sink, 0) * .06)) translateY(calc(var(--sink, 0) * -3vh)); filter: brightness(calc(1 - var(--sink, 0) * .55)); }
@@ -84,7 +87,7 @@ html, body { background: var(--bg); }
 
 /* the Rive thumbnail: plays while active or hovered; tinted toward the summit.
    No border change, glow or corner marks on hover. */
-.rv { position: relative; display: block; aspect-ratio: 928 / 486; max-height: calc(100vh - var(--dock) * .82 - 220px); overflow: hidden; background: #141210;
+.rv { position: relative; display: block; aspect-ratio: 3 / 2; max-height: calc(100vh - var(--dock) * .82 - 130px); overflow: hidden; background: #141210;
   border: 1px solid rgba(233,236,242,.1); transition: filter .5s ease; }
 .rv .wk-img { position: absolute; inset: 0; height: 100%; aspect-ratio: auto; }
 .rv .rv-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; opacity: 0; transition: opacity .5s linear; }
@@ -123,7 +126,7 @@ html, body { background: var(--bg); }
 <link rel="stylesheet" href="assets/tune.css">
 </head>
 <body>
-<header class="bc-head"><p class="eyebrow">[ &nbsp;Our summits&nbsp; ]</p><h2>Four climbs, and what they were for</h2></header>
+<header class="bc-head"><h2>Our work</h2></header>
 <section id="bc" aria-label="Our summits">
   <div class="bc-dock" id="dock">
     <div id="range"></div>
@@ -139,7 +142,8 @@ html, body { background: var(--bg); }
   /* Base Camp with the ridges shaded in layers and the raised view (desktop);
      phones keep their locked settings. Its own bake. (A classic script: a
      module's imports would run before these were set.) */
-  window.BASECAMP_PRESET = { depth: { view: 'raised', raisedElev: 15 }, layers: { on: true, lift: 0 } };
+  window.BASECAMP_PRESET = { depth: { view: 'raised', raisedElev: 15, desk: { frontFill: 0.39, frontBase: 0.23 } },   // 0.39: the summit at 80%
+    style: { contrast: 0.75 }, layers: { on: true, lift: 0 } };
   window.BASECAMP_KEY = 'tibba.bake.basecamp-layered';
 </script>
 <script type="module">

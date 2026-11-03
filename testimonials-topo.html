@@ -40,8 +40,7 @@ a { color: inherit; text-decoration: none; }
   padding: clamp(80px, 12vh, 130px) var(--side) clamp(32px, 6vh, 64px); }
 
 .idx { position: relative; z-index: 2; align-self: stretch; display: flex; flex-direction: column; justify-content: space-between; will-change: transform; }
-.idx .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
-.idx h2 { margin-top: 14px; color: #fff; font-weight: 400; font-size: clamp(20px, 1.8vw, 28px); line-height: 1.12; letter-spacing: -.02em; max-width: 13ch; }
+.idx h2 { color: #fff; font-weight: 400; font-size: clamp(20px, 1.8vw, 28px); line-height: 1.12; letter-spacing: -.02em; max-width: 13ch; }
 .idx ol { list-style: none; display: grid; gap: 2px; }
 .idx li { position: relative; padding: 12px 0 13px; display: grid; grid-template-columns: 30px 1fr; font-size: 12px; letter-spacing: .04em; color: var(--ink-faint); cursor: pointer; transition: color .3s linear; }
 .idx li .n { font-size: 9.5px; letter-spacing: .16em; padding-top: 2px; }
@@ -73,12 +72,15 @@ a { color: inherit; text-decoration: none; }
 .q .who p b { color: #fff; font-weight: 400; display: block; font-size: 15px; margin-bottom: 3px; }
 .q .who .btn-p { margin-left: clamp(8px, 1.6vw, 22px); opacity: 0; }
 .q .ph[hidden] { display: none; }
-.q .ph { display: inline-block; margin-bottom: 14px; font-size: 9.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); border: 1px solid rgba(255,75,31,.4); padding: 3px 7px; }
+.q .ph { display: inline-block; margin-bottom: 14px; font-size: 9.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); border: 1px solid rgba(127,212,255,.4); padding: 3px 7px; }
 .q.in .who .pic { animation: t-pic .5s .7s cubic-bezier(.22,1,.36,1) both; }
 .q.in .who p, .q.in .who .btn-p { animation: t-fade .4s .9s linear both; }
 @keyframes t-pic { to { opacity: 1; transform: none; } }
 @keyframes t-fade { to { opacity: 1; } }
 
+/* no navigation: no client list, counter or arrows — the scroll (or, on a
+   phone, a swipe across the cards) moves through the quotes */
+.idx ol, .count, .tnav, .qtrack + .count { display: none !important; }
 .count { position: absolute; z-index: 2; right: var(--side); bottom: clamp(28px, 5vh, 56px); font-size: 11px; letter-spacing: .14em; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
 .count b { color: #fff; font-weight: 400; }
 
@@ -121,7 +123,7 @@ a { color: inherit; text-decoration: none; }
   .qcard::before { content: ''; position: absolute; left: -1px; top: -1px; width: 8px; height: 8px; background: var(--c); }
   .qcard .qm { font-size: 64px; line-height: .6; height: 26px; color: var(--c); opacity: .5; font-weight: 300; }
   .qcard blockquote { margin-top: 10px; color: #fff; font-weight: 300; font-size: clamp(19px, 4.4vw, 28px); line-height: 1.2; letter-spacing: -.02em; }
-  .qcard .ph { align-self: flex-start; margin-bottom: 10px; font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); border: 1px solid rgba(255,75,31,.4); padding: 3px 7px; }
+  .qcard .ph { align-self: flex-start; margin-bottom: 10px; font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); border: 1px solid rgba(127,212,255,.4); padding: 3px 7px; }
   .qcard .by { margin-top: 22px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.12); display: flex; align-items: center; flex-wrap: wrap; gap: 12px 14px; }
   .qcard .by p { flex: 1; min-width: 0; font-size: 12.5px; color: var(--ink-mute); line-height: 1.4; }
   .qcard .by p b { display: block; color: #fff; font-weight: 400; font-size: 14.5px; margin-bottom: 2px; }
@@ -141,7 +143,6 @@ a { color: inherit; text-decoration: none; }
   <section id="stage" aria-labelledby="testi-h">
     <aside class="idx">
       <div>
-        <p class="eyebrow">[ &nbsp;Our testimonials&nbsp; ]</p>
         <h2 id="testi-h">What our clients say about us</h2>
       </div>
       <ol></ol>

@@ -200,7 +200,7 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
       <defs><linearGradient id="g" x1="0" y1="0" x2=".4" y2="1"><stop offset="0" stop-color="${tone}"/><stop offset="1" stop-color="#0b0b0c"/></linearGradient></defs>
       <rect width="${W}" height="${H}" fill="url(#g)"/>${rings}
-      <rect x="${cx - 9}" y="${cy - 9}" width="18" height="18" fill="#FF4B1F"/>
+      <rect x="${cx - 9}" y="${cy - 9}" width="18" height="18" fill="#7FD4FF"/>
     </svg>`;
     return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
   }

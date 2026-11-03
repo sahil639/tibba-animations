@@ -164,7 +164,7 @@ export function mountStone(canvas, host = canvas.parentElement) {
 
   scene.add(new THREE.HemisphereLight(0x9aa0aa, 0x0a0806, .4));
   const key = new THREE.DirectionalLight(0xfff4ea, 2.1); key.position.set(-3, 4.5, 5); scene.add(key);
-  const rim = new THREE.DirectionalLight(0xff4b1f, 1.6); rim.position.set(4.5, -1.5, -3); scene.add(rim);
+  const rim = new THREE.DirectionalLight(0x7FD4FF, 1.6); rim.position.set(4.5, -1.5, -3); scene.add(rim);
   const rim2 = new THREE.DirectionalLight(0xb8c4ff, .8); rim2.position.set(-5, 1, -2.5); scene.add(rim2);
   const rake = new THREE.PointLight(0xffe2cc, 9, 14, 2); rake.position.set(1.5, 1, 2.6); scene.add(rake);
 

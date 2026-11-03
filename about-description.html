@@ -39,8 +39,7 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
   padding: clamp(72px, 11vh, 120px) var(--gut) 0; }
 .side { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 40px;
   max-width: var(--copy-max, 92vw); padding-bottom: clamp(18px, 3vh, 32px); }
-.side .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
-.side h2 { margin-top: 12px; color: #fff; font-weight: 400; font-size: clamp(18px, 1.5vw, 24px); line-height: 1.15; letter-spacing: -.02em; }
+.side h2 { color: #fff; font-weight: 400; font-size: clamp(18px, 1.5vw, 24px); line-height: 1.15; letter-spacing: -.02em; }
 .side .meter { display: flex; align-items: center; gap: 12px; font-size: 10px; letter-spacing: .18em; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
 .side .meter i { position: relative; display: block; width: 160px; height: 1px; background: rgba(255,255,255,.12); }
 .side .meter i::after { content: ''; position: absolute; inset: 0; background: var(--accent); transform-origin: left; transform: scaleX(var(--p, 0)); }
@@ -71,7 +70,6 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
   <div id="reveal-stage">
     <div class="side">
       <div>
-        <p class="eyebrow">[ &nbsp;Who we are&nbsp; ]</p>
         <h2 id="who-h">A lean design team, based out of India</h2>
       </div>
       <p class="meter"><i></i><span id="pct">000</span></p>

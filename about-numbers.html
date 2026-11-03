@@ -23,8 +23,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
 .an { padding: clamp(64px, 10vh, 120px) var(--gut); }
-.an .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
-.an h2 { margin-top: 14px; font-weight: 400; font-size: clamp(26px, 3vw, 48px); line-height: 1.08; letter-spacing: -.03em; color: #fff; max-width: 22ch; --odo-h: 1.1em; }
+.an h2 { font-weight: 400; font-size: clamp(26px, 3vw, 48px); line-height: 1.08; letter-spacing: -.03em; color: #fff; max-width: 22ch; --odo-h: 1.1em; }
 .grid { margin-top: clamp(28px, 4vw, 52px); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px;
   background: rgba(233,236,242,.12); border-block: 1px solid rgba(233,236,242,.12); }
 .m { background: #000; padding: clamp(24px, 3vw, 42px) clamp(18px, 2vw, 30px); }
@@ -36,7 +35,6 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
 </head>
 <body>
 <section class="an" aria-labelledby="an-h">
-  <p class="eyebrow">[ &nbsp;In numbers&nbsp; ]</p>
   <h2 id="an-h" data-odo>Founded in 2023. A decade of work behind it.</h2>
   <div class="grid">
     <div class="m"><span class="n" data-odo-count data-odo-delay="0.05">25+</span><span class="l">Products shipped</span></div>

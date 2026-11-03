@@ -35,7 +35,7 @@ const ease = t => t * t * (3 - 2 * t);
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const LAYOUT = document.body.dataset.layout || 'column';
-const ACCENT = '#FF4B1F';
+const ACCENT = '#7FD4FF';
 
 /* ══════════════════════════════════════════════════════════════════════════
    DATA — the four summits, in PROJECT_PEAKS order

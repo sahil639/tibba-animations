@@ -34,7 +34,7 @@ import { cubicBezier } from './peak-trail.js';
 const $ = s => document.querySelector(s);
 const clamp01 = t => t < 0 ? 0 : t > 1 ? 1 : t;
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const ACCENT = '#FF4B1F';
+const ACCENT = '#7FD4FF';
 
 export const CASES = [
   { name: 'Groww', colour: '#4DD9C0', file: 'case-groww-v2.html', years: '2024 — Present',
