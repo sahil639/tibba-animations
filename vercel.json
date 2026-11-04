@@ -2,11 +2,71 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
   "redirects": [
-    { "source": "/final-website", "destination": "/", "permanent": false },
-    { "source": "/final-website-v2", "destination": "/", "permanent": false },
-    { "source": "/website-v3", "destination": "/", "permanent": false }
+    {
+      "source": "/final-website",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/final-website-v2",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/website-v3",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/case-groww-v2",
+      "destination": "/case-groww-figma",
+      "permanent": false
+    },
+    {
+      "source": "/case-groww-v2.html",
+      "destination": "/case-groww-figma",
+      "permanent": false
+    },
+    {
+      "source": "/case-firstpost-v2",
+      "destination": "/case-firstpost-figma",
+      "permanent": false
+    },
+    {
+      "source": "/case-firstpost-v2.html",
+      "destination": "/case-firstpost-figma",
+      "permanent": false
+    },
+    {
+      "source": "/case-breathe-esg-v2",
+      "destination": "/case-breathe-esg-figma",
+      "permanent": false
+    },
+    {
+      "source": "/case-breathe-esg-v2.html",
+      "destination": "/case-breathe-esg-figma",
+      "permanent": false
+    },
+    {
+      "source": "/case-shyft-mindhouse-v2",
+      "destination": "/case-shyft-mindhouse-figma",
+      "permanent": false
+    },
+    {
+      "source": "/case-shyft-mindhouse-v2.html",
+      "destination": "/case-shyft-mindhouse-figma",
+      "permanent": false
+    }
   ],
   "headers": [
-    { "source": "/(.*)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }] }
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    }
   ]
 }
