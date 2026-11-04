@@ -78,6 +78,46 @@
     if (window.wb && window.wb.adopt) window.wb.adopt();
   }
 
+  /* ── 6. the hero's name: as large as the design has it, never wider
+     than the screen allows ─────────────────────────────────────────── */
+  const name = document.querySelector('.cf-hero h1.fit');
+  if (name) {
+    const size = () => {
+      name.style.removeProperty('--fit');
+      const room = name.parentElement.parentElement.clientWidth - 2 * name.parentElement.offsetLeft;
+      const w = name.scrollWidth, fs = parseFloat(getComputedStyle(name).fontSize);
+      if (w > room) name.style.setProperty('--fit', Math.floor(fs * room / w) + 'px');
+    };
+    new ResizeObserver(size).observe(name.parentElement.parentElement);
+    if (document.fonts) document.fonts.ready.then(size);
+  }
+
+  /* ── 4. keep climbing: the other three cases, each by its thumbnail ── */
+  addEventListener('DOMContentLoaded', () => {
+    const W = window.TibbaWork, box = document.getElementById('cf-cards');
+    if (!W || !box) return;
+    const here = document.body.dataset.case;
+    box.innerHTML = W.SUMMITS.filter(s => s.key !== here).map(s => { const c = window.TIBBA_CASES[s.key];
+      return `<a class="cf-card" href="${s.file}" style="--c:${c.colour}">${W.img(s.folder, 'cover', c.client)}<p>${W.esc(s.line)}</p></a>`; }).join('');
+    box.querySelectorAll('.cf-card').forEach(a => a.querySelector('.wk-img').style.setProperty('--c', a.style.getPropertyValue('--c')));
+  });
+
+  /* ── 5. the footer: the home page's own (footer-dusk-grid.html), in a
+     frame as tall as it is; its links open in this window, not the frame ── */
+  document.querySelectorAll('iframe.cf-foot').forEach(f => {
+    const fit = () => { try { const d = f.contentDocument; f.style.height = Math.max(d.documentElement.scrollHeight, d.body.scrollHeight) + 'px'; } catch (e) {} };
+    const ready = () => {
+      try {
+        const d = f.contentDocument; if (!d || !d.body || d.querySelector('base[target]')) return;
+        const b = d.createElement('base'); b.target = '_top'; d.head.prepend(b);
+        new ResizeObserver(fit).observe(d.body);
+      } catch (e) {}
+      fit();
+    };
+    f.addEventListener('load', ready);
+    try { if (f.contentDocument.readyState === 'complete' && f.contentDocument.URL !== 'about:blank') ready(); } catch (e) {}
+  });
+
   /* ── 2. the phone columns ──────────────────────────────────────────── */
   const box = document.querySelector('.cf-phones');
   if (!box) return;
