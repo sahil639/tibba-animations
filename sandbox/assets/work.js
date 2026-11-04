@@ -62,7 +62,7 @@
   /* slots already found empty this session: drawn as their placeholder
      straight away, without asking the server three times again — on a
      phone, every section page would otherwise re-probe every missing file */
-  const MISS_KEY = 'tibba.work.missing';
+  const MISS_KEY = 'tibba.work.missing.2';   // renamed when files arrive, so old misses are forgotten
   let missing;
   try { missing = new Set(JSON.parse(sessionStorage.getItem(MISS_KEY) || '[]')); } catch (e) { missing = new Set(); }
   function img(folder, name, alt, ratio, cls) {

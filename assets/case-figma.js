@@ -98,8 +98,10 @@
     if (!W || !box) return;
     const here = document.body.dataset.case;
     box.innerHTML = W.SUMMITS.filter(s => s.key !== here).map(s => { const c = window.TIBBA_CASES[s.key];
-      return `<a class="cf-card" href="${s.file}" style="--c:${c.colour}">${W.img(s.folder, 'cover', c.client)}<p>${W.esc(s.line)}</p></a>`; }).join('');
-    box.querySelectorAll('.cf-card').forEach(a => a.querySelector('.wk-img').style.setProperty('--c', a.style.getPropertyValue('--c')));
+      /* the thumbnail itself, not TibbaWork.img(): that one remembers a
+         missing file for the session, and would keep a card empty after its
+         thumbnail arrived */
+      return `<a class="cf-card" href="${s.file}" style="--c:${c.colour}"><div class="wk-img" style="--c:${c.colour}"><img src="${W.DIR}${s.folder}/cover.webp" alt="${W.esc(c.client)}" loading="lazy" decoding="async" onload="this.parentNode.classList.add('in')"></div><p>${W.esc(s.line)}</p></a>`; }).join('');
   });
 
   /* ── 5. the footer: the home page's own (footer-dusk-grid.html), in a

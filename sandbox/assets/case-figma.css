@@ -279,3 +279,14 @@ body:has(.cf-light) { background: #f5f9fa; }
   .cf-outcome > div { flex-direction: column; }
   .cf-outcome ul { align-items: flex-start; }
 }
+
+/* the pictures stand a little wider than the words: --over on each side,
+   about 7% of the column, never closer than 16px to the screen's edge */
+.cf-work { --over: max(0px, min(calc(var(--cw) * .07), 96px, (100vw - var(--cw)) / 2 - 16px)); }
+.cf-body > .cf-fig:not(.cf-bleed), .cf-body > .cf-slide, .cf-body > .cf-coded { margin-inline: calc(-1 * var(--over)); width: auto; }
+.cf-body > .cf-slide { width: calc(100% + 2 * var(--over)); }
+.cf-split > .cf-fig, .cf-split > .cf-coded { width: calc(var(--fw, 611) / 1380 * 100% + var(--over)); margin-right: calc(-1 * var(--over)); }
+.cf-split.rev > .cf-fig, .cf-split.rev > .cf-coded { margin-right: 0; margin-left: calc(-1 * var(--over)); }
+.cf-pair > .cf-reel { margin-right: calc(-1 * var(--over)); }
+@container (max-width: 640px) { .cf-split > .cf-fig, .cf-split > .cf-coded { width: auto; margin-inline: calc(-1 * var(--over)); } }
+@media (max-width: 860px) { .cf-split > .cf-fig, .cf-split > .cf-coded { width: auto; margin-inline: calc(-1 * var(--over)); } }
