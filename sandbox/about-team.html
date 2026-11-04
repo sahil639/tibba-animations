@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-02T14:47:45.317Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-04T11:17:45.989Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -39,16 +39,14 @@ gtag('config', 'G-DZS8N17C9N');
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
 .team { padding: clamp(80px, 14vh, 150px) var(--gut) clamp(80px, 12vh, 140px); max-width: 1600px; margin: 0 auto; }
-.head .eyebrow { display: flex; align-items: center; gap: 10px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
-.head .eyebrow::before { content: ''; width: 7px; height: 7px; background: var(--accent); }
-.head h2 { margin-top: 16px; color: #fff; font-weight: 300; font-size: clamp(30px, 3.6vw, 60px); line-height: 1.04; letter-spacing: -.035em; max-width: 18ch; }
+.head h2 { color: #fff; font-weight: 300; font-size: clamp(30px, 3.6vw, 60px); line-height: 1.04; letter-spacing: -.035em; max-width: 18ch; }
 .head p { margin-top: 18px; max-width: 52ch; color: var(--ink-mute); font-size: clamp(14px, 1.05vw, 16px); line-height: 1.7; }
 
 .people { margin-top: clamp(40px, 7vh, 80px); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; }
 .member { position: relative; margin-left: -1px; outline: none; cursor: default; display: flex; flex-direction: column; }
 .member:first-child { margin-left: 0; }
 .member .plate { position: absolute; inset: 0; border: 1px solid rgba(255,255,255,.16); background: rgba(10,10,12,.78); clip-path: inset(50% 0 50% 0); transition: border-color .4s linear; }
-.member.hot .plate, .member:focus-visible .plate { border-color: rgba(255,75,31,.5); z-index: 1; }
+.member.hot .plate, .member:focus-visible .plate { border-color: rgba(127,212,255,.5); z-index: 1; }
 .member .hl { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--accent); transform: scaleX(0); opacity: 0; pointer-events: none; z-index: 2; }
 .member .cn { position: absolute; width: 10px; height: 10px; border-color: #fff; border-style: solid; opacity: 0; z-index: 2; }
 .member .cn.tl { left: -1px; top: -1px; border-width: 1px 0 0 1px; }
@@ -81,7 +79,6 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
 
 <section class="team" aria-labelledby="team-h">
   <div class="head">
-    <p class="eyebrow">Our team</p>
     <h2 id="team-h">The people, and the ones beside them</h2>
     <p>In addition to our team, we work with a number of collaborators and advisors,
        depending on the needs of a project.</p>
@@ -111,7 +108,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     },
     /* one contour field per member — see assets/card-topo.js */
     topo: [
-      { on: true, pattern: 'peak',  seed: 3,  speed: 0.4,  levels: 12, scale: 1,   opacity: 0.5, width: 1, colour: '#FF4B1F', tint: 0.3 },
+      { on: true, pattern: 'peak',  seed: 3,  speed: 0.4,  levels: 12, scale: 1,   opacity: 0.5, width: 1, colour: '#7FD4FF', tint: 0.3 },
       { on: true, pattern: 'ridge', seed: 7,  speed: 0.35, levels: 11, scale: 1.1, opacity: 0.5, width: 1, colour: '#7B8FF5', tint: 0.35 },
       { on: true, pattern: 'twin',  seed: 11, speed: 0.45, levels: 12, scale: 1,   opacity: 0.5, width: 1, colour: '#4DD9C0', tint: 0.3 },
       { on: true, pattern: 'basin', seed: 17, speed: 0.3,  levels: 10, scale: 1.2, opacity: 0.5, width: 1, colour: '#E05555', tint: 0.3 },

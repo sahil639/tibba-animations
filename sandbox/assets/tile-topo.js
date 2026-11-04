@@ -99,7 +99,7 @@
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, W, H);
       ctx.lineWidth = 1;
-      const col = o.colour || '#FF4B1F';
+      const col = o.colour || '#7FD4FF';
       for (let L = 1; L <= V.levels; L++) {
         const lv = lo + (hi - lo) * (L / (V.levels + 1));
         const top = L === V.levels;

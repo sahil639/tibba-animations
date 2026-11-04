@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-02T14:47:45.317Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-04T11:17:45.989Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -49,15 +49,16 @@ gtag('config', 'G-DZS8N17C9N');
    Every value: GEAR_CONFIG in the script, on the panel, and bakeable.
    ═════════════════════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root { --line: rgba(233,236,242,.12); --line-2: rgba(233,236,242,.22); --acc: #FF4B1F; }
+:root { --line: rgba(233,236,242,.12); --line-2: rgba(233,236,242,.22); --acc: #7FD4FF; }
 body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
 button { font: inherit; color: inherit; }
 .gs { padding: clamp(84px, 12vh, 130px) var(--side) clamp(56px, 9vh, 100px); }
 
 /* the heading */
 .gs-title { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; padding-bottom: clamp(16px, 2.4vh, 28px); border-bottom: 1px solid var(--line); }
-.gs-title .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--acc); }
-.gs-title h1 { margin-top: 12px; color: #fff; font-weight: 400; font-size: clamp(30px, 3.3vw, 56px); line-height: 1; letter-spacing: -.035em; }
+/* "Our services" is the title (set as the stats are); the line under it is the subtext */
+.gs-title h1 { color: #fff; font-weight: 300; font-size: clamp(40px, 4.4vw, 84px); line-height: .95; letter-spacing: -.04em; }
+.gs-title .sub { margin-top: 12px; color: var(--ink-mute); font-size: clamp(15px, 1.2vw, 19px); letter-spacing: -.01em; }
 
 .gs-body { margin-top: clamp(24px, 4vh, 44px); display: grid; grid-template-columns: minmax(0, .74fr) minmax(0, 1.26fr); gap: clamp(28px, 4vw, 72px); align-items: start; }
 
@@ -73,18 +74,11 @@ button { font: inherit; color: inherit; }
 .tier:hover { color: #fff; }
 .tier[aria-selected="true"] { color: #fff; background: rgba(255,255,255,.035); }
 .tier[aria-selected="true"] .n { color: var(--acc); }
-.tier[aria-selected="true"] .n::before { content: ''; width: 6px; height: 6px; background: var(--acc); }
 .tier[aria-selected="true"]::after { transform: scaleX(1); }
 .tier:focus-visible { outline: 1px solid var(--acc); outline-offset: 2px; }
 
 /* ── the mat ───────────────────────────────────────────────────────────── */
-.mat { position: relative; margin-top: 14px; border: 1px solid var(--line); background:
-  linear-gradient(rgba(233,236,242,.035) 1px, transparent 1px) 0 0 / 24px 24px,
-  linear-gradient(90deg, rgba(233,236,242,.035) 1px, transparent 1px) 0 0 / 24px 24px,
-  radial-gradient(80% 70% at 50% 45%, rgba(255,75,31,.05), rgba(255,75,31,0) 70%), #050506; }
-.mat::before, .mat::after { content: ''; position: absolute; width: 10px; height: 10px; pointer-events: none; z-index: 3; }
-.mat::before { left: -1px; top: -1px; border-left: 1px solid var(--acc); border-top: 1px solid var(--acc); }
-.mat::after { right: -1px; bottom: -1px; border-right: 1px solid var(--acc); border-bottom: 1px solid var(--acc); }
+.mat { position: relative; margin-top: 14px; border: 1px solid var(--line); background: #050506; }   /* plain: one hairline, no grid, glow or corner marks */
 .board { position: relative; aspect-ratio: 1 / 1.06; overflow: hidden; }
 
 /* the bags: misc-bags.html in a frame, its background clear over the mat */
@@ -95,14 +89,11 @@ button { font: inherit; color: inherit; }
 
 /* ── the stage and its services ─────────────────────────────────────────── */
 .state .k { display: flex; align-items: center; gap: 12px; font-size: clamp(13px, .95vw, 15px); letter-spacing: .16em; text-transform: uppercase; color: #fff; }
-.state .k::before { content: ''; width: 9px; height: 9px; background: var(--acc); }
 .state .k b { color: var(--acc); font-weight: 400; }
 .state .k i { flex: 0 0 40px; height: 1px; background: var(--line-2); }
 .state .blurb { margin-top: 14px; max-width: 30ch; color: #fff; font-size: clamp(20px, 1.9vw, 32px); line-height: 1.22; letter-spacing: -.02em; min-height: 2.5em; }
 .lists { margin-top: clamp(24px, 4vh, 40px); display: grid; grid-template-columns: 1fr 1fr; gap: clamp(20px, 2.6vw, 44px); }
-.list h3 { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--line-2); font-weight: 400; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-mute); }
-.list h3 span { display: inline-flex; align-items: center; gap: 10px; } .list h3 span::before { content: ''; width: 6px; height: 6px; background: var(--acc); }
-.list h3 b { font-weight: 400; color: var(--acc); letter-spacing: .12em; }
+.list ol { border-top: 1px solid var(--line-2); }
 .list ol { list-style: none; }
 .sv { position: relative; display: grid; grid-template-columns: clamp(48px, 4.2vw, 64px) 1fr; column-gap: 12px; align-items: center; padding: 18px 0 18px; border-bottom: 1px solid var(--line); }
 .sv .ix { grid-row: 1 / span 2; font-size: clamp(22px, 1.9vw, 30px); font-weight: 300; line-height: .9; letter-spacing: -.02em; color: rgba(233,236,242,.42);
@@ -111,14 +102,22 @@ button { font: inherit; color: inherit; }
 /* the line under each service opens on hover (or a tap / keyboard focus), as on Compass v4 */
 .sv { cursor: default; outline: none; }
 .sv .ix { grid-row: auto; }
-.sv { grid-template-columns: clamp(48px, 4.2vw, 64px) clamp(34px, 2.6vw, 42px) 1fr; --ic-cut: var(--gear-bg, #000); }
-.sv .ic { grid-row: 1; align-self: center; width: clamp(30px, 2.4vw, 38px); height: clamp(30px, 2.4vw, 38px); opacity: .8; transition: opacity .25s linear, transform .45s cubic-bezier(.22,.9,.3,1); }
-.sv .ic svg { display: block; width: 100%; height: 100%; }
-.sv:hover .ic, .sv:focus-visible .ic, .sv.open .ic { opacity: 1; transform: translateY(-2px); }
+.sv { grid-template-columns: clamp(48px, 4.2vw, 64px) clamp(34px, 2.6vw, 42px) 1fr; }
+.sv .ix, .sv .ic { grid-row: 1 / span 2; }
+.sv .nm { grid-column: 3; grid-row: 1; }
+.sv .ds { grid-row: 2; }
+/* the icons: line only, one colour, the text's; hovering a service moves
+   only its icon — a small lift and tilt, and it takes the accent */
+.sv .ic { align-self: start; width: clamp(30px, 2.4vw, 38px); height: clamp(30px, 2.4vw, 38px); color: rgba(233,236,242,.8); transition: color .25s linear; }
+.sv .ic svg { display: block; width: 100%; height: 100%; transform-origin: 50% 80%; }
+.sv:hover .ic, .sv:focus-visible .ic, .sv.open .ic { color: var(--acc); }
+.sv:hover .ic svg, .sv:focus-visible .ic svg { animation: ic-nudge .6s cubic-bezier(.34,1.56,.64,1); }
+@keyframes ic-nudge { 0% { transform: none; } 35% { transform: translateY(-4px) rotate(-8deg); } 65% { transform: translateY(-2px) rotate(5deg); } 100% { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .sv:hover .ic svg, .sv:focus-visible .ic svg { animation: none; } }
 .ic-off .sv { grid-template-columns: clamp(48px, 4.2vw, 64px) 1fr; } .ic-off .sv .ic { display: none; } .ic-off .sv .ds { grid-column: 2; }   /* the panel's "Hide icons" */
 .sv .ds { grid-column: 3; display: grid; grid-template-rows: 0fr; transition: grid-template-rows .4s cubic-bezier(.22,.9,.3,1); }
 .sv .ds > span { overflow: hidden; font-size: 13px; line-height: 1.5; color: var(--ink-mute); max-width: 44ch; }
-.sv .ds > span::before { content: ''; display: block; height: 7px; }
+.sv .ds > span::before { content: ''; display: block; height: 3px; }
 .sv:hover .ds, .sv:focus-visible .ds, .sv.open .ds { grid-template-rows: 1fr; }
 .sv:hover .ix, .sv:focus-visible .ix, .sv.open .ix { color: var(--acc); }
 .sv:focus-visible::before, .sv.open::before { transform: scaleX(1); }
@@ -136,10 +135,6 @@ button { font: inherit; color: inherit; }
 .sv .ix { padding-top: 2px; }
 .sv .ds { grid-template-rows: 1fr; }
 .sv .ds > span { font-size: 13.5px; color: rgba(233,236,242,.62); }
-.sv .new { grid-column: 3; justify-self: start; margin-top: 10px; font-size: 9.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--acc); }
-.ic-off .sv .new { grid-column: 2; }
-.carry { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 16px 0 0; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); }
-.carry span { padding: 6px 10px; border: 1px solid var(--line); letter-spacing: .04em; text-transform: none; font-size: 12.5px; color: rgba(233,236,242,.7); }
 /* the work, by company size: one case study, the one for the stage picked
    above — its label, client and line to the left, the way in to the right */
 .next { margin-top: clamp(24px, 4vh, 40px); }
@@ -184,7 +179,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
 <body>
 <main class="gs">
   <header class="gs-title">
-    <div><p class="eyebrow">[ &nbsp;Our services&nbsp; ]</p><h1>Gear up for your climb</h1></div>
+    <div><h1>Our services</h1><p class="sub">Gear up for your climb</p></div>
   </header>
   <div class="gs-body">
     <section aria-label="The kit">
@@ -199,11 +194,11 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
       <div class="lists" id="lists"></div>
       <div class="next" id="next">
         <div class="cs" style="--c:#4CAF70"><small>Early-stage companies</small><b>Breathe ESG</b><p>How we helped Breathe ESG <em>accelerate sales</em></p>
-          <a class="btn-p" href="case-breathe-esg-v2.html" target="_top">View case study<span class="btn-p-ic" aria-hidden="true"></span></a></div>
+          <a class="btn-p" href="case-breathe-esg-figma.html" target="_top">View case study<span class="btn-p-ic" aria-hidden="true"></span></a></div>
         <div class="cs" style="--c:#E05555"><small>Mid-size companies</small><b>Firstpost</b><p>How we helped Firstpost <em>2x their traffic</em></p>
-          <a class="btn-p" href="case-firstpost-v2.html" target="_top">View case study<span class="btn-p-ic" aria-hidden="true"></span></a></div>
+          <a class="btn-p" href="case-firstpost-figma.html" target="_top">View case study<span class="btn-p-ic" aria-hidden="true"></span></a></div>
         <div class="cs" style="--c:#4DD9C0"><small>Established companies</small><b>Groww</b><p>How we helped Groww <em>boost engagement</em></p>
-          <a class="btn-p" href="case-groww-v2.html" target="_top">View case study<span class="btn-p-ic" aria-hidden="true"></span></a></div>
+          <a class="btn-p" href="case-groww-figma.html" target="_top">View case study<span class="btn-p-ic" aria-hidden="true"></span></a></div>
       </div>
     </section>
   </div>
@@ -288,11 +283,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     $('blurb').textContent = st.outcome;
     const ic = s => window.TibbaServiceIcon ? TibbaServiceIcon(s.icon) : '';
     const rows = st.services.map((s, k) => `<li class="sv" tabindex="0" style="--k:${k}"><span class="ix">${pad(k + 1)}</span><span class="ic" aria-hidden="true">${ic(s)}</span><span class="nm">${s.name}</span><span class="ds"><span>${s.line}</span></span></li>`).join('');
-    /* what the earlier stages already put in the pack */
-    const carried = S.slice(0, i);
-    const head = i ? '+ New at this stage' : 'What we bring';
-    $('lists').innerHTML = `<div class="list"><h3><span>${head}</span><b>${pad(st.services.length)}</b></h3><ol>${rows}</ol>${
-      carried.length ? `<p class="carry">Already in your pack${carried.map((p, k) => `<span title="${p.services.map(s => s.name).join(', ')}">${C.tiers[k].name} · ${p.services.length} services</span>`).join('')}</p>` : ''}</div>`;
+    $('lists').innerHTML = `<div class="list"><ol>${rows}</ol></div>`;
     const lists = $('lists'); lists.classList.remove('swap'); void lists.offsetWidth; lists.classList.add('swap');
     [...$('next').children].forEach((c, k) => c.classList.toggle('on', k === i));
   }

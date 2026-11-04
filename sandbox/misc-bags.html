@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-02T14:47:45.317Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-04T11:17:45.989Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -48,10 +48,10 @@ body { color: #E9ECF2; font-family: 'F37 Analog', system-ui, sans-serif; }
 .switch button { appearance: none; border: 0; background: none; cursor: pointer; display: flex; align-items: baseline; gap: 8px; padding: 10px 14px 11px; color: rgba(233,236,242,.55);
   font: 400 12px/1 'F37 Analog', system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; position: relative; transition: color .25s linear, background-color .25s linear; }
 .switch button b { font-weight: 400; font-size: 10px; color: rgba(233,236,242,.35); transition: color .25s linear; }
-.switch button::after { content: ''; position: absolute; left: 14px; right: 14px; bottom: 4px; height: 1px; background: var(--accent, #E85D3D); transform: scaleX(0); transform-origin: left; transition: transform .45s cubic-bezier(.22,1,.36,1); }
+.switch button::after { content: ''; position: absolute; left: 14px; right: 14px; bottom: 4px; height: 1px; background: var(--accent, #7FD4FF); transform: scaleX(0); transform-origin: left; transition: transform .45s cubic-bezier(.22,1,.36,1); }
 .switch button:hover { color: #fff; }
 .switch button[aria-pressed="true"] { color: #fff; background: rgba(255,255,255,.05); }
-.switch button[aria-pressed="true"] b { color: var(--accent, #E85D3D); }
+.switch button[aria-pressed="true"] b { color: var(--accent, #7FD4FF); }
 .switch button[aria-pressed="true"]::after { transform: scaleX(1); }
 @media (max-width: 640px) { .switch { left: 12px; right: 12px; bottom: 12px; } .switch button { flex: 1; justify-content: center; padding: 10px 6px 11px; font-size: 10.5px; } .hint { display: none; } }
 .hint { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase;
@@ -80,8 +80,9 @@ import { applyBaked, bakeControls } from './assets/bake.js';
 /* ── every tunable ──────────────────────────────────────────────────────── */
 const CONFIG = {
   anim: { play: true, speed: 0.35, morph: 0.25 },
-  lines: { density: 11.5, width: 0.75, warp: 0.22, opacity: 0.95, colour: '#F2F3F6' },
-  model: { fill: '#0E0E10', shade: 0.45, rim: 0.22, outline: 1.6, accent: '#E8572E', logo: true, guides: true },
+  /* fewer, quieter rings than before (11.5 / 0.95), no dashed guides, the site's accent */
+  lines: { density: 7.5, width: 0.75, warp: 0.22, opacity: 0.7, colour: '#F2F3F6' },
+  model: { fill: '#0E0E10', shade: 0.45, rim: 0.22, outline: 1.6, accent: '#7FD4FF', logo: true, guides: false },
   view: { autoRotate: false, rotateSpeed: 0.6, bag: 0 },
 };
 const KEY = 'tibba.bake.misc-bags';
@@ -180,9 +181,11 @@ void main(){
 const hullMat = new THREE.ShaderMaterial({ uniforms: { uOutline: G.uOutline, uOutlineCol: G.uOutlineCol }, vertexShader: HULL_VS, fragmentShader: HULL_FS, side: THREE.BackSide });
 
 const accent = { value: new THREE.Color(C.model.accent) };
+/* a bag can have its own body tone (BAG_FILL, set while it is built) */
+let BAG_FILL = null;
 function surface({ k = [1, 1, 1], c = [0, 0, 0], lines = 1, seed = 0, solid = 0, base = null } = {}) {
   return new THREE.ShaderMaterial({
-    uniforms: { ...G, uK: { value: new THREE.Vector3(...k) }, uC: { value: new THREE.Vector3(...c) }, uLines: { value: lines },
+    uniforms: { ...G, ...(BAG_FILL ? { uFill: { value: new THREE.Color(BAG_FILL) } } : {}), uK: { value: new THREE.Vector3(...k) }, uC: { value: new THREE.Vector3(...c) }, uLines: { value: lines },
       uSeed: { value: seed }, uSolid: { value: solid }, uBase: base || { value: new THREE.Color(0x141416) } },
     vertexShader: VS, fragmentShader: FS,
   });
@@ -391,41 +394,41 @@ makeBag('Waist pack', () => {
   add(block(0.09, 0.34, 0.05, 0.02, [1, 3, 1]).rotateZ(0.2).translate(1.32, 1.42, 0.64 - curve(1.32)), solidAccent(), 'zip-pull');
   add(block(0.09, 0.34, 0.05, 0.02, [1, 3, 1]).rotateZ(-0.15).translate(-1.62, 1.55, 0.18 - curve(1.62)), solidAccent(), 'zip-pull');
   /* the belt, from one end of the pouch round behind the wearer to the other */
-  const belt = strap([[-1.62, 1.05, -0.3], [-1.85, 1.15, -1.0], [-1.55, 1.35, -2.25], [-0.2, 1.6, -3.1], [1.45, 1.55, -3.0], [2.55, 1.25, -1.9], [2.35, 1.05, -0.7], [1.62, 1.0, -0.3]],
-    0.58, 0.06, [0, 1, 0], { seg: 120, r: 0.02 });
-  add(belt.g, surface({ k: [1, 0, 0], c: [-3, 0, 0], seed: 0 }), 'belt');      // field across the width only: the lines run along the belt
+  /* the belt: slim webbing, plain — a wide ringed band read as a headband */
+  const belt = strap([[-1.62, 1.05, -0.3], [-1.85, 1.1, -1.0], [-1.55, 1.15, -2.0], [-0.2, 1.2, -2.6], [1.45, 1.2, -2.5], [2.35, 1.1, -1.7], [2.2, 1.05, -0.7], [1.62, 1.0, -0.3]],
+    0.26, 0.05, [0, 1, 0], { seg: 120, r: 0.02 });
+  add(belt.g, solidDark(), 'belt');
   /* the buckle, orange, in the belt behind on the right */
-  along(belt.curve, 0.64, block(0.66, 0.46, 0.13, 0.05, [3, 3, 1]), solidAccent(), 'buckle', 0.03);
-  along(belt.curve, 0.64, block(0.36, 0.2, 0.15, 0.03, [2, 1, 1]), solidDark(), 'buckle-window', 0.05);
+  along(belt.curve, 0.64, block(0.4, 0.3, 0.1, 0.04, [3, 3, 1]), solidAccent(), 'buckle', 0.03);
   /* the belt tabs where it meets the pouch */
   for (const sx of [-1, 1]) add(block(0.22, 0.62, 0.5, 0.08, [2, 4, 3]).translate(sx * 1.62, 1.03, -0.28), surface({ k: [0.5, 0.5, 0.5], c: [0, 0, 0], seed: 4 }), 'tab');
   mark([-0.05, 0.92, 1.12], 0.5);
-}, { dir: [0.62, 0.72, 1.0], zoom: 1.2, shift: [0.2, 0, 0.35] });
+}, { dir: [0.34, 0.5, 1.0], zoom: 1.4, shift: [0, 0, 0.6] });
 
 /* ── 3 · the daypack ─────────────────────────────────────────────────────── */
 makeBag('Daypack', () => {
-  /* the body: rounded, a domed top */
-  add(block(2.5, 3.6, 1.35, 0.62, [20, 30, 12], { taper: 0.05, deform: (v, x, y, z) => { if (y > 0) v.y += 0.38 * y * y * (1 - x * x * 0.8); } }).translate(0, 2.1, 0),
-    surface({ k: [1.0, 0.95, 0.55], c: [0.35, 0.3, -0.4], seed: 3.7 }), 'body');
-  /* the front pocket: a soft square low on the front */
-  add(block(2.05, 1.8, 0.5, 0.55, [18, 16, 6], { deform: (v, x, y, z) => { if (z > 0) v.z += 0.2 * (1 - x * x) * (1 - y * y); } }).translate(0, 1.22, 0.8),
-    surface({ k: [1.0, 1.0, 0.4], c: [-0.3, -0.1, 0.3], seed: 6.3 }), 'front-pocket');
-  /* the top handle */
-  add(strap([[-0.32, 4.02, -0.32], [-0.3, 4.5, -0.36], [0, 4.68, -0.38], [0.3, 4.5, -0.36], [0.32, 4.02, -0.32]], 0.17, 0.07, [0, 0, 1], { seg: 24 }).g,
-    surface({ k: [1, 0, 0], c: [-4, 0, 0], seed: 1 }), 'handle');
+  BAG_FILL = '#3A3E47';               // a lighter body than the other two: higher key
+  /* the body: tall and slim, a technical pack rather than a school bag —
+     a near-flat top, tapering a little */
+  add(block(2.15, 4.3, 1.3, 0.5, [18, 34, 12], { taper: 0.1, deform: (v, x, y, z) => { if (y > 0) v.y += 0.12 * y * y * (1 - x * x * 0.8); } }).translate(0, 2.35, 0),
+    surface({ k: [0.9, 1.1, 0.55], c: [0.35, 0.3, -0.4], seed: 3.7 }), 'body');
+  /* the front pocket: a long, flat panel down the front */
+  add(block(1.5, 2.5, 0.36, 0.3, [14, 20, 4], { deform: (v, x, y, z) => { if (z > 0) v.z += 0.12 * (1 - x * x) * (1 - y * y); } }).translate(0, 1.75, 0.76),
+    surface({ k: [0.8, 1.3, 0.3], c: [-0.3, -0.1, 0.3], seed: 6.3 }), 'front-pocket');
   /* shoulder straps: padded, curving off the back, webbing to the base */
   for (const sx of [-1, 1]) {
-    const s = strap([[sx * 0.5, 3.95, -0.62], [sx * 0.62, 3.4, -1.12], [sx * 0.72, 2.3, -1.24], [sx * 0.85, 1.25, -1.05], [sx * 0.98, 0.75, -0.82]], 0.55, 0.2, [1, 0, 0], { seg: 40 });
+    const s = strap([[sx * 0.45, 4.45, -0.6], [sx * 0.56, 3.8, -1.1], [sx * 0.66, 2.6, -1.22], [sx * 0.8, 1.4, -1.04], [sx * 0.92, 0.75, -0.8]], 0.5, 0.18, [1, 0, 0], { seg: 40 });
     add(s.g, surface({ k: [0.28, s.len / 2, 0.1], c: [0, 0.3, 0], seed: 5 + sx }), 'shoulder-strap');
     add(strap([[sx * 0.98, 0.75, -0.82], [sx * 1.08, 0.45, -0.72], [sx * 1.05, 0.28, -0.62]], 0.13, 0.04, [1, 0, 0], { seg: 10 }).g, solidDark(), 'webbing');
   }
   /* zips: round the pocket and up the side; orange pulls, an orange loop */
-  add(strap([[-0.98, 0.45, 1.0], [-1.0, 1.25, 1.12], [-0.85, 2.05, 1.04], [0, 2.14, 1.1], [0.85, 2.05, 1.04], [1.0, 1.25, 1.12], [0.98, 0.45, 1.0]], 0.045, 0.03, [0, 0, 1], { seg: 50 }).g, solidDark(), 'pocket-zip');
-  add(block(0.1, 0.36, 0.05, 0.02, [1, 3, 1]).translate(1.05, 1.35, 1.12), solidAccent(), 'zip-pull');
-  add(block(0.1, 0.36, 0.05, 0.02, [1, 3, 1]).rotateZ(0.25).translate(-1.2, 2.2, 0.5), solidAccent(), 'zip-pull');
-  add(strap([[1.24, 1.25, -0.05], [1.32, 0.98, 0.08], [1.24, 1.25, 0.22]], 0.08, 0.06, [1, 0, 0], { seg: 14 }).g, solidAccent(), 'loop');
-  mark([0, 1.22, 1.275], 0.52);
-}, { dir: [0.6, 0.62, 1.0], zoom: 1.4, shift: [0, 0.1, 0] });
+  /* a zip straight down the pocket's side, one pull; a compression strap across */
+  add(strap([[0.7, 0.55, 0.96], [0.72, 1.75, 1.0], [0.7, 2.95, 0.96]], 0.045, 0.03, [0, 0, 1], { seg: 30 }).g, solidDark(), 'pocket-zip');
+  add(block(0.1, 0.36, 0.05, 0.02, [1, 3, 1]).translate(0.72, 2.7, 1.03), solidAccent(), 'zip-pull');
+  add(strap([[-1.02, 3.35, 0.05], [-0.88, 3.38, 0.6], [0, 3.42, 0.74], [0.88, 3.38, 0.6], [1.02, 3.35, 0.05]], 0.1, 0.04, [0, 1, 0], { seg: 30 }).g, solidAccent(), 'compression-strap');
+  mark([0, 1.75, 1.12], 0.5);
+  BAG_FILL = null;
+}, { dir: [0.6, 0.62, 1.0], zoom: 1.3, shift: [0, 0.1, 0] });
 
 /* ── applying the config ─────────────────────────────────────────────────── */
 let cur = Math.min(BAGS.length - 1, Math.max(0, C.view.bag | 0));

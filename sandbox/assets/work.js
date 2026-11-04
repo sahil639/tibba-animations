@@ -28,13 +28,13 @@
 
   /* the four summits — the deep case studies (data in assets/cases.js) */
   const SUMMITS = [
-    { key: 'groww', folder: 'groww', file: 'case-groww-v2.html', year: '2024 — now', sector: 'Fintech',
+    { key: 'groww', folder: 'groww', file: 'case-groww-figma.html', year: '2024 — now', sector: 'Fintech',
       hi: 'boost engagement', line: 'How we helped Groww boost engagement on their app' },
-    { key: 'firstpost', folder: 'firstpost', file: 'case-firstpost-v2.html', year: '2023', sector: 'News & media',
+    { key: 'firstpost', folder: 'firstpost', file: 'case-firstpost-figma.html', year: '2023', sector: 'News & media',
       hi: '2x their traffic', line: 'How we helped Firstpost 2x their traffic through a strategic redesign' },
-    { key: 'breathe-esg', folder: 'breathe-esg', file: 'case-breathe-esg-v2.html', year: '2023', sector: 'SaaS',
+    { key: 'breathe-esg', folder: 'breathe-esg', file: 'case-breathe-esg-figma.html', year: '2023', sector: 'SaaS',
       hi: 'accelerate sales', line: 'How we helped Breathe ESG accelerate sales, streamline releases and elevate customer experience' },
-    { key: 'shyft-and-mindhouse', folder: 'shyft-mindhouse', file: 'case-shyft-mindhouse-v2.html', year: '2023', sector: 'Health',
+    { key: 'shyft-and-mindhouse', folder: 'shyft-mindhouse', file: 'case-shyft-mindhouse-figma.html', year: '2023', sector: 'Health',
       hi: 'grow their business', line: 'How we helped Shyft & Mindhouse grow their business and supercharge product led growth' },
   ];
 

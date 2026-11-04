@@ -2,7 +2,7 @@
    Footer kit — the shared base of the reference footers (assets/footer-kit.js)
    ═════════════════════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root { --acc: #FF4B1F; --ink: #e8e3dc; --bg: #0a0a0b; --line: rgba(233,236,242,.12); --line-2: rgba(233,236,242,.22); }
+:root { --acc: #7FD4FF; --ink: #e8e3dc; --bg: #0a0a0b; --line: rgba(233,236,242,.12); --line-2: rgba(233,236,242,.22); }
 body { background: var(--bg); color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
 a { color: inherit; text-decoration: none; }
 button, input { font: inherit; color: inherit; }

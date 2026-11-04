@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-02T14:47:45.317Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-04T11:17:45.989Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -35,7 +35,7 @@ gtag('config', 'G-DZS8N17C9N');
    its words roll in on the site's odometer. Tablets, phones and any screen
    without hover: the words are there from the start, rolled in once.
 
-   Behind the title, a rucksack drawn in line. The section runs a quarter
+   Nothing behind the title: the photos are the section. It runs a quarter
    past the screen (125vh). Hover a print and it straightens to 0° and
    comes to the top of the pile.
 
@@ -46,13 +46,8 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
 .table { position: relative; width: 100vw; height: 125vh; height: 125svh; overflow: hidden;
   background: #000; }   /* black, as every other section */
 .title { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; z-index: 1; }
-/* the rucksack, drawn in line, behind the words */
-.ruck { position: absolute; left: 50%; top: 50%; height: min(78%, 900px); width: auto; transform: translate(-50%, -50%); z-index: 0; pointer-events: none; user-select: none;
-  filter: invert(1); opacity: .15; }
 body.stacked .table { height: 100vh; height: 100svh; }
-body.stacked .ruck { top: 30%; height: 40%; opacity: .14; }
-.title .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
-.title h1 { margin-top: 14px; color: #fff; font-weight: 400; font-size: clamp(34px, 5vw, 80px); line-height: .96; letter-spacing: -.04em; }
+.title h1 { color: #fff; font-weight: 400; font-size: clamp(34px, 5vw, 80px); line-height: .96; letter-spacing: -.04em; }
 .title p { margin: 16px auto 0; max-width: 34ch; color: var(--ink-mute); font-size: 13.5px; line-height: 1.6; }
 .title .hint { margin-top: 18px; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
 
@@ -67,30 +62,21 @@ body.stacked .ruck { top: 30%; height: 40%; opacity: .14; }
   box-shadow: 0 calc(var(--sh-y, 8px) + var(--lift) * 12px) calc(var(--sh-blur, 22px) + var(--lift) * 18px) rgba(0,0,0,calc(var(--sh-a, .26) + var(--lift) * .12)),
               0 1px 2px rgba(0,0,0,.25);
   transition: box-shadow .25s ease, border-color .35s linear; transform-style: preserve-3d; }
-.pol.sel .card { outline: 1px dashed rgba(255,75,31,.7); outline-offset: 5px; }
+.pol.sel .card { outline: 1px solid rgba(255,255,255,.5); outline-offset: 5px; }
 .wb-embed .pol.sel .card { outline: none; }
-.pol .cn { position: absolute; width: 10px; height: 10px; border-color: #fff; border-style: solid; opacity: 0; z-index: 2; pointer-events: none;
-  transition: opacity .3s linear, transform .45s cubic-bezier(.22,1,.36,1); }
-.pol .cn.tl { left: -1px; top: -1px; border-width: 1px 0 0 1px; transform: translate(-6px, -6px); }
-.pol .cn.tr { right: -1px; top: -1px; border-width: 1px 1px 0 0; transform: translate(6px, -6px); }
-.pol .cn.bl { left: -1px; bottom: -1px; border-width: 0 0 1px 1px; transform: translate(-6px, 6px); }
-.pol .cn.br { right: -1px; bottom: -1px; border-width: 0 1px 1px 0; transform: translate(6px, 6px); }
-.pol .pin { position: absolute; right: -1px; top: -1px; width: 8px; height: 8px; background: var(--accent); z-index: 3; transform: scale(0); transition: transform .3s cubic-bezier(.22,1,.36,1); }
-.pol .ph { position: relative; aspect-ratio: 1; overflow: hidden; background: #121214; }
+.pol .ph { position: relative; aspect-ratio: var(--ar, 1); overflow: hidden; background: #121214; }
 .pol .ph img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; user-select: none; filter: saturate(.92) contrast(1.03); transition: transform .9s cubic-bezier(.22,1,.36,1); }
 .pol .ph::after { content: ''; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
 .pol .note { height: var(--foot, 62px); display: flex; flex-direction: column; justify-content: center; gap: 6px; padding: 0 2px; overflow: hidden; }
 .pol .note b { color: #fff; font-weight: 300; font-size: calc(var(--w, 220px) * .085); line-height: 1; letter-spacing: -.025em; white-space: nowrap; outline: none; }
-.pol .note b[contenteditable="true"] { background: rgba(255,75,31,.12); }
+.pol .note b[contenteditable="true"] { background: rgba(127,212,255,.12); }
 .pol .note .s { display: none; font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pol .note b, .pol .note .s { --odo-h: 1.12em; }
 /* desktop at rest: only the photo; hover shows and rolls the words */
 .pol .note > * { visibility: hidden; }
 .pol.hot .note > *, .pol .note b[contenteditable="true"] { visibility: visible; }
 .pol .card { rotate: 0deg; transition: box-shadow .25s ease, border-color .35s linear, rotate .5s cubic-bezier(.22,1,.36,1); }
-.pol.hot .card { border-color: rgba(255,75,31,.55); rotate: calc(-1 * var(--r)); }   /* straightened */
-.pol.hot .cn { opacity: .9; transform: none; }
-.pol.hot .pin { transform: scale(1); }
+.pol.hot .card { border-color: rgba(127,212,255,.55); rotate: calc(-1 * var(--r)); }   /* straightened */
 .pol.hot .ph img { transform: scale(1.05); }
 @media (hover: none), (max-width: 1024px) { .pol .note > * { visibility: visible; } }
 
@@ -118,9 +104,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
 </head>
 <body>
 <main class="table" id="table">
-  <img class="ruck" src="assets/studio/rucksack.webp" alt="" aria-hidden="true">
   <div class="title">
-    <p class="eyebrow">[ &nbsp;Our studio&nbsp; ]</p>
     <h1>Team Tibba</h1>
     <p>A lean design team based out of India, and the places we go to think.</p>
     <p class="hint" id="hint">Drag the photos around</p>
@@ -170,9 +154,9 @@ const BAKE_KEY = 'tibba.polaroid-frames.layout-v2';   // v2: the two columns (an
 
   /* the studio's six photos (the sixth is a stand-in until it arrives) */
   const PICS = [
-    { img: 'assets/studio/team-01-ridge.webp' }, { img: 'assets/studio/team-02-review.webp' },
-    { img: 'assets/studio/team-03-talk.webp' }, { img: 'assets/studio/team-04-desk.webp' },
-    { img: 'assets/studio/team-05-cheers.webp' }, { img: 'assets/studio/team-06-placeholder.svg' },
+    { img: 'assets/studio/team-01-ridge.webp', ar: '4 / 5' }, { img: 'assets/studio/team-02-review.webp', ar: '4 / 3' },
+    { img: 'assets/studio/team-03-talk.webp', ar: '4 / 5' }, { img: 'assets/studio/team-04-desk.webp', ar: '4 / 3' },
+    { img: 'assets/studio/team-05-cheers.webp', ar: '4 / 5' }, { img: 'assets/studio/team-06-placeholder.svg', ar: '1' },
   ];
   const title = i => (C.titles && C.titles[i]) || '';
   const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -184,8 +168,7 @@ const BAKE_KEY = 'tibba.polaroid-frames.layout-v2';   // v2: the two columns (an
     el.className = 'pol';
     el.dataset.i = i;
     el.innerHTML = `<div class="card">
-      <span class="cn tl"></span><span class="cn tr"></span><span class="cn bl"></span><span class="cn br"></span><span class="pin"></span>
-      <div class="ph"><img src="${p.person || p.img}" alt="${esc(title(i))}" draggable="false"></div>
+      <div class="ph" style="--ar:${p.ar || 1}"><img src="${p.person || p.img}" alt="${esc(title(i))}" draggable="false"></div>
       <figcaption class="note"><b>${esc(title(i))}</b></figcaption></div>`;
     table.appendChild(el);
     return el;

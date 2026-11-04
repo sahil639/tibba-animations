@@ -52,6 +52,7 @@ export const DITHER_DEFAULTS = {
   ramp: ' .,:;-=+*#%@',
   hand: true,            // the pointer becomes a hand, drawn in the fire's own cells, while it is over the fire's box
   handSize: 1,           // the hand's size, × the fire's
+  follow: false,         // the flame leans and dances toward the pointer while it is over the fire's box
 };
 
 export function mountDitherFire(canvas, opts = {}) {
@@ -60,7 +61,7 @@ export function mountDitherFire(canvas, opts = {}) {
   const off = document.createElement('canvas'), octx = off.getContext('2d', { willReadFrequently: true });
   let W = 0, H = 0, dpr = 1, gw = 0, gh = 0, S = new Float32Array(0), L = new Float32Array(0), HT = new Float32Array(0);
   let cellUsed = 0, geo = null;
-  const ptr = { x: -1e4, y: -1e4, k: 0, kt: 0 };
+  const ptr = { x: -1e4, y: -1e4, k: 0, kt: 0, l: 0, lt: 0, v: 0 };
 
   /* ── the hand ────────────────────────────────────────────────────────
      Over the fire's box the pointer becomes a hand reaching for the flame
@@ -248,6 +249,9 @@ export function mountDitherFire(canvas, opts = {}) {
     if (K.cell !== cellUsed) { layout(); drawStatic(); }
     const g = geo, C = K.cell;
     ptr.k += (ptr.kt - ptr.k) * (1 - Math.exp(-dt * 3));
+    /* the lean: a damped spring toward the pointer, so the flame overshoots
+       a little and sways back — it dances after the cursor, not stuck to it */
+    ptr.v += ((ptr.lt - ptr.l) * 28 - ptr.v * 6.5) * dt; ptr.l += ptr.v * dt;
     if (out !== null) {
       out += dt;
       const a = LIFE.scatter, b = a + LIFE.dark, c = b + LIFE.regrow;
@@ -280,7 +284,8 @@ export function mountDitherFire(canvas, opts = {}) {
         const x = (i + 0.5) * C, u = (x - g.cx) / (g.s * 0.62);
         const vv = Math.max(0, v);
         const n = fbm(u * 1.8 + 3, vv * 2.4 - t * 2.1);
-        const sway = Math.sin(t * 1.6 + vv * 3.2) * 0.12 * vv + (n - 0.5) * 0.5 * vv;
+        const sway = Math.sin(t * 1.6 + vv * 3.2) * 0.12 * vv + (n - 0.5) * 0.5 * vv
+          + ptr.l * vv * vv * (0.9 + 0.12 * Math.sin(t * 7 + vv * 4));          // the tip leans after the pointer (follow)
         /* a teardrop: full in the lower third, licking to a point */
         const w = 0.62 * Math.pow(1 - Math.min(1, vv), 0.72) * (0.55 + 0.9 * Math.sqrt(Math.min(1, vv * 3 + 0.12))) * (0.8 + 0.4 * n) + 0.02;
         const d = Math.abs(u - sway) / w;
@@ -364,8 +369,14 @@ export function mountDitherFire(canvas, opts = {}) {
     const r = canvas.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
     const d = Math.hypot(x - geo.cx, (y - geo.base + geo.s * 0.6) * 1.2) / (geo.s * 1.4);
     ptr.kt = clamp01(1 - d);
+    if (K.follow && e.pointerType !== 'touch') { ptr.lt = Math.max(-1, Math.min(1, (x - geo.cx) / (geo.s * 1.3))); kick(); }
   }, { passive: true });
-  host.addEventListener('pointerleave', () => { ptr.kt = 0; canvas.style.cursor = ''; hand.on = false; host.style.cursor = ''; });
+  /* everything the pointer did lets go when it leaves — the box, or the
+     whole page (a frame can lose the pointer without a pointerleave) */
+  const release = () => { ptr.kt = 0; ptr.lt = 0; canvas.style.cursor = ''; hand.on = false; host.style.cursor = ''; kick(); };
+  host.addEventListener('pointerleave', release);
+  document.addEventListener('mouseleave', release);
+  addEventListener('blur', release);
   /* the hand: on while the pointer is over the fire's box (and not over a
      link, button or field in it); the real cursor hides while it shows */
   host.addEventListener('pointermove', e => {

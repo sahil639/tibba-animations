@@ -830,7 +830,27 @@ const TREK = PROJECT_PEAKS.map((pi, i) => {
   return { peak: pi, ctrl, base: { x: ctrl[0][0], z: ctrl[0][1] } };
 });
 
-const FLAG_XZ = TREK.map(t => ({ x: t.ctrl[4][0], z: t.ctrl[4][1] }));
+/* Routes up the studio's own massif (peak 0), each from its own side: the
+   accent one is climbed as the hero lands (climbHero), the four in the
+   clients' colours as the stats open (climbStats). Same switchback shape
+   as the client routes, turned to come up a different face. */
+const MASSIF_ROUTES = [
+  { a: 0.10, sg: 1, c: '#7FD4FF' },        // the hero's route (setAccent recolours it)
+  { a: -1.05, sg: -1, c: CASES[0].accent },
+  { a: -0.42, sg: 1, c: CASES[1].accent },
+  { a: 0.62, sg: -1, c: CASES[2].accent },
+  { a: 1.20, sg: 1, c: CASES[3].accent },
+];
+MASSIF_ROUTES.forEach(({ a, sg }) => {
+  const p = PEAKS[0], R = p.spread * 0.72, t = PEAK_TOP[0], ca = Math.cos(a), sa = Math.sin(a);
+  /* (u across the face, v out from the summit), turned by a */
+  const at = (u, v) => [t.x + (u * ca + v * sa) * R, t.z + (-u * sa + v * ca) * R];
+  TREK.push({ peak: 0, ctrl: [at(sg * 0.30, 1.18), at(-sg * 0.42, 0.84), at(sg * 0.40, 0.50), at(-sg * 0.10, 0.22), [t.x, t.z]] });
+});
+const HERO_ROUTE = PROJECT_PEAKS.length, STATS_ROUTES = [1, 2, 3, 4].map(k => HERO_ROUTE + k);
+PATH_CLR.push(...MASSIF_ROUTES.map(r => r.c));
+
+const FLAG_XZ = TREK.slice(0, PROJECT_PEAKS.length).map(t => ({ x: t.ctrl[4][0], z: t.ctrl[4][1] }));
 const FLAGS = FLAG_XZ.map(({x,z}) => ({ x, z, y: mh(x,z) }));
 
 /* ─── The routes ─────────────────────────────────────────────────────────
@@ -974,6 +994,7 @@ const trailMat = new THREE.ShaderMaterial({
          fraction p the walked part is everything with aArc above 1 - p. The
          edges have to run low-to-high or smoothstep reverses and an unclimbed
          route draws in full. */
+      if (vProg < 0.001) discard;
       float climbed = 1.0 - vProg;
       float on = smoothstep(climbed - 0.012, climbed + 0.012, vArc);
       if (on < 0.01) discard;
@@ -1046,10 +1067,10 @@ const CT = {
   START: 1,          // the lowest contours are the ones that run between the
                      // summits, so they are what makes the range one landmass
   INDEX_EVERY: 5,    // every Nth line is an index (heavy) contour
-  W_MINOR: 1.35,     // CSS px
-  W_INDEX: 2.70,
+  W_MINOR: 1.05,     // CSS px — sleeker than it was (1.35)
+  W_INDEX: 2.10,
   LIFT: 0.12,        // world units the ribbon floats off the surface
-  OPACITY: 0.92,
+  OPACITY: 0.7,      // quieter, so the mountain sits back rather than pulling focus
   STEP: opts.quality === 'high' ? 0.6 : matchMedia('(max-width: 760px), (pointer: coarse)').matches ? 0.74 : 0.56,   // field spacing — fine enough to resolve the fluting (coarser on phones: about half the field to march)
   /* The window marching squares runs over. It has to contain every landform
      that is meant to draw, and nothing outside it exists at all — a summit
@@ -1553,7 +1574,7 @@ const contourMat = new THREE.ShaderMaterial({
     uDotOff:    { value: CT.DOT_OFF },
     uDotFlow:   { value: CT.DOT_FLOW },
     /* the summit's accent rings — lift and heat, one per ring */
-    uAccent:    { value: srgbVec(0xE85D3D) },
+    uAccent:    { value: srgbVec(0x7FD4FF) },
     uRingLift:  { value: [0, 0, 0] },
     uRingHot:   { value: [0, 0, 0] },
     /* ── the loader's fill ───────────────────────────────────────────────
@@ -2602,7 +2623,9 @@ if (MODE_RANGE) {
   peakMorph[0] = peakTarget[0] = 1;
   rangeReveal = 1;
 } else {
-  trailMesh.visible = false;             // the hero has no routes on it either
+  /* the hero's routes are its own: up the massif, unclimbed until
+     climbHero() / climbStats() */
+  trailMesh.visible = true;
   baseDot.visible = false;
 
   /* Settle the scene into its resting state. The hero's opening move —
@@ -2856,6 +2879,19 @@ return {
      rebuilding it. */
   setAccent(hex) {
     contourMat.uniforms.uAccent.value.copy(srgbVec(hex));
+    trailMat.uniforms.uColor.value[HERO_ROUTE].copy(srgbVec(hex));
+  },
+  /** Draw (on) or retract the one accent route up the massif. */
+  climbHero(on, delay = 0) {
+    gsap.killTweensOf(trailProgress, String(HERO_ROUTE));
+    gsap.to(trailProgress, { [HERO_ROUTE]: on ? 1 : 0, duration: on ? MORPH.CLIMB : 0.5, ease: on ? 'power1.inOut' : 'power2.in', delay: on ? delay : 0 });
+  },
+  /** The four routes in the clients' colours, one after another (or retracted together). */
+  climbStats(on) {
+    STATS_ROUTES.forEach((r, k) => {
+      gsap.killTweensOf(trailProgress, String(r));
+      gsap.to(trailProgress, { [r]: on ? 1 : 0, duration: on ? MORPH.CLIMB * 0.85 : 0.45, ease: on ? 'power1.inOut' : 'power2.in', delay: on ? k * 0.22 : 0 });
+    });
   },
 
   setHeroCam(next) {

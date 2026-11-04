@@ -15,8 +15,6 @@
 <script src="assets/manifest.js"></script>
 <script src="assets/whats-new.js"></script>
 <script src="assets/workbench.js" defer></script>
-<script src="assets/services.js" defer></script>
-<script src="assets/footer-range.js" defer></script>
 <script src="assets/site-chrome.js" defer></script>
 <script src="assets/work.js" defer></script>
 <script src="assets/cases.js" defer></script>
@@ -28,7 +26,8 @@
      Groww v2 — Tibba Design Studio" (Sahil's workspace, node 1459:6620). Layout
      and styles: assets/case-figma.css; the slides' stage scaling and the
      moving phone columns: assets/case-figma.js; images: assets/work/groww-figma/.
-     The navbar and footer are the site's own (the frame has them as images).
+     The navbar is the site's own; the hero is the project's thumbnail
+     (assets/work/groww/cover), the footer the home page's (footer-dusk-grid.html).
      The Groww Stories portrait is a still until the reel arrives: put the
      video in .cf-reel (a <video muted loop playsinline autoplay> in place of
      the <img>). -->
@@ -37,9 +36,9 @@
 <header id="ca-header"></header>
 
 <main class="cf">
-  <section class="cf-hero" aria-labelledby="cf-title">
+  <section class="cf-hero cover" style="background-image:url('assets/work/groww/cover.webp')" aria-labelledby="cf-title">
     <div class="cf-hero-in">
-      <h1 id="cf-title">Groww</h1>
+      <h1 id="cf-title" class="fit" style="--hs:248">Groww</h1>
       <p>Helping Groww boost engagement on their app</p>
     </div>
   </section>
@@ -138,18 +137,9 @@
   </section>
 </main>
 
-<footer data-site-footer></footer>
+<div id="contact"></div>
+<iframe class="cf-foot" id="footer" src="footer-dusk-grid.html?embed=1" title="Contact" loading="lazy"></iframe>
 
-<script>
-  /* the next three cases, each with its cover (assets/work/<folder>/cover) */
-  addEventListener('DOMContentLoaded', () => {
-    const W = window.TibbaWork; if (!W) return;
-    const others = W.SUMMITS.filter(s => s.key !== 'groww');
-    document.getElementById('cf-cards').innerHTML = others.map(s => { const c = window.TIBBA_CASES[s.key];
-      return `<a class="cf-card" href="${s.file}" style="--c:${c.colour}">${W.img(s.folder, 'cover', c.client)}<p>${W.esc(s.line)}</p></a>`; }).join('');
-    document.querySelectorAll('.cf-card').forEach(a => a.querySelector('.wk-img').style.setProperty('--c', a.style.getPropertyValue('--c')));
-  });
-</script>
 <script type="module">
   import { mountSiteNav } from './assets/site-nav.js';
   mountSiteNav(document.getElementById('ca-header'), { current: 'Work' });

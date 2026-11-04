@@ -27,7 +27,7 @@
     const plates = (c.blocks || []).filter(b => b.k === 'figure').map(b => b.label);
     return {
       i, key: s.key, folder: s.folder, file: s.file, year: s.year, sector: s.sector, alt: ALT[i],
-      client: c.client || s.key, colour: c.colour || '#FF4B1F', tags: w.tags, title: w.title, stats: w.stats,
+      client: c.client || s.key, colour: c.colour || '#7FD4FF', tags: w.tags, title: w.title, stats: w.stats,
       body: w.body, tagList: c.tags || [],
       /* the cover, then the plates — what fills the boxes beside each summit */
       imgs: [{ name: 'cover', alt: (c.client || '') + ' — the work' }]

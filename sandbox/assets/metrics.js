@@ -22,7 +22,7 @@ const clamp01 = t => t < 0 ? 0 : t > 1 ? 1 : t;
 const lerp = (a, b, t) => a + (b - a) * t;
 const ease = t => t * t * (3 - 2 * t);
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const ACCENT = '#FF4B1F';
+const ACCENT = '#7FD4FF';
 
 const METRICS = [
   { v: '12+',   l: 'Years of experience', k: 'Since 2013' },

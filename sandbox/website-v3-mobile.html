@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-02T14:47:45.317Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-04T11:17:45.989Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -50,7 +50,7 @@ body { margin: 0; background: #000; color: #E9ECF2; font-family: 'F37 Analog', s
 img { display: block; max-width: 100%; }
 a { color: inherit; }
 p, h1, h2, h3, ul, ol, dl, dd, figure, blockquote { margin: 0; padding: 0; }
-:root { --g: 18px; --o: #FF4B1F; --mute: rgba(233,236,242,.6); --faint: rgba(233,236,242,.4); --line: rgba(233,236,242,.12); --card: #121110; }
+:root { --g: 18px; --o: #7FD4FF; --mute: rgba(233,236,242,.6); --faint: rgba(233,236,242,.4); --line: rgba(233,236,242,.12); --card: #121110; }
 section { scroll-margin-top: 64px; }
 .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--o); }
 .h2 { margin-top: 12px; font-weight: 400; font-size: clamp(28px, 8vw, 38px); line-height: 1.08; letter-spacing: -.025em; color: #fff; }
@@ -223,16 +223,15 @@ section { scroll-margin-top: 64px; }
 .dg { --ln: rgba(233,236,242,.2); position: relative; isolation: isolate; overflow: hidden; display: grid;
   grid-template-columns: minmax(0, 46%) minmax(0, 30%) minmax(0, 1fr); grid-template-rows: auto auto 22px minmax(140px, auto) auto;
   border-top: 1px solid var(--ln);
-  /* orange at the foot to black at the top — the fire's own light */
-  background: radial-gradient(90% 40% at 30% 102%, rgba(255,110,50,.5), rgba(255,110,50,0) 70%),
-    linear-gradient(0deg, #FF4B1F 0%, #d93f19 10%, #a83214 22%, #6e220e 36%, #3a1309 52%, #160704 68%, #050201 84%, #000 100%); }
-.dg .grain { position: absolute; inset: -50%; z-index: 5; pointer-events: none; opacity: .18; mix-blend-mode: overlay;
+  /* black, as the desktop footer: the only warmth is the fire's glow */
+  background: radial-gradient(70% 30% at 50% 100%, rgba(255,120,60,.16), rgba(255,120,60,0) 100%), #000; }
+.dg .grain { display: none; position: absolute; inset: -50%; z-index: 5; pointer-events: none; opacity: .18; mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.4 -.2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
   animation: grain 1.2s steps(6) infinite; }
 @keyframes grain { 0% { transform: translate(0, 0); } 33% { transform: translate(-3%, 2%); } 66% { transform: translate(2%, -3%); } 100% { transform: translate(0, 0); } }
 .dg .k { color: rgba(233,236,242,.55); }
 .dg .cell { position: relative; min-width: 0; padding: clamp(22px, 3.2vw, 56px); }
-.dg a:hover { color: #ff8a3d; }
+.dg a:hover { color: #7FD4FF; }
 
 /* the left half: the form, and the fire at its foot */
 .dg .talk { grid-column: 1; grid-row: 1 / 5; border-right: 1px solid var(--ln); display: flex; flex-direction: column; padding-bottom: 0; }
@@ -245,12 +244,12 @@ section { scroll-margin-top: 64px; }
 .dg .fld { position: relative; display: grid; gap: 8px; min-width: 0; }
 .dg .fld.wide { grid-column: 1 / -1; }
 .dg .fld > span { display: flex; justify-content: space-between; font: 400 10px/1 ui-monospace, 'SFMono-Regular', Menlo, monospace; letter-spacing: .16em; text-transform: uppercase; color: rgba(233,236,242,.6); }
-.dg .fld > span b { font-weight: 400; color: #ff8a3d; }
+.dg .fld > span b { font-weight: 400; color: #7FD4FF; }
 .dg input, .dg textarea { width: 100%; padding: 6px 0 10px; border: 0; border-bottom: 1px solid rgba(233,236,242,.32); background: none; color: #fff; outline: none; border-radius: 0;
   font: 400 clamp(16px, 1.25vw, 19px)/1.35 'F37 Analog', system-ui, sans-serif; letter-spacing: -.005em; transition: border-color .25s linear; resize: none; }
 .dg textarea { height: 76px; }
 .dg input::placeholder, .dg textarea::placeholder { color: rgba(233,236,242,.32); }
-.dg .fld::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: #ff8a3d; transform: scaleX(0); transform-origin: left; transition: transform .45s cubic-bezier(.22,1,.36,1); }
+.dg .fld::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: #7FD4FF; transform: scaleX(0); transform-origin: left; transition: transform .45s cubic-bezier(.22,1,.36,1); }
 .dg .fld:focus-within::after { transform: scaleX(1); }
 .dg .fld:focus-within > span { color: #fff; }
 .dg .chips { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -259,9 +258,9 @@ section { scroll-margin-top: 64px; }
 .dg .chips span { display: inline-block; padding: 8px 12px; border: 1px solid rgba(233,236,242,.28); font-size: 13px; color: rgba(255,255,255,.82); transition: background .2s linear, border-color .2s linear, color .2s linear; }
 .dg .chips label:hover span { border-color: rgba(255,255,255,.6); }
 .dg .chips input:checked + span { background: #fff; color: #000; border-color: #fff; }
-.dg .chips input:focus-visible + span { outline: 1px solid #ff8a3d; outline-offset: 2px; }
+.dg .chips input:focus-visible + span { outline: 1px solid #7FD4FF; outline-offset: 2px; }
 .dg .send { grid-column: 1 / -1; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
-.dg form button { display: inline-flex; align-items: center; gap: 14px; padding: 14px 20px; border: 0; background: #FF4B1F; color: #fff; cursor: pointer;
+.dg form button { display: inline-flex; align-items: center; gap: 14px; padding: 14px 20px; border: 0; background: #7FD4FF; color: #000; cursor: pointer;
   font: 400 12px/1 'F37 Analog', system-ui, sans-serif; letter-spacing: .16em; text-transform: uppercase; transition: background .2s linear, color .2s linear; }
 .dg form button i { position: relative; width: 22px; height: 1px; background: currentColor; transition: width .3s cubic-bezier(.22,1,.36,1); }
 .dg form button i::after { content: ''; position: absolute; right: 0; top: -3px; width: 7px; height: 7px; border: solid currentColor; border-width: 1px 1px 0 0; transform: rotate(45deg); }
@@ -350,8 +349,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   </div>
 
   <section id="work" class="pad" aria-labelledby="work-h">
-    <p class="eyebrow">[ Our summits ]</p>
-    <h2 class="h2" id="work-h">Four climbs, and what they were for</h2>
+    <h2 class="h2" id="work-h">Our work</h2>
     <div class="climb">
     <div class="dock" id="dock" role="group" aria-label="The four summits">
       <div class="dock-view">
@@ -368,53 +366,40 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
         <p class="k"><b>Summit 01</b><i></i>Fintech · 2024 — now</p>
         <h3>How we helped Groww <span class="hi">boost engagement</span> on their app</h3>
         <p>A deep engagement with Groww to design and improve features that engage users on their consumer app, along with design support for other product initiatives.</p>
-        <a class="rv" href="case-groww-v2.html" data-rive="groww" aria-label="Groww — the work"><span class="slot" data-folder="groww" data-alt="Groww — the work"></span></a>
+        <a class="rv" href="case-groww-figma.html" data-rive="groww" aria-label="Groww — the work"><span class="slot" data-folder="groww" data-alt="Groww — the work"></span></a>
         <dl><div><dt>3</dt><dd>Launches — the feed, Stories and the XIRR calculator</dd></div><div><dt>1</dt><dd>Year embedded with the growth team</dd></div></dl>
-        <a class="go" href="case-groww-v2.html">View case study</a>
+        <a class="go" href="case-groww-figma.html">View case study</a>
       </article>
       <article class="case" style="--c:#E05555">
         <p class="k"><b>Summit 02</b><i></i>News &amp; media · 2023</p>
         <h3>How we helped Firstpost <span class="hi">2x their traffic</span> through a strategic redesign</h3>
         <p>A design overhaul of Firstpost’s website and the creation of their first mobile app, with a significant pivot for their business and content strategy.</p>
-        <a class="rv" href="case-firstpost-v2.html" data-rive="firstpost" aria-label="Firstpost — the work"><span class="slot" data-folder="firstpost" data-alt="Firstpost — the work"></span></a>
+        <a class="rv" href="case-firstpost-figma.html" data-rive="firstpost" aria-label="Firstpost — the work"><span class="slot" data-folder="firstpost" data-alt="Firstpost — the work"></span></a>
         <dl><div><dt>2x</dt><dd>Website traffic</dd></div><div><dt>30%</dt><dd>Increase in average session duration</dd></div></dl>
-        <a class="go" href="case-firstpost-v2.html">View case study</a>
+        <a class="go" href="case-firstpost-figma.html">View case study</a>
       </article>
       <article class="case" style="--c:#4CAF70">
         <p class="k"><b>Summit 03</b><i></i>SaaS · 2023</p>
         <h3>How we helped Breathe ESG <span class="hi">accelerate sales</span>, streamline releases and elevate customer experience</h3>
         <p>An MVP to v1 redesign of Breathe ESG’s SaaS platform, to make it easier for companies to track their ESG metrics and regulatory compliance.</p>
-        <a class="rv" href="case-breathe-esg-v2.html" data-rive="breathe-esg" aria-label="Breathe ESG — the work"><span class="slot" data-folder="breathe-esg" data-alt="Breathe ESG — the work"></span></a>
+        <a class="rv" href="case-breathe-esg-figma.html" data-rive="breathe-esg" aria-label="Breathe ESG — the work"><span class="slot" data-folder="breathe-esg" data-alt="Breathe ESG — the work"></span></a>
         <dl><div><dt>8</dt><dd>Weeks of design sprints, brief to platform</dd></div><div><dt>1000</dt><dd>Listed companies now required to report ESG</dd></div></dl>
-        <a class="go" href="case-breathe-esg-v2.html">View case study</a>
+        <a class="go" href="case-breathe-esg-figma.html">View case study</a>
       </article>
       <article class="case" style="--c:#7B8FF5">
         <p class="k"><b>Summit 04</b><i></i>Health · 2023</p>
         <h3>How we helped Shyft &amp; Mindhouse <span class="hi">grow their business</span> and supercharge product led growth</h3>
         <p>Conceptualising and designing a therapy experience, alongside redesigning their websites and apps to impact revenue.</p>
-        <a class="rv" href="case-shyft-mindhouse-v2.html" data-rive="shyft-mindhouse" aria-label="Shyft &amp; Mindhouse — the work"><span class="slot" data-folder="shyft-mindhouse" data-alt="Shyft &amp; Mindhouse — the work"></span></a>
+        <a class="rv" href="case-shyft-mindhouse-figma.html" data-rive="shyft-mindhouse" aria-label="Shyft &amp; Mindhouse — the work"><span class="slot" data-folder="shyft-mindhouse" data-alt="Shyft &amp; Mindhouse — the work"></span></a>
         <dl><div><dt>70%</dt><dd>Decrease in sales team intervention</dd></div><div><dt>15x</dt><dd>Increase in direct purchases via the landing page</dd></div></dl>
-        <a class="go" href="case-shyft-mindhouse-v2.html">View case study</a>
+        <a class="go" href="case-shyft-mindhouse-figma.html">View case study</a>
       </article>
     </div>
     </div>
   </section>
 
-  <section class="pad" aria-labelledby="brands-h">
-    <p class="eyebrow">[ Brands ]</p>
-    <h2 class="h2" id="brands-h">We’ve worked with start-ups and market leaders</h2>
-    <p class="lede">Over the past decade we’ve helped companies deliver food, perform services, insure health, provide financial services, publish news and sell products.</p>
-    <div class="marquee" id="marquee" aria-label="Brands we have worked with">
-      <div class="mrow" style="--d:44s"><span><img src="assets/logos/groww.svg" alt="Groww" loading="lazy"></span><span><img src="assets/logos/paytm.svg" alt="Paytm" loading="lazy"></span><span><img src="assets/logos/zomato.svg" alt="Zomato" loading="lazy"></span><span><img src="assets/logos/firstpost.svg" alt="Firstpost" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/groww.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/paytm.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/zomato.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/firstpost.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/groww.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/paytm.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/zomato.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/firstpost.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/groww.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/paytm.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/zomato.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/firstpost.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/groww.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/paytm.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/zomato.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/firstpost.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/groww.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/paytm.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/zomato.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/firstpost.svg" alt="" loading="lazy"></span></div>
-      <div class="mrow rev" style="--d:52s"><span><img src="assets/logos/urban-company.svg" alt="Urban Company" loading="lazy"></span><span><img src="assets/logos/hdfc-bank.svg" alt="HDFC Bank" loading="lazy" style="filter:brightness(1.5)"></span><span><img src="assets/logos/the-indian-express.svg" alt="The Indian Express" loading="lazy"></span><span><img src="assets/logos/the-times-of-india.svg" alt="The Times of India" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/urban-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/hdfc-bank.svg" alt="" loading="lazy" style="filter:brightness(1.5)"></span><span aria-hidden="true"><img src="assets/logos/the-indian-express.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/the-times-of-india.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/urban-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/hdfc-bank.svg" alt="" loading="lazy" style="filter:brightness(1.5)"></span><span aria-hidden="true"><img src="assets/logos/the-indian-express.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/the-times-of-india.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/urban-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/hdfc-bank.svg" alt="" loading="lazy" style="filter:brightness(1.5)"></span><span aria-hidden="true"><img src="assets/logos/the-indian-express.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/the-times-of-india.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/urban-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/hdfc-bank.svg" alt="" loading="lazy" style="filter:brightness(1.5)"></span><span aria-hidden="true"><img src="assets/logos/the-indian-express.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/the-times-of-india.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/urban-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/hdfc-bank.svg" alt="" loading="lazy" style="filter:brightness(1.5)"></span><span aria-hidden="true"><img src="assets/logos/the-indian-express.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/the-times-of-india.svg" alt="" loading="lazy"></span></div>
-      <div class="mrow" style="--d:48s"><span><img src="assets/logos/policybazaar.svg" alt="Policybazaar" loading="lazy" style="filter:brightness(2.6)"></span><span><img src="assets/logos/breatheesg.svg" alt="Breathe ESG" loading="lazy"></span><span><img src="assets/logos/shyft.svg" alt="Shyft" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/policybazaar.svg" alt="" loading="lazy" style="filter:brightness(2.6)"></span><span aria-hidden="true"><img src="assets/logos/breatheesg.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/shyft.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/policybazaar.svg" alt="" loading="lazy" style="filter:brightness(2.6)"></span><span aria-hidden="true"><img src="assets/logos/breatheesg.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/shyft.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/policybazaar.svg" alt="" loading="lazy" style="filter:brightness(2.6)"></span><span aria-hidden="true"><img src="assets/logos/breatheesg.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/shyft.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/policybazaar.svg" alt="" loading="lazy" style="filter:brightness(2.6)"></span><span aria-hidden="true"><img src="assets/logos/breatheesg.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/shyft.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/policybazaar.svg" alt="" loading="lazy" style="filter:brightness(2.6)"></span><span aria-hidden="true"><img src="assets/logos/breatheesg.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/shyft.svg" alt="" loading="lazy"></span></div>
-      <div class="mrow rev" style="--d:56s"><span><img src="assets/logos/apnaklub.svg" alt="Apnaklub" loading="lazy"></span><span><img src="assets/logos/simsim.svg" alt="simsim" loading="lazy"></span><span><img src="assets/logos/bombay-shirt-company.svg" alt="Bombay Shirt Company" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/apnaklub.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/simsim.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/bombay-shirt-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/apnaklub.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/simsim.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/bombay-shirt-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/apnaklub.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/simsim.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/bombay-shirt-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/apnaklub.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/simsim.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/bombay-shirt-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/apnaklub.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/simsim.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/bombay-shirt-company.svg" alt="" loading="lazy"></span></div>
-    </div>
-  </section>
-
   <section class="pad" aria-labelledby="more-h">
-    <p class="eyebrow">[ More work ]</p>
-    <h2 class="h2" id="more-h">More climbs</h2>
+    <h2 class="h2" id="more-h">More work</h2>
     <ol class="index">
       <li><b>Zomato</b><span>Foodtech · 2015</span></li>
       <li><b>Urban Company</b><span>Services · 2016</span></li>
@@ -425,8 +410,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   </section>
 
   <section id="services" class="pad" aria-labelledby="svc-h">
-    <p class="eyebrow">[ Our services ]</p>
-    <h2 class="h2" id="svc-h">Gear up for your climb</h2>
+    <h2 class="h2" id="svc-h">Our services</h2>
     <div class="stages" role="tablist" aria-label="Your stage">
       <button type="button" role="tab" aria-selected="true" data-i="0"><small>01</small>Early stage</button>
       <button type="button" role="tab" aria-selected="false" data-i="1"><small>02</small>Mid stage</button>
@@ -444,7 +428,6 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   </section>
 
   <section class="pad" aria-labelledby="voices-h">
-    <p class="eyebrow">[ Our testimonials ]</p>
     <h2 class="h2" id="voices-h">What our clients say about us</h2>
     <div class="row">
       <figure class="quote" style="--c:#E05555"><p class="qm" aria-hidden="true">“</p>
@@ -458,11 +441,9 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   </section>
 
   <section class="pad studio" id="studio" aria-labelledby="studio-h">
-    <p class="eyebrow">[ Our studio ]</p>
     <h2 class="h2" id="studio-h">Team Tibba</h2>
     <p class="lede">A lean design team based out of India, and the places we go to think.</p>
     <div class="pile" id="pile">
-      <img class="ruck" src="assets/studio/rucksack.webp" alt="" aria-hidden="true">
       <div class="dots" id="dots" aria-hidden="true"></div>
     </div>
     <p class="hint">Swipe the photos</p>
@@ -580,9 +561,6 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     }), { threshold: .25 });
     slots.forEach(el => { near.observe(el); seen.observe(el); });
 
-    /* ── brands: the rows drift only while the section is on screen ────── */
-    const mq = document.getElementById('marquee');
-    new IntersectionObserver(([e]) => mq.classList.toggle('run', e.isIntersecting)).observe(mq);
   });
 
   /* ── Team Tibba: the polaroid stack (studio-polaroid-frames on a phone) ──

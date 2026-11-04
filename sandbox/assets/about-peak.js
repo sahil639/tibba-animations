@@ -35,7 +35,7 @@ export const PEAK = {
      range's lavender through the body, near-white on the summit */
   inkLow: [96, 110, 168], inkMid: [170, 184, 238], inkTop: [240, 243, 250],
   dot: true,         // the glowing, pulsing dot on the summit
-  accent: '#FF4B1F',
+  accent: '#7FD4FF',
 };
 
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
