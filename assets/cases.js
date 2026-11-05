@@ -211,7 +211,7 @@ window.TIBBA_CASES = {
         kicker: 'Structuring our design sprints',
         title: 'Five design\nsprints.',
         note: 'Colour blocks stand in for the sprint work.\nEight weeks, five sprints.',
-        palette: ['#4CAF70', '#7FD4FF', '#7B8FF5', '#4DD9C0', '#E0B25A', '#C46BAE', '#5E6B78', '#E05555'],
+        palette: ['#4CAF70', '#C9124B', '#7B8FF5', '#4DD9C0', '#E0B25A', '#C46BAE', '#5E6B78', '#E05555'],
         archive: { h: 'Sprint\nlog.',
           p: 'To leverage sprints properly we settled a fixed structure for each one. That gave us quick turnarounds, got solutions validated by the stakeholders at Breathe ESG as we went, and left enough time to iterate and prepare for handoff.' },
         items: [

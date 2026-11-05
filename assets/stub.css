@@ -33,7 +33,7 @@ body {
   color: rgba(232, 235, 245, .52); max-width: 46ch;
 }
 .stub .rule {
-  width: 46px; height: 1px; background: #7FD4FF; margin: 6px 0 2px;
+  width: 46px; height: 1px; background: #C9124B; margin: 6px 0 2px;
 }
 .stub code {
   font-family: 'F37 Analog', ui-monospace, monospace;

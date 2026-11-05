@@ -18,7 +18,7 @@ html.site-locked { overflow: hidden; }
 /* the navbar: the About hero's pill, in F37, hung from the top edge —
    square where it meets the edge, rounded below, and with a concave
    handle on each side so it reads as part of the frame, not a float */
-.ca.ca-header.site-nav { padding: 0; z-index: 60; --ca-mono: 'F37 Analog', system-ui, sans-serif; --ca-accent: #7FD4FF; --ear: 14px; justify-content: center;
+.ca.ca-header.site-nav { padding: 0; z-index: 60; --ca-mono: 'F37 Analog', system-ui, sans-serif; --ca-accent: #C9124B; --ear: 14px; justify-content: center;
   height: auto; align-items: flex-start;   /* site.css has its own .site-nav: not this one */
   transform: translateY(calc(-100% - 4px)); transition: transform .8s cubic-bezier(.16,1,.3,1); }
 html.site-nav-in .ca.ca-header.site-nav { transform: none; }
@@ -43,7 +43,7 @@ html.site-locked .ca.ca-header.site-nav { transform: translateY(calc(-100% - 4px
 /* the phone's Menu toggle and drawer (hidden on wider screens) */
 .site-menu { display: none; margin-left: auto; align-items: center; gap: 10px; border: 0; background: none; color: #f1eee7; cursor: pointer;
   font: 400 11px/1 var(--ca-mono); letter-spacing: .14em; text-transform: uppercase; }
-.site-menu-tg { position: relative; width: 26px; height: 26px; border-radius: 2px; background: #7FD4FF; }
+.site-menu-tg { position: relative; width: 26px; height: 26px; border-radius: 2px; background: #C9124B; }
 .site-menu-tg i { position: absolute; left: 7px; right: 7px; height: 1.5px; background: #000; transition: transform .45s cubic-bezier(.65,0,.35,1), top .45s cubic-bezier(.65,0,.35,1); }
 .site-menu-tg i:first-child { top: 10px; } .site-menu-tg i:last-child { top: 15px; }
 .site-nav.open .site-menu-tg i:first-child { top: 12.25px; transform: rotate(45deg); }
@@ -72,7 +72,7 @@ html.site-locked .ca.ca-header.site-nav { transform: translateY(calc(-100% - 4px
   .site-drawer-list a { display: flex; align-items: flex-start; gap: 8px; color: #f1eee7; text-decoration: none;
     font-size: clamp(26px, 8vw, 32px); line-height: 1.06; letter-spacing: -.02em; transition: color .2s linear; }
   .site-drawer-list small { font-size: 9.5px; letter-spacing: .1em; color: rgba(241,238,231,.45); padding-top: 5px; }
-  .site-drawer-list a[aria-current], .site-drawer-list a[aria-current] small { color: #7FD4FF; }
+  .site-drawer-list a[aria-current], .site-drawer-list a[aria-current] small { color: #C9124B; }
   .site-nav.open .site-drawer-list li { animation: site-in .6s cubic-bezier(.16,1,.3,1) both; }
   .site-nav.open .site-drawer-list li:nth-child(2) { animation-delay: .06s; }
   .site-nav.open .site-drawer-list li:nth-child(3) { animation-delay: .12s; }
@@ -99,7 +99,7 @@ html.site-locked .ca.ca-header.site-nav { transform: translateY(calc(-100% - 4px
   color: rgba(241,238,231,.35); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: calc(100% - 18px); }
 .wf .l { display: block; height: 3px; border-radius: 1px; background: rgba(241,238,231,.22); }
 .wf .l.big { height: 6px; background: rgba(241,238,231,.38); }
-.wf .l.acc { background: #7FD4FF; }
+.wf .l.acc { background: #C9124B; }
 .wf .bxs { display: grid; gap: 4px; }
 .wf .bxs.g4 { grid-template-columns: repeat(4, 1fr); } .wf .bxs.g3 { grid-template-columns: repeat(3, 1fr); } .wf .bxs.g2 { grid-template-columns: repeat(2, 1fr); }
 .wf .bxs.row { grid-template-columns: 1.4fr 1fr 1fr; }
@@ -108,26 +108,26 @@ html.site-locked .ca.ca-header.site-nav { transform: translateY(calc(-100% - 4px
 .wf .pk { width: 100%; height: 34px; fill: none; stroke: rgba(241,238,231,.4); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .wf .pk path + path { stroke: rgba(241,238,231,.18); }
 .wf .tabs { display: flex; gap: 3px; } .wf .tabs i { flex: 1; height: 7px; border: 1px solid rgba(241,238,231,.2); }
-.wf .tabs i:first-child { background: rgba(127,212,255,.6); border-color: transparent; }
+.wf .tabs i:first-child { background: rgba(201,18,75,.6); border-color: transparent; }
 .wf .pol { position: relative; height: 34px; } .wf .pol i { position: absolute; top: 2px; width: 34%; height: 30px; background: rgba(241,238,231,.16); border: 2px solid rgba(241,238,231,.28); }
 .wf .pol i:nth-child(1) { left: 6%; transform: rotate(-8deg); } .wf .pol i:nth-child(2) { left: 33%; transform: rotate(3deg); } .wf .pol i:nth-child(3) { left: 60%; transform: rotate(-3deg); }
-.wf .fire { align-self: center; width: 16px; height: 16px; background: radial-gradient(circle at 50% 70%, #7FD4FF, rgba(127,212,255,0) 70%); }
+.wf .fire { align-self: center; width: 16px; height: 16px; background: radial-gradient(circle at 50% 70%, #C9124B, rgba(201,18,75,0) 70%); }
 .wf .stone { align-self: center; width: 46%; height: 22px; background: rgba(241,238,231,.12); clip-path: polygon(8% 18%, 52% 0, 96% 22%, 100% 80%, 60% 100%, 4% 86%); }
-.wf.here { background: rgba(127,212,255,.07); }
-.wf.here b { color: #7FD4FF; }
-.wf.here::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: #7FD4FF; }
+.wf.here { background: rgba(201,18,75,.07); }
+.wf.here b { color: #C9124B; }
+.wf.here::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: #C9124B; }
 
 /* the refresh button, bottom left */
 .site-refresh { position: fixed; z-index: 60; left: 16px; bottom: 16px; display: inline-flex; align-items: center; gap: 9px;
   height: 38px; padding: 0 13px 0 11px; border: 1px solid rgba(255,255,255,.16); background: rgba(10,10,12,.82);
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #fff; cursor: pointer;
   font: 400 10px/1 'F37 Analog', system-ui, sans-serif; letter-spacing: .18em; text-transform: uppercase; transition: border-color .25s linear; }
-.site-refresh:hover { border-color: #7FD4FF; }
+.site-refresh:hover { border-color: #C9124B; }
 .site-refresh svg { width: 16px; height: 16px; display: block; }
 .site-refresh.spin svg { animation: site-spin .9s cubic-bezier(.65,0,.35,1); }
 .site-refresh span { display: none; }
 .site-refresh:hover span { display: inline; }
-.site-refresh::before { content: ''; position: absolute; right: -1px; top: -1px; width: 6px; height: 6px; background: #7FD4FF; }
+.site-refresh::before { content: ''; position: absolute; right: -1px; top: -1px; width: 6px; height: 6px; background: #C9124B; }
 @keyframes site-spin { to { transform: rotate(360deg); } }
 html.site-locked .site-refresh { opacity: 0; pointer-events: none; }
 .site-refresh { transition: opacity .6s linear, border-color .25s linear; }

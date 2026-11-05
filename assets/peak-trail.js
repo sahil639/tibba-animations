@@ -46,11 +46,11 @@ import * as THREE from 'three';
    definition, used here and anywhere else the mark appears. */
 export const PEN_SVG = `
   <svg viewBox="0 0 24 24" aria-hidden="true">
-    <rect x="0" y="0" width="24" height="24" rx="3" fill="var(--pen-bg, #7FD4FF)"/>
+    <rect x="0" y="0" width="24" height="24" rx="3" fill="var(--pen-bg, #C9124B)"/>
     <path d="M8.2 5.2h7.6v2.1H8.2z" fill="#fff"/>
     <path d="M8.4 8.2h7.2l2.9 4.6-6.5 7.3-6.5-7.3z" fill="#fff"/>
-    <path d="M12 12.1v7.2" stroke="var(--pen-bg, #7FD4FF)" stroke-width="1.1"/>
-    <circle cx="12" cy="12.2" r="1.45" fill="var(--pen-bg, #7FD4FF)"/>
+    <path d="M12 12.1v7.2" stroke="var(--pen-bg, #C9124B)" stroke-width="1.1"/>
+    <circle cx="12" cy="12.2" r="1.45" fill="var(--pen-bg, #C9124B)"/>
   </svg>`;
 
 /* A cubic-bezier timing function, the same curve CSS would draw for
@@ -89,7 +89,7 @@ const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export function createPeakTrail(scene, o = {}) {
   const opt = {
-    color: '#7FD4FF',
+    color: '#C9124B',
     width: 2.2,            // CSS px
     duration: 4.6,         // seconds, trailhead to summit
     legs: 7,               // traverses across the face

@@ -428,7 +428,7 @@ export function createSnowPeak(opts) {
       uGlow:     { value: lin('#ff9a6a') },
         uContour:  { value: 0.34 },   // the survey lines over the rock
     uCStep:    { value: 9.0 },    // their interval, world units
-    uAccentC:  { value: lin('#7FD4FF') },
+    uAccentC:  { value: lin('#C9124B') },
   };
   const LAND_VS = `
       attribute vec3 aMacroN;

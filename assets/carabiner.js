@@ -114,7 +114,7 @@ export function mountCarabiner(canvas) {
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(3, 1); return t;
   })();
   const sleeve = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.95, 32, 1, true),
-    new THREE.MeshStandardMaterial({ map: hatch, emissive: 0x7FD4FF, emissiveMap: hatch, emissiveIntensity: 0.35, roughness: 0.6, side: THREE.DoubleSide }));
+    new THREE.MeshStandardMaterial({ map: hatch, emissive: 0xC9124B, emissiveMap: hatch, emissiveIntensity: 0.35, roughness: 0.6, side: THREE.DoubleSide }));
   const collarA = new THREE.Mesh(new THREE.CylinderGeometry(0.235, 0.235, 0.16, 32), dark);
   const collarB = collarA.clone();
   const sleeveG = new THREE.Group(); sleeveG.add(sleeve, collarA, collarB);
