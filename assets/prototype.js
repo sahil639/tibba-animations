@@ -90,7 +90,12 @@ function inkMask(t, w) {
   return `linear-gradient(90deg, #000 ${x - f}px, rgba(0,0,0,.55) ${x}px, transparent ${x + f}px)`;
 }
 
-export function mountPrototype(root, panel) {
+/* opts — for a page that shows set screens rather than uploads (the case
+   studies):
+     screens   { 'phone:after': url, 'desktop:before': url, … } — painted as
+               given; nothing is read from or written to storage
+     captions  false leaves the device names and sizes off */
+export function mountPrototype(root, panel, opts = {}) {
   const S = {
     mode: 'single',          // 'single' | 'compare'
     show: 'after',           // which one is on screen outside a transition
@@ -121,8 +126,8 @@ export function mountPrototype(root, panel) {
           <div class="proto-glow" aria-hidden="true"></div>
         </div>
         <img class="proto-frame" src="${F.src}" alt="" draggable="false">
-        <figcaption>${kind === 'phone' ? 'iPhone' : 'MacBook'}
-          <span>${F.recommend}</span></figcaption>
+        ${opts.captions === false ? '' : `<figcaption>${kind === 'phone' ? 'iPhone' : 'MacBook'}
+          <span>${F.recommend}</span></figcaption>`}
       </figure>`;
   }).join('');
 
@@ -251,7 +256,7 @@ export function mountPrototype(root, panel) {
   function setSlot(kind, which, blob, persist = true) {
     const key = `${kind}:${which}`;
     if (slots[key]) URL.revokeObjectURL(slots[key]);
-    slots[key] = blob ? URL.createObjectURL(blob) : null;
+    slots[key] = blob ? (typeof blob === 'string' ? blob : URL.createObjectURL(blob)) : null;
     paint(kind, which);
     if (persist) save(key, blob || null);
     requestAnimationFrame(applyAll);
@@ -291,8 +296,9 @@ export function mountPrototype(root, panel) {
     return report;
   }
 
+  if (opts.screens) Object.assign(slots, opts.screens);
   for (const k of ['phone', 'desktop']) { paint(k, 'before'); paint(k, 'after'); }
-  restore();
+  if (!opts.screens) restore();
   applyAll();
 
   /* ── export: the device with its screen, as a PNG ───────────────────────
