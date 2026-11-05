@@ -70,7 +70,7 @@ export function mountAscent(canvas, host) {
     fill: { ...ASCENT.fill, spacing: 24 }, terrain: { levels: ASCENT.levels },
     onPeakClick: () => {},
   });
-  scene.setAccent('#7FD4FF');
+  scene.setAccent('#C9124B');
   scene.setDepth(0.16);
   /* lit and inked as Base Camp's summit in focus */
   function style() {

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-05T03:54:01.366Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-05T09:04:48.105Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -43,7 +43,7 @@ gtag('config', 'G-DZS8N17C9N');
    arrow keys on the tabs, or grab the dial and turn it; on release it
    settles on the middle of the nearest stage.
    ═════════════════════════════════════════════════════════════════════════ */
-:root { --accent: #7FD4FF; --line: rgba(233,236,242,.12); --line-2: rgba(233,236,242,.22); }
+:root { --accent: #C9124B; --line: rgba(233,236,242,.12); --line-2: rgba(233,236,242,.22); }
 
 /* ── the page grid ──────────────────────────────────────────────────────── */
 .ss-page { grid-template-columns: minmax(440px, 1.05fr) minmax(0, .8fr) minmax(0, .8fr);
@@ -57,7 +57,7 @@ gtag('config', 'G-DZS8N17C9N');
 /* ── the instrument card ────────────────────────────────────────────────── */
 .v4-card { grid-column: 1; grid-row: 2 / span 2; position: relative; min-height: 0; display: grid;
   grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; border: 1px solid var(--line); background:
-  radial-gradient(120% 80% at 50% 45%, rgba(127,212,255,.045), rgba(127,212,255,0) 60%), rgba(255,255,255,.012); }
+  radial-gradient(120% 80% at 50% 45%, rgba(201,18,75,.045), rgba(201,18,75,0) 60%), rgba(255,255,255,.012); }
 .v4-card::before, .v4-card::after { content: ''; position: absolute; width: 10px; height: 10px; pointer-events: none; }
 .v4-card::before { left: -1px; top: -1px; border-left: 1px solid var(--accent); border-top: 1px solid var(--accent); }
 .v4-card::after { right: -1px; bottom: -1px; border-right: 1px solid var(--accent); border-bottom: 1px solid var(--accent); }
@@ -81,7 +81,7 @@ gtag('config', 'G-DZS8N17C9N');
 #compass .rim { fill: none; stroke: rgba(233,236,242,.5); stroke-width: 1.4; }
 #compass .rim.in { stroke: rgba(233,236,242,.2); stroke-width: 1; }
 #compass .cube { fill: var(--accent); }
-#compass .tk.on { stroke: rgba(127,212,255,.55); }
+#compass .tk.on { stroke: rgba(201,18,75,.55); }
 #compass .tk.mj.on, #compass .tk.cd.on { stroke: var(--accent); }
 #compass .deg { fill: rgba(233,236,242,.78); font-size: 13px; letter-spacing: .08em; font-variant-numeric: tabular-nums; }
 #compass .card { fill: #fff; font-size: 15px; letter-spacing: .14em; }
@@ -152,7 +152,7 @@ gtag('config', 'G-DZS8N17C9N');
 .ssb .ds > span { overflow: hidden; font-size: 12.5px; line-height: 1.5; color: var(--ink-mute); }
 .ssb .ds > span::before { content: ''; display: block; height: 8px; }
 .ssb::before { content: ''; position: absolute; left: -1px; top: -1px; bottom: -1px; width: 2px; background: var(--accent); transform: scaleY(0); transform-origin: top; transition: transform .35s cubic-bezier(.22,.9,.3,1); }
-.ssb:hover { border-color: rgba(127,212,255,.55); background: #0b0b0c; }
+.ssb:hover { border-color: rgba(201,18,75,.55); background: #0b0b0c; }
 .ssb:hover::before { transform: scaleY(1); }
 .ssb:hover .ds { grid-template-rows: 1fr; }
 
@@ -263,8 +263,8 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   const blur = el('filter', { id: 'v4-blur', x: '-20%', y: '-20%', width: '140%', height: '140%' }, defs);
   el('feGaussianBlur', { stdDeviation: 7 }, blur);
   const grad = el('linearGradient', { id: 'v4-needle', x1: 0, y1: 1, x2: 0, y2: 0 }, defs);
-  el('stop', { offset: 0, 'stop-color': '#7FD4FF', 'stop-opacity': .25 }, grad);
-  el('stop', { offset: 1, 'stop-color': '#7FD4FF', 'stop-opacity': 1 }, grad);
+  el('stop', { offset: 0, 'stop-color': '#C9124B', 'stop-opacity': .25 }, grad);
+  el('stop', { offset: 1, 'stop-color': '#C9124B', 'stop-opacity': 1 }, grad);
 
   /* ── the bearing scale ─────────────────────────────────────────────── */
   const R = { rim: 340, tick: 300, deg: 270, card: 321, guide: 244, track: 226, lbl: 202, spA: 150, spB: 176, inner: 112 };
@@ -323,7 +323,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   el('path', { class: 'needle', d: 'M-6 0 L0 -186 L6 0 Z' }, ptr);
   el('path', { class: 'bug', d: `M-7 ${-R.tick - 14} L7 ${-R.tick - 14} L0 ${-R.tick - 2} Z` }, ptr);
   el('circle', { class: 'hub', r: 9 });
-  el('circle', { r: 2.6, fill: '#7FD4FF' });
+  el('circle', { r: 2.6, fill: '#C9124B' });
 
   /* ── the heading: followed, critically damped ──────────────────────── */
   let heading = SEG[0].mid, target = heading, vel = 0, dragging = false, t0 = performance.now(), moveStart = t0, lastLive = -1;
@@ -344,7 +344,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     }
     spokes.forEach(s => {
       const on = segOf(s.d) === live, near = Math.exp(-Math.pow(angDist(s.d, heading) / C.reach, 2));
-      s.n.setAttribute('stroke', on ? '#7FD4FF' : '#e9ecf2');
+      s.n.setAttribute('stroke', on ? '#C9124B' : '#e9ecf2');
       s.n.setAttribute('stroke-opacity', (on ? .28 + .72 * near : .1 + .12 * near).toFixed(3));
     });
     hdg.textContent = norm(heading).toFixed(2).padStart(6, '0') + '°';

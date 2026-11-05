@@ -38,12 +38,12 @@
    footer-dusk-grid); change it there and here.
    ═════════════════════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+html { -webkit-text-size-adjust: 100%; }
 body { margin: 0; background: #000; color: #E9ECF2; font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 img { display: block; max-width: 100%; }
 a { color: inherit; }
 p, h1, h2, h3, ul, ol, dl, dd, figure, blockquote { margin: 0; padding: 0; }
-:root { --g: 18px; --o: #7FD4FF; --mute: rgba(233,236,242,.6); --faint: rgba(233,236,242,.4); --line: rgba(233,236,242,.12); --card: #121110; }
+:root { --g: 18px; --o: #C9124B; --mute: rgba(233,236,242,.6); --faint: rgba(233,236,242,.4); --line: rgba(233,236,242,.12); --card: #121110; }
 section { scroll-margin-top: 64px; }
 .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--o); }
 .h2 { margin-top: 12px; font-weight: 400; font-size: clamp(28px, 8vw, 38px); line-height: 1.08; letter-spacing: -.025em; color: #fff; }
@@ -224,7 +224,7 @@ section { scroll-margin-top: 64px; }
 @keyframes grain { 0% { transform: translate(0, 0); } 33% { transform: translate(-3%, 2%); } 66% { transform: translate(2%, -3%); } 100% { transform: translate(0, 0); } }
 .dg .k { color: rgba(233,236,242,.55); }
 .dg .cell { position: relative; min-width: 0; padding: clamp(22px, 3.2vw, 56px); }
-.dg a:hover { color: #7FD4FF; }
+.dg a:hover { color: #C9124B; }
 
 /* the left half: the form, and the fire at its foot */
 .dg .talk { grid-column: 1; grid-row: 1 / 5; border-right: 1px solid var(--ln); display: flex; flex-direction: column; padding-bottom: 0; }
@@ -237,12 +237,12 @@ section { scroll-margin-top: 64px; }
 .dg .fld { position: relative; display: grid; gap: 8px; min-width: 0; }
 .dg .fld.wide { grid-column: 1 / -1; }
 .dg .fld > span { display: flex; justify-content: space-between; font: 400 10px/1 ui-monospace, 'SFMono-Regular', Menlo, monospace; letter-spacing: .16em; text-transform: uppercase; color: rgba(233,236,242,.6); }
-.dg .fld > span b { font-weight: 400; color: #7FD4FF; }
+.dg .fld > span b { font-weight: 400; color: #C9124B; }
 .dg input, .dg textarea { width: 100%; padding: 6px 0 10px; border: 0; border-bottom: 1px solid rgba(233,236,242,.32); background: none; color: #fff; outline: none; border-radius: 0;
   font: 400 clamp(16px, 1.25vw, 19px)/1.35 'F37 Analog', system-ui, sans-serif; letter-spacing: -.005em; transition: border-color .25s linear; resize: none; }
 .dg textarea { height: 76px; }
 .dg input::placeholder, .dg textarea::placeholder { color: rgba(233,236,242,.32); }
-.dg .fld::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: #7FD4FF; transform: scaleX(0); transform-origin: left; transition: transform .45s cubic-bezier(.22,1,.36,1); }
+.dg .fld::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: #C9124B; transform: scaleX(0); transform-origin: left; transition: transform .45s cubic-bezier(.22,1,.36,1); }
 .dg .fld:focus-within::after { transform: scaleX(1); }
 .dg .fld:focus-within > span { color: #fff; }
 .dg .chips { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -251,9 +251,9 @@ section { scroll-margin-top: 64px; }
 .dg .chips span { display: inline-block; padding: 8px 12px; border: 1px solid rgba(233,236,242,.28); font-size: 13px; color: rgba(255,255,255,.82); transition: background .2s linear, border-color .2s linear, color .2s linear; }
 .dg .chips label:hover span { border-color: rgba(255,255,255,.6); }
 .dg .chips input:checked + span { background: #fff; color: #000; border-color: #fff; }
-.dg .chips input:focus-visible + span { outline: 1px solid #7FD4FF; outline-offset: 2px; }
+.dg .chips input:focus-visible + span { outline: 1px solid #C9124B; outline-offset: 2px; }
 .dg .send { grid-column: 1 / -1; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
-.dg form button { display: inline-flex; align-items: center; gap: 14px; padding: 14px 20px; border: 0; background: #7FD4FF; color: #000; cursor: pointer;
+.dg form button { display: inline-flex; align-items: center; gap: 14px; padding: 14px 20px; border: 0; background: #C9124B; color: #fff; cursor: pointer;
   font: 400 12px/1 'F37 Analog', system-ui, sans-serif; letter-spacing: .16em; text-transform: uppercase; transition: background .2s linear, color .2s linear; }
 .dg form button i { position: relative; width: 22px; height: 1px; background: currentColor; transition: width .3s cubic-bezier(.22,1,.36,1); }
 .dg form button i::after { content: ''; position: absolute; right: 0; top: -3px; width: 7px; height: 7px; border: solid currentColor; border-width: 1px 1px 0 0; transform: rotate(45deg); }
@@ -310,6 +310,55 @@ section { scroll-margin-top: 64px; }
    repainted every frame for nothing */
 .dg .grain { animation: none; }
 .dg { margin-top: 96px; }
+
+/* ── FW round ───────────────────────────────────────────────────────────── */
+/* the primary button, as assets/site.css has it */
+.btn-p {
+  --btn-bg: #C9124B; --btn-ink: #fff;
+  position: relative; display: inline-flex; align-items: center; justify-content: space-between; gap: 14px;
+  padding: 15px 20px 15px 22px; border: 0; border-radius: 0; background: var(--btn-bg); color: var(--btn-ink);
+  font: inherit; font-size: 11.5px; font-weight: 600; letter-spacing: .16em; line-height: 1; text-transform: uppercase; text-decoration: none;
+  cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
+  transition: transform .45s cubic-bezier(.34,1.56,.64,1), filter .2s linear, box-shadow .3s ease;
+}
+.btn-p:hover { filter: brightness(1.06); box-shadow: 0 10px 28px -10px color-mix(in srgb, var(--btn-bg) 60%, transparent); }
+.btn-p:active { transform: scale(.955) translateY(1px); filter: brightness(.9); box-shadow: inset 0 2px 0 rgba(0,0,0,.22); transition-duration: .08s; }
+.btn-p:focus-visible { outline: 1px solid #fff; outline-offset: 3px; }
+.btn-p-ic { position: relative; flex: none; width: 18px; height: 18px; }
+.btn-p-ic::before, .btn-p-ic::after { content: ''; position: absolute; inset: 0; background: currentColor; -webkit-mask: var(--m) center / contain no-repeat; mask: var(--m) center / contain no-repeat; }
+/* the arrow */
+.btn-p-ic::before { --m: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Cpath d='M2 9h13M10 4l5 5-5 5' fill='none' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E");
+  transition: transform .3s cubic-bezier(.22,1,.36,1), opacity .2s linear; }
+/* the compass: a ring and a short needle centred in it, north half solid */
+.btn-p-ic::after { --m: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Ccircle cx='9' cy='9' r='7.7' fill='none' stroke='%23000' stroke-width='1.3'/%3E%3Cpath d='M9 4.4 11 9H7z'/%3E%3Cpath d='M7 9h4l-2 4.6z' fill='none' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E");
+  opacity: 0; transform: rotate(-160deg) scale(.4); }
+.btn-p:hover .btn-p-ic::before, .btn-p:focus-visible .btn-p-ic::before { opacity: 0; transform: translateX(10px); }
+.btn-p:hover .btn-p-ic::after, .btn-p:focus-visible .btn-p-ic::after { opacity: 1; animation: btn-compass .9s cubic-bezier(.22,1,.36,1) both; }
+@keyframes btn-compass {
+  0%   { opacity: 0; transform: rotate(-160deg) scale(.4); }
+  45%  { opacity: 1; transform: rotate(24deg) scale(1.08); }
+  70%  { transform: rotate(-10deg) scale(1); }
+  86%  { transform: rotate(4deg); }
+  100% { opacity: 1; transform: rotate(0) scale(1); }
+}
+/* the light version, for an orange or bright ground */
+.btn-p.light { --btn-bg: #fff; --btn-ink: #000; }
+@media (prefers-reduced-motion: reduce) {
+  .btn-p, .btn-p-ic::before { transition: none; }
+  .btn-p:hover .btn-p-ic::after, .btn-p:focus-visible .btn-p-ic::after { animation: none; transform: none; }
+}
+.case .case-go { margin-top: 22px; }
+.stage-panel .cs { margin-top: 24px; padding: 20px; border: 1px solid var(--line); border-top: 2px solid var(--c); display: grid; gap: 8px; }
+.stage-panel .cs small { font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--faint); }
+.stage-panel .cs b { font-weight: 400; font-size: 22px; color: #fff; }
+.stage-panel .cs p { font-size: 15px; color: var(--mute); } .stage-panel .cs em { font-style: normal; color: var(--c); }
+.stage-panel .cs .btn-p { justify-self: start; margin-top: 10px; }
+/* testimonials: one under the other */
+.row { flex-direction: column; overflow: visible; scroll-snap-type: none; margin: 24px 0 0; padding: 0; }
+.row > * { flex: none; }
+/* the framed sections */
+.sec-frame { display: block; width: 100%; height: 900px; border: 0; background: #000; }
+#studio.sec-frame { margin-top: 56px; }
 </style>
 </head>
 <body>
@@ -354,36 +403,28 @@ section { scroll-margin-top: 64px; }
     </div>
     <div class="cases">
       <article class="case" style="--c:#4DD9C0">
-        <p class="k"><b>Summit 01</b><i></i>Fintech · 2024 — now</p>
         <h3>How we helped Groww <span class="hi">boost engagement</span> on their app</h3>
         <p>A deep engagement with Groww to design and improve features that engage users on their consumer app, along with design support for other product initiatives.</p>
         <a class="rv" href="case-groww-figma.html" data-rive="groww" aria-label="Groww — the work"><span class="slot" data-folder="groww" data-alt="Groww — the work"></span></a>
-        <dl><div><dt>3</dt><dd>Launches — the feed, Stories and the XIRR calculator</dd></div><div><dt>1</dt><dd>Year embedded with the growth team</dd></div></dl>
-        <a class="go" href="case-groww-figma.html">View case study</a>
+        <a class="btn-p case-go" style="--btn-bg:#4DD9C0" href="case-groww-figma.html">View case study<span class="btn-p-ic" aria-hidden="true"></span></a>
       </article>
       <article class="case" style="--c:#E05555">
-        <p class="k"><b>Summit 02</b><i></i>News &amp; media · 2023</p>
         <h3>How we helped Firstpost <span class="hi">2x their traffic</span> through a strategic redesign</h3>
         <p>A design overhaul of Firstpost’s website and the creation of their first mobile app, with a significant pivot for their business and content strategy.</p>
         <a class="rv" href="case-firstpost-figma.html" data-rive="firstpost" aria-label="Firstpost — the work"><span class="slot" data-folder="firstpost" data-alt="Firstpost — the work"></span></a>
-        <dl><div><dt>2x</dt><dd>Website traffic</dd></div><div><dt>30%</dt><dd>Increase in average session duration</dd></div></dl>
-        <a class="go" href="case-firstpost-figma.html">View case study</a>
+        <a class="btn-p case-go" style="--btn-bg:#E05555" href="case-firstpost-figma.html">View case study<span class="btn-p-ic" aria-hidden="true"></span></a>
       </article>
       <article class="case" style="--c:#4CAF70">
-        <p class="k"><b>Summit 03</b><i></i>SaaS · 2023</p>
         <h3>How we helped Breathe ESG <span class="hi">accelerate sales</span>, streamline releases and elevate customer experience</h3>
         <p>An MVP to v1 redesign of Breathe ESG’s SaaS platform, to make it easier for companies to track their ESG metrics and regulatory compliance.</p>
         <a class="rv" href="case-breathe-esg-figma.html" data-rive="breathe-esg" aria-label="Breathe ESG — the work"><span class="slot" data-folder="breathe-esg" data-alt="Breathe ESG — the work"></span></a>
-        <dl><div><dt>8</dt><dd>Weeks of design sprints, brief to platform</dd></div><div><dt>1000</dt><dd>Listed companies now required to report ESG</dd></div></dl>
-        <a class="go" href="case-breathe-esg-figma.html">View case study</a>
+        <a class="btn-p case-go" style="--btn-bg:#4CAF70" href="case-breathe-esg-figma.html">View case study<span class="btn-p-ic" aria-hidden="true"></span></a>
       </article>
       <article class="case" style="--c:#7B8FF5">
-        <p class="k"><b>Summit 04</b><i></i>Health · 2023</p>
         <h3>How we helped Shyft &amp; Mindhouse <span class="hi">grow their business</span> and supercharge product led growth</h3>
         <p>Conceptualising and designing a therapy experience, alongside redesigning their websites and apps to impact revenue.</p>
         <a class="rv" href="case-shyft-mindhouse-figma.html" data-rive="shyft-mindhouse" aria-label="Shyft &amp; Mindhouse — the work"><span class="slot" data-folder="shyft-mindhouse" data-alt="Shyft &amp; Mindhouse — the work"></span></a>
-        <dl><div><dt>70%</dt><dd>Decrease in sales team intervention</dd></div><div><dt>15x</dt><dd>Increase in direct purchases via the landing page</dd></div></dl>
-        <a class="go" href="case-shyft-mindhouse-figma.html">View case study</a>
+        <a class="btn-p case-go" style="--btn-bg:#7B8FF5" href="case-shyft-mindhouse-figma.html">View case study<span class="btn-p-ic" aria-hidden="true"></span></a>
       </article>
     </div>
     </div>
@@ -408,7 +449,6 @@ section { scroll-margin-top: 64px; }
       <button type="button" role="tab" aria-selected="false" data-i="2"><small>03</small>Established</button>
     </div>
     <figure class="pack" id="pack">
-      <figcaption class="pack-bar"><span>The pack for this climb</span><b id="pack-name">Waist pack</b></figcaption>
       <div class="pack-view">
         <div class="pk on" data-name="Waist pack" data-src="assets/video/bag1.mp4"><img src="assets/video/bag1.jpg" alt="A waist pack" decoding="async"></div>
         <div class="pk" data-name="Day pack" data-src="assets/video/bag2.mp4"><img src="assets/video/bag2.jpg" alt="A day pack" decoding="async"></div>
@@ -428,48 +468,12 @@ section { scroll-margin-top: 64px; }
         <blockquote>Collaborating with the Tibba Design Studio team on our critical design sprint was transformative for Breathe ESG.</blockquote>
         <footer><b>Shaayak Chaterjee</b>Founder, Breathe ESG</footer></figure>
     </div>
-    <p class="hint">Swipe →</p>
   </section>
 
-  <section class="pad studio" id="studio" aria-labelledby="studio-h">
-    <h2 class="h2" id="studio-h">Team Tibba</h2>
-    <p class="lede">A lean design team based out of India, and the places we go to think.</p>
-    <div class="pile" id="pile">
-      <div class="dots" id="dots" aria-hidden="true"></div>
-    </div>
-    <p class="hint">Swipe the photos</p>
-  </section>
+  <iframe class="sec-frame" id="studio" src="studio-team.html?embed=1" title="Team Tibba" loading="lazy"></iframe>
 </main>
 
-<footer class="foot dg" id="footer" aria-label="Footer">
-  <i class="grain" aria-hidden="true"></i>
-  <section class="cell talk" aria-labelledby="talk-h">
-    <h2 id="talk-h">Let’s get to know<br>you and your idea!</h2>
-    <form id="talk">
-      <label class="fld"><span>01 · Your name</span><input type="text" name="name" placeholder="Jane Doe" autocomplete="name" required></label>
-      <label class="fld"><span>02 · Email</span><input type="email" name="email" placeholder="jane@company.com" autocomplete="email" required></label>
-      <label class="fld wide"><span>03 · Tell us about the climb <b id="cc">0 / 500</b></span><textarea name="idea" maxlength="500" placeholder="The product, the stage, where you want to get to"></textarea></label>
-      <div class="send"><button type="submit">Send it up the mountain<i></i></button><p class="note">or write to <a href="mailto:hello@tibba.design">hello@tibba.design</a></p></div>
-      <p class="sent" aria-live="polite"></p>
-    </form>
-    <div class="camp"><canvas class="fire" aria-hidden="true"></canvas><p class="k">Base camp · the fire’s lit</p></div>
-  </section>
-  <nav class="cell pages" aria-label="Pages"><p class="k">Pages</p>
-    <ul><li><a href="#work">Work</a></li><li><a href="#services">Services</a></li><li><a href="about.html">About</a></li><li><a href="#studio">Studio</a></li><li><a href="work-index.html">More work</a></li><li><a href="website-v3.html?desktop">Desktop site</a></li></ul></nav>
-  <nav class="cell social" aria-label="Social"><p class="k">Social</p>
-    <ul><li><a href="https://www.instagram.com/tibba.design/">Instagram</a></li><li><a href="https://www.linkedin.com/company/tibba-design-studio/">LinkedIn</a></li>
-        <li><a href="https://medium.com/@tibbadesignstudio">Medium</a></li><li><a href="mailto:hello@tibba.design">Email</a></li></ul></nav>
-  <section class="cell extra" aria-label="The studio">
-    <div><p class="k">Base</p><p class="t">Tibba Design Studio<br>India — and remote</p><p class="t"><a href="mailto:hello@tibba.design">hello@tibba.design</a></p></div>
-    <div><p class="k">At the studio</p><p class="now"><span id="now">--:--</span><small id="today"></small></p></div>
-    <div class="q"><p class="k">From a client</p><blockquote>“The website captures the essence of our brand and resonates with our audience.”</blockquote><cite>Milan Sachdeva · Firstpost</cite></div>
-  </section>
-  <i class="ruler" aria-hidden="true"></i>
-  <section class="word" id="word" aria-label="Tibba">
-    <svg viewBox="0 0 1000 240" aria-hidden="true"><text class="fill" x="500" y="200" text-anchor="middle" textLength="900" lengthAdjust="spacingAndGlyphs">TIBBA</text><g id="ticks"></g></svg>
-  </section>
-  <p class="legal"><span>© <span class="yr"></span> Tibba Design Studio. All rights reserved.</span><span><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Cookies</a></span></p>
-</footer>
+<iframe class="sec-frame foot-frame" id="footer" src="footer-dusk-grid.html?embed=1" title="Contact" loading="lazy"></iframe>
 
 <script>
   /* the cover of each summit: a real image the moment it lands in
@@ -487,15 +491,15 @@ section { scroll-margin-top: 64px; }
       { label: 'Early-stage startup', outcome: 'From idea to a product people want.',
         services: [['Product strategy', 'product-strategy', 'Decide what to build first, and why.'], ['MVP design', 'product-design', 'A launch-ready first version in weeks.'],
                    ['Research & testing', 'usability-testing', 'Real users, real answers, before you build.'], ['Brand & launch', 'marketing-growth', 'An identity and a site that earn trust on day one.']],
-        engagement: '4–8 weeks', get: 'A tested MVP, ready for users and investors', cta: 'Start your MVP' },
+        cs: ['#4CAF70', 'Early-stage companies', 'Breathe ESG', 'How we helped Breathe ESG <em>accelerate sales</em>', 'case-breathe-esg-figma.html'] },
       { label: 'Mid-stage startup', outcome: 'Turn traction into growth.',
         services: [['Growth design', 'optimisation', 'Onboarding, pricing and funnels that convert.'], ['Design system', 'design-systems', 'One kit, so every team ships faster.'],
                    ['Design to code', 'dev-support', 'Production-ready UI your developers can ship.'], ['Product analytics', 'market-research', 'See what users do, fix what slows them down.']],
-        engagement: '8–12 weeks', get: 'A faster product and a system your team can grow on', cta: 'Plan your next release' },
+        cs: ['#E05555', 'Mid-size companies', 'Firstpost', 'How we helped Firstpost <em>2x their traffic</em>', 'case-firstpost-figma.html'] },
       { label: 'Established company', outcome: 'Stay ahead while you scale.',
         services: [['Product innovation', 'user-interface', 'Prototype and test new bets in weeks.'], ['Experience audit', 'user-experience', 'Find what is costing you users, and fix it.'],
                    ['Embedded design team', 'user-research', 'Senior designers inside your team, on your cadence.'], ['AI features', 'optimisation', 'Useful AI in your product, designed for trust.']],
-        engagement: 'Ongoing, from 3 months', get: 'A design partner for your roadmap', cta: 'Book a strategy call' },
+        cs: ['#4DD9C0', 'Established companies', 'Groww', 'How we helped Groww <em>boost engagement</em>', 'case-groww-figma.html'] },
     ];
     const esc = t => t.replace(/&/g, '&amp;');
     const panel = document.getElementById('stage-panel'), tabs = [...document.querySelectorAll('.stages button')];
@@ -507,19 +511,11 @@ section { scroll-margin-top: 64px; }
         <p class="out">${st.outcome}</p>
         <p class="bring"><span>What we bring</span><b>04</b></p>
         <ol class="svc">${st.services.map(([n, k, l], j) => `<li><span aria-hidden="true">${ic(k)}</span><span class="n">0${j + 1}</span><span><b>${esc(n)}</b><span>${esc(l)}</span></span></li>`).join('')}</ol>
-        <div class="eng"><small>Typical engagement</small><b>${st.engagement}</b><p>You get: ${st.get}</p><a href="#footer">${st.cta}</a></div>`;
+        <div class="cs" style="--c:${st.cs[0]}"><small>${st.cs[1]}</small><b>${st.cs[2]}</b><p>${st.cs[3]}</p>
+          <a class="btn-p" href="${st.cs[4]}">View case study<span class="btn-p-ic" aria-hidden="true"></span></a></div>`;
     }
     tabs.forEach((b, i) => b.addEventListener('click', () => pick(i)));
     pick(0);
-  });
-  /* the form opens the visitor's mail app with the message filled in */
-  const idea = document.querySelector('#talk textarea'), cc = document.getElementById('cc');
-  if (idea && cc) idea.addEventListener('input', () => { cc.textContent = idea.value.length + ' / 500'; });
-  document.getElementById('talk').addEventListener('submit', e => {
-    e.preventDefault();
-    const f = e.target, body = `${f.idea.value}\n\n— ${f.name.value} (${f.email.value})`;
-    location.href = 'mailto:hello@tibba.design?subject=' + encodeURIComponent('A new climb — ' + f.name.value) + '&body=' + encodeURIComponent(body);
-    f.querySelector('.sent').textContent = 'Opening your mail app…';
   });
 </script>
 <script type="module">
@@ -554,118 +550,17 @@ section { scroll-margin-top: 64px; }
 
   });
 
-  /* ── Team Tibba: the polaroid stack (studio-polaroid-frames on a phone) ──
-     The top print follows the finger, turning with the drag; past the
-     threshold, or on a flick, it is thrown to that side and tucks back in
-     at the bottom of the pile. Every print rides its own spring to its
-     place, so a swipe is one continuous move. The loop runs only while
-     something is moving. */
-  (function () {
-    const pile = document.getElementById('pile'), dotsEl = document.getElementById('dots');
-    const PICS = ['team-01-ridge.webp', 'team-02-review.webp', 'team-03-talk.webp', 'team-04-desk.webp', 'team-05-cheers.webp', 'team-06-placeholder.svg'];
-    const TITLES = ['On the ridge', 'Crit hour', 'Speaking at VizChitra', 'Home base', 'After the launch', 'Next climb'];
-    const KINDS = ['Off-site', 'Studio', 'On stage', 'Base camp', 'After', 'Soon'];
-    const K = { spring: 170, damping: 22, threshold: .26 };
-    const els = PICS.map((f, i) => {
-      const el = document.createElement('figure'); el.className = 'pol'; el.dataset.i = i;
-      el.innerHTML = `<div class="card"><p class="k"><b>S—0${i + 1}</b><span>${KINDS[i]}</span></p>
-        <div class="ph"><img src="assets/studio/${f}" alt="${TITLES[i]}" draggable="false" loading="lazy" decoding="async"></div>
-        <figcaption class="note"><b>${TITLES[i]}</b></figcaption></div>`;
-      pile.insertBefore(el, dotsEl); return el;
-    });
-    dotsEl.innerHTML = PICS.map(() => '<i></i>').join('');
-    let order = PICS.map((_, i) => i), raf = 0, last = 0;
-    const S = PICS.map(() => ({ x: 0, y: 0, r: 0, s: 1, vx: 0, vy: 0, vr: 0, vs: 0, hold: null, fly: 0, side: 0 }));
-    const jit = (i, k) => { const v = Math.sin(i * 127.1 + k * 311.7) * 43758.5453; return (v - Math.floor(v)) * 2 - 1; };
-    const width = () => Math.round(Math.min(pile.clientWidth * .62, 280));
-    function slot(i, d) {
-      const W = pile.clientWidth, H = pile.clientHeight, w = els[i].offsetWidth || width(), h = els[i].offsetHeight || w * 1.45, D = Math.min(d, 6);
-      return { x: W / 2 - w / 2 + (d ? jit(i, 1) * 16 : jit(i, 1) * 3), y: Math.min(H * .5, H - h / 2 - 40) - h / 2 + D * 7 + (d ? jit(i, 2) * 6 : 0),
-               r: d ? jit(i, 3) * 9 : jit(i, 3) * 2.5, s: 1 - D * .028 };
-    }
-    function step(now) {
-      raf = 0;
-      const dt = Math.min(1 / 30, (now - (last || now)) / 1000); last = now;
-      let moving = false;
-      order.forEach((i, d) => {
-        const st = S[i], el = els[i];
-        let T = slot(i, d);
-        if (st.hold) T = st.hold;
-        else if (st.fly) T = { x: T.x + st.side * pile.clientWidth * .62, y: T.y - 24, r: st.side * 22, s: 1 };
-        const k = st.hold ? 900 : K.spring, dm = st.hold ? 60 : K.damping;
-        for (let n = 0; n < 3; n++) {
-          const h = dt / 3;
-          st.vx += (k * (T.x - st.x) - dm * st.vx) * h; st.x += st.vx * h;
-          st.vy += (k * (T.y - st.y) - dm * st.vy) * h; st.y += st.vy * h;
-          st.vr += (k * (T.r - st.r) - dm * st.vr) * h; st.r += st.vr * h;
-          st.vs += (k * (T.s - st.s) - dm * st.vs) * h; st.s += st.vs * h;
-        }
-        if (st.fly && Math.abs(st.x - T.x) < pile.clientWidth * .18) { st.fly = 0; order = order.filter(q => q !== i).concat(i); }
-        el.style.zIndex = st.fly ? 200 : 100 - order.indexOf(i);
-        el.style.transform = `translate3d(${st.x.toFixed(1)}px, ${st.y.toFixed(1)}px, 0) rotate(${st.r.toFixed(2)}deg) scale(${st.s.toFixed(4)})`;
-        el.style.visibility = d < 7 || st.fly ? '' : 'hidden';
-        if (Math.abs(T.x - st.x) + Math.abs(T.y - st.y) + Math.abs(st.vx) + Math.abs(st.vy) + Math.abs(T.r - st.r) > .05 || st.hold || st.fly) moving = true;
-      });
-      [...dotsEl.children].forEach((dot, k) => dot.classList.toggle('on', k === order[0]));
-      if (moving) raf = requestAnimationFrame(step);
-    }
-    const kick = () => { if (!raf) { last = performance.now(); raf = requestAnimationFrame(step); } };
-    function layout() { els.forEach(el => { el.style.width = width() + 'px'; }); }
-    layout();
-    /* dealt in from below, the first time the pile is seen */
-    order.forEach((i, d) => { const T = slot(i, d); Object.assign(S[i], { x: T.x + jit(i, 5) * 40, y: pile.clientHeight + 80 + d * 40, r: jit(i, 6) * 30 }); });
-    els.forEach(el => { el.style.transform = `translate3d(0, ${pile.clientHeight + 200}px, 0)`; });
-    new IntersectionObserver(([e], io) => { if (e.isIntersecting) { io.disconnect(); kick(); } }, { threshold: .25 }).observe(pile);
-    /* the swipe, on whichever print is on top */
-    let sw = null;
-    pile.addEventListener('pointerdown', e => {
-      const el = e.target.closest('.pol'); if (!el || +el.dataset.i !== order[0]) return;
-      const i = order[0], base = slot(i, 0);
-      sw = { i, id: e.pointerId, x0: e.clientX, y0: e.clientY, base, t: performance.now(), lx: e.clientX, vx: 0 };
-      el.setPointerCapture(e.pointerId); S[i].hold = { ...base }; kick();
-    });
-    pile.addEventListener('pointermove', e => {
-      if (!sw || e.pointerId !== sw.id) return;
-      const dx = e.clientX - sw.x0, dy = e.clientY - sw.y0, now = performance.now();
-      sw.vx = sw.vx * .6 + ((e.clientX - sw.lx) / Math.max(1, now - sw.t)) * .4; sw.lx = e.clientX; sw.t = now;
-      S[sw.i].hold = { x: sw.base.x + dx, y: sw.base.y + dy * .35, r: sw.base.r + dx * .07, s: 1.02 }; kick();
-    });
-    const release = e => {
-      if (!sw || e.pointerId !== sw.id) return;
-      const st = S[sw.i], dx = e.clientX - sw.x0, w = els[sw.i].offsetWidth;
-      st.hold = null;
-      if (e.type === 'pointerup' && (Math.abs(dx) > w * K.threshold || Math.abs(sw.vx) > .55)) { st.side = Math.sign(dx || sw.vx); st.fly = 1; }
-      sw = null; kick();
-    };
-    pile.addEventListener('pointerup', release); pile.addEventListener('pointercancel', release);
-    addEventListener('resize', () => { layout(); kick(); });
-  })();
 </script>
-<script type="module">
-  /* ── the footer (as footer-dusk-grid.html): the fire, stoked by a tap;
-     the studio's time; TIBBA drawn as a blueprint, once ─────────────────── */
-  import { fire } from './assets/footer-kit.js';
-  const $ = s => document.querySelector(s);
-  const FIRE = { mode: 'dither', palette: 'warm', cell: 5, dot: .86, contrast: 1.25, flame: 1.05, embers: 1.2, speed: .9, scale: 1.05, wood: .75 };
-  const f = fire($('.camp canvas'), { ...FIRE, x: .5, y: .74, blowOut: false, hand: false });
-  /* a tap stokes it for a moment — the loop runs only while it settles */
-  let stoke = 0, target = 0, last = 0, raf = 0, laid = FIRE.scale;
-  function loop(now) {
-    raf = 0;
-    const dt = Math.min(.05, (now - (last || now)) / 1000); last = now;
-    stoke += (target - stoke) * (1 - Math.exp(-dt * (target > stoke ? 5 : 2.4)));
-    f.K.flame = FIRE.flame * (1 + .45 * stoke); f.K.embers = FIRE.embers * (1 + 1.2 * stoke);
-    f.K.speed = FIRE.speed * (1 + .5 * stoke); f.K.scale = FIRE.scale * (1 + .12 * stoke); f.K.contrast = FIRE.contrast * (1 + .12 * stoke);
-    if (Math.abs(f.K.scale - laid) > .003) { laid = f.K.scale; f.relayout(); }
-    if (Math.abs(target - stoke) > .002) raf = requestAnimationFrame(loop); else last = 0;
-  }
-  $('.camp').addEventListener('pointerdown', () => { target = 1; if (!raf) raf = requestAnimationFrame(loop); setTimeout(() => { target = 0; if (!raf) raf = requestAnimationFrame(loop); }, 1600); });
-  const T = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: false }),
-        D = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', weekday: 'short', day: 'numeric', month: 'short' });
-  const tick = () => { const n = new Date(); $('#now').textContent = T.format(n); $('#today').textContent = D.format(n) + ' · IST'; }; tick(); setInterval(tick, 30000);
-  let t = ''; [40, 120, 200].forEach(y => { for (let x = 60; x <= 940; x += 88) t += `<path class="tk" d="M${x - 5} ${y}H${x + 5}M${x} ${y - 5}V${y + 5}"/>`; });
-  $('#ticks').innerHTML = t;
-  new IntersectionObserver(([e], io) => { if (e.isIntersecting) { io.disconnect(); $('#word').classList.add('on'); } }, { threshold: .3 }).observe($('#word'));
+<script>
+  /* the framed sections (Team, the footer) take their own height, and
+     their links open in this window */
+  document.querySelectorAll('iframe.sec-frame').forEach(f => {
+    const fit = () => { try { const d = f.contentDocument; f.style.height = Math.max(d.documentElement.scrollHeight, d.body.scrollHeight) + 'px'; } catch (e) {} };
+    f.addEventListener('load', () => {
+      try { const d = f.contentDocument, b = d.createElement('base'); b.target = '_top'; d.head.prepend(b); new ResizeObserver(fit).observe(d.body); } catch (e) {}
+      fit();
+    });
+  });
 </script>
 <!-- primary / secondary typography control (assets/type-control.js) -->
 <script type="module" src="assets/type-control.js"></script>

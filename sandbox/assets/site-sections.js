@@ -102,7 +102,7 @@ export const V3_SECTIONS = [
   { id: 'testimonials', label: 'Testimonials', folder: 'Our testimonials',
     variants: [{ file: 'testimonials-topo.html', label: 'Testimonials — topo' }] },
   { id: 'studio', label: 'Our studio', folder: 'Our studio',
-    variants: [{ file: 'studio-polaroid-frames.html', label: 'Framed polaroids' }] },
+    variants: [{ file: 'studio-team.html', label: 'Team Tibba — photos round the title' }, { file: 'studio-polaroid-frames.html', label: 'Framed polaroids' }] },
   { id: 'footer', label: 'Footer', folder: 'Footer', nav: 'Contact',
     variants: [{ file: 'footer-dusk-grid.html', label: 'Footer — dusk grid' }, { file: 'footer-blueprint-dusk.html', label: 'Footer — blueprint dusk' },
                { file: 'footer-campfire.html', label: 'Footer — campfire' }] },

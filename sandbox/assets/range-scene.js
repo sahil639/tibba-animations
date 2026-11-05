@@ -455,7 +455,10 @@ const LITE = matchMedia('(max-width: 760px), (pointer: coarse)').matches;
    phone too (Base Camp's dock) — antialiased, pixel ratio up to 2, a finer field */
 const HIQ = opts.quality === 'high';
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: HIQ || !LITE || devicePixelRatio < 2, alpha: true, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(devicePixelRatio, LITE && !HIQ ? 1.25 : 2));
+/* desktop: never under 1.5 — on a 1x screen the contour sheet is drawn at
+   1.5x and scaled down, which is what keeps its fine rings from breaking up
+   into static (and screen-shared video from turning it into noise) */
+renderer.setPixelRatio(LITE && !HIQ ? Math.min(devicePixelRatio, 1.25) : Math.min(2, Math.max(devicePixelRatio, LITE ? 1 : 1.5)));
 renderer.setSize(vpW(), vpH(), false);
 renderer.setClearColor(0x000000, 0);
 
@@ -835,11 +838,13 @@ const TREK = PROJECT_PEAKS.map((pi, i) => {
    clients' colours as the stats open (climbStats). Same switchback shape
    as the client routes, turned to come up a different face. */
 const MASSIF_ROUTES = [
-  { a: 0.10, sg: 1, c: '#7FD4FF' },        // the hero's route (setAccent recolours it)
-  { a: -1.05, sg: -1, c: CASES[0].accent },
-  { a: -0.42, sg: 1, c: CASES[1].accent },
-  { a: 0.62, sg: -1, c: CASES[2].accent },
-  { a: 1.20, sg: 1, c: CASES[3].accent },
+  { a: 0.10, sg: 1, c: '#C9124B' },        // the hero's route (setAccent recolours it)
+  /* the stats' four: one ink, white, thinner and dotted — charted paths up
+     the face rather than four colours (they read as party streamers) */
+  { a: -1.05, sg: -1, c: '#F1EEE7' },
+  { a: -0.42, sg: 1, c: '#F1EEE7' },
+  { a: 0.62, sg: -1, c: '#F1EEE7' },
+  { a: 1.20, sg: 1, c: '#F1EEE7' },
 ];
 MASSIF_ROUTES.forEach(({ a, sg }) => {
   const p = PEAKS[0], R = p.spread * 0.72, t = PEAK_TOP[0], ca = Math.cos(a), sa = Math.sin(a);
@@ -938,6 +943,10 @@ const trailMat = new THREE.ShaderMaterial({
     uWidth:   { value: 2.3 },                       // CSS px — heaviest mark on the sheet, but only just
     uProgress:{ value: new Array(NTR).fill(0) },    // 0 = unclimbed, 1 = at the summit
     uColor:   { value: PATH_CLR.map(srgbVec) },
+    /* per route: width (× uWidth) and dotted (1) or solid (0) — the stats'
+       routes are set thinner and dotted below */
+    uWScale:  { value: new Array(NTR).fill(1) },
+    uDot:     { value: new Array(NTR).fill(0) },
     uGlow:    { value: 0 },     // the route is the accent exactly; bloom is opt-in
     uFogNear: { value: 210 },
     uFogFar:  { value: 430 },
@@ -949,9 +958,14 @@ const trailMat = new THREE.ShaderMaterial({
     uniform float uWidth, uFogNear, uFogFar;
     uniform float uProgress[NT];
     uniform vec3 uColor[NT];
-    varying float vArc, vProg, vFog;
+    uniform float uWScale[NT], uDot[NT];
+    varying float vArc, vProg, vFog, vDot;
     varying vec3 vCol;
     void main(){
+      float ws = 1.0, dt = 0.0;
+      for (int i = 0; i < NT; i++){
+        if (abs(float(i) - aTrail) < 0.5){ ws = uWScale[i]; dt = uDot[i]; }
+      }
       vec4 cur = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       vec4 prv = projectionMatrix * modelViewMatrix * vec4(aPrev,   1.0);
       vec4 nxt = projectionMatrix * modelViewMatrix * vec4(aNext,   1.0);
@@ -972,13 +986,13 @@ const trailMat = new THREE.ShaderMaterial({
       vec2 mi = vec2(-tg.y, tg.x);
       vec2 nA = vec2(-dA.y, dA.x);
       float k = 1.0 / clamp(abs(dot(mi, nA)), 0.35, 1.0);
-      cur.xy += (mi * aSide * uWidth * 0.5 * k) / uHalfRes * cur.w;
+      cur.xy += (mi * aSide * uWidth * ws * 0.5 * k) / uHalfRes * cur.w;
 
       float pr = uProgress[0]; vec3 cl = uColor[0];
       for (int i = 0; i < NT; i++){
         if (abs(float(i) - aTrail) < 0.5){ pr = uProgress[i]; cl = uColor[i]; }
       }
-      vArc = aArc; vProg = pr; vCol = cl;
+      vArc = aArc; vProg = pr; vCol = cl; vDot = dt;
 
       vec4 mv = modelViewMatrix * vec4(position, 1.0);
       vFog = 1.0 - smoothstep(uFogNear, uFogFar, -mv.z);
@@ -986,10 +1000,12 @@ const trailMat = new THREE.ShaderMaterial({
     }`,
   fragmentShader: `
     precision highp float;
-    varying float vArc, vProg, vFog;
+    varying float vArc, vProg, vFog, vDot;
     varying vec3 vCol;
     uniform float uGlow;
     void main(){
+      /* a dotted route: short marks along its length, the gaps left out */
+      if (vDot > 0.5 && fract(vArc * 120.0) > 0.42) discard;
       /* aArc is 1 at the trailhead and 0 at the summit, so after climbing a
          fraction p the walked part is everything with aArc above 1 - p. The
          edges have to run low-to-high or smoothstep reverses and an unclimbed
@@ -1012,6 +1028,7 @@ const trailMat = new THREE.ShaderMaterial({
     }`,
 });
 
+STATS_ROUTES.forEach(r => { trailMat.uniforms.uWScale.value[r] = 0.55; trailMat.uniforms.uDot.value[r] = 1; });
 const trailMesh = new THREE.Mesh(buildTrailGeometry(), trailMat);
 trailMesh.frustumCulled = false;
 trailMesh.renderOrder = 4;          // above the contours — it is the top mark
@@ -1574,7 +1591,7 @@ const contourMat = new THREE.ShaderMaterial({
     uDotOff:    { value: CT.DOT_OFF },
     uDotFlow:   { value: CT.DOT_FLOW },
     /* the summit's accent rings — lift and heat, one per ring */
-    uAccent:    { value: srgbVec(0x7FD4FF) },
+    uAccent:    { value: srgbVec(0xC9124B) },
     uRingLift:  { value: [0, 0, 0] },
     uRingHot:   { value: [0, 0, 0] },
     /* ── the loader's fill ───────────────────────────────────────────────

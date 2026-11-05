@@ -55,7 +55,7 @@ import { CASES, EASES } from './four-summits.js';
 const $ = s => document.querySelector(s);
 const clamp01 = t => t < 0 ? 0 : t > 1 ? 1 : t;
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const ACCENT = '#7FD4FF';
+const ACCENT = '#C9124B';
 const N = CASES.length;
 const pad = i => String(i + 1).padStart(2, '0');
 

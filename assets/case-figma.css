@@ -114,7 +114,7 @@ body { background: #000; }
 .cf-card .wk-img img { transition: opacity .6s linear, transform 1s cubic-bezier(.16,1,.3,1); }
 .cf-card:hover .wk-img img { transform: scale(1.03); }
 .cf-card p { font-size: clamp(20px, calc(28 * var(--cu)), 32px); line-height: 1.2; letter-spacing: -.0087em; transition: color .2s linear; }
-.cf-card:hover p { color: var(--c, #7FD4FF); }
+.cf-card:hover p { color: var(--c, #C9124B); }
 .cf + footer { margin-top: 180px; }
 
 /* ── the column at each width: reflow by the column, not the screen ───── */
@@ -298,7 +298,11 @@ body:has(.cf-light) { background: #f5f9fa; }
    the page's own colour — so nothing is laid over it on the light pages and
    the picture runs straight into the page */
 .cf-hero.cover { background-position: 50% 100%; }
-.cf-light .cf-hero.cover::after { display: none; }
+/* the light pages keep a true gradient into the page — from the middle of
+   the picture down, eased, so it reads as a fade and not as a band */
+.cf-light .cf-hero.cover::after { display: block; background: linear-gradient(180deg,
+  color-mix(in srgb, var(--page) 0%, transparent) 38%, color-mix(in srgb, var(--page) 18%, transparent) 52%,
+  color-mix(in srgb, var(--page) 52%, transparent) 68%, color-mix(in srgb, var(--page) 84%, transparent) 84%, var(--page) 100%); }
 
 /* the results and the particulars: a row each, wider than the words
    (--n is the number of cards: 2 or 4). Mobile: they stack. */
@@ -342,7 +346,7 @@ body:has(.cf-light) { background: #f5f9fa; }
 .cf-proto .proto-layer { grid-area: 1 / 1; min-height: 100%; }
 .cf-proto .proto-layer img { display: block; width: 100%; height: auto; }
 .cf-proto .proto-after { z-index: 1; }
-.cf-proto .proto-glow { position: absolute; top: -20%; left: 0; width: 3px; height: 140%; background: #7FD4FF; opacity: 0; pointer-events: none; z-index: 2; }
+.cf-proto .proto-glow { position: absolute; top: -20%; left: 0; width: 3px; height: 140%; background: #C9124B; opacity: 0; pointer-events: none; z-index: 2; }
 
 /* before / after: the two states, and the switch between them */
 .cf-ba { display: flex; flex-direction: column; align-items: center; gap: 28px; }
@@ -350,7 +354,7 @@ body:has(.cf-light) { background: #f5f9fa; }
 .cf-ba-switch button { appearance: none; border: 0; background: transparent; color: var(--ink-2); font: inherit; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; padding: 12px 22px; cursor: pointer; transition: background .25s linear, color .25s linear; }
 .cf-ba-switch button + button { border-left: 1px solid var(--hair); }
 .cf-ba-switch button[aria-pressed="true"] { background: var(--ink); color: var(--page); }
-.cf-ba-switch button:focus-visible { outline: 2px solid #7FD4FF; outline-offset: 2px; }
+.cf-ba-switch button:focus-visible { outline: 2px solid #C9124B; outline-offset: 2px; }
 .cf-ba-hint { font-size: 13px; color: var(--ink-2); text-align: center; }
 
 /* a linear scroll: the page's scroll runs the screens, top to bottom */
@@ -380,3 +384,20 @@ body:has(.cf-light) { background: #f5f9fa; }
 .cf-outcome + .cf-quote { margin-top: max(48px, calc(120 * var(--cu))); }
 .cf-light ~ .cf-foot { background: #f5f9fa; }
 .cf-ba > .cf-proto { align-self: stretch; }
+
+/* the sprints as a stack (Breathe ESG): each card holds under the header
+   while the next one slides up over it, a step lower so the edges of the
+   ones before stay in view */
+.cf-stack { position: relative; display: flex; flex-direction: column; gap: 18vh; margin-inline: calc(-1 * var(--over, 0px)); padding-bottom: 4vh; }
+.cf-stack-card { position: sticky; top: calc(max(72px, 9vh) + var(--i) * 14px); margin: 0;
+  box-shadow: 0 -14px 34px -18px rgba(14,17,20,.28); }
+.cf-stack-card img { display: block; width: 100%; height: auto; }
+@media (max-width: 640px) { .cf-stack { gap: 10vh; } .cf-stack-card { top: calc(64px + var(--i) * 8px); } }
+
+/* a line of copy set large, as a break between plates */
+.cf-statement { margin: 0; max-width: 22ch; font-size: clamp(28px, calc(56 * var(--cu)), 64px); line-height: 1.08; letter-spacing: -.02em; color: var(--ink-2); }
+.cf-statement b { font-weight: 500; color: var(--ink); }
+/* two plates side by side */
+.cf-duo { display: grid; grid-template-columns: 1fr 1fr; gap: max(12px, calc(24 * var(--cu))); margin-inline: calc(-1 * var(--over, 0px)); }
+.cf-duo > .cf-fig { margin: 0; }
+@media (max-width: 640px) { .cf-duo { grid-template-columns: 1fr; } }

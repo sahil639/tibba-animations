@@ -142,8 +142,12 @@ html, body { background: var(--bg); }
   /* Base Camp with the ridges shaded in layers and the raised view (desktop);
      phones keep their locked settings. Its own bake. (A classic script: a
      module's imports would run before these were set.) */
-  window.BASECAMP_PRESET = { depth: { view: 'raised', raisedElev: 15, desk: { frontFill: 0.39, frontBase: 0.23 } },   // 0.39: the summit at 80%
-    style: { contrast: 0.75 }, layers: { on: true, lift: 0 } };
+  /* bgScale = fgScale: a summit leaving focus keeps its height — the camera's
+     move slides it off and the dim fades it, with no collapse first.
+     dim / fill: the country behind recedes further and carries less colour,
+     so the angled view's grey shelf stays as depth, not as a band. */
+  window.BASECAMP_PRESET = { depth: { view: 'raised', raisedElev: 15, bgScale: 1.18, desk: { frontFill: 0.39, frontBase: 0.23 } },   // 0.39: the summit at 80%
+    style: { contrast: 0.75, dim: 0.8, fill: '#151A27' }, layers: { on: true, lift: 0 } };
   window.BASECAMP_KEY = 'tibba.bake.basecamp-layered';
 </script>
 <script type="module">

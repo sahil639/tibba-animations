@@ -87,7 +87,7 @@ export function createShiftingTopo(canvas, opts = {}) {
     uW: { value: new THREE.Vector3(1, 0, 0) },
     uStep: { value: O.step },
     uLine: { value: new THREE.Color('#e9ecf2') },
-    uAccent: { value: new THREE.Color('#7FD4FF') },
+    uAccent: { value: new THREE.Color('#C9124B') },
     uTopLevel: { value: 12 },
     uRiser: { value: 0.22 },
     uLight: { value: new THREE.Vector3(-0.5, 1, 0.35).normalize() },

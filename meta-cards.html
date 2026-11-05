@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metadata cards</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Metadata cards — five, one system
+   ─────────────────────────────────────────────────────────────────────────
+   The words on the left, the mountain on the right: each case study's own
+   summit as Our Work draws it (rendered from summits-basecamp-layered.html,
+   assets/og/mountain-<case>.webp), and for the Home card the studio's own
+   massif with its pink route (from the hero).
+
+   One system: black ground, F37 Analog, the site's hairlines, the client's
+   colour as the only colour on a case card and the pink highlight on the
+   Home card. What changes between the five is the composition and what
+   leads:
+
+     01 Groww          Ledger      title leads; the particulars on a ruled row
+     02 Firstpost      Monogram    the name leads; the halves split by a rule
+     03 Breathe ESG    Framed      corner brackets; the summit in a window
+     04 Shyft          Stat-led    the number leads; the summit full-bleed
+     05 Home           Range       the studio line, the four summits as a key
+
+   Each is 1200 × 630 (the share-card size) and scales with its width: every
+   length is in --u, one design pixel. States: rest; hover (the summit
+   lifts, its dot pulses, the accent comes in); selected (as hover, held,
+   with the accent on the card's edge). The switch at the top shows any
+   state on all five at once.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #050506; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+.page { max-width: 1320px; margin: 0 auto; padding: clamp(72px, 10vh, 120px) clamp(16px, 4vw, 60px) 120px; }
+.page > header { display: flex; justify-content: space-between; align-items: end; gap: 24px; flex-wrap: wrap; margin-bottom: 48px; }
+.page h1 { color: #fff; font-weight: 300; font-size: clamp(36px, 4.4vw, 72px); line-height: .95; letter-spacing: -.04em; }
+.page header p { margin-top: 14px; max-width: 56ch; color: var(--ink-mute); font-size: 14px; line-height: 1.6; }
+.states { display: inline-flex; border: 1px solid rgba(233,236,242,.2); }
+.states button { appearance: none; border: 0; background: none; color: rgba(233,236,242,.6); font: inherit; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; padding: 12px 18px; cursor: pointer; }
+.states button + button { border-left: 1px solid rgba(233,236,242,.2); }
+.states button[aria-pressed="true"] { background: #fff; color: #000; }
+.list { display: grid; gap: 56px; }
+.item > p { display: flex; gap: 14px; align-items: baseline; margin-bottom: 14px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: rgba(233,236,242,.5); }
+.item > p b { color: #fff; font-weight: 400; letter-spacing: .1em; }
+
+/* ── the card ───────────────────────────────────────────────────────────── */
+.mc { --c: #C9124B; --ln: rgba(233,236,242,.18); --ink2: rgba(233,236,242,.62);
+  position: relative; display: block; aspect-ratio: 1200 / 630; container-type: inline-size; overflow: hidden;
+  background: #000; color: #fff; text-decoration: none; border: 1px solid rgba(233,236,242,.12);
+  transition: border-color .4s linear; }
+.mc-in { --u: calc(100cqw / 1200); position: absolute; inset: 0; }
+.mc .k { font-size: calc(13 * var(--u)); letter-spacing: .16em; text-transform: uppercase; color: var(--ink2); }
+.mc .logo { display: block; width: calc(96 * var(--u)); height: auto; color: #fff; }
+.mc h2 { font-weight: 400; letter-spacing: -.025em; color: #fff; }
+.mc h2 em { font-style: normal; color: var(--c); }
+.mc-txt { position: absolute; z-index: 2; left: calc(64 * var(--u)); top: calc(56 * var(--u)); bottom: calc(56 * var(--u)); width: calc(560 * var(--u)); display: flex; flex-direction: column; }
+
+/* the summit: right half, its left edge melting into the ground */
+.mc-mtn { position: absolute; z-index: 1; top: 0; right: 0; bottom: 0; width: 52%; margin: 0;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 22%); mask-image: linear-gradient(90deg, transparent, #000 22%); }
+.mc-mtn img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%;
+  transform-origin: 50% 70%; transition: transform 1.1s cubic-bezier(.16,1,.3,1), filter .5s linear; filter: brightness(.92); }
+/* the summit's dot, ringed — it pulses on hover */
+.mc-mtn i { position: absolute; left: 50%; top: 30.9%; width: calc(14 * var(--u)); height: calc(14 * var(--u)); margin: calc(-7 * var(--u)); border-radius: 50%;
+  box-shadow: 0 0 0 calc(1.5 * var(--u)) var(--c); opacity: 0; }
+.mc-mtn i::before, .mc-mtn i::after { content: ''; position: absolute; inset: 0; border-radius: 50%; border: calc(1.5 * var(--u)) solid var(--c); opacity: 0; }
+
+/* states: hover (live, or forced with .hov) and selected (.sel) */
+.mc:hover .mc-mtn img, .mc.hov .mc-mtn img, .mc.sel .mc-mtn img { transform: scale(1.04) translateY(-1.2%); filter: brightness(1.05); }
+.mc:hover .mc-mtn i, .mc.hov .mc-mtn i, .mc.sel .mc-mtn i { opacity: 1; }
+.mc:hover .mc-mtn i::before, .mc.hov .mc-mtn i::before, .mc.sel .mc-mtn i::before { animation: mc-ring 1.8s cubic-bezier(.16,.62,.36,1) infinite; }
+.mc:hover .mc-mtn i::after, .mc.hov .mc-mtn i::after, .mc.sel .mc-mtn i::after { animation: mc-ring 1.8s cubic-bezier(.16,.62,.36,1) .9s infinite; }
+@keyframes mc-ring { 0% { transform: scale(1); opacity: .8; } 70% { opacity: .12; } 100% { transform: scale(4.5); opacity: 0; } }
+.mc.sel { border-color: var(--c); }
+.mc .go { display: inline-flex; align-items: center; gap: calc(12 * var(--u)); font-size: calc(13 * var(--u)); letter-spacing: .16em; text-transform: uppercase; color: #fff; }
+.mc .go::after { content: '→'; color: var(--c); transition: transform .45s cubic-bezier(.34,1.56,.64,1); }
+.mc:hover .go::after, .mc.hov .go::after, .mc.sel .go::after { transform: translateX(calc(8 * var(--u))); }
+
+/* 01 — Ledger: the title leads; the particulars on a ruled row */
+.v1 .mc-txt { justify-content: space-between; }
+.v1 .top { display: flex; align-items: center; gap: calc(18 * var(--u)); }
+.v1 .top .k { padding-left: calc(18 * var(--u)); border-left: 1px solid var(--ln); }
+.v1 h2 { font-size: calc(54 * var(--u)); line-height: 1.06; }
+.v1 dl { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--ln); }
+.v1 dl div { padding-top: calc(18 * var(--u)); }
+.v1 dt { font-size: calc(12 * var(--u)); letter-spacing: .16em; text-transform: uppercase; color: var(--ink2); }
+.v1 dd { margin-top: calc(8 * var(--u)); font-size: calc(19 * var(--u)); color: #fff; }
+.v1:hover dl, .v1.hov dl, .v1.sel dl { border-top-color: var(--c); }
+.v1 dl { transition: border-color .4s linear; }
+
+/* 02 — Monogram: the name leads; a rule splits the halves */
+.v2 .mc-mtn { width: 50%; -webkit-mask-image: none; mask-image: none; }
+.v2 .rule { position: absolute; z-index: 3; left: 50%; top: calc(40 * var(--u)); bottom: calc(40 * var(--u)); width: 1px; background: var(--ln); transition: background .4s linear; }
+.v2:hover .rule, .v2.hov .rule, .v2.sel .rule { background: var(--c); }
+.v2 .mc-txt { width: calc(500 * var(--u)); justify-content: space-between; }
+.v2 .name { font-weight: 300; font-size: calc(104 * var(--u)); line-height: .9; letter-spacing: -.045em; color: #fff; }
+.v2 .name b { font-weight: 300; color: var(--c); }
+.v2 .line { margin-top: calc(22 * var(--u)); max-width: 24ch; font-size: calc(22 * var(--u)); line-height: 1.3; color: var(--ink2); }
+.v2 .stat { display: flex; align-items: flex-end; gap: calc(20 * var(--u)); }
+.v2 .stat b { font-weight: 300; font-size: calc(76 * var(--u)); line-height: .9; letter-spacing: -.03em; }
+.v2 .stat span { padding-bottom: calc(8 * var(--u)); font-size: calc(15 * var(--u)); line-height: 1.35; color: var(--ink2); }
+
+/* 03 — Framed: corner brackets; the summit in its own window */
+.v3 .br { position: absolute; z-index: 3; width: calc(22 * var(--u)); height: calc(22 * var(--u)); border: 0 solid rgba(233,236,242,.5); transition: border-color .4s linear; }
+.v3 .br.a { left: calc(24 * var(--u)); top: calc(24 * var(--u)); border-width: 1px 0 0 1px; }
+.v3 .br.b { right: calc(24 * var(--u)); top: calc(24 * var(--u)); border-width: 1px 1px 0 0; }
+.v3 .br.c { left: calc(24 * var(--u)); bottom: calc(24 * var(--u)); border-width: 0 0 1px 1px; }
+.v3 .br.d { right: calc(24 * var(--u)); bottom: calc(24 * var(--u)); border-width: 0 1px 1px 0; }
+.v3:hover .br, .v3.hov .br, .v3.sel .br { border-color: var(--c); }
+.v3 .mc-mtn { top: calc(56 * var(--u)); right: calc(56 * var(--u)); bottom: calc(56 * var(--u)); width: calc(470 * var(--u)); border: 1px solid var(--ln);
+  -webkit-mask-image: none; mask-image: none; transition: border-color .4s linear; }
+.v3:hover .mc-mtn, .v3.hov .mc-mtn, .v3.sel .mc-mtn { border-color: color-mix(in srgb, var(--c) 60%, transparent); }
+.v3 .mc-mtn img { object-position: 50% 26%; }
+
+.v3 .mc-txt { width: calc(540 * var(--u)); justify-content: center; gap: calc(26 * var(--u)); }
+.v3 h2 { font-size: calc(40 * var(--u)); line-height: 1.12; }
+.v3 ul { list-style: none; display: flex; flex-wrap: wrap; gap: calc(8 * var(--u)); }
+.v3 li { padding: calc(8 * var(--u)) calc(12 * var(--u)); border: 1px solid var(--ln); font-size: calc(13 * var(--u)); letter-spacing: .06em; color: var(--ink2); }
+.v3 .logo { position: absolute; left: 0; bottom: 0; width: calc(84 * var(--u)); }
+
+/* 04 — Stat-led: the number leads; the summit full-bleed behind */
+.v4 .mc-mtn { width: 64%; -webkit-mask-image: linear-gradient(90deg, transparent, #000 40%); mask-image: linear-gradient(90deg, transparent, #000 40%); }
+.v4 .mc-mtn img { object-position: 50% 32%; }
+
+.v4 .mc-txt { width: calc(520 * var(--u)); justify-content: space-between; }
+.v4 .num { font-weight: 300; font-size: calc(196 * var(--u)); line-height: .82; letter-spacing: -.055em; color: #fff; transition: color .4s linear; }
+.v4:hover .num, .v4.hov .num, .v4.sel .num { color: var(--c); }
+.v4 .num + p { margin-top: calc(16 * var(--u)); font-size: calc(18 * var(--u)); color: var(--ink2); }
+.v4 h2 { font-size: calc(30 * var(--u)); line-height: 1.18; max-width: 26ch; }
+.v4 .foot { display: flex; justify-content: space-between; align-items: center; padding-top: calc(20 * var(--u)); border-top: 1px solid var(--ln); }
+
+/* 05 — Range (Home): the studio's line; the four summits as a key */
+.v5 { --c: #C9124B; }
+.v5 .mc-mtn { width: 56%; }
+.v5 .mc-mtn img { object-position: 46% 40%; }
+.v5 .mc-mtn i { display: none; }
+.v5 .mc-txt { width: calc(560 * var(--u)); justify-content: space-between; }
+.v5 .logo { width: calc(150 * var(--u)); }
+.v5 h2 { font-weight: 300; font-size: calc(58 * var(--u)); line-height: 1.02; letter-spacing: -.035em; }
+.v5 h2 + p { margin-top: calc(18 * var(--u)); max-width: 36ch; font-size: calc(18 * var(--u)); line-height: 1.45; color: var(--ink2); }
+.v5 .key { display: flex; flex-wrap: wrap; gap: calc(10 * var(--u)) calc(22 * var(--u)); padding-top: calc(20 * var(--u)); border-top: 1px solid var(--ln); }
+.v5 .key span { display: inline-flex; align-items: center; gap: calc(9 * var(--u)); font-size: calc(14 * var(--u)); color: var(--ink2); transition: color .3s linear; }
+.v5 .key span::before { content: ''; width: calc(8 * var(--u)); height: calc(8 * var(--u)); border-radius: 50%; background: var(--d); opacity: .55; transition: opacity .3s linear, box-shadow .3s linear; }
+.v5:hover .key span, .v5.hov .key span, .v5.sel .key span { color: #fff; }
+.v5:hover .key span::before, .v5.hov .key span::before, .v5.sel .key span::before { opacity: 1; box-shadow: 0 0 0 calc(3 * var(--u)) color-mix(in srgb, var(--d) 30%, transparent); }
+.v5 .url { margin-left: auto; color: #fff !important; }
+.v5 .url::before { display: none !important; }
+
+@media (prefers-reduced-motion: reduce) { .mc *, .mc *::before, .mc *::after { animation: none !important; transition: none !important; } }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<main class="page">
+  <header>
+    <div>
+      <h1>Metadata cards</h1>
+      <p>Five cards, one system: the words on the left, the summit on the right. One per case study in Our Work, and a general one for the Home page. Point at a card, or show a state on all five.</p>
+    </div>
+    <div class="states" role="group" aria-label="Show the cards">
+      <button type="button" data-s="" aria-pressed="true">Rest</button>
+      <button type="button" data-s="hov" aria-pressed="false">Hover</button>
+      <button type="button" data-s="sel" aria-pressed="false">Selected</button>
+    </div>
+  </header>
+
+  <div class="list" id="list"></div>
+</main>
+
+<script>
+/* the studio's logo, as the footer draws it */
+const LOGO = '<svg class="logo" viewBox="8 8 96 21" aria-label="Tibba"><path fill-rule="evenodd" clip-rule="evenodd" d="M39.0383 28H8L28.2219 8L39.0383 28ZM15.0685 24.6037L26.2673 20.151L34.3324 24.5768L27.5681 12.0807L15.0685 24.6037Z" fill="currentColor"/><path d="M52.1765 19.1546H49.2938V23.8402C49.2938 24.2745 49.2938 25.2116 50.7123 25.2116C51.1699 25.2116 51.6732 25.1201 52.1765 24.9601L52.1536 27.6343C51.4215 27.8858 50.6894 28 49.8887 28C47.761 28 45.8621 27.0401 45.8621 24.1602V19.1546H44.0547V16.4804H45.8621V14.8119L49.2938 12.2749V16.4804H52.1765V19.1546Z" fill="currentColor"/><path d="M54.0722 14.9262V11.8177H57.5955V14.9262H54.0722ZM54.0951 27.7486V16.4804H57.5497V27.7486H54.0951Z" fill="currentColor"/><path d="M66.6026 16.229C69.0735 16.229 71.1326 18.3318 71.1326 22.1031C71.1326 25.4858 69.4624 28 66.534 28C65.5502 28 64.3605 27.7029 63.5827 26.9029V27.7486H60.128V11.8177H63.5827V17.3718C64.269 16.6861 65.4358 16.229 66.6026 16.229ZM65.6189 24.7773C67.0831 24.7773 67.7008 23.9316 67.7008 22.1488C67.7008 20.3889 67.1288 19.3832 65.5731 19.3832C63.7886 19.3832 63.2624 20.7546 63.2624 22.1488C63.2624 23.5888 63.8572 24.7773 65.6189 24.7773Z" fill="currentColor"/><path d="M79.3377 16.229C81.8086 16.229 83.8676 18.3318 83.8676 22.1031C83.8676 25.4858 82.1975 28 79.269 28C78.2853 28 77.0956 27.7029 76.3177 26.9029V27.7486H72.8631V11.8177H76.3177V17.3718C77.0041 16.6861 78.1709 16.229 79.3377 16.229ZM78.3539 24.7773C79.8181 24.7773 80.4359 23.9316 80.4359 22.1488C80.4359 20.3889 79.8639 19.3832 78.3082 19.3832C76.5236 19.3832 75.9974 20.7546 75.9974 22.1488C75.9974 23.5888 76.5923 24.7773 78.3539 24.7773Z" fill="currentColor"/><path d="M90.1738 16.229C93.3768 16.229 95.2986 17.9204 95.2986 20.5946V27.7486H92.1414L91.9126 26.6287C90.9975 27.84 89.7849 28 88.9613 28C86.4218 28 84.5915 26.4229 84.5915 24.1145C84.5915 22.8116 85.1863 21.8745 86.1472 21.3488C86.8565 20.9603 87.7487 20.7774 88.7554 20.7774H91.8668V20.5946C91.8668 19.7946 91.1805 19.2232 89.9222 19.2232C89.0757 19.2232 88.2063 19.4746 87.1996 20.4346L84.7059 18.3547C86.1244 16.869 88.2063 16.229 90.1738 16.229ZM89.5104 25.2344C90.7458 25.2344 91.7982 24.4344 91.8668 23.3145H89.2587C88.8926 23.3145 88.5952 23.3831 88.3893 23.5202C88.1605 23.6802 88.0461 23.9088 88.0461 24.183C88.0461 24.7544 88.5266 25.2344 89.5104 25.2344Z" fill="currentColor"/></svg>';
+const mtn = (name, alt) => `<figure class="mc-mtn"><img src="assets/og/mountain-${name}.webp" alt="${alt}" decoding="async"><i aria-hidden="true"></i></figure>`;
+
+const CARDS = [
+  { n: '01', label: 'Groww', kind: 'Ledger — the title leads', html: `
+    <a class="mc v1" id="card-groww" style="--c:#4DD9C0" href="case-groww-figma.html"><div class="mc-in">
+      <div class="mc-txt">
+        <div class="top">${LOGO}<span class="k">Case study · 01</span></div>
+        <h2>How we helped Groww <em>boost engagement</em> on their app</h2>
+        <dl><div><dt>Sector</dt><dd>Fintech</dd></div><div><dt>Year</dt><dd>2024 — now</dd></div><div><dt>Duration</dt><dd>1 year</dd></div></dl>
+      </div>${mtn('groww', "Groww's summit")}</div></a>` },
+  { n: '02', label: 'Firstpost', kind: 'Monogram — the name leads', html: `
+    <a class="mc v2" id="card-firstpost" style="--c:#E05555" href="case-firstpost-figma.html"><div class="mc-in">
+      <div class="mc-txt">
+        <div><p class="name">Firstpost<b>.</b></p><p class="line">A strategic redesign for a video-first newsroom</p></div>
+        <div class="stat"><b>2x</b><span>Website traffic<br>Case study · 02</span></div>
+      </div><i class="rule" aria-hidden="true"></i>${mtn('firstpost', "Firstpost's summit")}</div></a>` },
+  { n: '03', label: 'Breathe ESG', kind: 'Framed — the summit in a window', html: `
+    <a class="mc v3" id="card-breathe" style="--c:#4CAF70" href="case-breathe-esg-figma.html"><div class="mc-in">
+      <i class="br a"></i><i class="br b"></i><i class="br c"></i><i class="br d"></i>
+      <div class="mc-txt">
+        <p class="k">SaaS · 2023 · 8 weeks</p>
+        <h2>How we helped Breathe ESG <em>accelerate sales</em>, streamline releases and elevate customer experience</h2>
+        <ul><li>Design sprints</li><li>Dashboard</li><li>Design system</li></ul>
+        ${LOGO}
+      </div>${mtn('breathe-esg', "Breathe ESG's summit")}</div></a>` },
+  { n: '04', label: 'Shyft & Mindhouse', kind: 'Stat-led — the number leads', html: `
+    <a class="mc v4" id="card-shyft" style="--c:#7B8FF5" href="case-shyft-mindhouse-figma.html"><div class="mc-in">
+      <div class="mc-txt">
+        <div><p class="num">15x</p><p>Direct purchases via the landing page</p></div>
+        <h2>How we helped Shyft &amp; Mindhouse grow their business and supercharge product led growth</h2>
+        <div class="foot"><span class="k">Health · 2023</span><span class="go">Read the case</span></div>
+      </div>${mtn('shyft-mindhouse', "Shyft & Mindhouse's summit")}</div></a>` },
+  { n: '05', label: 'Home', kind: 'Range — the studio, the four summits as a key', html: `
+    <a class="mc v5" id="card-home" href="website-v3.html"><div class="mc-in">
+      <div class="mc-txt">
+        ${LOGO}
+        <div><h2>Helping ambitious teams reach the next peak.</h2>
+          <p>Product design for founders and design leaders — from first launch to scale.</p></div>
+        <div class="key"><span style="--d:#4DD9C0">Groww</span><span style="--d:#E05555">Firstpost</span><span style="--d:#4CAF70">Breathe ESG</span><span style="--d:#7B8FF5">Shyft &amp; Mindhouse</span><span class="url">tibba.design</span></div>
+      </div>${mtn('home', 'The Tibba massif, with its route to the top')}</div></a>` },
+];
+document.getElementById('list').innerHTML = CARDS.map(c => `<section class="item"><p><b>${c.n}</b>${c.label} · ${c.kind}</p>${c.html}</section>`).join('');
+
+/* the ring goes exactly on the summit's own dot: where the dot sits in the
+   render (DOT, a share of the image), carried through the image's
+   object-fit: cover and object-position */
+const DOT = [0.5, 0.283];
+function ring(fig) {
+  const img = fig.querySelector('img'), i = fig.querySelector('i');
+  if (!img.naturalWidth) return;
+  const cw = fig.clientWidth, ch = fig.clientHeight, iw = img.naturalWidth, ih = img.naturalHeight;
+  const s = Math.max(cw / iw, ch / ih), [px, py] = getComputedStyle(img).objectPosition.split(' ').map(v => parseFloat(v) / 100);
+  i.style.left = ((cw - iw * s) * px + DOT[0] * iw * s) + 'px';
+  i.style.top = ((ch - ih * s) * py + DOT[1] * ih * s) + 'px';
+}
+document.querySelectorAll('.mc-mtn').forEach(fig => {
+  const img = fig.querySelector('img');
+  img.complete ? ring(fig) : img.addEventListener('load', () => ring(fig));
+  new ResizeObserver(() => ring(fig)).observe(fig);
+});
+
+/* show one state on all five */
+const btns = [...document.querySelectorAll('.states button')];
+btns.forEach(b => b.addEventListener('click', () => {
+  btns.forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  document.querySelectorAll('.mc').forEach(m => { m.classList.remove('hov', 'sel'); if (b.dataset.s) m.classList.add(b.dataset.s); });
+}));
+/* ?state=hov|sel opens on that state (for the exports) */
+const st = new URLSearchParams(location.search).get('state');
+if (st) { const b = btns.find(x => x.dataset.s === st); if (b) b.click(); }
+</script>
+<!-- primary / secondary typography control (assets/type-control.js) -->
+<script type="module" src="assets/type-control.js"></script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-05T03:54:01.366Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-05T09:04:48.105Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -48,10 +48,10 @@ body { color: #E9ECF2; font-family: 'F37 Analog', system-ui, sans-serif; }
 .switch button { appearance: none; border: 0; background: none; cursor: pointer; display: flex; align-items: baseline; gap: 8px; padding: 10px 14px 11px; color: rgba(233,236,242,.55);
   font: 400 12px/1 'F37 Analog', system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; position: relative; transition: color .25s linear, background-color .25s linear; }
 .switch button b { font-weight: 400; font-size: 10px; color: rgba(233,236,242,.35); transition: color .25s linear; }
-.switch button::after { content: ''; position: absolute; left: 14px; right: 14px; bottom: 4px; height: 1px; background: var(--accent, #7FD4FF); transform: scaleX(0); transform-origin: left; transition: transform .45s cubic-bezier(.22,1,.36,1); }
+.switch button::after { content: ''; position: absolute; left: 14px; right: 14px; bottom: 4px; height: 1px; background: var(--accent, #C9124B); transform: scaleX(0); transform-origin: left; transition: transform .45s cubic-bezier(.22,1,.36,1); }
 .switch button:hover { color: #fff; }
 .switch button[aria-pressed="true"] { color: #fff; background: rgba(255,255,255,.05); }
-.switch button[aria-pressed="true"] b { color: var(--accent, #7FD4FF); }
+.switch button[aria-pressed="true"] b { color: var(--accent, #C9124B); }
 .switch button[aria-pressed="true"]::after { transform: scaleX(1); }
 @media (max-width: 640px) { .switch { left: 12px; right: 12px; bottom: 12px; } .switch button { flex: 1; justify-content: center; padding: 10px 6px 11px; font-size: 10.5px; } .hint { display: none; } }
 .hint { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase;
@@ -82,7 +82,7 @@ const CONFIG = {
   anim: { play: true, speed: 0.35, morph: 0.25 },
   /* fewer, quieter rings than before (11.5 / 0.95), no dashed guides, the site's accent */
   lines: { density: 7.5, width: 0.75, warp: 0.22, opacity: 0.7, colour: '#F2F3F6' },
-  model: { fill: '#0E0E10', shade: 0.45, rim: 0.22, outline: 1.6, accent: '#7FD4FF', logo: true, guides: false },
+  model: { fill: '#0E0E10', shade: 0.45, rim: 0.22, outline: 1.6, accent: '#C9124B', logo: true, guides: false },
   view: { autoRotate: false, rotateSpeed: 0.6, bag: 0 },
 };
 const KEY = 'tibba.bake.misc-bags';

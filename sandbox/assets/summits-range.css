@@ -88,7 +88,7 @@ body[data-layout="cards"] #rail button[aria-current="true"]:not(:hover) .lbl { o
 
 .trail-head::before {
   content: ''; position: absolute; left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%;
-  background: #fff; box-shadow: 0 0 0 3px rgba(127,212,255, .45), 0 0 18px 4px rgba(127,212,255, .55);
+  background: #fff; box-shadow: 0 0 0 3px rgba(201,18,75, .45), 0 0 18px 4px rgba(201,18,75, .55);
 }
 .trail-base::before {
   content: ''; position: absolute; left: -3px; top: -3px; width: 6px; height: 6px;
@@ -114,7 +114,7 @@ body.no-camps .trail-camp { display: none; }
 .trail-pen svg {
   position: absolute; left: -13px; top: -36px; width: 26px; height: 26px; max-width: none; display: block;
   transform: translateY(10px) scale(.2) rotate(-18deg); transform-origin: 50% 100%; opacity: 0;
-  filter: drop-shadow(0 6px 14px rgba(127,212,255, .45));
+  filter: drop-shadow(0 6px 14px rgba(201,18,75, .45));
   transition: transform .75s cubic-bezier(.34, 1.56, .64, 1), opacity .3s;
 }
 .trail-pen::before {                    /* the stem down onto the summit */
@@ -161,7 +161,7 @@ body.no-camps .trail-camp { display: none; }
   position: absolute; left: 2px; top: 2px; width: 8px; height: 8px; border-radius: 1px; background: #fff;
   transition: transform .35s var(--ease), background .3s;
 }
-#trail-ctl .tgl[aria-pressed="true"] .sw { background: rgba(127,212,255, .32); }
+#trail-ctl .tgl[aria-pressed="true"] .sw { background: rgba(201,18,75, .32); }
 #trail-ctl .tgl[aria-pressed="true"] .sw i { transform: translateX(10px); background: var(--accent); }
 #trail-ctl .st { color: var(--ink-faint); min-width: 3ch; }
 #trail-ctl .rp { transition: opacity .3s; }

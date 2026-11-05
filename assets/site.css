@@ -28,8 +28,8 @@
   --ink-faint:   rgba(232, 227, 220, .42);
 
   /* ── accent ──────────────────────────────────────────────────────────── */
-  --accent:      #7FD4FF;   /* the summit rings, and the one highlight colour */
-  --accent-dim:  rgba(127,212,255, .18);
+  --accent:      #C9124B;   /* the summit rings, and the one highlight colour */
+  --accent-dim:  rgba(201,18,75, .18);
 
   /* ── the clients, each with the colour its route is drawn in ─────────── */
   --c-groww:     #4DD9C0;
@@ -620,7 +620,7 @@ a { color: inherit; }
    --btn-bg on it for another colour (the summit cards use their client's).
    ═════════════════════════════════════════════════════════════════════════ */
 .btn-p {
-  --btn-bg: #7FD4FF; --btn-ink: #000;
+  --btn-bg: #C9124B; --btn-ink: #fff;
   position: relative; display: inline-flex; align-items: center; justify-content: space-between; gap: 14px;
   padding: 15px 20px 15px 22px; border: 0; border-radius: 0; background: var(--btn-bg); color: var(--btn-ink);
   font: inherit; font-size: 11.5px; font-weight: 600; letter-spacing: .16em; line-height: 1; text-transform: uppercase; text-decoration: none;

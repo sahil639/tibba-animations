@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team Tibba</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Team Tibba — the photos round the title
+   ─────────────────────────────────────────────────────────────────────────
+   After the original (Framer) version, per Rahul: no polaroid frames — each
+   photo whole, at its own proportions, nothing cropped — with its caption
+   always under it. The six sit round "Team Tibba" (above, both sides and
+   below it) rather than in two columns flanking it.
+
+   Hover a photo: it lifts a little, and the pointer becomes that photo's own
+   mark (a beer mug over the cheers, a mic over the talk, …). On a phone the
+   photos run two-up under the title.
+
+   The photos are stand-ins until the off-site's arrive: replace the files
+   in assets/studio/ (team-01 … team-06) and the TEAM list below.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+.team { position: relative; width: 100%; height: 120vh; height: 120svh; min-height: 760px; overflow: hidden; background: #000; }
+.title { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 1; pointer-events: none; }
+.title h1 { color: #fff; font-weight: 400; font-size: clamp(40px, 5.6vw, 96px); line-height: .96; letter-spacing: -.04em; white-space: nowrap; }
+.title p { margin: 18px auto 0; max-width: 34ch; color: var(--ink-mute); font-size: 14px; line-height: 1.6; }
+
+.shot { position: absolute; left: calc(var(--x) * 100%); top: calc(var(--y) * 100%); width: var(--w); margin: 0; z-index: 2;
+  opacity: 0; transform: translateY(28px); transition: opacity .9s linear, transform 1.2s cubic-bezier(.16,1,.3,1); transition-delay: calc(var(--i) * 90ms); }
+.team.in .shot { opacity: 1; transform: none; }
+.shot .ph { overflow: hidden; background: #121214; cursor: var(--cur, auto); }
+.shot img { display: block; width: 100%; height: auto; filter: saturate(.94); transition: transform 1s cubic-bezier(.16,1,.3,1), filter .4s linear; }
+.shot:hover img { transform: scale(1.035); filter: saturate(1.05); }
+.shot figcaption { display: flex; flex-direction: column; gap: 4px; padding-top: 12px; }
+.shot figcaption b { color: #fff; font-weight: 400; font-size: clamp(14px, 1.05vw, 17px); letter-spacing: -.01em; }
+.shot figcaption span { color: var(--ink-mute); font-size: 12.5px; line-height: 1.4; }
+
+/* phones: the title, then the photos two-up, each with its caption */
+@media (max-width: 760px) {
+  .team { height: auto; min-height: 0; padding: 72px 16px 56px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px 12px; align-items: start; }
+  .title { position: static; transform: none; grid-column: 1 / -1; margin-bottom: 12px; }
+  .title h1 { font-size: 44px; }
+  .shot { position: static; width: auto; }
+  .shot:nth-of-type(odd) { margin-top: 28px; }
+}
+@media (prefers-reduced-motion: reduce) { .shot { transition: none; opacity: 1; transform: none; } }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+</head>
+<body>
+<main class="team" id="team">
+  <div class="title">
+    <h1>Team Tibba</h1>
+    <p>A lean design team based out of India, and the places we go to think.</p>
+  </div>
+</main>
+
+<script>
+/* the pointer over each photo: a small round mark, drawn here so there is
+   nothing to load — 48 × 48, its centre on the pointer */
+const MARK = {
+  mountain: '<path d="M10 32 20 16l6 9 4-6 8 13z" fill="none" stroke="#000" stroke-width="2" stroke-linejoin="round"/>',
+  eye:      '<path d="M8 24s6-9 16-9 16 9 16 9-6 9-16 9-16-9-16-9z" fill="none" stroke="#000" stroke-width="2"/><circle cx="24" cy="24" r="4" fill="#000"/>',
+  mic:      '<rect x="19" y="10" width="10" height="17" rx="5" fill="none" stroke="#000" stroke-width="2"/><path d="M15 23a9 9 0 0 0 18 0M24 32v6M19 38h10" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/>',
+  home:     '<path d="M12 24 24 13l12 11M16 21v14h16V21" fill="none" stroke="#000" stroke-width="2" stroke-linejoin="round"/>',
+  beer:     '<path d="M14 16h15v20a2 2 0 0 1-2 2H16a2 2 0 0 1-2-2zM29 20h3a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-3M18 21v12M23 21v12" fill="none" stroke="#000" stroke-width="2" stroke-linejoin="round"/><path d="M13 16c0-3 3-5 5-4 1-3 7-3 8 0 2-1 4 1 4 4" fill="#000"/>',
+  flag:     '<path d="M16 38V11M16 12h16l-4 6 4 6H16" fill="none" stroke="#000" stroke-width="2" stroke-linejoin="round"/>',
+};
+const cursor = k => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'><circle cx='24' cy='24' r='22' fill='#C9124B'/>${MARK[k].replace(/#000/g, '#fff')}</svg>`)}") 24 24, auto`;
+
+/* the six, round the title: x, y the photo's top-left (share of the
+   section), w its width */
+const TEAM = [
+  { src: 'assets/studio/team-01-ridge.webp',  t: 'On the ridge',          s: 'A monsoon climb, the whole team',   k: 'mountain', x: .07, y: .07, w: 'clamp(150px, 15vw, 250px)' },
+  { src: 'assets/studio/team-02-review.webp', t: 'Crit hour',             s: 'Reviewing the work, together',       k: 'eye',      x: .33, y: .03, w: 'clamp(130px, 12vw, 200px)' },
+  { src: 'assets/studio/team-03-talk.webp',   t: 'Speaking at VizChitra', s: 'Data, design and news',              k: 'mic',      x: .63, y: .06, w: 'clamp(140px, 14vw, 230px)' },
+  { src: 'assets/studio/team-04-desk.webp',   t: 'Home base',             s: 'Where the climbs are planned',       k: 'home',     x: .80, y: .40, w: 'clamp(140px, 14vw, 230px)' },
+  { src: 'assets/studio/team-05-cheers.webp', t: 'After the launch',      s: 'Two steins, one shipped app',        k: 'beer',     x: .55, y: .63, w: 'clamp(150px, 16vw, 260px)' },
+  { src: 'assets/studio/team-06-placeholder.svg', t: 'Next climb',        s: 'A photo still on its way',           k: 'flag',     x: .17, y: .60, w: 'clamp(130px, 13vw, 210px)' },
+];
+const root = document.getElementById('team');
+root.insertAdjacentHTML('beforeend', TEAM.map((p, i) => `
+  <figure class="shot" style="--i:${i};--x:${p.x};--y:${p.y};--w:${p.w}">
+    <div class="ph"><img src="${p.src}" width="580" height="597" alt="${p.t}" loading="lazy" decoding="async"></div>
+    <figcaption><b>${p.t}</b><span>${p.s}</span></figcaption>
+  </figure>`).join(''));
+/* set from script: the data URL's quotes would close a style attribute */
+root.querySelectorAll('.shot .ph').forEach((el, i) => el.style.setProperty('--cur', cursor(TEAM[i].k)));
+new IntersectionObserver(([e], io) => { if (e.isIntersecting) { root.classList.add('in'); io.disconnect(); } }, { threshold: .15 }).observe(root);
+</script>
+<!-- primary / secondary typography control (assets/type-control.js) -->
+<script type="module" src="assets/type-control.js"></script>
+</body>
+</html>

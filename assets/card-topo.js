@@ -16,7 +16,7 @@
        scale: 1,          // the size of the landforms (higher = more, smaller)
        opacity: 0.5,      // the lines' overall strength
        width: 1,          // px line weight
-       colour: '#7FD4FF', // the highest line, and the tint of the rest
+       colour: '#C9124B', // the highest line, and the tint of the rest
        tint: 0.35,        // 0 = the lower lines are gray, 1 = all in colour
        fade: 0,           // 0–1: set by the page for an entrance (multiplies opacity)
      });
@@ -52,7 +52,7 @@
   };
 
   const DEFAULTS = { on: true, pattern: 'peak', seed: 1, speed: 0.5, levels: 10, scale: 1, opacity: 0.5, width: 1,
-    colour: '#7FD4FF', tint: 0.35, fade: 1 };
+    colour: '#C9124B', tint: 0.35, fade: 1 };
 
   function attach(el, opts = {}) {
     const S = Object.assign({}, DEFAULTS, opts);
