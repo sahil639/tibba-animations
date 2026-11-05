@@ -99,10 +99,10 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
     },
     /* one contour field per member — see assets/card-topo.js */
     topo: [
-      { on: true, pattern: 'peak',  seed: 3,  speed: 0.4,  levels: 12, scale: 1,   opacity: 0.5, width: 1, colour: '#C9124B', tint: 0.3 },
-      { on: true, pattern: 'ridge', seed: 7,  speed: 0.35, levels: 11, scale: 1.1, opacity: 0.5, width: 1, colour: '#7B8FF5', tint: 0.35 },
-      { on: true, pattern: 'twin',  seed: 11, speed: 0.45, levels: 12, scale: 1,   opacity: 0.5, width: 1, colour: '#4DD9C0', tint: 0.3 },
-      { on: true, pattern: 'basin', seed: 17, speed: 0.3,  levels: 10, scale: 1.2, opacity: 0.5, width: 1, colour: '#E05555', tint: 0.3 },
+      { on: true, pattern: 'peak',  seed: 3,  speed: 0.4,  levels: 12, scale: 1,   opacity: 0.25, width: 1, colour: '#C9124B', tint: 0.3 },
+      { on: true, pattern: 'ridge', seed: 7,  speed: 0.35, levels: 11, scale: 1.1, opacity: 0.25, width: 1, colour: '#7B8FF5', tint: 0.35 },
+      { on: true, pattern: 'twin',  seed: 11, speed: 0.45, levels: 12, scale: 1,   opacity: 0.25, width: 1, colour: '#4DD9C0', tint: 0.3 },
+      { on: true, pattern: 'basin', seed: 17, speed: 0.3,  levels: 10, scale: 1.2, opacity: 0.25, width: 1, colour: '#E05555', tint: 0.3 },
     ],
   };
   const TEAM = [
@@ -121,9 +121,8 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
   host.innerHTML = TEAM.map((m, i) => `
     <article class="member" data-i="${i}" tabindex="0">
       <div class="plate" aria-hidden="true"></div>
-      <span class="hl"></span><span class="cn tl"></span><span class="cn tr"></span><span class="cn bl"></span><span class="cn br"></span><span class="pin"></span>
+      <span class="hl"></span>
       <div class="in">
-        <p class="k"><b>${pad(i)} / ${pad(TEAM.length - 1)}</b><span>Team</span></p>
         <div class="scene"><div class="who"><img src="${m.img}" alt="${m.name}" draggable="false"><canvas></canvas></div></div>
         <p class="name">${m.name}</p>
         <p class="role">${m.role}</p>
@@ -221,16 +220,12 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
     tl = gsap.timeline({ paused: true });
     cards.forEach((card, i) => {
       const q = s => card.querySelectorAll(s), o = i * C.entrance.stagger / C.entrance.duration;
-      const sx = [-8, 8, -8, 8], sy = [-8, -8, 8, 8];
       tl.fromTo(q('.hl'), { scaleX: 0, opacity: 1 }, { scaleX: 1, duration: .28, ease: 'power3.inOut' }, o)
         .fromTo(q('.plate'), { clipPath: 'inset(50% 0% 50% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: .34, ease: 'power3.inOut' }, o + .24)
         .to(q('.hl'), { opacity: 0, duration: .16, ease: 'none' }, o + .52)
-        .fromTo(q('.cn'), { opacity: 0, x: k => sx[k], y: k => sy[k] }, { opacity: .9, x: 0, y: 0, duration: .22, ease: 'expo.out' }, o + .52)
-        .fromTo(q('.k'), { opacity: 0 }, { opacity: 1, duration: .2, ease: 'none' }, o + .6)
         .fromTo(q('.scene'), { opacity: 0 }, { opacity: 1, duration: .3, ease: 'none' }, o + .6)
         .fromTo(q('.name'), { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .24, ease: 'power2.out' }, o + .68)
-        .fromTo(q('.role'), { opacity: 0 }, { opacity: 1, duration: .2, ease: 'none' }, o + .76)
-        .fromTo(q('.pin'), { scale: 0 }, { scale: 1, duration: .1, ease: 'none' }, o + .9);
+        .fromTo(q('.role'), { opacity: 0 }, { opacity: 1, duration: .2, ease: 'none' }, o + .76);
     });
   }
   const play = () => { build(); gsap.to(tl, { progress: 1, duration: REDUCED ? 0.01 : tl.duration() * C.entrance.duration, ease: C.entrance.ease }); };

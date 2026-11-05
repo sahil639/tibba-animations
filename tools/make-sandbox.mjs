@@ -25,7 +25,7 @@ const sections = await import(join(ROOT, 'assets/site-sections.js'));
    its phone page; and the About page it links to, with its sections and
    the one footer the site uses */
 const first = s => s.variants[0].file.split('?')[0];
-const seeds = new Set(['website-v3.html', 'website-v3-mobile.html', 'about.html']);
+const seeds = new Set(['website-v3.html', 'website-v3-mobile.html', 'about.html', 'meta-cards.html']);   // meta-cards: the metadata cards, for review
 for (const s of sections.V3_SECTIONS) { seeds.add(first(s)); if (s.mobile) seeds.add(s.mobile.file.split('?')[0]); }
 for (const s of sections.ABOUT_SECTIONS) if (s.id !== 'footer') seeds.add(first(s));
 /* never follow a link out into another version of the site, or the playground */

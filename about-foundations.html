@@ -82,9 +82,8 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
   <div class="cards" id="cards">
     <article class="fcard" data-i="0">
       <div class="plate" aria-hidden="true"></div>
-      <span class="hl"></span><span class="cn tl"></span><span class="cn tr"></span><span class="cn bl"></span><span class="cn br"></span><span class="pin"></span>
+      <span class="hl"></span>
       <div class="in">
-        <p class="k"><b>01</b><span>Foundation</span></p>
         <h3 class="v">Agile</h3>
         <p class="body">Different clients require different approaches. We're comfortable working as a support function to your internal design team, launching keystone projects and chasing KPIs.</p>
         <p class="tags"><span>User feedback</span><span>Rapid prototyping</span><span>Quick turnarounds</span><span>Collaborative</span><span>Iterative</span><span>Sprint planning</span></p>
@@ -92,9 +91,8 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
     </article>
     <article class="fcard" data-i="1">
       <div class="plate" aria-hidden="true"></div>
-      <span class="hl"></span><span class="cn tl"></span><span class="cn tr"></span><span class="cn bl"></span><span class="cn br"></span><span class="pin"></span>
+      <span class="hl"></span>
       <div class="in">
-        <p class="k"><b>02</b><span>Foundation</span></p>
         <h3 class="v">Creating value</h3>
         <p class="body">We work on two tracks — the delivery track and the discovery track. The former focuses on immediate client needs and deadlines, whilst the latter seeks opportunities for our clients that we can help them capitalise on.</p>
         <p class="tags"><span>Value-driven solutions</span><span>Client ROI focus</span><span>Strategic impact</span><span>Investment mindset</span><span>Design excellence</span><span>Maximum outcomes</span></p>
@@ -120,8 +118,8 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
     },
     /* one contour field per card — see assets/card-topo.js */
     topo: [
-      { on: true, pattern: 'twin', seed: 4, speed: 0.45, levels: 11, scale: 1, opacity: 0.7, width: 1, colour: '#C8644F', tint: 0.4 },
-      { on: true, pattern: 'ridge', seed: 9, speed: 0.35, levels: 12, scale: 1.1, opacity: 0.7, width: 1, colour: '#4FA3AD', tint: 0.4 },
+      { on: true, pattern: 'twin', seed: 4, speed: 0.45, levels: 11, scale: 1, opacity: 0.35, width: 1, colour: '#C8644F', tint: 0.4 },
+      { on: true, pattern: 'ridge', seed: 9, speed: 0.35, levels: 12, scale: 1.1, opacity: 0.35, width: 1, colour: '#4FA3AD', tint: 0.4 },
     ],
   };
   const C = FOUNDATION_CONFIG;
@@ -141,16 +139,12 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
     tl = gsap.timeline({ paused: true });
     cards.forEach((card, i) => {
       const q = s => card.querySelectorAll(s), o = i * C.entrance.stagger / C.entrance.duration;
-      const cn = q('.cn'), sx = [-8, 8, -8, 8], sy = [-8, -8, 8, 8];
       tl.fromTo(q('.hl'), { scaleX: 0, opacity: 1 }, { scaleX: 1, duration: .28, ease: 'power3.inOut' }, o)
         .fromTo(q('.plate'), { clipPath: 'inset(50% 0% 50% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: .34, ease: 'power3.inOut' }, o + .24)
         .to(q('.hl'), { opacity: 0, duration: .16, ease: 'none' }, o + .52)
-        .fromTo(cn, { opacity: 0, x: k => sx[k], y: k => sy[k] }, { opacity: .9, x: 0, y: 0, duration: .22, ease: 'expo.out' }, o + .52)
-        .fromTo(q('.k'), { opacity: 0 }, { opacity: 1, duration: .2, ease: 'none' }, o + .6)
         .fromTo(q('.v'), { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .24, ease: 'power2.out' }, o + .64)
         .fromTo(q('.body'), { opacity: 0 }, { opacity: 1, duration: .22, ease: 'none' }, o + .72)
-        .fromTo(q('.tags'), { opacity: 0 }, { opacity: 1, duration: .22, ease: 'none' }, o + .78)
-        .fromTo(q('.pin'), { scale: 0 }, { scale: 1, duration: .1, ease: 'none' }, o + .9);
+        .fromTo(q('.tags'), { opacity: 0 }, { opacity: 1, duration: .22, ease: 'none' }, o + .78);
     });
   }
   function play() {
