@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-05T09:53:21.918Z by tools/make-sandbox.mjs -->
+<head>
+<!-- Google tag (gtag.js) -->
+<script>
+if (window.top === window) { var g = document.createElement('script'); g.async = true; g.src = 'https://www.googletagmanager.com/gtag/js?id=G-DZS8N17C9N'; document.head.appendChild(g); }
+window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date());
+gtag('config', 'G-DZS8N17C9N');
+</script>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our testimonials — topo</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Our testimonials — an alternate take
+   ─────────────────────────────────────────────────────────────────────────
+   The final website's testimonials (same quotes, same people) as one pinned
+   scene instead of a rail of cards. One quote at a time, large, with a
+   band of scroll each:
+
+     reveal    the quote comes up word by word out of masks, each word rising
+               into its own slot; the attribution follows on a hairline
+     ground    plain black behind the quote: no contour texture
+     parallax  the index column, the quote and the big quotation mark move
+               at three rates with the pointer and the scroll, so the scene
+               has depth without anything tilting
+
+   The index down the left is the navigation: the live client is lit and a
+   hairline fills as its band is scrolled through. Two quotes, centred in
+   the stage, each with its person's photo and the way into the case study.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+
+#scope { position: relative; height: 280vh; }   /* a band of scroll per quote: two quotes */
+#stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden;
+  display: grid; grid-template-columns: minmax(200px, .3fr) 1fr; column-gap: clamp(24px, 5vw, 96px);
+  padding: clamp(80px, 12vh, 130px) var(--side) clamp(32px, 6vh, 64px); }
+
+.idx { position: relative; z-index: 2; align-self: stretch; display: flex; flex-direction: column; justify-content: space-between; will-change: transform; }
+.idx h2 { color: #fff; font-weight: 400; font-size: clamp(20px, 1.8vw, 28px); line-height: 1.12; letter-spacing: -.02em; max-width: 13ch; }
+.idx ol { list-style: none; display: grid; gap: 2px; }
+.idx li { position: relative; padding: 12px 0 13px; display: grid; grid-template-columns: 30px 1fr; font-size: 12px; letter-spacing: .04em; color: var(--ink-faint); cursor: pointer; transition: color .3s linear; }
+.idx li .n { font-size: 9.5px; letter-spacing: .16em; padding-top: 2px; }
+.idx li::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: rgba(255,255,255,.1); }
+.idx li i { position: absolute; left: 0; bottom: 0; height: 1px; width: 100%; background: var(--c); transform-origin: left; transform: scaleX(var(--fill, 0)); z-index: 1; }
+.idx li.on { color: #fff; }
+.idx li.on .n { color: var(--c); }
+.idx li:hover { color: #fff; }
+
+.q { position: relative; z-index: 2; grid-column: 1 / -1; grid-row: 1; align-self: center; justify-self: center; width: 100%; max-width: min(820px, 60vw);
+  text-align: center; will-change: transform; }
+.idx { grid-column: 1; grid-row: 1; }
+.q .mark { position: absolute; left: 50%; margin-left: -.22em; top: -.62em; font-size: clamp(120px, 14vw, 240px); line-height: 1; color: var(--accent); opacity: .16; pointer-events: none; will-change: transform; font-weight: 300; }
+.q blockquote { margin: 0 auto; max-width: 22em; color: #fff; font-weight: 300; font-size: clamp(24px, 2.9vw, 48px); line-height: 1.16; letter-spacing: -.025em; }
+.q .w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .08em; margin-bottom: -.08em; }
+.q .w > span { display: inline-block; transform: translateY(110%); }
+.q.in .w > span { animation: t-rise .8s calc(var(--k) * 28ms) cubic-bezier(.65,0,.35,1) both; }
+.q.out .w > span { animation: t-leave .35s linear both; }
+@keyframes t-rise { from { transform: translateY(110%); } to { transform: none; } }
+@keyframes t-leave { from { transform: none; opacity: 1; } to { transform: translateY(-40%); opacity: 0; } }
+/* who said it: their photo (or an empty box the same size until there is
+   one), name and role, and the way into the case study */
+.q .who { margin-top: clamp(28px, 4.4vh, 44px); display: flex; align-items: center; justify-content: center; gap: 16px 18px; flex-wrap: wrap; text-align: left; }
+.pic { flex: none; position: relative; width: 56px; height: 56px; overflow: hidden; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.03); }
+.pic img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.pic::after { content: ''; position: absolute; left: -1px; top: -1px; width: 7px; height: 7px; background: var(--c, var(--accent)); }
+.q .who .pic { opacity: 0; transform: scale(.9); }
+.q .who p { font-size: 13px; color: var(--ink-mute); opacity: 0; }
+.q .who p b { color: #fff; font-weight: 400; display: block; font-size: 15px; margin-bottom: 3px; }
+.q .who .btn-p { margin-left: clamp(8px, 1.6vw, 22px); opacity: 0; }
+.q .ph[hidden] { display: none; }
+.q .ph { display: inline-block; margin-bottom: 14px; font-size: 9.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); border: 1px solid rgba(201,18,75,.4); padding: 3px 7px; }
+.q.in .who .pic { animation: t-pic .5s .7s cubic-bezier(.22,1,.36,1) both; }
+.q.in .who p, .q.in .who .btn-p { animation: t-fade .4s .9s linear both; }
+@keyframes t-pic { to { opacity: 1; transform: none; } }
+@keyframes t-fade { to { opacity: 1; } }
+
+/* no navigation: no client list, counter or arrows — the scroll (or, on a
+   phone, a swipe across the cards) moves through the quotes */
+.idx ol, .count, .tnav, .qtrack + .count { display: none !important; }
+.count { position: absolute; z-index: 2; right: var(--side); bottom: clamp(28px, 5vh, 56px); font-size: 11px; letter-spacing: .14em; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+.count b { color: #fff; font-weight: 400; }
+
+/* the prev / next pair — tablets and phones only */
+.tnav { display: none; }
+
+/* ── tablets and phones: a section, not a screen ────────────────────────
+   No pinned scroll and no full-screen stage: the section is as tall as its
+   copy, and the reader moves through the quotes themselves — the client
+   chips, the arrows, or a swipe across the quote. */
+@media (max-width: 1024px) {
+  #scope { height: auto; }
+  #stage { position: relative; height: auto; min-height: 0; display: block; padding: clamp(72px, 10vh, 110px) var(--side) 48px; }
+  .idx { display: block; }
+  .idx ol { margin-top: 22px; display: flex; gap: 0; overflow-x: auto; scrollbar-width: none; }
+  .idx ol::-webkit-scrollbar { display: none; }
+  .idx li { flex: none; display: flex; gap: 8px; align-items: baseline; margin-left: -1px; padding: 10px 14px; border: 1px solid rgba(255,255,255,.14); }
+  .idx li::after, .idx li i { display: none; }
+  .idx li.on { border-color: var(--c); position: relative; }
+  .q { margin-top: 36px; touch-action: pan-y; }
+  .q blockquote { font-size: clamp(22px, 4.6vw, 34px); min-height: calc(1.16em * 7); }
+  .q .mark { font-size: 110px; }
+  .count { position: static; margin-top: 26px; }
+  .tnav { display: flex; gap: 0; position: absolute; right: var(--side); bottom: 44px; }
+  .tnav button { margin-left: -1px; width: 46px; height: 40px; border: 1px solid rgba(255,255,255,.2); background: none; color: #fff; font-size: 16px; cursor: pointer; }
+  .tnav button:hover { border-color: var(--accent); position: relative; }
+  /* the quotes as a row of cards the hand drags across — the primary way
+     through them; chips and arrows follow along and move the row too */
+  .q { display: none; }
+  /* no client switcher: the cards are the way through */
+  .idx ol { display: none; }
+  .qtrack { position: relative; z-index: 2; margin: 30px calc(var(--side) * -1) 0; padding: 0 var(--side); display: flex; gap: 12px;
+    overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 var(--side); overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none; touch-action: pan-x pan-y; }
+  .qtrack::-webkit-scrollbar { display: none; }
+  .qcard { --c: var(--accent); position: relative; flex: 0 0 min(84%, 560px); scroll-snap-align: start; display: flex; flex-direction: column; justify-content: space-between;
+    min-height: 0; padding: 22px 20px 20px; border: 1px solid rgba(255,255,255,.14); background: rgba(8,8,9,.62); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    transition: border-color .3s linear, opacity .3s linear; opacity: .55; }
+  .qcard.on { border-color: color-mix(in srgb, var(--c) 60%, transparent); opacity: 1; }
+  .qcard::before { content: ''; position: absolute; left: -1px; top: -1px; width: 8px; height: 8px; background: var(--c); }
+  .qcard .qm { font-size: 64px; line-height: .6; height: 26px; color: var(--c); opacity: .5; font-weight: 300; }
+  .qcard blockquote { margin-top: 10px; color: #fff; font-weight: 300; font-size: clamp(19px, 4.4vw, 28px); line-height: 1.2; letter-spacing: -.02em; }
+  .qcard .ph { align-self: flex-start; margin-bottom: 10px; font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); border: 1px solid rgba(201,18,75,.4); padding: 3px 7px; }
+  .qcard .by { margin-top: 22px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.12); display: flex; align-items: center; flex-wrap: wrap; gap: 12px 14px; }
+  .qcard .by p { flex: 1; min-width: 0; font-size: 12.5px; color: var(--ink-mute); line-height: 1.4; }
+  .qcard .by p b { display: block; color: #fff; font-weight: 400; font-size: 14.5px; margin-bottom: 2px; }
+  .qcard .pic { width: 48px; height: 48px; }
+  .qcard .btn-p { width: 100%; }
+  .tnav { bottom: 40px; }
+}
+.qtrack { display: none; }
+@media (max-width: 1024px) { .qtrack { display: flex; } }
+@media (prefers-reduced-motion: reduce) { .q .w > span { transform: none !important; animation: none !important; } .q .who > * { animation: none !important; opacity: 1 !important; transform: none !important; } }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+<style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
+html[data-wb-dock] body { padding-right: 0 !important; }</style>
+</head>
+<body>
+
+<div id="scope">
+  <section id="stage" aria-labelledby="testi-h">
+    <aside class="idx">
+      <div>
+        <h2 id="testi-h">What our clients say about us</h2>
+      </div>
+      <ol></ol>
+    </aside>
+    <figure class="q" aria-live="polite">
+      <span class="mark" aria-hidden="true">“</span>
+      <span class="ph" hidden>Placeholder quote</span>
+      <blockquote></blockquote>
+      <figcaption class="who"><span class="pic"></span><p></p><a class="btn-p go" href="#" target="_top">View case study<span class="btn-p-ic" aria-hidden="true"></span></a></figcaption>
+    </figure>
+    <div class="qtrack" aria-label="Testimonials — swipe for more"></div>
+    <p class="count"><b>01</b>&thinsp;/&thinsp;02</p>
+    <div class="tnav"><button type="button" data-d="-1" aria-label="Previous quote">←</button><button type="button" data-d="1" aria-label="Next quote">→</button></div>
+  </section>
+</div>
+
+<script>
+(function () {
+  /* Two of the final website's quotes, word for word (assets/home.js).
+     `photo`: the person's picture (e.g. assets/people/milan.jpg); without
+     one, the same box is drawn empty. */
+  const T = [
+    { quote: 'Working with Rahul and team has been an absolute pleasure! The website they’ve designed not only captures the essence of our brand but also resonates with our target audience, resulting in increased engagement and satisfaction.',
+      logo: 'Firstpost', name: 'Milan Sachdeva', role: 'Senior General Manager, Firstpost', photo: '', file: 'case-firstpost-figma.html', colour: '#E05555', pattern: 'ridge' },
+    { quote: 'Collaborating with the Tibba Design Studio team on our critical design sprint was transformative for Breathe ESG.',
+      logo: 'Breathe ESG', name: 'Shaayak Chaterjee', role: 'Founder, Breathe ESG', photo: '', file: 'case-breathe-esg-figma.html', colour: '#4CAF70', pattern: 'peak' },
+  ];
+  const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const pad = n => String(n + 1).padStart(2, '0');
+  const $ = s => document.querySelector(s);
+  const stage = $('#stage'), q = $('.q'), bq = q.querySelector('blockquote'), who = q.querySelector('.who p'), go = q.querySelector('.go'), pic = q.querySelector('.pic');
+  const photo = t => t.photo ? `<img src="${t.photo}" alt="${t.name}">` : '';
+  const list = $('.idx ol'), count = $('.count');
+
+  list.innerHTML = T.map((t, i) => `<li data-i="${i}" style="--c:${t.colour}"><span class="n">${pad(i)}</span><span>${t.logo}</span><i></i></li>`).join('');
+  const items = [...list.children];
+
+  let cur = -1, swapT = 0;
+  function show(i) {
+    if (i === cur) return;
+    const first = cur < 0;
+    cur = i;
+    items.forEach((li, k) => li.classList.toggle('on', k === i));
+    count.innerHTML = `<b>${pad(i)}</b>&thinsp;/&thinsp;${pad(T.length - 1)}`;
+    q.classList.remove('in'); q.classList.add('out');
+    clearTimeout(swapT);
+    swapT = setTimeout(() => {
+      const t = T[i];
+      q.style.setProperty('--c', t.colour);
+      q.querySelector('.ph').hidden = !t.placeholder;
+      bq.innerHTML = t.quote.split(' ').map((w, k) => `<span class="w"><span style="--k:${k}">${w}</span></span>`).join(' ');
+      who.innerHTML = `<b>${t.name}</b>${t.role}`;
+      pic.innerHTML = photo(t);
+      go.href = t.file;
+      q.classList.remove('out'); void q.offsetWidth; q.classList.add('in');
+    }, first ? 0 : 360);
+  }
+  const MQ = matchMedia('(max-width: 1024px)');
+  const narrow = () => MQ.matches;
+  items.forEach((li, k) => li.addEventListener('click', () => {
+    if (narrow()) { toCard(k); return; }
+    const scope = $('#scope'), travel = scope.offsetHeight - innerHeight;
+    scrollTo({ top: scope.offsetTop + travel * ((k + 0.5) / T.length), behavior: REDUCED ? 'auto' : 'smooth' });
+  }));
+
+  /* scroll: which quote, and how far through its band */
+  const scope = $('#scope');
+  let scrollT = 0;
+  function onScroll() {
+    if (narrow()) return;
+    const travel = scope.offsetHeight - innerHeight;
+    scrollT = travel > 0 ? Math.min(1, Math.max(0, -scope.getBoundingClientRect().top / travel)) : 0;
+    const band = scrollT * T.length;
+    const i = Math.min(T.length - 1, Math.floor(band));
+    show(i);
+    items.forEach((li, k) => li.style.setProperty('--fill', Math.min(1, Math.max(0, band - k)).toFixed(3)));
+  }
+  addEventListener('scroll', onScroll, { passive: true });
+  /* tablets and phones: the row of cards, dragged by hand; the chips and
+     arrows move the row, and the row says which quote is current */
+  const track = $('.qtrack');
+  track.innerHTML = T.map((t, i) => `<article class="qcard" style="--c:${t.colour}" data-i="${i}">
+    <div>${t.placeholder ? '<span class="ph">Placeholder quote</span>' : ''}<p class="qm" aria-hidden="true">“</p><blockquote>${t.quote}</blockquote></div>
+    <div class="by"><span class="pic">${photo(t)}</span><p><b>${t.name}</b>${t.role}</p><a class="btn-p" href="${t.file}" target="_top">View case study<span class="btn-p-ic" aria-hidden="true"></span></a></div></article>`).join('');
+  const cards = [...track.children];
+  function toCard(i) {
+    i = (i + T.length) % T.length;
+    track.scrollTo({ left: cards[i].offsetLeft - track.firstElementChild.offsetLeft, behavior: REDUCED ? 'auto' : 'smooth' });
+  }
+  function fromTrack() {
+    const x = track.scrollLeft, w = cards[0].offsetWidth + 12;
+    const i = Math.max(0, Math.min(T.length - 1, Math.round(x / w)));
+    cards.forEach((c, k) => c.classList.toggle('on', k === i));
+    if (i !== cur) show(i);
+  }
+  let tq = 0;
+  track.addEventListener('scroll', () => { cancelAnimationFrame(tq); tq = requestAnimationFrame(fromTrack); }, { passive: true });
+  document.querySelector('.tnav').addEventListener('click', e => { const b = e.target.closest('button'); if (b) toCard(cur + +b.dataset.d); });
+  cards[0].classList.add('on');
+  MQ.addEventListener('change', () => { if (narrow()) { idx.style.transform = q.style.transform = mark.style.transform = ''; } else onScroll(); });
+  if (narrow()) show(0); else onScroll();
+
+  /* parallax: three layers at three rates, pointer and scroll */
+  const P = { depth: 1 };
+  const ptr = { x: 0, y: 0, sx: 0, sy: 0 };
+  addEventListener('pointermove', e => { ptr.x = e.clientX / innerWidth - .5; ptr.y = e.clientY / innerHeight - .5; }, { passive: true });
+  var idx = $('.idx'), mark = q.querySelector('.mark');
+  (function loop() {
+    requestAnimationFrame(loop);
+    if (REDUCED || narrow()) return;
+    ptr.sx += (ptr.x - ptr.sx) * .06; ptr.sy += (ptr.y - ptr.sy) * .06;
+    const band = (scrollT * T.length) % 1 - .5;
+    idx.style.transform = `translate3d(${(ptr.sx * -6 * P.depth).toFixed(2)}px, ${(ptr.sy * -4 * P.depth).toFixed(2)}px, 0)`;
+    q.style.transform = `translate3d(${(ptr.sx * -12 * P.depth).toFixed(2)}px, ${(ptr.sy * -8 * P.depth - band * 14 * P.depth).toFixed(2)}px, 0)`;
+    mark.style.transform = `translate3d(${(ptr.sx * -30 * P.depth).toFixed(2)}px, ${(ptr.sy * -22 * P.depth - band * 40 * P.depth).toFixed(2)}px, 0)`;
+  })();
+
+  const el = document.createElement('div');
+  el.id = 'tune';
+  el.innerHTML = `<div id="tune-head"><b>Testimonials</b><button id="tune-hide" title="Hide (H)">–</button></div>
+    <p class="tune-sub">Depth</p>
+    <div class="row"><label>Parallax<i id="v-pd">1.00</i></label><input type="range" id="s-pd" min="0" max="250" value="100"></div>`;
+  document.body.appendChild(el);
+  el.querySelector('#s-pd').addEventListener('input', e => { P.depth = e.target.value / 100; el.querySelector('#v-pd').textContent = P.depth.toFixed(2); });
+  el.querySelector('#tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+})();
+</script>
+<!-- primary / secondary typography control (assets/type-control.js) -->
+<script type="module" src="assets/type-control.js"></script>
+</body>
+</html>

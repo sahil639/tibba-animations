@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-05T09:53:21.918Z by tools/make-sandbox.mjs -->
+<head>
+<!-- Google tag (gtag.js) -->
+<script>
+if (window.top === window) { var g = document.createElement('script'); g.async = true; g.src = 'https://www.googletagmanager.com/gtag/js?id=G-DZS8N17C9N'; document.head.appendChild(g); }
+window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date());
+gtag('config', 'G-DZS8N17C9N');
+</script>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Footer — dusk grid</title>
+<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<link rel="stylesheet" href="assets/footer-kit.css">
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Footer — dusk grid
+   ─────────────────────────────────────────────────────────────────────────
+   Footer — blueprint dusk (footer-blueprint-dusk.html), duplicated and laid
+   out after the reference sketch. One hairline grid on black, the only
+   warmth the fire's own glow, low on the right:
+
+     top          "Let's get to know you and your idea!" over a three-field
+                  form (name, email, the idea — each named by its
+                  placeholder) | page links | social links
+     foot, left   the Tibba logo, solid and large, rising into view once
+     foot, right  the campfire
+     the foot     legal, full width
+
+   The fire is the only thing at the foot: no marshmallow. Over its box the
+   flame leans and dances after the pointer (a damped spring), and lets go
+   the moment the pointer leaves — the box, or the page.
+
+   The grid keeps to the site's content column on wide screens (--wrap).
+   Phones: one column — the form, the links two-up, the word, the fire,
+   the legal.
+   Shared parts: assets/footer-kit.js / .css. Every value: the CONFIG object
+   in the script, on the panel, and bakeable.
+   ═════════════════════════════════════════════════════════════════════════ */
+body { background: #000; }
+.dg { --ln: rgba(233,236,242,.2); position: relative; isolation: isolate; overflow: hidden; display: grid;
+  grid-template-columns: minmax(0, 46%) minmax(0, 30%) minmax(0, 1fr); grid-template-rows: auto 0 minmax(clamp(280px, 30vw, 440px), auto) auto;
+  border-top: 1px solid var(--ln);
+  padding: 0 max(0px, calc((100vw - var(--wrap)) / 2));
+  /* black, as every section; the only warmth is the fire's own light, low
+     on the right where it burns */
+  background: radial-gradient(38% 34% at 76% 96%, rgba(255,120,60,.16), rgba(255,120,60,0) 100%), #000; }
+.dg .k { color: rgba(233,236,242,.55); }
+.dg .cell { position: relative; min-width: 0; padding: clamp(22px, 3.2vw, 56px); }
+.dg a:hover { color: #C9124B; }
+
+/* top left: the form */
+.dg .talk { grid-column: 1; grid-row: 1; border-right: 1px solid var(--ln); border-bottom: 1px solid var(--ln); padding-top: clamp(22px, 2.6vw, 44px); }
+.dg .talk h2 { color: #fff; font-weight: 400; font-size: clamp(24px, 2.2vw, 38px); line-height: 1.15; letter-spacing: -.02em; }
+/* the form: a short sheet of fields, each named by its placeholder —
+   hairline underlines that turn orange on focus, and the primary button */
+.dg form { margin-top: clamp(18px, 2.6vh, 28px); display: grid; grid-template-columns: 1fr 1fr; gap: 18px 22px; width: min(100%, 600px); }
+.dg .fld { position: relative; display: grid; gap: 8px; min-width: 0; }
+.dg .fld.wide { grid-column: 1 / -1; }
+.dg input, .dg textarea { width: 100%; padding: 6px 0 10px; border: 0; border-bottom: 1px solid rgba(233,236,242,.32); background: none; color: #fff; outline: none; border-radius: 0;
+  font: 400 clamp(16px, 1.25vw, 19px)/1.35 'F37 Analog', system-ui, sans-serif; letter-spacing: -.005em; transition: border-color .25s linear; resize: none; }
+.dg textarea { height: 76px; }
+.dg input::placeholder, .dg textarea::placeholder { color: rgba(233,236,242,.55); transition: color .25s linear; }
+.dg .fld:focus-within ::placeholder { color: rgba(233,236,242,.32); }
+.dg .fld::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: #C9124B; transform: scaleX(0); transform-origin: left; transition: transform .45s cubic-bezier(.22,1,.36,1); }
+.dg .fld:focus-within::after { transform: scaleX(1); }
+.dg .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.dg .chips label { position: relative; cursor: pointer; }
+.dg .chips input { position: absolute; opacity: 0; pointer-events: none; }
+.dg .chips span { display: inline-block; padding: 8px 12px; border: 1px solid rgba(233,236,242,.28); font-size: 13px; color: rgba(255,255,255,.82); transition: background .2s linear, border-color .2s linear, color .2s linear; }
+.dg .chips label:hover span { border-color: rgba(255,255,255,.6); }
+.dg .chips input:checked + span { background: #fff; color: #000; border-color: #fff; }
+.dg .chips input:focus-visible + span { outline: 1px solid #C9124B; outline-offset: 2px; }
+.dg .send { grid-column: 1 / -1; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.dg form .note { font-size: 12.5px; color: rgba(233,236,242,.6); }
+.dg form .note a { color: #fff; border-bottom: 1px solid rgba(255,255,255,.4); }
+.dg form .sent { grid-column: 1 / -1; font-size: 13px; color: var(--ink-warm); min-height: 1.2em; }
+@media (max-width: 520px) { .dg form { grid-template-columns: 1fr; } }
+/* foot right: the fire */
+.dg .camp { grid-column: 2 / 4; grid-row: 3; position: relative; min-height: clamp(280px, 30vw, 440px); }
+.dg .camp canvas { position: absolute; inset: 0; }
+
+/* top right: the links */
+.dg .pages { grid-column: 2; grid-row: 1; border-right: 1px solid var(--ln); border-bottom: 1px solid var(--ln); }
+.dg .social { grid-column: 3; grid-row: 1; border-bottom: 1px solid var(--ln); }
+.dg ul { list-style: none; margin-top: 22px; display: grid; gap: 12px; font-size: clamp(17px, 1.3vw, 21px); color: #fff; }
+.dg .pages ul { grid-template-columns: 1fr 1fr; column-gap: 18px; }
+.dg .ruler { display: none; }   /* no tick strip: the grid's hairlines are enough */
+/* foot left: the studio's own logo, set solid and large, standing on the
+   foot of the grid as the fire does on the right — it rises into view once */
+.dg .word { grid-column: 1; grid-row: 3; border-right: 1px solid var(--ln); display: flex; flex-direction: column; justify-content: flex-end; gap: 14px;
+  padding: clamp(22px, 3.2vw, 56px); color: #fff; }
+.dg .word svg { display: block; width: min(100%, 520px); height: auto; clip-path: inset(100% 0 0 0); transition: clip-path 1.2s cubic-bezier(.22,1,.36,1); }
+.dg .word.on svg { clip-path: inset(0 0 0 0); }
+.dg .word p { font-size: 13px; line-height: 1.5; color: rgba(233,236,242,.55); opacity: 0; transition: opacity .6s linear .7s; }
+.dg .word.on p { opacity: 1; }
+.dg .legal { grid-column: 1 / -1; grid-row: 4; display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; padding: 16px clamp(22px, 3.2vw, 56px); border-top: 1px solid var(--ln);
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: rgba(233,236,242,.55); }
+.dg .legal a { color: rgba(233,236,242,.55); } .dg .legal a:hover { color: #fff; }
+.dg .legal > span:last-child { display: flex; gap: 22px; }
+
+@media (max-width: 860px) {
+  .dg { grid-template-columns: 1fr 1fr; grid-template-rows: none; }
+  .dg > * { grid-column: 1 / -1 !important; grid-row: auto !important; }
+  .dg .talk, .dg .word { border-right: 0; }
+  .dg .camp { min-height: 76vw; }
+  .dg .pages { grid-column: 1 !important; } .dg .social { grid-column: 2 !important; border-right: 0; }
+  .dg .pages ul { grid-template-columns: 1fr; }
+  .dg .ruler { min-height: 28px; }
+  .dg .word { padding: 26px 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .dg .word svg { clip-path: none; transition: none; } .dg .word p { opacity: 1; transition: none; } }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+<style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
+html[data-wb-dock] body { padding-right: 0 !important; }</style>
+</head>
+<body>
+<footer class="foot dg" aria-label="Footer">
+  <section class="cell talk" aria-labelledby="talk-h">
+    <h2 id="talk-h">Let’s get to know<br>you and your idea!</h2>
+    <form id="talk">
+      <label class="fld"><input type="text" name="name" placeholder="Your name" aria-label="Your name" autocomplete="name" required></label>
+      <label class="fld"><input type="email" name="email" placeholder="Email" aria-label="Email" autocomplete="email" required></label>
+      <label class="fld wide"><textarea name="idea" maxlength="500" placeholder="Tell us about your project" aria-label="Tell us about your project"></textarea></label>
+      <div class="send"><button type="submit" class="btn-p">Submit form<span class="btn-p-ic" aria-hidden="true"></span></button><p class="note">or write to <a href="mailto:hello@tibba.design">hello@tibba.design</a></p></div>
+      <p class="sent" aria-live="polite"></p>
+    </form>
+  </section>
+  <nav class="cell pages" aria-label="Pages"><p class="k">Pages</p>
+    <ul><li><a href="final-website-v2.html">Home</a></li><li><a href="summits-v3.html">Work</a></li><li><a href="services-compass-v4.html">Services</a></li>
+        <li><a href="about.html">About</a></li><li><a href="case-studies-reel.html">Case studies</a></li><li><a href="studio-polaroids.html">Studio</a></li></ul></nav>
+  <nav class="cell social" aria-label="Social"><p class="k">Social</p>
+    <ul><li><a href="https://www.instagram.com/tibba.design/">Instagram</a></li><li><a href="https://www.linkedin.com/company/tibba-design-studio/">LinkedIn</a></li>
+        <li><a href="https://medium.com/@tibbadesignstudio">Medium</a></li><li><a href="mailto:hello@tibba.design">Email</a></li></ul></nav>
+  <i class="ruler" aria-hidden="true"></i>
+  <section class="word" id="word" aria-label="Tibba">
+    <svg viewBox="8 8 96 21" aria-hidden="true"> <path fill-rule="evenodd" clip-rule="evenodd" d="M39.0383 28H8L28.2219 8L39.0383 28ZM15.0685 24.6037L26.2673 20.151L34.3324 24.5768L27.5681 12.0807L15.0685 24.6037Z" fill="currentColor"/> <path d="M52.1765 19.1546H49.2938V23.8402C49.2938 24.2745 49.2938 25.2116 50.7123 25.2116C51.1699 25.2116 51.6732 25.1201 52.1765 24.9601L52.1536 27.6343C51.4215 27.8858 50.6894 28 49.8887 28C47.761 28 45.8621 27.0401 45.8621 24.1602V19.1546H44.0547V16.4804H45.8621V14.8119L49.2938 12.2749V16.4804H52.1765V19.1546Z" fill="currentColor"/> <path d="M54.0722 14.9262V11.8177H57.5955V14.9262H54.0722ZM54.0951 27.7486V16.4804H57.5497V27.7486H54.0951Z" fill="currentColor"/> <path d="M66.6026 16.229C69.0735 16.229 71.1326 18.3318 71.1326 22.1031C71.1326 25.4858 69.4624 28 66.534 28C65.5502 28 64.3605 27.7029 63.5827 26.9029V27.7486H60.128V11.8177H63.5827V17.3718C64.269 16.6861 65.4358 16.229 66.6026 16.229ZM65.6189 24.7773C67.0831 24.7773 67.7008 23.9316 67.7008 22.1488C67.7008 20.3889 67.1288 19.3832 65.5731 19.3832C63.7886 19.3832 63.2624 20.7546 63.2624 22.1488C63.2624 23.5888 63.8572 24.7773 65.6189 24.7773Z" fill="currentColor"/> <path d="M79.3377 16.229C81.8086 16.229 83.8676 18.3318 83.8676 22.1031C83.8676 25.4858 82.1975 28 79.269 28C78.2853 28 77.0956 27.7029 76.3177 26.9029V27.7486H72.8631V11.8177H76.3177V17.3718C77.0041 16.6861 78.1709 16.229 79.3377 16.229ZM78.3539 24.7773C79.8181 24.7773 80.4359 23.9316 80.4359 22.1488C80.4359 20.3889 79.8639 19.3832 78.3082 19.3832C76.5236 19.3832 75.9974 20.7546 75.9974 22.1488C75.9974 23.5888 76.5923 24.7773 78.3539 24.7773Z" fill="currentColor"/> <path d="M90.1738 16.229C93.3768 16.229 95.2986 17.9204 95.2986 20.5946V27.7486H92.1414L91.9126 26.6287C90.9975 27.84 89.7849 28 88.9613 28C86.4218 28 84.5915 26.4229 84.5915 24.1145C84.5915 22.8116 85.1863 21.8745 86.1472 21.3488C86.8565 20.9603 87.7487 20.7774 88.7554 20.7774H91.8668V20.5946C91.8668 19.7946 91.1805 19.2232 89.9222 19.2232C89.0757 19.2232 88.2063 19.4746 87.1996 20.4346L84.7059 18.3547C86.1244 16.869 88.2063 16.229 90.1738 16.229ZM89.5104 25.2344C90.7458 25.2344 91.7982 24.4344 91.8668 23.3145H89.2587C88.8926 23.3145 88.5952 23.3831 88.3893 23.5202C88.1605 23.6802 88.0461 23.9088 88.0461 24.183C88.0461 24.7544 88.5266 25.2344 89.5104 25.2344Z" fill="currentColor"/> </svg>
+    <p>Tibba Design Studio · India, and remote</p>
+  </section>
+  <div class="camp"><canvas class="fire" aria-hidden="true"></canvas></div>
+  <p class="legal"><span>© <span class="yr"></span> Tibba Design Studio. All rights reserved.</span><span><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Cookies</a></span></p>
+</footer>
+<script type="module">
+  import { fire, panel, applyBaked, year } from './assets/footer-kit.js';
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  $$('.yr').forEach(e => { e.textContent = year(); });
+  const CONFIG = { fire: { mode: 'dither', palette: 'warm', cell: 5, dot: .86, contrast: 1.25, flame: 1.05, embers: 1.2, speed: .9, scale: 1.05, wood: .75 } };
+  const KEY = 'tibba.bake.footer-dusk-grid'; applyBaked(KEY, CONFIG);
+  const f = fire($('.camp canvas'), { ...CONFIG.fire, x: .5, y: .74, blowOut: false, hand: false, follow: true });   // the flame dances after the pointer
+
+  /* the form: no back end here, so it answers in place */
+  $('#talk').addEventListener('submit', e => { e.preventDefault(); e.target.reset(); $('.sent').textContent = 'Got it — we’ll write back within two working days.'; });
+  /* the logo rises into view, once */
+  new IntersectionObserver(([e], io) => { if (e.isIntersecting) { io.disconnect(); $('#word').classList.add('on'); } }, { threshold: .3 }).observe($('#word'));
+  panel({ title: 'Footer — dusk grid', key: KEY, config: CONFIG, name: 'CONFIG', fires: [{ fire: f, cfg: CONFIG.fire }] });
+</script>
+<!-- primary / secondary typography control (assets/type-control.js) -->
+<script type="module" src="assets/type-control.js"></script>
+</body>
+</html>
