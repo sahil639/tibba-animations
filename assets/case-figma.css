@@ -463,3 +463,22 @@ body:has(.cf-light) { background: #f5f9fa; }
   .cf .cf-top.row .cf-facts dl { display: block; }
 }
 @media (max-width: 640px) { .cf .cf-top.row .cf-metrics { grid-template-columns: 1fr; } }
+
+/* the client's words, as a card (Nov 2026): the quote in italics, the
+   person on the right (desktop) or in a small row under it (phones) */
+.cf .cf-quote { --card: #1c1c1c; --q: #fff; --q2: rgba(233,236,242,.78);
+  gap: max(28px, calc(64 * var(--cu))); padding: max(22px, calc(40 * var(--cu))); background: var(--card); border-radius: 0; }
+.cf-light .cf-quote { --card: #fff; --q: #101214; --q2: #4a5054; border: 1px solid #e2e2e2; }
+.cf .cf-quote blockquote, .cf .cf-quote blockquote.long { max-width: none; font-style: italic; font-weight: 400; color: var(--q); font-size: clamp(18px, calc(30 * var(--cu)), 34px); line-height: 1.2; letter-spacing: -.01em; }
+.cf .cf-quote figcaption { width: calc(380 / 1380 * 100%); min-width: 200px; align-items: center; text-align: center; }
+.cf .cf-quote figcaption img { margin-bottom: 22px; }
+.cf .cf-quote figcaption b { color: var(--q); font-weight: 500; font-size: clamp(18px, calc(30 * var(--cu)), 32px); }
+.cf .cf-quote figcaption span { color: var(--q2); font-size: clamp(13px, calc(20 * var(--cu)), 22px); }
+@media (max-width: 860px) {
+  .cf .cf-quote { flex-direction: column; border-radius: 10px; padding: 18px; gap: 22px; }
+  .cf .cf-quote blockquote, .cf .cf-quote blockquote.long { font-size: 18px; }
+  .cf .cf-quote figcaption { width: auto; min-width: 0; display: grid; grid-template-columns: 52px 1fr; grid-template-rows: auto auto; column-gap: 12px; align-items: center; text-align: left; }
+  .cf .cf-quote figcaption img { grid-row: 1 / 3; width: 52px; margin: 0; }
+  .cf .cf-quote figcaption b { font-size: 17px; align-self: end; }
+  .cf .cf-quote figcaption span { font-size: 13px; align-self: start; }
+}
