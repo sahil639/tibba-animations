@@ -28,3 +28,8 @@
      the panels ask for those rather than for a different family. */
   --font-ui: 'F37 Analog', system-ui, sans-serif;
 }
+@font-face {
+  font-family: 'F37 Analog';
+  src: url('fonts/VendSans-Italic-Variable.woff2') format('woff2');
+  font-weight: 100 900; font-style: italic; font-display: swap;
+}
