@@ -401,3 +401,46 @@ body:has(.cf-light) { background: #f5f9fa; }
 .cf-duo { display: grid; grid-template-columns: 1fr 1fr; gap: max(12px, calc(24 * var(--cu))); margin-inline: calc(-1 * var(--over, 0px)); }
 .cf-duo > .cf-fig { margin: 0; }
 @media (max-width: 640px) { .cf-duo { grid-template-columns: 1fr; } }
+
+/* ══ Nov 2026 round ═════════════════════════════════════════════════════ */
+/* the hero's line under the name, a step larger */
+.cf-hero-in p { font-size: clamp(17px, 1.45vw, 22px); }
+/* the particulars' summary in sentence case, not capitals */
+.cf-facts > p { text-transform: none; text-align: left; font-weight: 400; }
+/* titles and words a shade apart: headings full ink, body a quieter neutral */
+.cf { --body: rgba(233,236,242,.74); }
+.cf-light { --body: #3d4347; }
+.cf-text, .cf-cols p, .cf-quote blockquote, .cf-facts > p, .cf-kpis .l { color: var(--body); }
+.cf-head h2, .cf-cols h3, .cf-outcome h3, .cf-statement b { color: var(--ink); }
+
+/* the brief's points, each with its own mark (Firstpost) */
+.cf-icons { list-style: none; margin: 1.4em 0 0; padding: 0; display: grid; gap: 16px; }
+.cf-icons li { display: flex; align-items: flex-start; gap: 14px; }
+.cf-icons .ico { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--hair); color: #E5432D; }
+.cf-icons svg { width: 18px; height: 18px; }
+
+/* the Firstpost player */
+.fp-player { margin: 0; padding: 3.5%; background: #262626; border-radius: 10px; }
+.fp-screen { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: #0b0b0b; container-type: inline-size; }
+.fp-video, .fp-screen iframe { position: absolute; left: 50%; top: 50%; width: 136%; height: 136%; transform: translate(-50%, -50%); border: 0; pointer-events: none; }
+.fp-pill { position: absolute; right: 2%; top: 4%; display: flex; align-items: center; gap: 1.6cqw; padding: 1.6cqw 2.4cqw; background: #5a1611; border-radius: 4px; color: #fff; font-size: max(10px, 2cqw); }
+.fp-pill svg { width: max(12px, 2.4cqw); color: #F0624D; }
+.fp-pill b { margin-left: 4cqw; font-weight: 400; }
+.fp-bar { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(180deg, rgba(90,22,17,.55), #5a1611); color: #fff; }
+.fp-track { position: relative; height: 3px; background: rgba(255,255,255,.28); }
+.fp-done { position: absolute; inset: 0; background: #F0624D; transform-origin: 0 50%; transform: scaleX(0); }
+.fp-knob { position: absolute; top: 50%; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%; background: #F0624D; }
+.fp-track em { position: absolute; top: -2px; width: 2px; height: 7px; background: #fff; }
+.fp-ctrls { display: flex; align-items: center; gap: 3cqw; padding: 1.8cqw 2cqw; font-size: max(9px, 1.7cqw); font-variant-numeric: tabular-nums; }
+.fp-ctrls svg { width: max(12px, 2.6cqw); height: max(12px, 2.6cqw); flex: none; }
+.fp-skip, .fp-q, .fp-r { display: inline-flex; align-items: center; gap: 1.2cqw; }
+.fp-cc { color: #F0624D; display: inline-flex; }
+.fp-r { margin-left: auto; gap: 3cqw; }
+.cf-split > .fp-player { flex: none; width: calc(var(--fw, 611) / 1380 * 100% + var(--over, 0px)); margin-right: calc(-1 * var(--over, 0px)); }
+@media (max-width: 860px) { .cf-split > .fp-player { width: auto; margin-inline: 0; } }
+/* the light heroes (Breathe ESG, Shyft): the picture washes out into the
+   page well above the name, as in the reference — the lower half nearly
+   the page's own colour, the name standing on it */
+.cf-light .cf-hero.cover::after { background: linear-gradient(180deg,
+  transparent 34%, color-mix(in srgb, var(--page) 35%, transparent) 50%,
+  color-mix(in srgb, var(--page) 78%, transparent) 62%, color-mix(in srgb, var(--page) 94%, transparent) 72%, var(--page) 84%); }

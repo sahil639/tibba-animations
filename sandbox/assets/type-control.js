@@ -283,4 +283,7 @@ function panel() {
 }
 
 /* last, so everything above is declared before the first apply */
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+/* Hidden for now (Nov 2026): the site is set in Vend Sans and no saved
+   choice is applied. ?type in the address brings the control back. */
+const ON = /[?&]type\b/.test(location.search) || /[?&]type\b/.test((window.top !== window ? (() => { try { return top.location.search; } catch (e) { return ''; } })() : ''));
+if (ON) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start(); }
