@@ -444,3 +444,22 @@ body:has(.cf-light) { background: #f5f9fa; }
 .cf-light .cf-hero.cover::after { background: linear-gradient(180deg,
   transparent 34%, color-mix(in srgb, var(--page) 35%, transparent) 50%,
   color-mix(in srgb, var(--page) 78%, transparent) 62%, color-mix(in srgb, var(--page) 94%, transparent) 72%, var(--page) 84%); }
+
+/* the results and the particulars, as the reference (Nov 2026): the cards
+   two-up on the left, the particulars as ruled rows on the right — label
+   left, value right — and the summary under them, justified */
+.cf .cf-top.row { display: grid; grid-template-columns: minmax(0, 900fr) minmax(0, 570fr); column-gap: max(32px, calc(72 * var(--tu))); align-items: start; }
+.cf .cf-top.row .cf-metrics { grid-template-columns: 1fr 1fr; }
+.cf .cf-top.row .cf-metric { padding: max(24px, calc(40 * var(--tu))) max(20px, calc(28 * var(--tu))); min-height: max(170px, calc(245 * var(--tu))); justify-content: center; }
+.cf .cf-top.row .cf-facts { display: flex; flex-direction: column; justify-content: space-between; align-self: stretch; gap: 40px; }
+.cf .cf-top.row .cf-facts dl { display: block; border-top: 0; }
+.cf .cf-top.row .cf-facts dl > div { flex-direction: row; justify-content: space-between; gap: 20px; padding: 22px 0; border-bottom: 1px solid var(--hair); }
+.cf .cf-top.row .cf-facts dl > div:first-child { padding-top: 0; }
+.cf .cf-top.row .cf-facts dl > div:last-child { border-bottom: 0; }
+.cf .cf-top.row .cf-facts dd { justify-content: flex-end; text-align: right; }
+.cf .cf-top.row .cf-facts > p { max-width: none; text-align: justify; text-align-last: left; font-size: clamp(17px, calc(22 * var(--tu)), 24px); line-height: 1.2; color: var(--ink); }
+@media (max-width: 900px) {
+  .cf .cf-top.row { grid-template-columns: 1fr; row-gap: 48px; }
+  .cf .cf-top.row .cf-facts dl { display: block; }
+}
+@media (max-width: 640px) { .cf .cf-top.row .cf-metrics { grid-template-columns: 1fr; } }
