@@ -545,3 +545,4 @@ body:has(.cf-light) { background: #f5f9fa; }
   .cf-devbox .cf-proto .proto-desktop { width: 100%; }
   .cf-devbox .cf-proto .proto-phone { width: 62%; }
 }
+.cf-duo.cf-duo-stack { grid-template-columns: 1fr; }
