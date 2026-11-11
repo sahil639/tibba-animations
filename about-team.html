@@ -63,6 +63,9 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
   .member:nth-child(odd) { margin-left: 0; } .member:nth-child(n+3) { margin-top: -1px; }
 }
 @media (prefers-reduced-motion: reduce) { .member .plate { clip-path: none; } .member .k, .member .scene, .member .name, .member .role { opacity: 1; } .member .pin { transform: none; } }
+/* no load-in, no hover */
+.member .plate { clip-path: none; } .member .scene, .member .name, .member .role, .member .k { opacity: 1; }
+.who canvas { display: none; }
 </style>
 <link rel="stylesheet" href="assets/tune.css">
 </head>
@@ -203,10 +206,7 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
       /* the ground comes up a little under the pointer */
       gsap.to(topos[i].settings, { opacity: C.topo[i].opacity * (v ? C.hoverLift : 1), duration: .5, ease: 'power2.out' });
     };
-    card.addEventListener('pointerenter', () => on(true));
-    card.addEventListener('pointerleave', () => on(false));
-    card.addEventListener('focus', () => on(true));
-    card.addEventListener('blur', () => on(false));
+    /* no hover effect (Nov 2026): the portrait stays as it is, over its contours */
     const img = card.querySelector('img');
     if (img.complete) prepare(i); else img.addEventListener('load', () => prepare(i));
   });
@@ -230,8 +230,8 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
   }
   const play = () => { build(); gsap.to(tl, { progress: 1, duration: REDUCED ? 0.01 : tl.duration() * C.entrance.duration, ease: C.entrance.ease }); };
   build();
-  if (REDUCED) tl.progress(1);
-  else new IntersectionObserver(([e], io) => { if (e.isIntersecting) { io.disconnect(); play(); } }, { threshold: 0.25 }).observe(host);
+  tl.progress(1);   /* no load-in: the cards are simply there */
+  if (false) new IntersectionObserver(([e], io) => { if (e.isIntersecting) { io.disconnect(); play(); } }, { threshold: 0.25 }).observe(host);
 
   /* ── the panel ─────────────────────────────────────────────────────── */
   const el = document.createElement('div');
