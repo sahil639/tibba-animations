@@ -169,7 +169,8 @@ button { font: inherit; color: inherit; }
    No bags under the switcher, no numbers on the services, no stage line
    over the outcome. The case card is one title and the button, on a ground
    tinted with the client's colour (as the reference). */
-.mat, .state .k, .sv .ix { display: none !important; }
+.state .k, .sv .ix { display: none !important; }
+@media (max-width: 760px) { .mat { display: none !important; } }   /* the bags stay on desktop */
 .sv { grid-template-columns: auto minmax(0, 1fr) !important; }
 .cs { grid-template-columns: 1fr !important; grid-template-areas: 'p' 'go' !important; gap: 28px !important; padding: clamp(24px, 2.6vw, 40px) !important;
   background: color-mix(in srgb, var(--c) 9%, #0b0d0c) !important; border: 1px solid color-mix(in srgb, var(--c) 18%, rgba(233,236,242,.12)) !important; }
