@@ -103,7 +103,7 @@ body { color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif;
      nothing running while the page scrolls. The dot pulses on the peak:
      where it stands in each render, carried through object-fit: cover. */
   const hero = document.getElementById('hero'), img = document.getElementById('mt'), dot = document.getElementById('dot');
-  const PEAK = () => matchMedia('(max-width: 760px)').matches ? [0.5, 0.296] : [0.596, 0.299];
+  const PEAK = () => matchMedia('(max-width: 760px)').matches ? [0.5, 0.11] : [0.5, 0.153];
   function place() {
     if (!img.naturalWidth) return;
     const cw = hero.clientWidth, ch = hero.clientHeight, iw = img.naturalWidth, ih = img.naturalHeight, k = Math.max(cw / iw, ch / ih), [px, py] = PEAK();
