@@ -59,6 +59,13 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
 .after { height: 60vh; }
 @media (max-width: 640px) { #copy p { line-height: 1.16; } .side .meter i { width: 90px; } }
 @media (prefers-reduced-motion: reduce) { #copy .c { --q: 1 !important; } }
+/* no scroll reveal (Nov 2026): the words are simply there, the page scrolls past */
+#reveal-scope { height: auto !important; }
+#reveal-stage { position: static; height: auto; overflow: visible; padding-bottom: clamp(56px, 10vh, 120px); }
+.win { overflow: visible; -webkit-mask-image: none; mask-image: none; }
+#copy { padding: 2vh 0 0; transform: none !important; will-change: auto; }
+#copy .c { --q: 1 !important; }
+.side .meter, .after { display: none; }
 </style>
 <link rel="stylesheet" href="assets/tune.css">
 </head>
@@ -193,8 +200,7 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
   if (document.fonts) document.fonts.ready.then(() => { tops = null; shown = -1; });
   let visible = true;
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(scope);
-  layout();
-  requestAnimationFrame(loop);
+  layout();   /* no loop: nothing moves on scroll */
   addEventListener('resize', () => { shown = -1; tops = null; });
 
   /* ── the panel ─────────────────────────────────────────────────────── */
