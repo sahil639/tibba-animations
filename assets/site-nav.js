@@ -33,7 +33,12 @@ export function mountSiteNav(header, { nav = SITE_NAV, home = 'website-v3.html',
   const logo = mountLogoMorph(header.querySelector('.site-mark'), LOGO_MORPH);
   /* the mark changes form as the page scrolls, as on the home page */
   let lraf = 0;
-  addEventListener('scroll', () => { if (!lraf) lraf = requestAnimationFrame(() => { lraf = 0; logo && logo.to(Math.floor(scrollY / (innerHeight * 0.9))); }); }, { passive: true });
+  /* capture, so a page whose body is the scroller still reaches it; and a
+     slow poll as well, for scrolls that raise no event at all */
+  const sy = () => Math.max(scrollY, document.body.scrollTop, document.documentElement.scrollTop);
+  const turn = () => { lraf = 0; logo && logo.to(Math.floor(sy() / (innerHeight * 0.9))); };
+  document.addEventListener('scroll', () => { if (!lraf) lraf = requestAnimationFrame(turn); }, { passive: true, capture: true });
+  setInterval(turn, 400);
   if (current) header.querySelectorAll('.ca-link').forEach((a, i) => { if (items[i] && items[i].label === current) a.setAttribute('aria-current', 'page'); });
 
   const row = header.querySelector('.ca-row');

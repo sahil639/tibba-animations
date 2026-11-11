@@ -178,6 +178,14 @@ button { font: inherit; color: inherit; }
 .cs p { font-size: clamp(20px, 1.75vw, 28px) !important; line-height: 1.35 !important; color: rgba(233,236,242,.9) !important; max-width: 30ch; }
 .cs p em { color: inherit !important; }
 .cs .btn-p { justify-self: start; width: auto !important; }
+/* Nov 2026 (2): the case card shorter, a small mountain on its right, the peak pulsing in the client's colour */
+.cs { grid-template-columns: minmax(0, 1fr) clamp(140px, 34%, 260px) !important; grid-template-areas: 'p pk' 'go pk' !important; gap: 16px 20px !important;
+  padding: clamp(16px, 1.6vw, 24px) !important; overflow: hidden; }
+.cs p { font-size: clamp(17px, 1.4vw, 22px) !important; }
+.cs .cs-pk { grid-area: pk; align-self: stretch; min-height: 110px; margin: calc(-1 * clamp(16px, 1.6vw, 24px)) calc(-1 * clamp(16px, 1.6vw, 24px)) calc(-1 * clamp(16px, 1.6vw, 24px)) 0; }
+/* Nov 2026 (2): the icon close to its service's name */
+.sv { grid-template-columns: auto minmax(0, 1fr) !important; column-gap: 12px !important; }
+.sv .nm, .sv .ds { grid-column: 2 !important; }
 </style>
 <link rel="stylesheet" href="assets/tune.css">
 </head>
@@ -357,5 +365,12 @@ button { font: inherit; color: inherit; }
 </script>
 <!-- primary / secondary typography control (assets/type-control.js) -->
 <script type="module" src="assets/type-control.js"></script>
+<script type="module">
+  import { mountMiniPeak } from './assets/mini-peak.js';
+  document.querySelectorAll('.cs').forEach((c, i) => {
+    const d = document.createElement('div'); d.className = 'cs-pk'; c.appendChild(d);
+    mountMiniPeak(d, { seed: 21 + i * 9, colour: getComputedStyle(c).getPropertyValue('--c').trim(), rings: 16 });
+  });
+</script>
 </body>
 </html>

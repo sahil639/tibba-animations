@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-11T10:53:50.972Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-11T11:35:43.733Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -370,7 +370,7 @@ section { scroll-margin-top: 64px; }
 .stage-panel .cs p em { color: inherit; }
 
 /* the services list without its numbers: the mark, then the words */
-.svc li { grid-template-columns: 28px minmax(0, 1fr) !important; }
+.svc li { grid-template-columns: 26px minmax(0, 1fr) !important; gap: 8px !important; }
 /* Nov 2026: the stats as small boxes, two to a row */
 .stats { gap: 10px; column-gap: 10px; padding-top: 16px; }
 .stats div { padding: 16px 14px 18px; border: 1px solid var(--line); background: #0b0b0c; min-height: 104px; }
@@ -385,6 +385,17 @@ section { scroll-margin-top: 64px; }
 .dock-view { height: 100%; }
 .dock-bar { display: none; }
 .cases { padding-bottom: 32px; }
+/* Nov 2026 (2): no shared summit box; each case its own mountain, its peak pulsing in the client's colour */
+.dock { display: none !important; }
+.cases { padding-bottom: 32px; }
+.stage-panel .cs { grid-template-columns: minmax(0, 1fr) 38%; gap: 14px 12px; padding: 16px; overflow: hidden; }
+.stage-panel .cs p { font-size: 16px; grid-column: 1; }
+.stage-panel .cs .btn-p { grid-column: 1; margin-top: 0; }
+.stage-panel .cs .cs-pk { grid-column: 2; grid-row: 1 / span 2; margin: -16px -16px -16px 0; min-height: 110px; }
+.quote footer { display: grid; grid-template-columns: 44px 1fr; column-gap: 12px; align-items: center; }
+.quote footer .qpic { grid-row: 1 / span 2; width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #222; }
+.quote footer .qini { display: grid; place-items: center; font-size: 13px; letter-spacing: .04em; color: #fff; background: color-mix(in srgb, var(--c) 35%, #151515); }
+.case-peak { height: 150px; margin: 0 0 18px; border: 1px solid var(--line); background: #000; overflow: hidden; }
 </style>
 <style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
 html[data-wb-dock] body { padding-right: 0 !important; }</style>
@@ -430,25 +441,25 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
       <div class="dock-bar"><button type="button" class="on">Groww</button><button type="button">Firstpost</button><button type="button">Breathe ESG</button><button type="button">Shyft</button></div>
     </div>
     <div class="cases">
-      <article class="case" style="--c:#4DD9C0">
+      <article class="case" data-peak style="--c:#4DD9C0">
         <h3>How we helped Groww <span class="hi">boost engagement</span> on their app</h3>
         <p>A deep engagement with Groww to design and improve features that engage users on their consumer app, along with design support for other product initiatives.</p>
         <a class="rv" href="case-groww-figma.html" data-rive="groww" aria-label="Groww — the work"><span class="slot" data-folder="groww" data-alt="Groww — the work"></span></a>
         <a class="btn-p case-go" style="--btn-bg:#4DD9C0" href="case-groww-figma.html">View case study<span class="btn-p-ic" aria-hidden="true"></span></a>
       </article>
-      <article class="case" style="--c:#E05555">
+      <article class="case" data-peak style="--c:#E05555">
         <h3>How we helped Firstpost <span class="hi">2x their traffic</span> through a strategic redesign</h3>
         <p>A design overhaul of Firstpost’s website and the creation of their first mobile app, with a significant pivot for their business and content strategy.</p>
         <a class="rv" href="case-firstpost-figma.html" data-rive="firstpost" aria-label="Firstpost — the work"><span class="slot" data-folder="firstpost" data-alt="Firstpost — the work"></span></a>
         <a class="btn-p case-go" style="--btn-bg:#E05555" href="case-firstpost-figma.html">View case study<span class="btn-p-ic" aria-hidden="true"></span></a>
       </article>
-      <article class="case" style="--c:#4CAF70">
+      <article class="case" data-peak style="--c:#4CAF70">
         <h3>How we helped Breathe ESG <span class="hi">accelerate sales</span>, streamline releases and elevate customer experience</h3>
         <p>An MVP to v1 redesign of Breathe ESG’s SaaS platform, to make it easier for companies to track their ESG metrics and regulatory compliance.</p>
         <a class="rv" href="case-breathe-esg-figma.html" data-rive="breathe-esg" aria-label="Breathe ESG — the work"><span class="slot" data-folder="breathe-esg" data-alt="Breathe ESG — the work"></span></a>
         <a class="btn-p case-go" style="--btn-bg:#4CAF70" href="case-breathe-esg-figma.html">View case study<span class="btn-p-ic" aria-hidden="true"></span></a>
       </article>
-      <article class="case" style="--c:#7B8FF5">
+      <article class="case" data-peak style="--c:#7B8FF5">
         <h3>How we helped Shyft &amp; Mindhouse <span class="hi">grow their business</span> and supercharge product led growth</h3>
         <p>Conceptualising and designing a therapy experience, alongside redesigning their websites and apps to impact revenue.</p>
         <a class="rv" href="case-shyft-mindhouse-figma.html" data-rive="shyft-mindhouse" aria-label="Shyft &amp; Mindhouse — the work"><span class="slot" data-folder="shyft-mindhouse" data-alt="Shyft &amp; Mindhouse — the work"></span></a>
@@ -489,10 +500,10 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     <div class="row">
       <figure class="quote" style="--c:#E05555"><p class="qm" aria-hidden="true">“</p>
         <blockquote>Working with Rahul and team has been an absolute pleasure! The website they’ve designed not only captures the essence of our brand but also resonates with our target audience, resulting in increased engagement and satisfaction.</blockquote>
-        <footer><b>Milan Sachdeva</b>Senior General Manager, Firstpost</footer></figure>
+        <footer><img class="qpic" src="assets/work/firstpost-figma/milan.webp" alt="" width="44" height="44" loading="lazy"><b>Milan Sachdeva</b>Senior General Manager, Firstpost</footer></figure>
       <figure class="quote" style="--c:#4CAF70"><p class="qm" aria-hidden="true">“</p>
         <blockquote>Collaborating with the Tibba Design Studio team on our critical design sprint was transformative for Breathe ESG.</blockquote>
-        <footer><b>Shaayak Chaterjee</b>Founder, Breathe ESG</footer></figure>
+        <footer><span class="qpic qini" aria-hidden="true">SC</span><b>Shaayak Chaterjee</b>Founder, Breathe ESG</footer></figure>
     </div>
   </section>
 
@@ -536,7 +547,8 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
       panel.innerHTML = `<p class="out">${st.outcome}</p>
         <ol class="svc">${st.services.map(([n, k, l], j) => `<li><span aria-hidden="true">${ic(k)}</span><span><b>${esc(n)}</b><span>${esc(l)}</span></span></li>`).join('')}</ol>
         <div class="cs" style="--c:${st.cs[0]}"><p>${st.cs[3]}</p>
-          <a class="btn-p" href="${st.cs[4]}">View case study<span class="btn-p-ic" aria-hidden="true"></span></a></div>`;
+          <a class="btn-p" href="${st.cs[4]}">View case study<span class="btn-p-ic" aria-hidden="true"></span></a><div class="cs-pk"></div></div>`;
+      import('./assets/mini-peak.js').then(m => m.mountMiniPeak(panel.querySelector('.cs-pk'), { seed: 21 + i * 9, colour: st.cs[0], rings: 16 }));
     }
     tabs.forEach((b, i) => b.addEventListener('click', () => pick(i)));
     pick(0);
@@ -588,5 +600,12 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
 </script>
 <!-- primary / secondary typography control (assets/type-control.js) -->
 <script type="module" src="assets/type-control.js"></script>
+<script type="module">
+  import { mountMiniPeak } from './assets/mini-peak.js';
+  document.querySelectorAll('.case[data-peak]').forEach((c, i) => {
+    const d = document.createElement('div'); d.className = 'case-peak'; c.prepend(d);
+    mountMiniPeak(d, { seed: 7 + i * 13, colour: getComputedStyle(c).getPropertyValue('--c').trim(), peakX: [.5, .42, .58, .5][i] });
+  });
+</script>
 </body>
 </html>

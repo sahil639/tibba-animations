@@ -166,7 +166,7 @@ a { color: inherit; text-decoration: none; }
      one, the same box is drawn empty. */
   const T = [
     { quote: 'Working with Rahul and team has been an absolute pleasure! The website they’ve designed not only captures the essence of our brand but also resonates with our target audience, resulting in increased engagement and satisfaction.',
-      logo: 'Firstpost', name: 'Milan Sachdeva', role: 'Senior General Manager, Firstpost', photo: '', file: 'case-firstpost-figma.html', colour: '#E05555', pattern: 'ridge' },
+      logo: 'Firstpost', name: 'Milan Sachdeva', role: 'Senior General Manager, Firstpost', photo: 'assets/work/firstpost-figma/milan.webp', file: 'case-firstpost-figma.html', colour: '#E05555', pattern: 'ridge' },
     { quote: 'Collaborating with the Tibba Design Studio team on our critical design sprint was transformative for Breathe ESG.',
       logo: 'Breathe ESG', name: 'Shaayak Chaterjee', role: 'Founder, Breathe ESG', photo: '', file: 'case-breathe-esg-figma.html', colour: '#4CAF70', pattern: 'peak' },
   ];
@@ -196,7 +196,7 @@ a { color: inherit; text-decoration: none; }
       bq.innerHTML = t.quote.split(' ').map((w, k) => `<span class="w"><span style="--k:${k}">${w}</span></span>`).join(' ');
       who.innerHTML = `<b>${t.name}</b>${t.role}`;
       pic.innerHTML = photo(t);
-      go.href = t.file;
+      go.href = t.file; go.style.setProperty('--btn-bg', t.colour);
       q.classList.remove('out'); void q.offsetWidth; q.classList.add('in');
     }, first ? 0 : 360);
   }
@@ -226,7 +226,7 @@ a { color: inherit; text-decoration: none; }
   const track = $('.qtrack');
   track.innerHTML = T.map((t, i) => `<article class="qcard" style="--c:${t.colour}" data-i="${i}">
     <div>${t.placeholder ? '<span class="ph">Placeholder quote</span>' : ''}<p class="qm" aria-hidden="true">“</p><blockquote>${t.quote}</blockquote></div>
-    <div class="by"><span class="pic">${photo(t)}</span><p><b>${t.name}</b>${t.role}</p><a class="btn-p" href="${t.file}" target="_top">View case study<span class="btn-p-ic" aria-hidden="true"></span></a></div></article>`).join('');
+    <div class="by"><span class="pic">${photo(t)}</span><p><b>${t.name}</b>${t.role}</p><a class="btn-p" style="--btn-bg:${t.colour}" href="${t.file}" target="_top">View case study<span class="btn-p-ic" aria-hidden="true"></span></a></div></article>`).join('');
   const cards = [...track.children];
   function toCard(i) {
     i = (i + T.length) % T.length;

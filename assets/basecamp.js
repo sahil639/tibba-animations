@@ -273,6 +273,11 @@ export function mountBasecamp() {
     const m = phone.matches;
     root.classList.toggle('bc-phone', m);
     if (!m && stack.parentNode !== sec) sec.appendChild(stack);
+    /* phones: each card its own small mountain, the peak in its colour */
+    if (m && !root.querySelector('.mpk-box')) import('./mini-peak.js').then(({ mountMiniPeak }) => cards.forEach((c, i) => {
+      const d = document.createElement('div'); d.className = 'mpk-box'; c.querySelector('.in').prepend(d);
+      mountMiniPeak(d, { seed: 7 + i * 13, colour: S[i].colour, peakX: [.5, .42, .58, .5][i] });
+    }));
   }
   phone.addEventListener('change', layout); layout();
   /* the range ends exactly on the progress line, whatever the bar's height */

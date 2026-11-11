@@ -138,6 +138,12 @@ html, body { background: var(--bg); }
 .bc-phone .bc-dock { top: 66px; width: 44vw; height: calc(44vw * .62); margin: 0 var(--side) calc(-1 * 44vw * .62) auto; }
 .bc-phone #range { inset: 0; }
 .bc-phone #stack { padding-bottom: 48px; }
+/* Nov 2026 (2): the box on the left, over the copy; the copy and its button
+   standing at the foot of the card. Phones: each card its own small mountain */
+.bc-dock { margin: 0 auto calc(-1 * clamp(140px, 14vw, 200px)) var(--side); }
+.pn .txt { align-self: end; }
+.bc-phone .bc-dock { display: none; }
+.bc-phone .pn .mpk-box { height: 140px; margin-bottom: 4px; border: 1px solid rgba(233,236,242,.12); background: #000; overflow: hidden; }
 </style>
 <link rel="stylesheet" href="assets/tune.css">
 </head>

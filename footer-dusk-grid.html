@@ -90,7 +90,7 @@ body { background: #000; }
    foot of the grid as the fire does on the right — it rises into view once */
 .dg .word { grid-column: 1; grid-row: 3; border-right: 1px solid var(--ln); display: flex; flex-direction: column; justify-content: flex-end; gap: 14px;
   padding: clamp(22px, 3.2vw, 56px); color: #fff; }
-.dg .word svg { display: block; width: min(100%, 520px); height: auto; clip-path: inset(100% 0 0 0); transition: clip-path 1.2s cubic-bezier(.22,1,.36,1); }
+.dg .word svg { display: block; width: min(75%, 390px); height: auto; clip-path: inset(100% 0 0 0); transition: clip-path 1.2s cubic-bezier(.22,1,.36,1); }
 .dg .word.on svg { clip-path: inset(0 0 0 0); }
 .dg .word p { font-size: 13px; line-height: 1.5; color: rgba(233,236,242,.55); opacity: 0; transition: opacity .6s linear .7s; }
 .dg .word.on p { opacity: 1; }
@@ -144,7 +144,7 @@ body { background: #000; }
   import { fire, panel, applyBaked, year } from './assets/footer-kit.js';
   const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
   $$('.yr').forEach(e => { e.textContent = year(); });
-  const CONFIG = { fire: { mode: 'dither', palette: 'warm', cell: 5, dot: .86, contrast: 1.25, flame: 1.05, embers: 1.2, speed: .9, scale: 1.05, wood: .75 } };
+  const CONFIG = { fire: { mode: 'dither', palette: 'warm', cell: 5, dot: .86, contrast: 1.25, flame: 1.05, embers: 1.2, speed: .9, scale: .86, wood: .75 } };
   const KEY = 'tibba.bake.footer-dusk-grid'; applyBaked(KEY, CONFIG);
   const PHONE = matchMedia('(max-width: 760px)').matches;   /* the fire on desktop only */
   const f = PHONE ? null : fire($('.camp canvas'), { ...CONFIG.fire, x: .5, y: .74, blowOut: false, hand: false, follow: true });   // the flame dances after the pointer
