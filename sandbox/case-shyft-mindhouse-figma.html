@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-11T10:47:48.725Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-11T10:50:03.537Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -79,6 +79,27 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
       <figure class="cf-fig"><img src="assets/work/shyft-mindhouse-figma/ds-1.webp" width="2760" height="1800" alt="The Shyft app, rebuilt on the system" loading="lazy" decoding="async"></figure>
       <p class="cf-statement"><b>12 instances</b> of the bottomsheet component, simplified into one with variants.</p>
       <div class="cf-duo cf-duo-stack"><figure class="cf-fig"><img src="assets/work/shyft-mindhouse-figma/ds-2.webp" width="2760" height="1800" alt="12 instances of the bottomsheet component were simplified into one using variants" loading="lazy" decoding="async"></figure><figure class="cf-fig"><img src="assets/work/shyft-mindhouse-figma/ds-3.webp" width="2760" height="1800" alt="The components, before and after" loading="lazy" decoding="async"></figure></div>
+      <div class="cf-variants" aria-label="One bottomsheet component, its variants switched on and off">
+        <div class="vs-stage">
+          <div class="vs-ghost g2"></div><div class="vs-ghost g1"></div>
+          <div class="vs-sheet">
+            <i class="vs-grab"></i>
+            <div class="vs-part" data-p="icon"><span class="vs-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 12.5 10 17l9-10"/></svg></span></div>
+            <div class="vs-part" data-p="heading"><h4 class="vs-h">Your class is booked</h4></div>
+            <div class="vs-part" data-p="content"><p class="vs-c">Prenatal Yoga &amp; Breathwork, Tuesday at 7:00 am with Shubham.</p></div>
+            <div class="vs-part" data-p="subtext"><p class="vs-s">You can cancel up to 2 hours before.</p></div>
+            <div class="vs-part" data-p="button"><div class="vs-btns"><b class="sec">Later</b><b>View class</b></div></div>
+          </div>
+        </div>
+        <div class="vs-panel" aria-hidden="true">
+          <p class="vs-title"><span>&#9671;</span> Bottomsheet <em class="vs-n">1 / 12</em></p>
+          <p class="vs-row"><span>Icon</span><i data-t="icon"></i></p>
+          <p class="vs-row"><span>Heading</span><i data-t="heading"></i></p>
+          <p class="vs-row"><span>Content</span><i data-t="content"></i></p>
+          <p class="vs-row"><span>Subtext</span><i data-t="subtext"></i></p>
+          <p class="vs-row"><span>Button</span><i data-t="button"></i></p>
+        </div>
+      </div>
       <div class="cf-head"><div><h2>Designing for Conversion</h2></div><hr></div>
       <div class="cf-text"><p>Shyft ran ads about their bootcamps, and we helped them supercharge their conversions. We designed a dynamic landing page template that helped streamline their deployment time and enabled visitors to discover what resonated with them.</p></div>
       <figure class="cf-fig"><img src="assets/work/shyft-mindhouse-figma/conversion.webp" width="2760" height="1800" alt="The bootcamp landing page template: highlight stats, callbacks, USPs and cross selling" loading="lazy" decoding="async"></figure>
@@ -128,5 +149,40 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
 <script type="module" src="assets/case-devices.js"></script>
 <!-- primary / secondary typography control (assets/type-control.js) -->
 <script type="module" src="assets/type-control.js"></script>
+<script>
+/* the bottomsheet's variants: once in view, the panel's switches flip and
+   the one sheet takes each form in turn */
+(() => {
+  const box = document.querySelector('.cf-variants'); if (!box) return;
+  const V = [
+    ['Your class is booked','Prenatal Yoga & Breathwork, Tuesday at 7:00 am with Shubham.','icon heading content subtext button'],
+    ['Cancel this class?','Your credit goes back to your pass.','heading content button'],
+    ['Rate your session','How was HIIT with Ritika today?','icon heading button'],
+    ['New: Therapy','Talk to a licensed therapist from home.','heading content subtext button'],
+    ['Pass expiring soon','3 days left on your Shyft Pass.','icon heading content button'],
+    ['Saved','','icon heading'],
+  ];
+  const parts = [...box.querySelectorAll('.vs-part')], tg = [...box.querySelectorAll('.vs-row i')];
+  const h = box.querySelector('.vs-h'), c = box.querySelector('.vs-c'), n = box.querySelector('.vs-n');
+  let k = 0, timer = 0;
+  const show = i => {
+    const [hh, cc, on] = V[i % V.length], set = on.split(' ');
+    box.classList.add('swap');
+    setTimeout(() => {
+      h.textContent = hh; c.textContent = cc;
+      parts.forEach(p => p.classList.toggle('off', !set.includes(p.dataset.p)));
+      tg.forEach(t => t.classList.toggle('on', set.includes(t.dataset.t)));
+      n.textContent = (i % 12 + 1) + ' / 12';
+      box.classList.remove('swap');
+    }, 260);
+  };
+  show(0);
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  new IntersectionObserver(([e]) => {
+    clearInterval(timer);
+    if (e.isIntersecting) timer = setInterval(() => show(++k), 2000);
+  }, { threshold: .4 }).observe(box);
+})();
+</script>
 </body>
 </html>
