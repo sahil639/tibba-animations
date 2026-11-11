@@ -15,5 +15,5 @@
                   color-mix(in srgb, var(--c, #C9124B) 5%, transparent) 224px 225px, transparent 225px),
   linear-gradient(160deg, color-mix(in srgb, var(--c, #C9124B) 14%, #101012), #08080a 70%); }
 .wk-img.ph::before { content: ''; position: absolute; left: 64%; top: 42%; width: 10px; height: 10px; margin: -5px 0 0 -5px; background: var(--c, #C9124B); }
-.wk-img.ph::after { content: attr(data-wait); position: absolute; left: 14px; bottom: 12px; font: 400 10px/1.2 ui-monospace, 'SFMono-Regular', Menlo, monospace;
+.wk-img.ph::after { content: attr(data-wait); position: absolute; left: 14px; bottom: 12px; font: 400 10px/1.2 'F37 Analog', system-ui, sans-serif;
   letter-spacing: .12em; text-transform: uppercase; color: rgba(233,236,242,.45); }

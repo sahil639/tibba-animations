@@ -456,7 +456,7 @@ const LITE = matchMedia('(max-width: 760px), (pointer: coarse)').matches;
 /* opts.quality 'high': a small scene that can afford full resolution on a
    phone too (Base Camp's dock) — antialiased, pixel ratio up to 2, a finer field */
 const HIQ = opts.quality === 'high';
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: HIQ || !LITE || devicePixelRatio < 2, alpha: true, powerPreference: 'high-performance' });
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: HIQ || !LITE || devicePixelRatio < 2, alpha: true, powerPreference: 'high-performance', preserveDrawingBuffer: !!opts.preserve });
 /* desktop: never under 1.5 — on a 1x screen the contour sheet is drawn at
    1.5x and scaled down, which is what keeps its fine rings from breaking up
    into static (and screen-shared video from turning it into noise) */

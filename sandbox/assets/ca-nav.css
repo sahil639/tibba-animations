@@ -24,7 +24,7 @@
   --ca-white: #fff;
   --ca-black: #232323;
   --ca-accent: #C9124B;
-  --ca-mono: 'Geist Mono', ui-monospace, monospace;
+  --ca-mono: 'F37 Analog', system-ui, sans-serif;   /* Vend Sans, as every page */
 
   /* Type interpolates between a 375px and a 1600px viewport. caption-10 is
      12px at the small end and 14px at the large one. */

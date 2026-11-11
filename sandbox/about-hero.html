@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-11T11:35:43.733Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-11T11:40:48.725Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -25,7 +25,6 @@ gtag('config', 'G-DZS8N17C9N');
      the navbar exactly as it is. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="assets/ca-nav.css">
 <link rel="stylesheet" href="assets/site-shell.css">
 
@@ -74,9 +73,9 @@ body { color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif;
 /* the summit's dot (assets/about-ascent.js places it): a white core in a
    soft glow, two rings pulsing out — Base Camp's live mark */
 .asc-dot { position: absolute; left: 0; top: 0; z-index: 1; width: 0; height: 0; pointer-events: none; opacity: 0; transition: opacity .3s linear; }
-.asc-dot::before { content: ''; position: absolute; left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%; background: #fff;
-  box-shadow: 0 0 0 4px rgba(159,176,232,.18), 0 0 22px 6px rgba(238,241,248,.4); }
-.asc-dot::after { content: ''; position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(238,241,248,.8);
+.asc-dot::before { content: ''; position: absolute; left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%; background: #C9124B;
+  box-shadow: 0 0 0 4px rgba(201,18,75,.22), 0 0 22px 6px rgba(201,18,75,.45); }
+.asc-dot::after { content: ''; position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; border-radius: 50%; border: 1px solid #C9124B;
   animation: asc-ping 1.8s cubic-bezier(.16,.62,.36,1) infinite; }
 @keyframes asc-ping { from { transform: scale(1); opacity: .9; } to { transform: scale(4.4); opacity: 0; } }
 @media (max-width: 760px) {
@@ -84,11 +83,12 @@ body { color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif;
   .statement { top: auto; bottom: 10%; right: var(--gut); transform: none; font-size: clamp(44px, 14vw, 72px); }
   .statement .ln { display: block; } .statement .ln > span { display: inline-block; } .statement .ln > span:first-child { margin-right: .24em; }
 }
+@media (max-width: 760px) { .statement .ln > span { transition: none; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .statement .ln > span { transition: none; transform: none; } .asc-dot::after { animation: none; } }
 /* desktop: the home page's contour scene, with its own summit */
 #peak-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; opacity: 0; transition: opacity 1.2s linear; }
 .hero.live #peak-canvas { opacity: 1; }
-.hero.live .mt { display: none; }
+@media (min-width: 761px) { .mt { display: none; } }   /* desktop: the 3D render only, no still before it */
 @media (max-width: 760px) { #peak-canvas { display: none; } }
 </style>
 <style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
@@ -118,7 +118,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
      nothing running while the page scrolls. The dot pulses on the peak:
      where it stands in each render, carried through object-fit: cover. */
   const hero = document.getElementById('hero'), img = document.getElementById('mt'), dot = document.getElementById('dot');
-  const PEAK = () => matchMedia('(max-width: 760px)').matches ? [0.5, 0.11] : [0.5, 0.153];
+  const PEAK = () => matchMedia("(max-width: 760px)").matches ? [0.496, 0.132] : [0.662, 0.221];
   function place() {
     if (!img.naturalWidth) return;
     const cw = hero.clientWidth, ch = hero.clientHeight, iw = img.naturalWidth, ih = img.naturalHeight, k = Math.max(cw / iw, ch / ih), [px, py] = PEAK();
@@ -146,7 +146,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
                { dx: -4, dz: 14, h: 12, spread: 44, mesa: 0.55, aniso: 1.3 },
                { dx: -20, dz: 8, h: 6, spread: 22, mesa: 0.5, aniso: 1.1 } ] };
     const scene = createRangeScene({ canvas: document.getElementById('peak-canvas'), mode: 'hero', ink: false, palette: 'peak', backdrop: 'behind',
-      hover: false, mainPeak: PEAK });
+      hover: false, mainPeak: PEAK, preserve: /[?&]capture\b/.test(location.search) });
     scene.setAccent('#C9124B'); scene.setDepth(0.22); scene.setHover(false); scene.setFill(null);
     const CAM = { elev: 24, azim: -10, dist: 160, tgtX: -38, tgtY: 22 };
     window.tibba = { scene, CAM };

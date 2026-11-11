@@ -62,7 +62,7 @@ a { color: inherit; text-decoration: none; }
 .sl-rive > .rv-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 2; opacity: 0; transition: opacity .5s linear; }
 .sl-rive.rv-live > .rv-canvas { opacity: 1; }
 .sl-rive .rv-tag { position: absolute; right: 10px; top: 10px; z-index: 3; padding: 4px 7px; background: rgba(0,0,0,.6); max-width: calc(100% - 20px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  font: 400 9.5px/1 ui-monospace, 'SFMono-Regular', Menlo, monospace; letter-spacing: .12em; text-transform: uppercase; color: rgba(233,236,242,.6); }
+  font: 400 9.5px/1 'F37 Analog', system-ui, sans-serif; letter-spacing: .12em; text-transform: uppercase; color: rgba(233,236,242,.6); }
 .sl-rive.rv-live .rv-tag { display: none; }
 
 /* ── progress tabs: a bar per project, its name under it ─────────────── */
