@@ -144,3 +144,5 @@ html.site-locked .site-refresh { opacity: 0; pointer-events: none; }
   .site-nav-solo .ca-panel { width: min(300px, calc(100vw - 48px)); }
   .site-nav-solo .ca-panel::after { display: block; }
 }
+/* the page's wireframe ("scanner") beside the pill: off everywhere (Nov 2026) */
+.site-wire { display: none !important; }

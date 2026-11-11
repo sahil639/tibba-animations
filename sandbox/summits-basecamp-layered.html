@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-06T10:15:55.267Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-11T09:07:02.255Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -129,6 +129,22 @@ html, body { background: var(--bg); }
 .bc-phone .pn .media { gap: 12px; }
 .bc-phone .rv { max-height: none; }
 @media (prefers-reduced-motion: reduce) { .fs-peak.bc-mark::before, .fs-peak.bc-mark::after { animation: none; opacity: 0; } }
+
+/* ── Nov 2026: the range as a small box, docked top-right ─────────────────
+   The big mountain under the cards is gone; the same live range sits in a
+   small framed box at the top right of the section while its cards pass,
+   still flying summit to summit. The cards keep their places. The box is
+   sized in px with its own aspect, so the range is never stretched. */
+.bc-dock { top: 84px; width: clamp(220px, 22vw, 320px); height: clamp(140px, 14vw, 200px); margin: 0 var(--side) calc(-1 * clamp(140px, 14vw, 200px)) auto;
+  z-index: 30; border: 1px solid rgba(233,236,242,.14); background: #000; pointer-events: none; }
+.bc-dock::before { display: none; }
+#range { -webkit-mask-image: none; mask-image: none; }
+.bc-bar, #bc-panel { display: none !important; }
+.pn .in { padding-bottom: clamp(56px, 8vh, 96px); }
+.rv { max-height: calc(100vh - 230px); }
+.bc-phone .bc-dock { top: 66px; width: 44vw; height: calc(44vw * .62); margin: 0 var(--side) calc(-1 * 44vw * .62) auto; }
+.bc-phone #range { inset: 0; }
+.bc-phone #stack { padding-bottom: 48px; }
 </style>
 <link rel="stylesheet" href="assets/tune.css">
 <style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }

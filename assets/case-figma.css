@@ -482,3 +482,44 @@ body:has(.cf-light) { background: #f5f9fa; }
   .cf .cf-quote figcaption b { font-size: 17px; align-self: end; }
   .cf .cf-quote figcaption span { font-size: 13px; align-self: start; }
 }
+
+/* ══ one type and spacing system for the four cases (Nov 2026) ═══════════
+   Mobile first, then scaled up with the screen. Every case uses these and
+   nothing else for its section headings, body text and the rhythm between
+   sections: heading 26 → 44, body 17 → 21, lede 20 → 28; a section is
+   40 → 96 from the next, a heading 20 → 32 from its words. */
+.cf { --t-h2: clamp(26px, 1.6rem + 1.5vw, 44px); --t-body: clamp(17px, 1rem + .3vw, 21px); --t-lede: clamp(20px, 1.1rem + .7vw, 28px);
+  --s-sec: clamp(40px, 2rem + 4vw, 96px); --s-head: clamp(20px, 1rem + 1vw, 32px); }
+.cf .cf-body { gap: var(--s-sec); }
+.cf .cf-head { gap: var(--s-head); }
+.cf .cf-head h2 { font-size: var(--t-h2); line-height: 1.15; font-weight: 500; letter-spacing: -.015em; }
+.cf .cf-text { font-size: var(--t-body); line-height: 1.5; }
+.cf .cf-text p:first-child { text-indent: 0; }
+.cf .cf-text p + p, .cf .cf-pair .cf-text p + p { margin-top: 1em; }
+.cf .cf-cols h3, .cf .cf-outcome h3 { font-size: clamp(18px, 1rem + .5vw, 24px); line-height: 1.25; }
+.cf .cf-cols p, .cf .cf-outcome li { font-size: clamp(15px, .9rem + .2vw, 18px); line-height: 1.45; }
+.cf .cf-statement { font-size: var(--t-lede); line-height: 1.25; }
+.cf .cf-next h2 { font-size: var(--t-h2); }
+.cf .cf-card p { font-size: clamp(17px, 1rem + .5vw, 24px); line-height: 1.3; }
+
+/* ── Breathe ESG, Nov 2026 ─────────────────────────────────────────────── */
+/* the outcome as one panel on the brand's green (as the reference) */
+.cf-outcome-panel { margin-inline: calc(-1 * var(--over, 0px)); padding: clamp(28px, 2rem + 3vw, 88px) clamp(20px, 1rem + 3.5vw, 96px);
+  background: linear-gradient(180deg, #2b5f52, #224c41); color: #fff; display: flex; flex-direction: column; gap: 18px; }
+.cf-outcome-panel .kick { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.72); }
+.cf-outcome-panel h2 { margin: 0; font-weight: 500; font-size: var(--t-h2); line-height: 1.1; color: #fff; }
+.cf-outcome-panel .cf-text { max-width: 34ch; color: rgba(255,255,255,.82); }
+.cf-outcome-panel .cf-outcome { margin-top: clamp(20px, 1rem + 2vw, 56px); border-top: 0; }
+.cf-outcome-panel .cf-outcome > div { border-bottom-color: rgba(255,255,255,.16); padding: clamp(22px, 1rem + 1.5vw, 40px) 0; }
+.cf-outcome-panel .cf-outcome > div:last-child { border-bottom: 0; }
+.cf-outcome-panel .cf-outcome h3 { color: rgba(255,255,255,.9); font-weight: 500; }
+.cf-outcome-panel .cf-outcome li { display: inline-flex; align-items: center; gap: 10px; padding: 12px 18px; border-radius: 6px; background: rgba(255,255,255,.07); color: #fff; }
+.cf-outcome-panel .cf-outcome li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #00B876; flex: none; }
+/* the sprint cards: larger — the full row's width, taller on the page */
+.cf-stack { --sw: min(calc(100vw - 2 * var(--pad)), 1380px); width: var(--sw); margin-inline: calc((100% - var(--sw)) / 2); gap: 22vh; }
+.cf-stack-card { border-radius: 10px; overflow: hidden; }
+.cf-stack-card img { min-height: min(62vh, 560px); object-fit: cover; object-position: 30% 50%; }
+/* a plate narrower than the column (the organisation diagram) */
+.cf-fig.cf-narrow { max-width: 560px; margin-inline: auto; }
+@media (max-width: 760px) { .cf-stack-card img { min-height: 0; } .cf-stack { gap: 10vh; } }
+.cf-stack-card img { min-height: 0 !important; object-fit: initial; }

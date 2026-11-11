@@ -10,35 +10,14 @@
    should still set in something sane rather than in Times.
    ═════════════════════════════════════════════════════════════════════════ */
 
+/* Vend Sans (Google Fonts, OFL) — the studio face from Nov 2026. Set under
+   the family name the whole repo already asks for, so every page switches
+   at once; F37 Analog's files stay in fonts/ to switch back. One variable
+   file covers 300–700; Thin (100) is set at its lightest, 300. */
 @font-face {
   font-family: 'F37 Analog';
-  src: url('fonts/F37AnalogTrial-Thin.otf') format('opentype');
-  font-weight: 100; font-style: normal; font-display: swap;
-}
-@font-face {
-  font-family: 'F37 Analog';
-  src: url('fonts/F37AnalogTrial-Light.otf') format('opentype');
-  font-weight: 300; font-style: normal; font-display: swap;
-}
-@font-face {
-  font-family: 'F37 Analog';
-  src: url('fonts/F37AnalogTrial-Regular.otf') format('opentype');
-  font-weight: 400; font-style: normal; font-display: swap;
-}
-@font-face {
-  font-family: 'F37 Analog';
-  src: url('fonts/F37AnalogTrial-Medium.otf') format('opentype');
-  font-weight: 500; font-style: normal; font-display: swap;
-}
-@font-face {
-  font-family: 'F37 Analog';
-  src: url('fonts/F37AnalogTrial-SemiBold.otf') format('opentype');
-  font-weight: 600; font-style: normal; font-display: swap;
-}
-@font-face {
-  font-family: 'F37 Analog';
-  src: url('fonts/F37AnalogTrial-Bold.otf') format('opentype');
-  font-weight: 700; font-style: normal; font-display: swap;
+  src: url('fonts/VendSans-Variable.woff2') format('woff2');
+  font-weight: 100 900; font-style: normal; font-display: swap;
 }
 
 :root {
@@ -48,4 +27,9 @@
      time a digit changes under a slider. The face carries tabular figures, so
      the panels ask for those rather than for a different family. */
   --font-ui: 'F37 Analog', system-ui, sans-serif;
+}
+@font-face {
+  font-family: 'F37 Analog';
+  src: url('fonts/VendSans-Italic-Variable.woff2') format('woff2');
+  font-weight: 100 900; font-style: italic; font-display: swap;
 }

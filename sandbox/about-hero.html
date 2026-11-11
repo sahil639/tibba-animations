@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-06T10:15:55.267Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-11T09:07:02.255Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -51,7 +51,12 @@ gtag('config', 'G-DZS8N17C9N');
 html, body { margin: 0; background: #000; }
 body { color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
 .hero { position: relative; overflow: hidden; height: 100vh; height: 100svh; min-height: 560px; background: #000; color: #f1eee7; isolation: isolate; }
-#ascent { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; }
+.mt img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; display: block;
+  opacity: 0; animation: mt-in 1.2s linear .1s forwards; }
+@keyframes mt-in { to { opacity: 1; } }
+.asc-dot.on { opacity: 1; }
+/* phones: not a full screen — the next section shows at the foot */
+@media (max-width: 760px) { .hero { height: 85vh; height: 85svh; min-height: 480px; } }
 /* the floor the title stands on: black from the left and the foot, so the
    line work never runs through the letters */
 .hero::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
@@ -92,77 +97,30 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
      ───────────────────────────────────────────────────────────────────── -->
 <header id="ca-header"></header>
 <main class="hero" id="hero" aria-labelledby="about-h">
-  <canvas id="ascent" aria-hidden="true"></canvas>
+  <picture class="mt"><source media="(max-width: 760px)" srcset="assets/about/hero-mountain-phone.webp"><img id="mt" src="assets/about/hero-mountain.webp" alt="" fetchpriority="high" decoding="async"></picture>
+  <i class="asc-dot on" id="dot" aria-hidden="true"></i>
   <h1 class="statement" id="about-h"><span class="ln"><span>Tibba means</span></span><span class="ln"><span>a higher</span></span><span class="ln"><span>place<em>.</em></span></span></h1>
 </main>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.min.js","three/addons/":"https://unpkg.com/three@0.165.0/examples/jsm/"}}</script>
 <script type="module">
   /* Website v3's navbar, the same as the home page's (assets/site-nav.js) */
   import { mountSiteNav } from './assets/site-nav.js';
   mountSiteNav(document.getElementById('ca-header'), { current: 'About' });
 </script>
-<script type="module">
-  import { mountAscent, ASCENT } from './assets/about-ascent.js';
-  const hero = document.getElementById('hero');
-  const a = mountAscent(document.getElementById('ascent'), hero);
-  window.tibbaAscent = a;
-  /* the title comes up as the camera arrives over the summit */
-  const showTitle = () => hero.classList.add('in');
-  a.onEnd(showTitle);
-  setTimeout(showTitle, ASCENT.duration * 1000 * 0.7);
-
-  /* ── the panel: the mountain's shape, and the move ──────────────────── */
-  const el = document.createElement('div');
-  el.id = 'tune';
-  const R = (id, label, min, max, step, val) => `<div class="row"><label>${label}<i id="v-${id}">${val}</i></label><input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}"></div>`;
-  el.innerHTML = `<div id="tune-head"><b>About hero — ascent</b><button id="tune-hide" title="Hide (H)">–</button></div>
-    <p class="tune-sub">Playback</p>
-    <div class="row inline"><label>Move<i></i></label><span><button class="tune-btn" id="b-play">Play</button> <button class="tune-btn" id="b-pause">Pause</button> <button class="tune-btn" id="b-restart">Restart</button></span></div>
-    ${R('u', 'Scrub', 0, 1, .001, 1)}
-    ${R('du', 'Duration (s)', .6, 6, .05, ASCENT.duration)}
-    <div class="row"><label>Timing<i></i></label><select id="s-ease">
-      <option value=".55,0,.15,1" selected>Accelerate, ease out (default)</option>
-      <option value=".65,0,.35,1">Ease in-out</option>
-      <option value=".4,0,.2,1">Gentle</option>
-      <option value="0,0,1,1">Linear</option></select></div>
-    <p class="tune-sub">The mountain</p>
-    ${R('h', 'Summit height', .8, 1.6, .02, ASCENT.height)}
-    ${R('rs', 'Rest of the range', .2, 1, .02, ASCENT.rest)}
-    ${R('fr', 'Summit across frame', -.2, .4, .01, ASCENT.frame)}
-    <p class="tune-sub">Topography</p>
-    ${R('rl', 'Ground relief', 0, 16, .5, ASCENT.relief)}
-    ${R('fc', 'Landforms', 0, 40, 1, ASCENT.fill.count)}
-    ${R('fh', 'Landform height', .2, 1.2, .02, ASCENT.fill.height)}
-    ${R('fs', 'Landform seed', 1, 99, 1, ASCENT.fill.seed)}
-    ${R('lv', 'Contour density', 20, 80, 1, ASCENT.levels)}
-    <p class="tune-sub">Rocks</p>
-    ${R('rk', 'Rocks', 0, 160, 1, ASCENT.rocks)}
-    ${R('rz', 'Rock size', .4, 2.5, .05, ASCENT.rockSize)}`;
-  document.body.appendChild(el);
-  const q = id => el.querySelector('#' + id);
-  let deb = 0;
-  const later = fn => { clearTimeout(deb); deb = setTimeout(fn, 180); };
-  const bind = (id, fn, slow) => q('s-' + id).addEventListener('input', e => { const v = +e.target.value; q('v-' + id).textContent = v; slow ? later(() => fn(v)) : fn(v); });
-  q('b-play').addEventListener('click', () => a.play());
-  q('b-pause').addEventListener('click', () => a.pause());
-  q('b-restart').addEventListener('click', () => { hero.classList.remove('in'); a.restart(); setTimeout(showTitle, ASCENT.duration * 700); });
-  bind('u', v => a.scrub(v));
-  a.onState(u => { if (a.playing) { q('s-u').value = u; q('v-u').textContent = u.toFixed(2); } });
-  bind('du', v => { ASCENT.duration = v; });
-  q('s-ease').addEventListener('change', e => a.setEase(e.target.value.split(',').map(Number)));
-  bind('h', v => a.reshape({ height: v }), true);
-  bind('rs', v => a.reshape({ rest: v }), true);
-  bind('fr', v => a.reshape({ frame: v }), true);
-  bind('rl', v => a.reshape({ relief: v }), true);
-  bind('fc', v => a.reshape({ fill: { count: v } }), true);
-  bind('fh', v => a.reshape({ fill: { height: v } }), true);
-  bind('fs', v => a.reshape({ fill: { seed: v } }), true);
-  bind('lv', v => a.reshape({ levels: v }), true);
-  bind('rk', v => a.reshape({ rocks: v }), true);
-  bind('rz', v => a.reshape({ rockSize: v }), true);
-  q('tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
-  if (window.wb && window.wb.adopt) window.wb.adopt();
+<script>
+  /* Nov 2026: the ascent is a still now — the same summit, rendered once
+     (assets/about/hero-mountain[-phone].webp), light to load and with
+     nothing running while the page scrolls. The dot pulses on the peak:
+     where it stands in each render, carried through object-fit: cover. */
+  const hero = document.getElementById('hero'), img = document.getElementById('mt'), dot = document.getElementById('dot');
+  const PEAK = () => matchMedia('(max-width: 760px)').matches ? [0.5, 0.296] : [0.596, 0.299];
+  function place() {
+    if (!img.naturalWidth) return;
+    const cw = hero.clientWidth, ch = hero.clientHeight, iw = img.naturalWidth, ih = img.naturalHeight, k = Math.max(cw / iw, ch / ih), [px, py] = PEAK();
+    dot.style.transform = `translate(${(cw - iw * k) / 2 + px * iw * k}px, ${(ch - ih * k) / 2 + py * ih * k}px)`;
+  }
+  img.complete ? place() : img.addEventListener('load', place);
+  new ResizeObserver(place).observe(hero);
+  requestAnimationFrame(() => hero.classList.add('in'));
 </script>
 <!-- primary / secondary typography control (assets/type-control.js) -->
 <script type="module" src="assets/type-control.js"></script>

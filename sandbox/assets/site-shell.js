@@ -103,8 +103,7 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
       <ol class="site-drawer-list">${items}</ol>
     </div></div>`);
     /* the wireframe, in its own panel to the pill's right */
-    header.insertAdjacentHTML('beforeend', `<div class="site-wire" title="Where you are on the page"><div class="site-wire-in"><div class="site-wire-track"></div></div></div>`);
-    wire = mountWire(header.querySelector('.site-wire'), header.querySelector('.ca-panel'));
+    /* removed (Nov 2026): the page's wireframe beside the pill is off everywhere */
   }
   drawNav();
   const menu = open => {

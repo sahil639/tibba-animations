@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-05T09:53:21.918Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-11T09:07:02.255Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -366,6 +366,28 @@ section { scroll-margin-top: 64px; }
 /* the framed sections */
 .sec-frame { display: block; width: 100%; height: 900px; border: 0; background: #000; }
 #studio.sec-frame { margin-top: 56px; }
+
+/* Nov 2026: the case card as the desktop's — one title, the button, a tinted ground */
+.stage-panel .cs { background: color-mix(in srgb, var(--c) 9%, #0b0d0c); border: 1px solid color-mix(in srgb, var(--c) 18%, rgba(233,236,242,.12)); gap: 22px; padding: 22px 20px; }
+.stage-panel .cs p { font-size: 19px; line-height: 1.35; color: rgba(233,236,242,.9); }
+.stage-panel .cs p em { color: inherit; }
+
+/* the services list without its numbers: the mark, then the words */
+.svc li { grid-template-columns: 28px minmax(0, 1fr) !important; }
+/* Nov 2026: the stats as small boxes, two to a row */
+.stats { gap: 10px; column-gap: 10px; padding-top: 16px; }
+.stats div { padding: 16px 14px 18px; border: 1px solid var(--line); background: #0b0b0c; min-height: 104px; }
+.stats strong { font-size: 34px; }
+.stats span { margin-top: 10px; font-size: 12.5px; }
+/* the summits: a small box at the top right, not a band across the foot */
+.climb { --dh: calc(44vw * 428 / 696); }
+.dock { position: relative; top: auto; width: 40vw; margin: -64px 0 24px auto; height: var(--dh); }
+.climb { --dh: calc(40vw * 428 / 696); }
+/* (on a phone the box stands beside the heading rather than following the
+   cards: pinned, it covered their titles) */
+.dock-view { height: 100%; }
+.dock-bar { display: none; }
+.cases { padding-bottom: 32px; }
 </style>
 <style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
 html[data-wb-dock] body { padding-right: 0 !important; }</style>
@@ -457,13 +479,6 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
       <button type="button" role="tab" aria-selected="false" data-i="1"><small>02</small>Mid stage</button>
       <button type="button" role="tab" aria-selected="false" data-i="2"><small>03</small>Established</button>
     </div>
-    <figure class="pack" id="pack">
-      <div class="pack-view">
-        <div class="pk on" data-name="Waist pack" data-src="assets/video/bag1.mp4"><img src="assets/video/bag1.jpg" alt="A waist pack" decoding="async"></div>
-        <div class="pk" data-name="Day pack" data-src="assets/video/bag2.mp4"><img src="assets/video/bag2.jpg" alt="A day pack" decoding="async"></div>
-        <div class="pk" data-name="Hiking bag" data-src="assets/video/bag0.mp4"><img src="assets/video/bag0.jpg" alt="A hiking bag" decoding="async"></div>
-      </div>
-    </figure>
     <div class="stage-panel" id="stage-panel" role="tabpanel" aria-live="polite"></div>
   </section>
 
@@ -500,15 +515,15 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
       { label: 'Early-stage startup', outcome: 'From idea to a product people want.',
         services: [['Product strategy', 'product-strategy', 'Decide what to build first, and why.'], ['MVP design', 'product-design', 'A launch-ready first version in weeks.'],
                    ['Research & testing', 'usability-testing', 'Real users, real answers, before you build.'], ['Brand & launch', 'marketing-growth', 'An identity and a site that earn trust on day one.']],
-        cs: ['#4CAF70', 'Early-stage companies', 'Breathe ESG', 'How we helped Breathe ESG <em>accelerate sales</em>', 'case-breathe-esg-figma.html'] },
+        cs: ['#4CAF70', 'Early-stage companies', 'Breathe ESG', 'How we helped Breathe ESG <em>accelerate sales</em>, streamline releases and elevate customer experience', 'case-breathe-esg-figma.html'] },
       { label: 'Mid-stage startup', outcome: 'Turn traction into growth.',
         services: [['Growth design', 'optimisation', 'Onboarding, pricing and funnels that convert.'], ['Design system', 'design-systems', 'One kit, so every team ships faster.'],
                    ['Design to code', 'dev-support', 'Production-ready UI your developers can ship.'], ['Product analytics', 'market-research', 'See what users do, fix what slows them down.']],
-        cs: ['#E05555', 'Mid-size companies', 'Firstpost', 'How we helped Firstpost <em>2x their traffic</em>', 'case-firstpost-figma.html'] },
+        cs: ['#E05555', 'Mid-size companies', 'Firstpost', 'How we helped Firstpost <em>2x their traffic</em> through a strategic redesign', 'case-firstpost-figma.html'] },
       { label: 'Established company', outcome: 'Stay ahead while you scale.',
         services: [['Product innovation', 'user-interface', 'Prototype and test new bets in weeks.'], ['Experience audit', 'user-experience', 'Find what is costing you users, and fix it.'],
                    ['Embedded design team', 'user-research', 'Senior designers inside your team, on your cadence.'], ['AI features', 'optimisation', 'Useful AI in your product, designed for trust.']],
-        cs: ['#4DD9C0', 'Established companies', 'Groww', 'How we helped Groww <em>boost engagement</em>', 'case-groww-figma.html'] },
+        cs: ['#4DD9C0', 'Established companies', 'Groww', 'How we helped Groww <em>boost engagement</em> on their app', 'case-groww-figma.html'] },
     ];
     const esc = t => t.replace(/&/g, '&amp;');
     const panel = document.getElementById('stage-panel'), tabs = [...document.querySelectorAll('.stages button')];
@@ -516,11 +531,9 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     function pick(i) {
       const st = S[i];
       tabs.forEach((b, k) => b.setAttribute('aria-selected', String(k === i)));
-      panel.innerHTML = `<p class="lbl">${String(i + 1).padStart(2, '0')} · ${st.label}</p>
-        <p class="out">${st.outcome}</p>
-        <p class="bring"><span>What we bring</span><b>04</b></p>
-        <ol class="svc">${st.services.map(([n, k, l], j) => `<li><span aria-hidden="true">${ic(k)}</span><span class="n">0${j + 1}</span><span><b>${esc(n)}</b><span>${esc(l)}</span></span></li>`).join('')}</ol>
-        <div class="cs" style="--c:${st.cs[0]}"><small>${st.cs[1]}</small><b>${st.cs[2]}</b><p>${st.cs[3]}</p>
+      panel.innerHTML = `<p class="out">${st.outcome}</p>
+        <ol class="svc">${st.services.map(([n, k, l], j) => `<li><span aria-hidden="true">${ic(k)}</span><span><b>${esc(n)}</b><span>${esc(l)}</span></span></li>`).join('')}</ol>
+        <div class="cs" style="--c:${st.cs[0]}"><p>${st.cs[3]}</p>
           <a class="btn-p" href="${st.cs[4]}">View case study<span class="btn-p-ic" aria-hidden="true"></span></a></div>`;
     }
     tabs.forEach((b, i) => b.addEventListener('click', () => pick(i)));
