@@ -259,6 +259,8 @@ if (!MODE_RANGE && opts.terrain !== false) {
 /* a mountain built in the Mountains lab and set to "Use in hero" / "Use as
    summit" stands in for the authored one — in that browser only */
 if (opts.siteLandforms !== false) applySiteLandforms(PEAKS, MODE_RANGE ? 'range' : 'hero');
+/* opts.mainPeak: another landform stands in for the studio's massif (About) */
+if (opts.mainPeak) PEAKS[0] = { ...clonePeak(opts.mainPeak), x: PEAKS[0].x, z: PEAKS[0].z };
 PEAKS.forEach(prepareLandform);
 const PROJECT_PEAKS = [1, 2, 3, 4];        // PEAKS index per case, in CASES order
 
@@ -3172,6 +3174,13 @@ return {
      a projected point is a real position and a nonsense one at the same
      time. */
   setRingHover(i) { ringHover = (i == null ? -1 : i); },
+
+  /** Peak 0's summit on screen, CSS pixels relative to the canvas. */
+  summitScreen() {
+    const t = PEAK_TOP[0] || PEAKS[0];
+    _rc.set(t.x, PEAK_H[0], t.z); mountainGroup.localToWorld(_rc); _rc.project(camera);
+    return { x: (_rc.x * 0.5 + 0.5) * vpW(), y: (-_rc.y * 0.5 + 0.5) * vpH(), behind: _rc.z > 1 };
+  },
 
   ringScreen() {
     const w = vpW(), h = vpH();

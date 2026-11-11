@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-11T10:50:44.309Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-11T10:53:50.972Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -76,7 +76,7 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
   .fcard { min-height: 0; }
   .fcard .v { font-size: 44px; }
 }
-@media all { .fcard .plate { clip-path: none; } .fcard .k, .fcard .v, .fcard .body, .fcard .tags { opacity: 1; } .fcard .pin { transform: none; } }
+@media (max-width: 760px), (prefers-reduced-motion: reduce) { .fcard .plate { clip-path: none; } .fcard .k, .fcard .v, .fcard .body, .fcard .tags { opacity: 1; } .fcard .pin { transform: none; } }
 </style>
 <link rel="stylesheet" href="assets/tune.css">
 <style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
@@ -134,7 +134,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   const C = FOUNDATION_CONFIG;
   const BAKE_KEY = 'tibba.bake.about-foundations';
   applyBaked(BAKE_KEY, C);
-  const REDUCED = true;   /* no load-in: the cards are simply there */
+  const REDUCED = matchMedia('(max-width: 760px)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches;   /* phones: no load-in */
 
   const cards = [...document.querySelectorAll('.fcard')];
   const topos = cards.map((c, i) => CardTopo.attach(c.querySelector('.plate'), Object.assign({}, C.topo[i], { fade: REDUCED ? 1 : 0 })));

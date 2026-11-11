@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-11T10:50:44.309Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-11T10:53:50.972Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -85,6 +85,11 @@ body { color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif;
   .statement .ln { display: block; } .statement .ln > span { display: inline-block; } .statement .ln > span:first-child { margin-right: .24em; }
 }
 @media (prefers-reduced-motion: reduce) { .statement .ln > span { transition: none; transform: none; } .asc-dot::after { animation: none; } }
+/* desktop: the home page's contour scene, with its own summit */
+#peak-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; opacity: 0; transition: opacity 1.2s linear; }
+.hero.live #peak-canvas { opacity: 1; }
+.hero.live .mt { display: none; }
+@media (max-width: 760px) { #peak-canvas { display: none; } }
 </style>
 <style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
 html[data-wb-dock] body { padding-right: 0 !important; }</style>
@@ -98,6 +103,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
 <header id="ca-header"></header>
 <main class="hero" id="hero" aria-labelledby="about-h">
   <picture class="mt"><source media="(max-width: 760px)" srcset="assets/about/hero-mountain-phone.webp"><img id="mt" src="assets/about/hero-mountain.webp" alt="" fetchpriority="high" decoding="async"></picture>
+  <canvas id="peak-canvas"></canvas>
   <i class="asc-dot on" id="dot" aria-hidden="true"></i>
   <h1 class="statement" id="about-h"><span class="ln"><span>Tibba means</span></span><span class="ln"><span>a higher</span></span><span class="ln"><span>place<em>.</em></span></span></h1>
 </main>
@@ -118,9 +124,40 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     const cw = hero.clientWidth, ch = hero.clientHeight, iw = img.naturalWidth, ih = img.naturalHeight, k = Math.max(cw / iw, ch / ih), [px, py] = PEAK();
     dot.style.transform = `translate(${(cw - iw * k) / 2 + px * iw * k}px, ${(ch - ih * k) / 2 + py * ih * k}px)`;
   }
-  img.complete ? place() : img.addEventListener('load', place);
-  new ResizeObserver(place).observe(hero);
+  const still = () => !hero.classList.contains('live');
+  img.complete ? still() && place() : img.addEventListener('load', () => still() && place());
+  new ResizeObserver(() => still() && place()).observe(hero);
   requestAnimationFrame(() => hero.classList.add('in'));
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.min.js"}}</script>
+<script type="module">
+  /* desktop: the home hero's scene (assets/range-scene.js), another summit
+     in place of the studio's massif, the dot pulsing on its top */
+  if (!matchMedia('(max-width: 760px)').matches) {
+    const { createRangeScene } = await import('./assets/range-scene.js');
+    const { LANDFORM_LIBRARY } = await import('./assets/landform.js');
+    const hero = document.getElementById('hero'), dot = document.getElementById('dot');
+    /* a lone steep horn on a wide apron: one clear summit, smooth like the home peak */
+    const PEAK = { x: 0, z: 0, h: 44, spread: 40, seed: 52.3, rot: 0.5, aniso: 1.08, warp: 10,
+      spur: 0.18, spurF: 2.6, flute: 0.04, fluteF: 9,
+      parts: [ { dx: 0, dz: 0, h: 26, spread: 15, sharp: 1.5, aniso: 1.05 },
+               { dx: 3, dz: 5, h: 12, spread: 26, sharp: 2.2, aniso: 1.15 },
+               { dx: -4, dz: 14, h: 12, spread: 44, mesa: 0.55, aniso: 1.3 },
+               { dx: -20, dz: 8, h: 6, spread: 22, mesa: 0.5, aniso: 1.1 } ] };
+    const scene = createRangeScene({ canvas: document.getElementById('peak-canvas'), mode: 'hero', ink: false, palette: 'peak', backdrop: 'behind',
+      hover: false, mainPeak: PEAK });
+    scene.setAccent('#C9124B'); scene.setDepth(0.22); scene.setHover(false); scene.setFill(null);
+    const CAM = { elev: 24, azim: -10, dist: 160, tgtX: -38, tgtY: 22 };
+    window.tibba = { scene, CAM };
+    hero.classList.add('live');
+    (function frame() {
+      requestAnimationFrame(frame);
+      scene.setHeroCam(CAM);
+      const s = scene.summitScreen();
+      if (!s.behind) dot.style.transform = `translate(${s.x}px, ${s.y + 6}px)`;
+    })();
+  }
 </script>
 <!-- primary / secondary typography control (assets/type-control.js) -->
 <script type="module" src="assets/type-control.js"></script>
