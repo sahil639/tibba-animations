@@ -30,7 +30,10 @@ export function mountSiteNav(header, { nav = SITE_NAV, home = 'website-v3.html',
   const items = nav.map(it => it.label === 'Contact' && foot ? { ...it, href: '#contact' } : it);
   mountCaHeader(header, { nav: items, announcement: TICKER, home, mark: '<span class="site-mark" aria-hidden="true"></span>' });
   header.classList.add('site-nav', 'site-nav-solo');
-  mountLogoMorph(header.querySelector('.site-mark'), LOGO_MORPH);
+  const logo = mountLogoMorph(header.querySelector('.site-mark'), LOGO_MORPH);
+  /* the mark changes form as the page scrolls, as on the home page */
+  let lraf = 0;
+  addEventListener('scroll', () => { if (!lraf) lraf = requestAnimationFrame(() => { lraf = 0; logo && logo.to(Math.floor(scrollY / (innerHeight * 0.9))); }); }, { passive: true });
   if (current) header.querySelectorAll('.ca-link').forEach((a, i) => { if (items[i] && items[i].label === current) a.setAttribute('aria-current', 'page'); });
 
   const row = header.querySelector('.ca-row');

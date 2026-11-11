@@ -75,3 +75,14 @@ if (runs.length) {
   runs.forEach(({ screens }) => screens.forEach(s => s.querySelectorAll('img').forEach(i => i.addEventListener('load', ask))));
   ask();
 }
+
+/* ── devices in a container: the screens scroll by hand; on phones the
+   switch shows the laptop or the phone ───────────────────────────────── */
+document.querySelectorAll('.cf-devbox').forEach(box => {
+  mountPrototype(box.querySelector('.cf-proto'), null, { screens: JSON.parse(box.dataset.screens), captions: false });
+  const btns = [...box.querySelectorAll('.cf-ba-switch button')];
+  btns.forEach(b => b.addEventListener('click', () => {
+    box.dataset.show = b.dataset.v;
+    btns.forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  }));
+});
