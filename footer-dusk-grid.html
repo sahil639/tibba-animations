@@ -110,7 +110,13 @@ body { background: #000; }
   .dg .word { padding: 26px 16px; }
 }
 @media (prefers-reduced-motion: reduce) { .dg .word svg { clip-path: none; transition: none; } .dg .word p { opacity: 1; transition: none; } }
-@media (max-width: 760px) { .dg .camp { display: none; } }
+@media (max-width: 760px) { .dg .camp { display: none; }
+  /* phones: the logo 20% smaller, a still of the fire to its right */
+  .dg .word { position: relative; }
+  .dg .word svg { width: 60%; }
+  .dg .word::after { content: ''; position: absolute; right: 16px; bottom: 22px; width: 26%; aspect-ratio: 260 / 308;
+    background: url('assets/icons/campfire-still.png') center bottom / contain no-repeat; pointer-events: none; }
+}
 </style>
 <link rel="stylesheet" href="assets/tune.css">
 </head>

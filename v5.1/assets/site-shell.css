@@ -146,3 +146,6 @@ html.site-locked .site-refresh { opacity: 0; pointer-events: none; }
 }
 /* the page's wireframe ("scanner") beside the pill: off everywhere (Nov 2026) */
 .site-wire { display: none !important; }
+
+/* phones (Nov 2026): straight edges — no curved ears either side of the bar */
+@media (max-width: 760px) { .site-nav .ca-panel::before, .site-nav .ca-panel::after { display: none !important; } .site-nav .ca-panel, .site-nav .ca-panel-inner { border-radius: 0 !important; } }
