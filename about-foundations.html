@@ -69,6 +69,7 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
   .fcard .v { font-size: 44px; }
 }
 @media (max-width: 760px), (prefers-reduced-motion: reduce) { .fcard .plate { clip-path: none; } .fcard .k, .fcard .v, .fcard .body, .fcard .tags { opacity: 1; } .fcard .pin { transform: none; } }
+@media (max-width: 760px) { .fcard .card-topo { display: none !important; } }   /* phones: no contour lines behind the cards */
 </style>
 <link rel="stylesheet" href="assets/tune.css">
 </head>

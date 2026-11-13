@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-12T12:51:39.702Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-13T04:34:30.706Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -400,9 +400,12 @@ section { scroll-margin-top: 64px; }
 .quote footer .qini { display: grid; place-items: center; font-size: 13px; letter-spacing: .04em; color: #fff; background: color-mix(in srgb, var(--c) 35%, #151515); }
 .case-peak { height: 150px; margin: 0 0 18px; border: 1px solid var(--line); background: #000; overflow: hidden; }
 
+/* ══ Nov 2026 (4): hero 95vh, the title a step smaller, the mountain clear below it */
+.hero { min-height: 95vh !important; } @supports (height: 1svh) { .hero { min-height: 95svh !important; } }
+.hero h1 { font-size: clamp(44px, 14vw, 68px); }
 /* ══ Nov 2026 (3), phones ══════════════════════════════════════════════ */
 .hero { min-height: 80vh; } @supports (height: 1svh) { .hero { min-height: 80svh; } }
-.hero-vid { inset: auto; top: 9%; left: 0; height: 100%; }
+.hero-vid { inset: auto; top: 22%; left: 0; height: 100%; }
 /* more work: tap a name, its line opens under it */
 .index li { flex-wrap: wrap; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .index .ix-d { flex-basis: 100%; max-height: 0; overflow: hidden; opacity: 0; font-size: 14px; line-height: 1.45; color: var(--mute); transition: max-height .35s ease, opacity .25s linear, margin .35s ease; }
@@ -587,7 +590,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   });
 </script>
 <script type="module">
-  import { mountSiteNav } from './assets/site-nav.js';
+  import { mountSiteNav } from './assets/site-nav.js?v=3';
   mountSiteNav(document.getElementById('ca-header'), { home: 'website-v3-mobile.html', nav: [
     { label: 'Work', href: '#work' }, { label: 'Services', href: '#services' }, { label: 'About', href: 'about.html' }, { label: 'Contact', href: '#footer' }] });
 </script>

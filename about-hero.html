@@ -76,7 +76,13 @@ body { color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif;
   .statement { top: auto; bottom: 10%; right: var(--gut); transform: none; font-size: clamp(44px, 14vw, 72px); }
   .statement .ln { display: block; } .statement .ln > span { display: inline-block; } .statement .ln > span:first-child { margin-right: .24em; }
 }
-@media (max-width: 760px) { .statement .ln > span { transition: none; transform: none; } }
+@media (max-width: 760px) {
+  /* phones: one sequence, once — the words, then the mountain, then the peak */
+  .statement .ln > span { transition: none; transform: none; }
+  .statement { opacity: 0; animation: mt-in .6s linear .1s forwards; }
+  .mt img { animation: mt-in 1s linear .8s forwards; }
+  .asc-dot.on { opacity: 0; animation: mt-in .4s linear 1.9s forwards; }
+}
 @media (prefers-reduced-motion: reduce) { .statement .ln > span { transition: none; transform: none; } .asc-dot::after { animation: none; } }
 /* desktop: the home page's contour scene, with its own summit */
 #peak-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; opacity: 0; transition: opacity 1.2s linear; }
