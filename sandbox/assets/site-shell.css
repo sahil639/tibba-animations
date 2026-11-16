@@ -144,8 +144,7 @@ html.site-locked .site-refresh { opacity: 0; pointer-events: none; }
 /* the same navbar on a page outside the shell (assets/site-nav.js): no
    wireframe beside it on a phone, so the pill keeps both its handles */
 @media (max-width: 760px) {
-  .site-nav-solo .ca-panel { width: min(300px, calc(100vw - 48px)); }
-  .site-nav-solo .ca-panel::after { display: block; }
+  /* Nov 2026: the same pill as the About page's — one navbar everywhere */
 }
 /* the page's wireframe ("scanner") beside the pill: off everywhere (Nov 2026) */
 .site-wire { display: none !important; }

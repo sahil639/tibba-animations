@@ -330,7 +330,7 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
       if (wire) wire.mark();
     }
     if (wire) wire.follow();
-    if (logo) logo.to(Math.floor(sy / (vh * C.logoStep)));
+    /* the mark keeps its form while the page scrolls (Nov 2026) */
   }
 
   /* ── the gate: a section off screen stops drawing ─────────────────────

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-16T10:59:00.879Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-16T11:04:16.392Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -422,11 +422,10 @@ section { scroll-margin-top: 64px; }
 .stage-panel .cs .btn-p { display: none !important; }
 
 /* ══ Nov 2026 (5), phones ══════════════════════════════════════════════ */
-.hero-svg { position: absolute; inset: 0; top: 0 !important; height: 100% !important; overflow: hidden; }
-.hero-svg svg { position: absolute; left: 0; bottom: 0; width: 100%; height: 100%; display: block; }
-.case-ico { width: 24px; height: 24px; margin-bottom: 14px; color: var(--c); }
-.case-ico svg { display: block; width: 24px; height: 24px; }
-.st-ico { display: block; width: 24px; height: 24px; margin-bottom: 4px; color: rgba(233,236,242,.6); }
+.case-ico { display: block; width: 32px; height: 32px; margin-bottom: 14px; color: rgba(233,236,242,.88); --ac: var(--c); }
+.case-ico svg { display: block; width: 32px; height: 32px; }
+.st-ico { display: block; width: 30px; height: 30px; margin-bottom: 6px; color: rgba(233,236,242,.6); --ac: rgba(233,236,242,.6); }
+.stages button[aria-selected="true"] .st-ico { --ac: var(--o); }
 .st-ico svg { display: block; width: 100%; height: 100%; }
 .stages button[aria-selected="true"] .st-ico { color: #fff; }
 .svc li { gap: 14px !important; }
@@ -439,7 +438,6 @@ section { scroll-margin-top: 64px; }
 /* buttons: black on the colour, as the menu; on the case tiles, clear with a hairline */
 .btn-p { color: #000 !important; }
 .case .case-go { background: transparent !important; color: #fff !important; border: 1px solid var(--c) !important; }
-.case .rv { aspect-ratio: 4 / 5; }
 /* more work: the open row in the watermelon pink */
 .index li[aria-expanded="true"] b { color: #C9124B; }
 .index li[aria-expanded="true"] { border-bottom-color: rgba(201,18,75,.5); }
@@ -457,7 +455,10 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     <!-- the 3D hero mountain, rendered to a seamless 10.5 s loop
          (tools/render-hero.html): a muted H.264 video the phone decodes in
          hardware — the 3D look with none of the 3D work -->
-    <div class="hero-vid hero-svg" id="hero-svg" aria-hidden="true"></div>
+    <video class="hero-vid" id="hero-vid" autoplay muted loop playsinline preload="auto"
+      poster="assets/video/hero-mountain.jpg" aria-hidden="true" tabindex="-1">
+      <source src="assets/video/hero-mountain.mp4" type="video/mp4">
+    </video>
     <div class="hero-foot">
       <p>Helping ambitious teams<br>reach the next peak.</p>
       <p>We partner with founders and design leaders to turn ambitious ideas into shipped, high-impact work.</p>
@@ -609,22 +610,17 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   });
 </script>
 <script type="module">
-  import { mountSiteNav } from './assets/site-nav.js?v=3';
+  import { mountSiteNav } from './assets/site-nav.js?v=4';
   mountSiteNav(document.getElementById('ca-header'), { home: 'website-v3-mobile.html', nav: [
     { label: 'Work', href: '#work' }, { label: 'Services', href: '#services' }, { label: 'About', href: 'about.html' }, { label: 'Contact', href: '#footer' }] });
 </script>
 <script>
-  /* the hero: one generated SVG (tools/make-hero-svg.mjs), its three depths
-     drifting apart as the page scrolls — the nearest fastest */
-  (async function () {
-    const box = document.getElementById('hero-svg');
-    box.innerHTML = await (await fetch('assets/hero-mountain.svg')).text();
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const L = [['.far', .08], ['.mid', .16], ['.near', .3]].map(([q, k]) => [box.querySelector(q), k]);
-    let raf = 0;
-    const go = () => { raf = 0; const y = Math.min(innerHeight, Math.max(scrollY, document.body.scrollTop));
-      L.forEach(([g, k]) => g && g.setAttribute('transform', `translate(0 ${(-y * k).toFixed(1)})`)); };
-    document.addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(go); }, { passive: true, capture: true });
+  /* the video stays a still (its poster) for anyone who asks for less
+     motion or less data */
+  (function () {
+    const v = document.getElementById('hero-vid');
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches || (navigator.connection && navigator.connection.saveData);
+    if (still) { v.removeAttribute('autoplay'); v.preload = 'none'; v.pause(); }
   })();
 </script>
 <script>
