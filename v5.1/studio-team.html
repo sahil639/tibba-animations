@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-13T04:34:30.706Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-16T10:59:00.879Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -58,6 +58,10 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
   .title h1 { font-size: 44px; }
   .shot { position: static; width: auto; }
   .shot:nth-of-type(odd) { margin-top: 28px; }
+  /* phones: VizChitra first; Crit hour and On the ridge last */
+  .title { order: -10; }
+  .shot:nth-of-type(3) { order: -5; }
+  .shot:nth-of-type(1), .shot:nth-of-type(2) { order: 10; }
 }
 @media (prefers-reduced-motion: reduce) { .shot { transition: none; opacity: 1; transform: none; } }
 </style>

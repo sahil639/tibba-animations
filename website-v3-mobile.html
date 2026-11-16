@@ -413,6 +413,29 @@ section { scroll-margin-top: 64px; }
 .stages button img { display: block; width: 34px; height: 29px; margin: 0 auto 6px; object-fit: contain; opacity: .7; transition: opacity .2s linear; }
 .stages button[aria-selected="true"] img { opacity: 1; }
 .stage-panel .cs .btn-p { display: none !important; }
+
+/* ══ Nov 2026 (5), phones ══════════════════════════════════════════════ */
+.hero-svg { position: absolute; inset: 0; top: 0 !important; height: 100% !important; overflow: hidden; }
+.hero-svg svg { position: absolute; left: 0; bottom: 0; width: 100%; height: 100%; display: block; }
+.case-ico { width: 24px; height: 24px; margin-bottom: 14px; color: var(--c); }
+.case-ico svg { display: block; width: 24px; height: 24px; }
+.st-ico { display: block; width: 24px; height: 24px; margin-bottom: 4px; color: rgba(233,236,242,.6); }
+.st-ico svg { display: block; width: 100%; height: 100%; }
+.stages button[aria-selected="true"] .st-ico { color: #fff; }
+.svc li { gap: 14px !important; }
+.cs-row { display: flex; align-items: center; gap: 14px; margin-top: 22px; padding: 16px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); color: #fff; text-decoration: none; font-size: 15px; }
+.cs-row img { height: 18px; width: auto; max-width: 92px; }
+.cs-row span { flex: 1; }
+.cs-row i { font-style: normal; font-size: 18px; }
+.stats { padding-top: 24px !important; padding-bottom: 24px; }
+.stats div { padding: 16px 14px !important; }
+/* buttons: black on the colour, as the menu; on the case tiles, clear with a hairline */
+.btn-p { color: #000 !important; }
+.case .case-go { background: transparent !important; color: #fff !important; border: 1px solid var(--c) !important; }
+.case .rv { aspect-ratio: 4 / 5; }
+/* more work: the open row in the watermelon pink */
+.index li[aria-expanded="true"] b { color: #C9124B; }
+.index li[aria-expanded="true"] { border-bottom-color: rgba(201,18,75,.5); }
 </style>
 </head>
 <body>
@@ -425,10 +448,7 @@ section { scroll-margin-top: 64px; }
     <!-- the 3D hero mountain, rendered to a seamless 10.5 s loop
          (tools/render-hero.html): a muted H.264 video the phone decodes in
          hardware — the 3D look with none of the 3D work -->
-    <video class="hero-vid" id="hero-vid" autoplay muted loop playsinline preload="auto"
-      poster="assets/video/hero-mountain.jpg" aria-hidden="true" tabindex="-1">
-      <source src="assets/video/hero-mountain.mp4" type="video/mp4">
-    </video>
+    <div class="hero-vid hero-svg" id="hero-svg" aria-hidden="true"></div>
     <div class="hero-foot">
       <p>Helping ambitious teams<br>reach the next peak.</p>
       <p>We partner with founders and design leaders to turn ambitious ideas into shipped, high-impact work.</p>
@@ -573,8 +593,7 @@ section { scroll-margin-top: 64px; }
       tabs.forEach((b, k) => b.setAttribute('aria-selected', String(k === i)));
       panel.innerHTML = `<p class="out">${st.outcome}</p>
         <ol class="svc">${st.services.map(([n, k, l], j) => `<li><span aria-hidden="true">${ic(k)}</span><span><b>${esc(n)}</b><span>${esc(l)}</span></span></li>`).join('')}</ol>
-        <div class="cs" style="--c:${st.cs[0]}"><p>${st.cs[3]}</p>
-          <a class="cs-pk" href="${st.cs[4]}" aria-label="${st.cs[2]} case study" style="--c:${st.cs[0]}"><img src="assets/icons/summit-${{Groww:0, Firstpost:1, 'Breathe ESG':2}[st.cs[2]]}.png" alt=""><i></i></a></div>`;
+        <a class="cs-row" href="${st.cs[4]}"><img src="assets/logos/${{Groww:'groww', Firstpost:'firstpost', 'Breathe ESG':'breatheesg'}[st.cs[2]]}.svg" alt="${st.cs[2]}"><span>Read our ${st.cs[2]} case study</span><i aria-hidden="true">→</i></a>`;
     }
     tabs.forEach((b, i) => b.addEventListener('click', () => pick(i)));
     pick(0);
@@ -586,12 +605,17 @@ section { scroll-margin-top: 64px; }
     { label: 'Work', href: '#work' }, { label: 'Services', href: '#services' }, { label: 'About', href: 'about.html' }, { label: 'Contact', href: '#footer' }] });
 </script>
 <script>
-  /* the video stays a still (its poster) for anyone who asks for less
-     motion or less data */
-  (function () {
-    const v = document.getElementById('hero-vid');
-    const still = matchMedia('(prefers-reduced-motion: reduce)').matches || (navigator.connection && navigator.connection.saveData);
-    if (still) { v.removeAttribute('autoplay'); v.preload = 'none'; v.pause(); }
+  /* the hero: one generated SVG (tools/make-hero-svg.mjs), its three depths
+     drifting apart as the page scrolls — the nearest fastest */
+  (async function () {
+    const box = document.getElementById('hero-svg');
+    box.innerHTML = await (await fetch('assets/hero-mountain.svg')).text();
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const L = [['.far', .08], ['.mid', .16], ['.near', .3]].map(([q, k]) => [box.querySelector(q), k]);
+    let raf = 0;
+    const go = () => { raf = 0; const y = Math.min(innerHeight, Math.max(scrollY, document.body.scrollTop));
+      L.forEach(([g, k]) => g && g.setAttribute('transform', `translate(0 ${(-y * k).toFixed(1)})`)); };
+    document.addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(go); }, { passive: true, capture: true });
   })();
 </script>
 <script>
@@ -627,9 +651,10 @@ section { scroll-margin-top: 64px; }
 <!-- primary / secondary typography control (assets/type-control.js) -->
 <script type="module" src="assets/type-control.js"></script>
 <script type="module">
-  /* each case: its own summit from the desktop range, icon-sized, the peak pulsing */
+  const ICONS = await import('./assets/m-icons.js');
+  /* each case: its summit as a small static icon */
   document.querySelectorAll('.case[data-peak]').forEach((c, i) => {
-    c.insertAdjacentHTML('afterbegin', `<span class="case-ico" aria-hidden="true"><img src="assets/icons/summit-${i}.png" alt="" width="126" height="96"><i></i></span>`);
+    c.insertAdjacentHTML('afterbegin', `<span class="case-ico" aria-hidden="true">${ICONS.SUMMIT[i]}</span>`);
   });
   /* more work: tap a name, its one line opens */
   document.querySelectorAll('.index li').forEach(li => {
@@ -641,7 +666,7 @@ section { scroll-margin-top: 64px; }
   const mq = document.getElementById('marquee');
   if (mq) new IntersectionObserver(([e]) => mq.classList.toggle('run', e.isIntersecting)).observe(mq);
   /* the stage tabs: the desktop bags as icons */
-  document.querySelectorAll('.stages button').forEach((b, i) => b.insertAdjacentHTML('afterbegin', `<img src="assets/icons/bag-${i}.png" alt="" width="112" height="96">`));
+  document.querySelectorAll('.stages button').forEach((b, i) => b.insertAdjacentHTML('afterbegin', `<span class="st-ico">${ICONS.PACK[i]}</span>`));
 </script>
 </body>
 </html>

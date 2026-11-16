@@ -67,7 +67,10 @@ html.site-locked .ca.ca-header.site-nav { transform: translateY(calc(-100% - 4px
   .site-drawer { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .5s cubic-bezier(.65,0,.35,1); }
   .site-nav.open .site-drawer { grid-template-rows: 1fr; }
   .site-drawer-in { overflow: hidden; min-height: 0; }
-  .site-nav.open .site-drawer-in { border-top: 1px solid rgba(255,255,255,.1); padding: 14px 10px 16px; }
+  .site-drawer-in { border-top: 1px solid transparent; }
+  .site-drawer-list { padding: 14px 10px 16px; }
+  .site-nav.open .site-drawer-in { border-top-color: rgba(255,255,255,.1); }
+  .site-drawer { will-change: grid-template-rows; contain: layout paint; }
   .site-drawer-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
   .site-drawer-list a { display: flex; align-items: flex-start; gap: 8px; color: #f1eee7; text-decoration: none;
     font-size: clamp(26px, 8vw, 32px); line-height: 1.06; letter-spacing: -.02em; transition: color .2s linear; }
