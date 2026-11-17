@@ -138,8 +138,8 @@
   if (matchMedia('(max-width: 760px)').matches) {
     const old = document.getElementById('footer'), foot = document.createElement('footer');
     foot.id = 'footer'; foot.setAttribute('data-site-footer', ''); old.replaceWith(foot);
-    document.head.insertAdjacentHTML('beforeend', '<link rel="stylesheet" href="assets/site-footer.css?v=1">');
-    import('./assets/site-footer.js?v=1').then(m => m.mountSiteFooter(foot));
+    document.head.insertAdjacentHTML('beforeend', '<link rel="stylesheet" href="assets/site-footer.css?v=3">');
+    import('./assets/site-footer.js?v=2').then(m => m.mountSiteFooter(foot));
   }
 </script>
 

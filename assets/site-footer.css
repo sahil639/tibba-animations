@@ -61,7 +61,8 @@
   padding: 28px 22px 24px; color: #fff; }
 .sf-logo { grid-column: 1; grid-row: 1; display: block; width: 100%; max-width: 150px; height: auto; }
 .sf-word p { grid-column: 1; grid-row: 2; font-size: 12.5px; line-height: 1.45; color: var(--mute); }
-.sf-flame { grid-column: 2; grid-row: 1; justify-self: end; align-self: end; display: block; width: 46px; height: auto; margin-bottom: -2px; }
+.sf-word { position: relative; min-height: 150px; align-content: center; }
+.sf-flame { position: absolute; right: 32px; top: 50%; transform: translateY(-50%); display: block; width: 100px; height: auto; }
 
 /* Pages | Social */
 .sf-col { padding: 22px; border-top: 1px solid var(--ln); }

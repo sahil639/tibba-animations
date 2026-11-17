@@ -50,7 +50,7 @@ export function mountSiteFooter(host) {
   <section class="sf-word" aria-label="Tibba">
     ${LOGO}
     <p>Tibba Design Studio<br>India, and remote</p>
-    <img class="sf-flame" src="assets/icons/campfire-still-92.webp" width="46" height="55" alt="" loading="lazy" decoding="async">
+    <img class="sf-flame" src="assets/icons/campfire-still-260.webp" width="100" height="118" alt="" loading="lazy" decoding="async">
   </section>
   <nav class="sf-col" aria-label="Pages"><p class="sf-k">Pages</p>
     <ul>${PAGES.map(([n, h, s]) => `<li><a href="${h}"${s ? ` data-sec="${s}"` : ''}>${n}</a></li>`).join('')}</ul></nav>
