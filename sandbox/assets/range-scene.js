@@ -1378,6 +1378,7 @@ if (opts.backdrop === 'behind') {
   CT.DOT_FLOW = 0.5;
 }
 
+let CT_LINES = null;
 function buildContourGeometry() {
   ACCENT_RINGS.length = 0;
   ctBuildField();
@@ -1496,9 +1497,11 @@ function buildContourGeometry() {
   /* every point's height, clear of the mesh */
   const ySafe = (x, z, level) => Math.max(level, meshYAt(x, z)) + CT.LIFT;
 
+  CT_LINES = lines;                // kept for contourExport() (the phone hero's SVG)
   let v = 0, ii = 0;
   for (const L of lines) {
     const P = L.pts, n = P.length;
+    L.p3 = P.map(pt => [pt[0], ySafe(pt[0], pt[1], L.level), pt[1]]);
     const cum = new Float32Array(n); let tot = 0;
     for (let i = 1; i < n; i++) { tot += Math.hypot(P[i][0]-P[i-1][0], P[i][1]-P[i-1][1]); cum[i] = tot; }
     if (tot < 1e-5) tot = 1;
@@ -3174,6 +3177,27 @@ return {
      a projected point is a real position and a nonsense one at the same
      time. */
   setRingHover(i) { ringHover = (i == null ? -1 : i); },
+
+  /** Every contour as it projects right now: CSS-pixel points [x, y, ndcZ]
+      with its stroke weight, dotted flag and accent ring — for an offline
+      vector copy of a frame (tools/render-hero.html ?svg=1). */
+  contourExport() {
+    mountainGroup.updateMatrixWorld(true); camera.updateMatrixWorld(true);
+    const w = vpW(), h = vpH(), u = contourMat.uniforms.uWeight.value;
+    /* hidden: the straight line from the eye to the point dips under the
+       ground somewhere on the way (marched over the mesh's own heights) */
+    const eye = mountainGroup.worldToLocal(camera.getWorldPosition(new THREE.Vector3()));
+    const hidden = p => {
+      for (let i = 1; i < 64; i++) {
+        const t = i / 64, x = eye.x + (p[0] - eye.x) * t, y = eye.y + (p[1] - eye.y) * t, z = eye.z + (p[2] - eye.z) * t;
+        if (meshYAt(x, z) > y + 0.05) return true;
+      }
+      return false;
+    };
+    return (CT_LINES || []).map(L => ({ w: L.weight * u, dot: L.dotted, ring: L.ring, closed: L.closed,
+      pts: L.p3.map(p => { _rc.set(p[0], p[1], p[2]); mountainGroup.localToWorld(_rc); _rc.project(camera);
+        return [(_rc.x * 0.5 + 0.5) * w, (-_rc.y * 0.5 + 0.5) * h, _rc.z, hidden(p) ? 1 : 0]; }) }));
+  },
 
   /** Peak 0's summit on screen, CSS pixels relative to the canvas. */
   summitScreen() {

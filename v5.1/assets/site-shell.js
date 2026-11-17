@@ -95,8 +95,8 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
     logo = mountLogoMorph(header.querySelector('.site-mark'), LOGO_MORPH);
     /* the phone's row: Menu and the toggle */
     const row = header.querySelector('.ca-row');
-    row.insertAdjacentHTML('beforeend', `<button class="site-menu" type="button" aria-expanded="false" aria-controls="site-drawer">
-      <span class="site-menu-word">Menu</span><span class="site-menu-tg" aria-hidden="true"><i></i><i></i></span></button>`);
+    row.insertAdjacentHTML('beforeend', `<a class="site-contact" href="#footer" data-target="footer">Contact us</a><button class="site-menu" type="button" aria-expanded="false" aria-controls="site-drawer" aria-label="Menu">
+      <span class="site-menu-tg" aria-hidden="true"><i></i><i></i></span></button>`);
     /* the drawer: the links */
     const items = navItems().map((it, i) => `<li><a href="${it.href}"${it.target ? ` data-target="${it.target}"` : ''}><small>0${i + 1}</small>${it.label}</a></li>`).join('');
     row.insertAdjacentHTML('afterend', `<div class="site-drawer" id="site-drawer"><div class="site-drawer-in">
@@ -330,7 +330,7 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
       if (wire) wire.mark();
     }
     if (wire) wire.follow();
-    /* the mark keeps its form while the page scrolls (Nov 2026) */
+    if (logo) logo.to(Math.floor(sy / (vh * C.logoStep)));
   }
 
   /* ── the gate: a section off screen stops drawing ─────────────────────

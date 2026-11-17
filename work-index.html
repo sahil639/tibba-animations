@@ -55,10 +55,13 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
 .row:hover .ar { width: 40px; background: var(--c); } .row:hover .ar::after { color: var(--c); }
 
 /* the floating cover */
-.peek { position: fixed; left: 0; top: 0; z-index: 30; width: clamp(280px, 26vw, 420px); pointer-events: none; opacity: 0;
-  transition: opacity .25s linear; will-change: transform; }
+.peek { position: fixed; left: 0; top: 0; z-index: 30; width: clamp(280px, 24vw, 389px); pointer-events: none; opacity: 0;
+  transition: opacity .22s linear; will-change: transform; }
 .peek.on { opacity: 1; }
-.peek .card { position: relative; border: 1px solid rgba(233,236,242,.18); box-shadow: 0 30px 60px rgba(0,0,0,.6); transform: scale(.94); transition: transform .4s cubic-bezier(.22,1,.36,1); }
+.peek .card { position: relative; border: 1px solid rgba(233,236,242,.18); box-shadow: 0 30px 60px rgba(0,0,0,.6); transform: scale(.94); transition: transform .28s cubic-bezier(.22,1,.36,1); }
+/* the hover images (assets/more-hover/), whole at their own 389 × 291 */
+.peek .hv { display: none; width: 100%; height: auto; aspect-ratio: 389 / 291; }
+.peek .hv.cur { display: block; }
 .peek.on .card { transform: none; }
 .peek .wk-img { display: none; }
 .peek .wk-img.cur { display: block; }
@@ -98,8 +101,16 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
       <div class="strip">${W.img(m.folder, 'cover', m.client, '16 / 7')}</div>
       <span class="yr">${esc(m.year)}</span><span class="nm">${esc(m.client)}</span>
       <span class="ln">${esc(m.line)}</span><span class="sc">${esc(m.sector)}</span><i class="ar"></i></li>`).join('');
-  imgs.innerHTML = W.MORE.map(m => W.img(m.folder, 'cover', m.client, '4 / 3')).join('');
-  [...list.querySelectorAll('.wk-img'), ...imgs.children].forEach((el, k) => el.style.setProperty('--c', W.MORE[k % W.MORE.length].colour));
+  /* desktop hover: each project's own image (assets/more-hover/<folder>.webp),
+     fetched up front so it is there the moment a row is hovered — and only
+     where there is a real hover (no touch, wider than a tablet) */
+  const HOVER = { apnaklub: 'apnaklub', 'indian-express': 'indian-express', 'cipher-docs': 'zeta', 'urban-company': 'urban-company', zomato: 'zomato', 'hdfc-smartbuy': 'hdfc-smartbuy' };
+  const desk = matchMedia('(min-width: 901px) and (hover: hover) and (pointer: fine)').matches;
+  imgs.innerHTML = desk ? W.MORE.map(m => HOVER[m.folder]
+    ? `<img class="hv" src="assets/more-hover/${HOVER[m.folder]}.webp" width="389" height="291" alt="" decoding="async">`
+    : W.img(m.folder, 'cover', m.client, '4 / 3')).join('') : '';
+  list.querySelectorAll('.wk-img').forEach((el, k) => el.style.setProperty('--c', W.MORE[k].colour));
+  [...imgs.children].forEach((el, k) => el.style.setProperty('--c', W.MORE[k].colour));
   const covers = [...imgs.children];
 
   /* the cover follows the pointer, with a lag, leaning into its motion */
@@ -115,7 +126,7 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
   list.addEventListener('pointermove', e => { tx = e.clientX; ty = e.clientY; if (!raf) raf = requestAnimationFrame(tick); });
   list.querySelectorAll('.row').forEach(r => {
     r.addEventListener('pointerenter', e => {
-      if (e.pointerType === 'touch') return;
+      if (e.pointerType === 'touch' || !desk) return;
       if (!on) { x = tx = e.clientX; y = ty = e.clientY; }
       const i = +r.dataset.i; on = true;
       covers.forEach((c, k) => c.classList.toggle('cur', k === i));

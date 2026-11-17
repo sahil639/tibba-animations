@@ -131,7 +131,9 @@ body { background: #000; }
   .dg .camp-still img { display: block; width: 100%; height: auto; }
   .dg .mail-big { display: flex !important; }
   .dg form .note { display: none; }
-  .btn-p { color: #000 !important; }
+  /* buttons as the home page's (Nov 2026): a deep tint, a 25% hairline, white words */
+  .btn-p, .dg form button { background: color-mix(in srgb, var(--btn-bg, #C9124B) 24%, #000) !important; color: #fff !important;
+    border: 1px solid color-mix(in srgb, var(--btn-bg, #C9124B) 25%, transparent) !important; font-size: 15px; font-weight: 400; letter-spacing: .02em; }
 }
 </style>
 <link rel="stylesheet" href="assets/tune.css">

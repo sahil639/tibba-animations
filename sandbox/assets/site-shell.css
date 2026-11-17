@@ -49,6 +49,11 @@ html.site-locked .ca.ca-header.site-nav { transform: translateY(calc(-100% - 4px
 .site-nav.open .site-menu-tg i:first-child { top: 12.25px; transform: rotate(45deg); }
 .site-nav.open .site-menu-tg i:last-child { top: 12.25px; transform: rotate(-45deg); }
 .site-drawer { display: none; }
+/* "Contact us", in the phone's row before the toggle (the toggle opens the drawer) */
+.site-contact { display: none; margin-left: auto; color: #f1eee7; text-decoration: none; white-space: nowrap;
+  font: 400 10px/1 'Vend Sans', var(--ca-mono), sans-serif; letter-spacing: .14em; text-transform: uppercase; -webkit-tap-highlight-color: transparent; }
+.site-contact:hover { color: #C9124B; }
+.site-contact + .site-menu { margin-left: 0; }
 
 .site-wire { display: none; }
 
@@ -59,12 +64,14 @@ html.site-locked .ca.ca-header.site-nav { transform: translateY(calc(-100% - 4px
   .site-nav .ca-panel::after { display: none; }                 /* the right handle moves to the wireframe */
   .site-nav .ca-list { display: none; }
   .site-menu { display: inline-flex; gap: 8px; font-size: 10px; }
+  .site-contact { display: inline-flex; align-items: center; min-height: 32px; padding: 0 4px; }
   .site-menu-tg { width: 24px; height: 24px; }
   .site-menu-tg i { left: 6px; right: 6px; } .site-menu-tg i:first-child { top: 9px; } .site-menu-tg i:last-child { top: 14px; }
   .site-nav.open .site-menu-tg i:first-child, .site-nav.open .site-menu-tg i:last-child { top: 11.25px; }
   .site-nav .ca-row { gap: 8px; padding: 7px 6px 7px 8px; }
   .site-mark { width: 26px; height: 15px; }
-  .site-drawer { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .5s cubic-bezier(.65,0,.35,1); }
+  .site-drawer { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .28s cubic-bezier(.4,0,.2,1); }
+  .site-drawer-in { opacity: 0; transition: opacity .2s linear; } .site-nav.open .site-drawer-in { opacity: 1; }
   .site-nav.open .site-drawer { grid-template-rows: 1fr; }
   .site-drawer-in { overflow: hidden; min-height: 0; }
   .site-drawer-in { border-top: 1px solid transparent; }
