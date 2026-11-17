@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-17T07:30:24.895Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-17T07:40:41.844Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -54,7 +54,8 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
 /* phones: the title, then the photos two-up, each with its caption */
 @media (max-width: 760px) {
   .team { height: auto; min-height: 0; padding: 72px 16px 56px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px 12px; align-items: start; }
-  .title { position: static; transform: none; grid-column: 1 / -1; margin-bottom: 12px; }
+  .title { position: static; transform: none; grid-column: 1 / -1; margin-bottom: 12px; text-align: left; }
+  .title p { margin-left: 0; }
   .title h1 { font-size: 44px; }
   .shot { position: static; width: auto; }
   .shot:nth-of-type(odd) { margin-top: 28px; }

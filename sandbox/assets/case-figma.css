@@ -578,3 +578,13 @@ body:has(.cf-light) { background: #f5f9fa; }
 .vs-row i.on { background: #0d99ff; }
 .vs-row i.on::after { transform: translateX(12px); }
 @media (max-width: 640px) { .cf-variants { flex-direction: column; } .vs-panel { width: min(260px, 80vw); } }
+
+/* phones: the Breathe ESG and Firstpost covers are a laptop and a monitor,
+   and at a phone's width the cover crop lays the device's black top bezel
+   right across the screen like a border. Scaled up a quarter and pinned by
+   its foot, the bezel rises past the top edge and the hero opens on the
+   device's screen itself (Nov 2026). */
+@media (max-width: 760px) {
+  [data-case="breathe-esg"] .cf-hero.cover,
+  [data-case="firstpost"] .cf-hero.cover { background-size: auto 125%; background-position: 50% 100%; }
+}

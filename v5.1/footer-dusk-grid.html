@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-17T07:30:24.895Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-17T07:40:41.844Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -18,7 +18,7 @@ gtag('config', 'G-DZS8N17C9N');
 <script src="assets/manifest.js"></script>
 <script src="assets/whats-new.js"></script>
 <script src="assets/workbench.js" defer></script>
-<link rel="stylesheet" href="assets/footer-kit.css">
+<link rel="stylesheet" href="assets/footer-kit.css?v=2">
 <style>
 /* ══════════════════════════════════════════════════════════════════════════
    Footer — dusk grid
@@ -101,6 +101,8 @@ body { background: #000; }
 .dg .word.on svg { clip-path: inset(0 0 0 0); }
 .dg .word p { font-size: 13px; line-height: 1.5; color: rgba(233,236,242,.55); opacity: 0; transition: opacity .6s linear .7s; }
 .dg .word.on p { opacity: 1; }
+.dg .word p .br { display: none; }
+.dg .camp-still { display: none; }   /* the still flame is the phone's; a desktop has the live fire */
 .dg .legal { grid-column: 1 / -1; grid-row: 4; display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; padding: 16px clamp(22px, 3.2vw, 56px); border-top: 1px solid var(--ln);
   font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: rgba(233,236,242,.55); }
 .dg .legal a { color: rgba(233,236,242,.55); } .dg .legal a:hover { color: #fff; }
@@ -123,9 +125,16 @@ body { background: #000; }
   .dg { display: grid !important; grid-template-columns: 1fr 1fr; }
   .dg > * { grid-column: 1 / -1 !important; grid-row: auto !important; }
   .dg .talk { order: 1; } .dg .word { order: 2; } .dg .pages { order: 3; grid-column: 1 !important; } .dg .social { order: 3; grid-column: 2 !important; } .dg .legal { order: 6; }
-  .dg .word { position: relative; border-top: 1px solid var(--ln); padding: 26px 16px !important; }
-  .dg .word svg { width: 49%; clip-path: none !important; }
-  .dg .camp-still { display: block !important; position: absolute; z-index: 2; right: 16px; bottom: 22px; width: 74px; pointer-events: none; }
+  /* the logo cell in the same two columns as the links under it: the
+     logo and its line on the left (the line wraps inside its column, never
+     past the divider), the flame on the right, on the logo's baseline; the
+     same 22px inset as every other cell */
+  .dg .word { position: relative; border-top: 1px solid var(--ln); padding: 28px 22px 24px !important;
+    display: grid !important; grid-template-columns: 1fr 1fr; column-gap: 44px; row-gap: 12px; align-items: end; }
+  .dg .word svg { grid-column: 1; grid-row: 1; width: 100%; max-width: 150px; clip-path: none !important; }
+  .dg .word p { grid-column: 1; grid-row: 2; font-size: 12.5px; line-height: 1.45; }
+  .dg .word p .dot { display: none; } .dg .word p .br { display: inline; }
+  .dg .camp-still { display: block !important; position: static; grid-column: 2; grid-row: 1; justify-self: end; align-self: end; width: 46px; margin-bottom: -2px; pointer-events: none; }
   .dg .camp-still img { display: block; width: 100%; height: auto; }
   .dg .mail-big { display: flex !important; }
   .dg form .note { display: none; }
@@ -146,25 +155,24 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
       <label class="fld wide"><textarea name="idea" maxlength="500" placeholder="Tell us about your project" aria-label="Tell us about your project"></textarea></label>
       <a class="mail-big" href="mailto:hello@tibba.design"><svg width="26" height="26" style="width:26px;height:26px;flex:none;margin-right:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="1.5"/><path d="m3 6 9 7 9-7"/></svg>hello@tibba.design</a>
       <div class="send"><button type="submit" class="btn-p">Submit form<span class="btn-p-ic" aria-hidden="true"></span></button><p class="note">or write to <a href="mailto:hello@tibba.design">hello@tibba.design</a></p></div>
-      <p class="sent" aria-live="polite"></p>
     </form>
   </section>
   <nav class="cell pages" aria-label="Pages"><p class="k">Pages</p>
-    <ul><li><a href="final-website-v2.html">Home</a></li><li><a href="summits-v3.html">Work</a></li><li><a href="services-compass-v4.html">Services</a></li>
-        <li><a href="about.html">About</a></li><li><a href="case-studies-reel.html">Case studies</a></li><li><a href="studio-polaroids.html">Studio</a></li></ul></nav>
+    <ul><li><a href="website-v3.html" data-sec="top">Home</a></li><li><a href="website-v3.html#work" data-sec="work">Work</a></li><li><a href="website-v3.html#services" data-sec="services">Services</a></li>
+        <li><a href="about.html">About</a></li><li><a href="website-v3.html#more" data-sec="more">Case studies</a></li><li><a href="website-v3.html#studio" data-sec="studio">Studio</a></li></ul></nav>
   <nav class="cell social" aria-label="Social"><p class="k">Social</p>
     <ul><li><a href="https://www.instagram.com/tibba.design/">Instagram</a></li><li><a href="https://www.linkedin.com/company/tibba-design-studio/">LinkedIn</a></li>
         <li><a href="https://medium.com/@tibbadesignstudio">Medium</a></li><li><a href="mailto:hello@tibba.design">Email</a></li></ul></nav>
   <i class="ruler" aria-hidden="true"></i>
   <section class="word" id="word" aria-label="Tibba"><div class="camp-still" aria-hidden="true"><img src="assets/icons/campfire-still.png" alt="" width="260" height="308"></div>
     <svg viewBox="8 8 96 21" aria-hidden="true"> <path fill-rule="evenodd" clip-rule="evenodd" d="M39.0383 28H8L28.2219 8L39.0383 28ZM15.0685 24.6037L26.2673 20.151L34.3324 24.5768L27.5681 12.0807L15.0685 24.6037Z" fill="currentColor"/> <path d="M52.1765 19.1546H49.2938V23.8402C49.2938 24.2745 49.2938 25.2116 50.7123 25.2116C51.1699 25.2116 51.6732 25.1201 52.1765 24.9601L52.1536 27.6343C51.4215 27.8858 50.6894 28 49.8887 28C47.761 28 45.8621 27.0401 45.8621 24.1602V19.1546H44.0547V16.4804H45.8621V14.8119L49.2938 12.2749V16.4804H52.1765V19.1546Z" fill="currentColor"/> <path d="M54.0722 14.9262V11.8177H57.5955V14.9262H54.0722ZM54.0951 27.7486V16.4804H57.5497V27.7486H54.0951Z" fill="currentColor"/> <path d="M66.6026 16.229C69.0735 16.229 71.1326 18.3318 71.1326 22.1031C71.1326 25.4858 69.4624 28 66.534 28C65.5502 28 64.3605 27.7029 63.5827 26.9029V27.7486H60.128V11.8177H63.5827V17.3718C64.269 16.6861 65.4358 16.229 66.6026 16.229ZM65.6189 24.7773C67.0831 24.7773 67.7008 23.9316 67.7008 22.1488C67.7008 20.3889 67.1288 19.3832 65.5731 19.3832C63.7886 19.3832 63.2624 20.7546 63.2624 22.1488C63.2624 23.5888 63.8572 24.7773 65.6189 24.7773Z" fill="currentColor"/> <path d="M79.3377 16.229C81.8086 16.229 83.8676 18.3318 83.8676 22.1031C83.8676 25.4858 82.1975 28 79.269 28C78.2853 28 77.0956 27.7029 76.3177 26.9029V27.7486H72.8631V11.8177H76.3177V17.3718C77.0041 16.6861 78.1709 16.229 79.3377 16.229ZM78.3539 24.7773C79.8181 24.7773 80.4359 23.9316 80.4359 22.1488C80.4359 20.3889 79.8639 19.3832 78.3082 19.3832C76.5236 19.3832 75.9974 20.7546 75.9974 22.1488C75.9974 23.5888 76.5923 24.7773 78.3539 24.7773Z" fill="currentColor"/> <path d="M90.1738 16.229C93.3768 16.229 95.2986 17.9204 95.2986 20.5946V27.7486H92.1414L91.9126 26.6287C90.9975 27.84 89.7849 28 88.9613 28C86.4218 28 84.5915 26.4229 84.5915 24.1145C84.5915 22.8116 85.1863 21.8745 86.1472 21.3488C86.8565 20.9603 87.7487 20.7774 88.7554 20.7774H91.8668V20.5946C91.8668 19.7946 91.1805 19.2232 89.9222 19.2232C89.0757 19.2232 88.2063 19.4746 87.1996 20.4346L84.7059 18.3547C86.1244 16.869 88.2063 16.229 90.1738 16.229ZM89.5104 25.2344C90.7458 25.2344 91.7982 24.4344 91.8668 23.3145H89.2587C88.8926 23.3145 88.5952 23.3831 88.3893 23.5202C88.1605 23.6802 88.0461 23.9088 88.0461 24.183C88.0461 24.7544 88.5266 25.2344 89.5104 25.2344Z" fill="currentColor"/> </svg>
-    <p>Tibba Design Studio · India, and remote</p>
+    <p>Tibba Design Studio<span class="dot"> · </span><br class="br">India, and remote</p>
   </section>
   <div class="camp"><canvas class="fire" aria-hidden="true"></canvas></div>
-  <p class="legal"><span>© <span class="yr"></span> Tibba Design Studio. All rights reserved.</span><span><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Cookies</a></span></p>
+  <p class="legal"><span>© <span class="yr"></span> Tibba Design Studio. All rights reserved.</span></p>
 </footer>
 <script type="module">
-  import { fire, panel, applyBaked, year } from './assets/footer-kit.js';
+  import { fire, panel, applyBaked, year, sectionLinks, formSuccess } from './assets/footer-kit.js?v=2';
   const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
   $$('.yr').forEach(e => { e.textContent = year(); });
   const CONFIG = { fire: { mode: 'dither', palette: 'warm', cell: 5, dot: .86, contrast: 1.25, flame: 1.05, embers: 1.2, speed: .9, scale: .86, wood: .75 } };
@@ -172,8 +180,10 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   const PHONE = matchMedia('(max-width: 760px)').matches;   /* the fire on desktop only */
   const f = PHONE ? null : fire($('.camp canvas'), { ...CONFIG.fire, x: .5, y: .74, blowOut: false, hand: false, follow: true });   // the flame dances after the pointer
 
-  /* the form: no back end here, so it answers in place */
-  $('#talk').addEventListener('submit', e => { e.preventDefault(); e.target.reset(); $('.sent').textContent = 'Got it — we’ll write back within two working days.'; });
+  /* the form: no back end yet, so it answers in place — a full success panel (assets/footer-kit.js) */
+  formSuccess($('#talk'));
+  /* Pages: scroll to the home page's sections */
+  sectionLinks();
   /* the logo rises into view, once */
   new IntersectionObserver(([e], io) => { if (e.isIntersecting) { io.disconnect(); $('#word').classList.add('on'); } }, { threshold: .3 }).observe($('#word'));
   panel({ title: 'Footer — dusk grid', key: KEY, config: CONFIG, name: 'CONFIG', fires: f ? [{ fire: f, cfg: CONFIG.fire }] : [] });

@@ -47,7 +47,8 @@ body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', syst
 /* phones: the title, then the photos two-up, each with its caption */
 @media (max-width: 760px) {
   .team { height: auto; min-height: 0; padding: 72px 16px 56px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px 12px; align-items: start; }
-  .title { position: static; transform: none; grid-column: 1 / -1; margin-bottom: 12px; }
+  .title { position: static; transform: none; grid-column: 1 / -1; margin-bottom: 12px; text-align: left; }
+  .title p { margin-left: 0; }
   .title h1 { font-size: 44px; }
   .shot { position: static; width: auto; }
   .shot:nth-of-type(odd) { margin-top: 28px; }

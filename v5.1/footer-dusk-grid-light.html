@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-17T07:30:24.895Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-17T07:40:41.844Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -18,7 +18,7 @@ gtag('config', 'G-DZS8N17C9N');
 <script src="assets/manifest.js"></script>
 <script src="assets/whats-new.js"></script>
 <script src="assets/workbench.js" defer></script>
-<link rel="stylesheet" href="assets/footer-kit.css">
+<link rel="stylesheet" href="assets/footer-kit.css?v=2">
 <style>
 /* ══════════════════════════════════════════════════════════════════════════
    Footer — dusk grid, light
@@ -138,6 +138,7 @@ body { background: #F5F9FA; color: #0E1114; }
 .dg .fld::after { background: #C9124B; }
 .dg form .sent { color: rgba(14,17,20,.7); }
 @media (max-width: 760px) { .dg .camp { display: none; } }
+.dg { --done-ink: #0E1114; --done-mute: rgba(14,17,20,.6); }
 </style>
 <link rel="stylesheet" href="assets/tune.css">
 <style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
@@ -152,12 +153,11 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
       <label class="fld"><input type="email" name="email" placeholder="Email" aria-label="Email" autocomplete="email" required></label>
       <label class="fld wide"><textarea name="idea" maxlength="500" placeholder="Tell us about your project" aria-label="Tell us about your project"></textarea></label>
       <div class="send"><button type="submit" class="btn-p">Submit form<span class="btn-p-ic" aria-hidden="true"></span></button><p class="note">or write to <a href="mailto:hello@tibba.design">hello@tibba.design</a></p></div>
-      <p class="sent" aria-live="polite"></p>
     </form>
   </section>
   <nav class="cell pages" aria-label="Pages"><p class="k">Pages</p>
-    <ul><li><a href="final-website-v2.html">Home</a></li><li><a href="summits-v3.html">Work</a></li><li><a href="services-compass-v4.html">Services</a></li>
-        <li><a href="about.html">About</a></li><li><a href="case-studies-reel.html">Case studies</a></li><li><a href="studio-polaroids.html">Studio</a></li></ul></nav>
+    <ul><li><a href="website-v3.html" data-sec="top">Home</a></li><li><a href="website-v3.html#work" data-sec="work">Work</a></li><li><a href="website-v3.html#services" data-sec="services">Services</a></li>
+        <li><a href="about.html">About</a></li><li><a href="website-v3.html#more" data-sec="more">Case studies</a></li><li><a href="website-v3.html#studio" data-sec="studio">Studio</a></li></ul></nav>
   <nav class="cell social" aria-label="Social"><p class="k">Social</p>
     <ul><li><a href="https://www.instagram.com/tibba.design/">Instagram</a></li><li><a href="https://www.linkedin.com/company/tibba-design-studio/">LinkedIn</a></li>
         <li><a href="https://medium.com/@tibbadesignstudio">Medium</a></li><li><a href="mailto:hello@tibba.design">Email</a></li></ul></nav>
@@ -167,10 +167,10 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     <p>Tibba Design Studio · India, and remote</p>
   </section>
   <div class="camp"><canvas class="fire" aria-hidden="true"></canvas></div>
-  <p class="legal"><span>© <span class="yr"></span> Tibba Design Studio. All rights reserved.</span><span><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Cookies</a></span></p>
+  <p class="legal"><span>© <span class="yr"></span> Tibba Design Studio. All rights reserved.</span></p>
 </footer>
 <script type="module">
-  import { fire, panel, applyBaked, year } from './assets/footer-kit.js';
+  import { fire, panel, applyBaked, year, sectionLinks, formSuccess } from './assets/footer-kit.js?v=2';
   const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
   $$('.yr').forEach(e => { e.textContent = year(); });
   const CONFIG = { fire: { mode: 'dither', palette: 'warm', cell: 5, dot: .86, contrast: 1.25, flame: 1.05, embers: 1.2, speed: .9, scale: .86, wood: .75,
@@ -179,8 +179,10 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   const PHONE = matchMedia('(max-width: 760px)').matches;   /* the fire on desktop only */
   const f = PHONE ? null : fire($('.camp canvas'), { ...CONFIG.fire, x: .5, y: .74, blowOut: false, hand: false, follow: true });   // the flame dances after the pointer
 
-  /* the form: no back end here, so it answers in place */
-  $('#talk').addEventListener('submit', e => { e.preventDefault(); e.target.reset(); $('.sent').textContent = 'Got it — we’ll write back within two working days.'; });
+  /* the form: no back end yet, so it answers in place — a full success panel (assets/footer-kit.js) */
+  formSuccess($('#talk'));
+  /* Pages: scroll to the home page's sections */
+  sectionLinks();
   /* the logo rises into view, once */
   new IntersectionObserver(([e], io) => { if (e.isIntersecting) { io.disconnect(); $('#word').classList.add('on'); } }, { threshold: .3 }).observe($('#word'));
   panel({ title: 'Footer — dusk grid, light', key: KEY, config: CONFIG, name: 'CONFIG', fires: f ? [{ fire: f, cfg: CONFIG.fire }] : [] });

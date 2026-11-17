@@ -136,3 +136,72 @@ export function panel({ title, key, config, name, fires = [], extra = '', bind }
   return el;
 }
 export const slider = (id, label, min, max, step, val, unit = '') => `<div class="row"><label>${label}<i id="v-${id}">${val}${unit}</i></label><input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}" data-unit="${unit}"></div>`;
+
+/* ── Pages: the site is one page, so each link scrolls to its section ────
+   A link carries data-sec (top, work, more, services, studio). In the home
+   page — Website v3's shell on a desktop, website-v3-mobile on a phone —
+   it travels there in place; anywhere else (About, a case study) it goes
+   to website-v3.html#<section>, which opens straight on that section. */
+export function sectionLinks(root = document) {
+  root.addEventListener('click', e => {
+    const a = e.target.closest('a[data-sec]'); if (!a) return;
+    const id = a.dataset.sec;
+    let T; try { T = window.top; void T.document; } catch (err) { return; }
+    const shell = T.tibba && typeof T.tibba.goTo === 'function' ? T.tibba : null;
+    const home = /website-v3(-mobile)?\.html$|\/$/.test(T.location.pathname) || !!shell;
+    if (!home) return;                                   // another page: let the link navigate
+    e.preventDefault();
+    if (shell) { shell.goTo(id === 'top' ? null : id); return; }
+    if (id === 'top') {   // the window, or the body where the body is the scroller (the phone page)
+      T.scrollTo({ top: 0, behavior: 'smooth' }); T.document.body.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+    const el = T.document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); else T.location.href = a.href;
+  });
+}
+
+/* ── the form, once sent: the form gives way to a clear "we've got it",
+   what happens next, and a way on into the work while they wait ──────── */
+export const CASES = [
+  ['Groww', 'case-groww-figma.html', 'Boosting engagement on the app'],
+  ['Firstpost', 'case-firstpost-figma.html', '2x traffic through a strategic redesign'],
+  ['Breathe ESG', 'case-breathe-esg-figma.html', 'Faster sales, smoother releases'],
+];
+export function formSuccess(form, { cases = CASES } = {}) {
+  const host = form.closest('.talk') || form.parentElement;
+  const done = host.querySelector('.done') || host.appendChild(Object.assign(document.createElement('div'), { className: 'done' }));
+  done.setAttribute('role', 'status'); done.setAttribute('aria-live', 'polite'); done.tabIndex = -1;
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    if (!form.reportValidity()) return;
+    const d = new FormData(form), first = String(d.get('name') || '').trim().split(/\s+/)[0], mail = String(d.get('email') || '').trim();
+    done.innerHTML = `
+      <span class="done-tick" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="22"/><path d="M14 24.5l7 7 13-14"/></svg></span>
+      <h2 class="done-h">Thanks${first ? ', ' + esc(first) : ''}.<br>Your idea is with us.</h2>
+      <ol class="done-next">
+        <li><b>Now</b><span>Your message is in our inbox${mail ? ', with <i>' + esc(mail) + '</i> to reply to' : ''}.</span></li>
+        <li><b>Within 2 working days</b><span>We read it and write back.</span></li>
+        <li><b>Then</b><span>A call to talk through your idea and where you want to take it.</span></li>
+      </ol>
+      <p class="done-k">While you wait, see how we have helped others reach their next peak</p>
+      <ul class="done-cases">${cases.map(([n, h, l]) => `<li><a href="${h}" target="_top"><b>${esc(n)}</b><span>${esc(l)}</span><i aria-hidden="true">→</i></a></li>`).join('')}</ul>
+      <button type="button" class="done-again">Send another message</button>`;
+    host.classList.add('is-sent');
+    form.reset();
+    requestAnimationFrame(() => {
+      done.focus({ preventScroll: true });
+      /* bring the panel's top into view: the visitor is down at the button,
+         and the thank-you starts above it (in a frame, scroll the page) */
+      const r = host.getBoundingClientRect(), fe = window.frameElement;
+      try {
+        if (fe) { const y = fe.getBoundingClientRect().top + r.top; if (y < 0) { const W = window.top; W.scrollBy({ top: y - 72, behavior: 'smooth' }); } }
+        else if (r.top < 0) host.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (err) {}
+    });
+  });
+  host.addEventListener('click', e => {
+    if (!e.target.closest('.done-again')) return;
+    host.classList.remove('is-sent');
+    const f = form.querySelector('input'); if (f) f.focus();
+  });
+}
