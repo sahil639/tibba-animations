@@ -371,6 +371,8 @@ section { scroll-margin-top: 64px; }
 .svc span span { margin-top: 6px !important; }
 /* the switcher, the stage's heading, the services: three blocks, 32px
    apart (the page's own step, as between the stats and the cases) */
+.st-ico img { display: block; width: 30px; height: 30px; mix-blend-mode: screen; opacity: .75; transition: opacity .2s linear; }
+.stages button[aria-selected="true"] .st-ico img { opacity: 1; }
 .stage-panel { margin-top: 0 !important; }
 .stage-panel .out { margin: 32px 0 0 !important; }
 .stage-panel .svc { margin-top: 32px; }
@@ -641,7 +643,9 @@ section { scroll-margin-top: 64px; }
   const mq = document.getElementById('marquee');
   if (mq) new IntersectionObserver(([e]) => mq.classList.toggle('run', e.isIntersecting)).observe(mq);
   /* the stage tabs: the desktop bags as icons */
-  document.querySelectorAll('.stages button').forEach((b, i) => b.insertAdjacentHTML('afterbegin', `<span class="st-ico">${ICONS.PACK[i]}</span>`));
+  /* the stage tabs: their bags — sling, daypack, expedition pack */
+  document.querySelectorAll('.stages button').forEach((b, i) => b.insertAdjacentHTML('afterbegin',
+    `<span class="st-ico"><img src="assets/m/stage/${['early', 'mid', 'established'][i]}.webp" width="30" height="30" alt="" decoding="async"></span>`));
 </script>
 </body>
 </html>
