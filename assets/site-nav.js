@@ -15,7 +15,7 @@
    goes to the home page's.
    ═════════════════════════════════════════════════════════════════════════ */
 import { mountCaHeader } from './ca-nav.js';
-import { mountLogoMorph, LOGO_MORPH } from './logo-morph.js';
+import { mountLogoMorph, LOGO_MORPH } from './logo-morph.js?v=2';
 import { TICKER } from './site-sections.js';
 
 export const SITE_NAV = [

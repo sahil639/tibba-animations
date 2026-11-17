@@ -124,10 +124,10 @@ export function mountLogoMorph(host, cfg = LOGO_MORPH) {
      a neighbouring peak behind it can never fill it in. The baseline sits
      outside the mask: it is not a peak, it never collapses. */
   host.innerHTML = `<svg viewBox="0 2 48 27" aria-hidden="true" style="display:block;width:100%;height:100%;overflow:visible">
-    <defs><mask id="${id}" maskUnits="userSpaceOnUse" x="-10" y="-10" width="70" height="50"><g class="pk"></g></mask></defs>
+    <defs><mask id="${id}" maskUnits="userSpaceOnUse" x="-10" y="-10" width="70" height="50"><g class="lm-pk"></g></mask></defs>
     <rect x="-10" y="-10" width="70" height="50" fill="${cfg.colour}" mask="url(#${id})"/>
     <rect class="bl" fill="${cfg.colour}"/></svg>`;
-  const g = host.querySelector('.pk'), bl = host.querySelector('.bl');
+  const g = host.querySelector('.lm-pk'), bl = host.querySelector('.bl');
   let form = 0, busy = false, queued = null, timer = 0;
   let peaks = [];            // { els: [peak, arrow?], s, delay }
   let ext = extentOf(MARK);  // the baseline's current left/right ends

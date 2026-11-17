@@ -434,6 +434,11 @@ section { scroll-margin-top: 64px; }
 /* more work: the open row in the watermelon pink */
 .index li[aria-expanded="true"] b { color: #C9124B; }
 .index li[aria-expanded="true"] { border-bottom-color: rgba(201,18,75,.5); }
+/* the hero video never shows the browser's own play button */
+.hero-vid { pointer-events: none; }
+.hero-vid::-webkit-media-controls, .hero-vid::-webkit-media-controls-panel,
+.hero-vid::-webkit-media-controls-start-playback-button,
+.hero-vid::-webkit-media-controls-overlay-play-button { display: none !important; -webkit-appearance: none; opacity: 0; }
 </style>
 </head>
 <body>
@@ -601,7 +606,7 @@ section { scroll-margin-top: 64px; }
   });
 </script>
 <script type="module">
-  import { mountSiteNav } from './assets/site-nav.js?v=4';
+  import { mountSiteNav } from './assets/site-nav.js?v=5';
   mountSiteNav(document.getElementById('ca-header'), { home: 'website-v3-mobile.html', nav: [
     { label: 'Work', href: '#work' }, { label: 'Services', href: '#services' }, { label: 'About', href: 'about.html' }, { label: 'Contact', href: '#footer' }] });
 </script>
@@ -611,7 +616,20 @@ section { scroll-margin-top: 64px; }
   (function () {
     const v = document.getElementById('hero-vid');
     const still = matchMedia('(prefers-reduced-motion: reduce)').matches || (navigator.connection && navigator.connection.saveData);
-    if (still) { v.removeAttribute('autoplay'); v.preload = 'none'; v.pause(); }
+    if (still) { v.removeAttribute('autoplay'); v.preload = 'none'; v.pause(); return; }
+    /* it plays on its own, never waiting for a tap on it: muted as a
+       property too (some browsers read only that), started by script, and
+       — where the browser holds autoplay back (iOS Low Power Mode) —
+       started by the visitor's first touch or scroll anywhere on the page */
+    v.muted = true; v.defaultMuted = true; v.playsInline = true;
+    const go = () => { if (v.paused) { const p = v.play(); if (p) p.catch(() => {}); } };
+    const evs = ['touchstart', 'pointerdown', 'scroll', 'keydown'];
+    const first = () => { go(); if (!v.paused) evs.forEach(e => removeEventListener(e, first, true)); };
+    evs.forEach(e => addEventListener(e, first, { passive: true, capture: true }));
+    v.addEventListener('canplay', go);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) go(); });
+    addEventListener('pageshow', go);
+    go();
   })();
 </script>
 <script>
@@ -652,9 +670,13 @@ section { scroll-margin-top: 64px; }
   document.querySelectorAll('.case[data-peak]').forEach((c, i) => {
     c.insertAdjacentHTML('afterbegin', `<span class="case-ico" aria-hidden="true">${ICONS.SUMMIT[i]}</span>`);
   });
-  /* more work: tap a name, its one line opens */
-  document.querySelectorAll('.index li').forEach(li => {
-    const t = () => li.setAttribute('aria-expanded', String(li.getAttribute('aria-expanded') !== 'true'));
+  /* more work: tap a name, its one line opens — one row open at a time */
+  const rows = [...document.querySelectorAll('.index li')];
+  rows.forEach(li => {
+    const t = () => {
+      const open = li.getAttribute('aria-expanded') !== 'true';
+      rows.forEach(r => r.setAttribute('aria-expanded', String(open && r === li)));
+    };
     li.addEventListener('click', t);
     li.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); t(); } });
   });
