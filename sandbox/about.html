@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" data-wb="nav">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-17T10:19:42.971Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-17T10:28:21.012Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -11,6 +11,12 @@ gtag('config', 'G-DZS8N17C9N');
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  /* phones get About as one ordinary, natively scrolling page
+     (about-mobile.html); ?desktop keeps this version */
+  if (matchMedia('(max-width: 760px)').matches && !/[?&]desktop\b/.test(location.search))
+    location.replace('about-mobile.html' + location.hash);
+</script>
 <title>About us — Tibba Design Studio</title>
 <link rel="stylesheet" href="assets/type.css">
 <link rel="stylesheet" href="assets/site.css">
