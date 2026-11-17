@@ -584,7 +584,17 @@ body:has(.cf-light) { background: #f5f9fa; }
    right across the screen like a border. Scaled up a quarter and pinned by
    its foot, the bezel rises past the top edge and the hero opens on the
    device's screen itself (Nov 2026). */
+/* Phones (Nov 2026): each case opens on its own portrait thumbnail
+   (assets/m/thumbs/), shown whole — the hero takes the image's 526 × 855
+   shape, so nothing is cropped or stretched; the title sits on its foot. */
 @media (max-width: 760px) {
-  [data-case="breathe-esg"] .cf-hero.cover,
-  [data-case="firstpost"] .cf-hero.cover { background-size: auto 125%; background-position: 50% 100%; }
+  .cf-hero.cover { height: auto !important; aspect-ratio: 526 / 855; background-size: 100% 100% !important; background-position: 50% 0 !important; }
+  [data-case="groww"] .cf-hero.cover { background-image: url('m/thumbs/groww.webp') !important; }
+  [data-case="firstpost"] .cf-hero.cover { background-image: url('m/thumbs/firstpost.webp') !important; }
+  [data-case="breathe-esg"] .cf-hero.cover { background-image: url('m/thumbs/breathe-esg.webp') !important; }
+  [data-case="shyft-and-mindhouse"] .cf-hero.cover { background-image: url('m/thumbs/shyft-mindhouse.webp') !important; }
 }
+/* phones: the shared site footer (assets/site-footer.js) keeps the framed
+   one's place — 180px below the page, on the light cases in the page's tint */
+.cf ~ .sf { margin-top: 180px; }
+.cf-light ~ .sf { box-shadow: 0 -180px 0 #f5f9fa; }

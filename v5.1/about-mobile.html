@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-17T10:28:21.012Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-17T10:41:38.125Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -18,6 +18,7 @@ gtag('config', 'G-DZS8N17C9N');
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/ca-nav.css">
 <link rel="stylesheet" href="assets/site-shell.css?v=2">
+<link rel="stylesheet" href="assets/site-footer.css?v=1">
 <script src="assets/odometer.js" defer></script>
 <!-- ─────────────────────────────────────────────────────────────────────────
      About us — for phones (about.html sends screens up to 760px here)
@@ -40,10 +41,11 @@ img { display: block; max-width: 100%; }
 section { scroll-margin-top: 64px; }
 
 /* ── hero: the words, then the mountain, then the peak — once ─────────── */
-.hero { position: relative; overflow: hidden; height: 85vh; height: 85svh; min-height: 480px; background: #000; color: #f1eee7; isolation: isolate; }
-/* the mountain whole — its ground is the page's black, so it simply stands
-   on the foot of the hero, never cropped or stretched */
-.hero .mt { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%; z-index: 0;
+.hero { position: relative; overflow: hidden; height: 88vh; height: 88svh; min-height: 480px; background: #000; color: #f1eee7; isolation: isolate; }
+/* the mountain fills the hero (never stretched): the drawing's height is
+   the hero's, so its summit, 14% down, lands just under the navbar, and
+   only the outer foothills at the sides run past the screen's edges */
+.hero .mt { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; z-index: 0;
   opacity: 0; animation: once-in 1s linear .8s forwards; }
 .hero::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
   background: linear-gradient(0deg, rgba(0,0,0,.88) 0%, rgba(0,0,0,.55) 38%, rgba(0,0,0,0) 62%); }
@@ -105,8 +107,6 @@ section { scroll-margin-top: 64px; }
 .member .name { margin-top: 16px; color: #fff; font-weight: 300; font-size: 20px; line-height: 1; letter-spacing: -.03em; }
 .member .role { margin-top: 8px; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-mute); }
 
-/* ── the footer (as the home page's) ─────────────────────────────────── */
-.foot-frame { display: block; width: 100%; height: 900px; border: 0; background: #000; }
 </style>
 <style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
 html[data-wb-dock] body { padding-right: 0 !important; }</style>
@@ -179,32 +179,28 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   </section>
 </main>
 
-<iframe class="foot-frame" id="footer" src="footer-dusk-grid.html?embed=1&v=3" title="Contact" loading="lazy"></iframe>
+<!-- the site footer, the same on every phone page (assets/site-footer.js) -->
+<footer id="footer" data-site-footer></footer>
+<script type="module">
+  import { mountSiteFooter } from './assets/site-footer.js?v=1';
+  mountSiteFooter(document.getElementById('footer'));
+</script>
 
 <script>
   /* the dot on the summit (49.7% across, 14% down the drawing), carried
-     through object-fit: contain, bottom-aligned — placed on load and on
-     resize only, never on scroll */
+     through object-fit: cover, top-aligned — placed on load and on resize
+     only, never on scroll */
   (function () {
     const hero = document.getElementById('hero'), img = document.getElementById('mt'), dot = document.getElementById('dot');
     const PX = 0.497, PY = 0.14, IW = 1600, IH = 1994;
     function place() {
-      const cw = hero.clientWidth, ch = hero.clientHeight, k = Math.min(cw / IW, ch / IH);
-      dot.style.transform = `translate(${((cw - IW * k) / 2 + PX * IW * k).toFixed(1)}px, ${(ch - IH * k + PY * IH * k).toFixed(1)}px)`;
+      const cw = hero.clientWidth, ch = hero.clientHeight, k = Math.max(cw / IW, ch / IH);
+      dot.style.transform = `translate(${((cw - IW * k) / 2 + PX * IW * k).toFixed(1)}px, ${(PY * IH * k).toFixed(1)}px)`;
     }
     place();
     new ResizeObserver(place).observe(hero);
   })();
 
-  /* the footer frame takes its own height, and its links open in this window */
-  (function () {
-    const f = document.getElementById('footer');
-    const fit = () => { try { const d = f.contentDocument; f.style.height = Math.max(d.documentElement.scrollHeight, d.body.scrollHeight) + 'px'; } catch (e) {} };
-    f.addEventListener('load', () => {
-      try { const d = f.contentDocument, b = d.createElement('base'); b.target = '_top'; d.head.prepend(b); new ResizeObserver(fit).observe(d.body); } catch (e) {}
-      fit();
-    });
-  })();
 </script>
 <script type="module">
   import { mountSiteNav } from './assets/site-nav.js?v=9';
