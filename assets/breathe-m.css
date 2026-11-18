@@ -1,0 +1,114 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Breathe ESG on phones (Nov 2026) — loaded only under 760px
+   (case-breathe-esg-figma.html). Each piece stands where a desktop plate
+   stands; the plate (.bm-desk) is hidden. Motion: assets/breathe-m.js.
+   Sizes are in cqw of their own frame, so each piece keeps its drawing at
+   any phone width.
+   ══════════════════════════════════════════════════════════════════════════ */
+.bm-desk { display: none !important; }
+.bm-m { display: block; position: relative; margin: 0 calc(-1 * var(--over, 0px)); container-type: inline-size; }
+.bm-m img { display: block; max-width: none; height: auto; pointer-events: none; }
+
+/* ── Getting started: the fist bump ─────────────────────────────────────── */
+.cf-split > .bm-fist { flex: none; align-self: stretch; width: auto; }
+.bm-fist { aspect-ratio: 618 / 540; overflow: hidden; border-radius: 10px; background: #f4f8f9; }
+.bm-fist img { position: absolute; will-change: transform; }
+/* where image 4 has them: the tibba fist low left, the Breathe fist high right */
+.bm-fist .f-tibba { width: 92.6cqw; left: -39.6cqw; top: 11.2cqw; }
+.bm-fist .f-breathe { width: 104.2cqw; left: 30.1cqw; top: -28.5cqw; }
+.bm-fist .glow { position: absolute; left: 48.9%; top: 44.5%; width: 70cqw; height: 70cqw; margin: -35cqw 0 0 -35cqw; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 200, 120, .55), rgba(0, 184, 118, .22) 45%, rgba(0, 184, 118, 0) 75%);
+  opacity: 0; transform: scale(.4); pointer-events: none; }
+.bm-fist.bump .glow { animation: f-glow 1.6s cubic-bezier(.2, .7, .2, 1) forwards; }
+@keyframes f-glow { 0% { opacity: 0; transform: scale(.35); } 18% { opacity: 1; transform: scale(1.05); } 100% { opacity: .55; transform: scale(.9); } }
+
+/* ── Structuring our design sprints: Day 1 → Day 5 ─────────────────────── */
+.bm-days { background: #f3f7f6; border-radius: 10px; overflow: hidden; }
+.bm-days svg { display: block; width: 100%; height: auto; }
+.bm-days .lane { stroke: #dde7e4; stroke-width: 1; }
+.bm-days .card { fill: #fff; filter: url(#d-shadow); }
+.bm-days text { font-family: inherit; }
+.bm-days .day { font-size: 10.5px; fill: #6d7d78; }
+.bm-days .lbl { font-size: 12.5px; font-weight: 500; fill: #18241f; }
+.bm-days .dot { fill: #c5d4cf; animation: d-dot 7.5s linear infinite; animation-delay: calc(var(--k) * 1.5s); transform-box: fill-box; transform-origin: center; }
+@keyframes d-dot { 0% { fill: #c5d4cf; transform: scale(1); } 3% { fill: #00b876; transform: scale(1.9); } 12% { fill: #4caf70; transform: scale(1); } 96% { fill: #4caf70; } 100% { fill: #c5d4cf; } }
+.bm-days .link { fill: none; stroke: #9bb9ae; stroke-width: 1.1; stroke-dasharray: 3 4; animation: d-flow 1s linear infinite; }
+@keyframes d-flow { to { stroke-dashoffset: -7; } }
+.bm-days .head { fill: none; stroke: #9bb9ae; stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ── the sprint cards (image 3) ─────────────────────────────────────────── */
+.cf-stack-card .sp { display: flex; flex-direction: column; min-height: 155cqw; padding: 9cqw 7.7cqw 0; container-type: normal;
+  background: linear-gradient(180deg, #fff 0%, #fff 26%, var(--c) 100%); color: #1c1c1c; text-align: left; }
+.cf-stack-card .sp h3 { margin: 0; font-size: 6.2cqw; line-height: 1.22; font-weight: 700; letter-spacing: -.01em; }
+.cf-stack-card .sp b { display: block; margin: 3.4cqw 0 6cqw; font-size: 4.6cqw; font-weight: 400; letter-spacing: .02em; }
+.cf-stack-card .sp p { margin: 0; font-size: 4.3cqw; line-height: 1.5; color: #222; }
+.cf-stack-card .sp img { width: 100%; min-height: 0 !important; margin: auto 0 6cqw; padding-top: 8cqw; object-fit: initial; }
+.cf-stack-card:has(.sp) { container-type: inline-size; }
+
+/* ── Design system from day 1: the pieces, colours drifting right and icons left ── */
+.bm-ds { aspect-ratio: 553 / 2000; overflow: hidden; border-radius: 10px; background: url('work/breathe-esg-figma/m/ds-bg.webp') 0 0 / 100% 100% no-repeat; }
+.bm-ds > img, .bm-ds > .usd { position: absolute; }
+.ds-login-body { left: 7.65cqw; top: 79.54cqw; width: 84.70cqw; }
+.ds-empty-state { left: 7.50cqw; top: 157.79cqw; width: 86.40cqw; }
+.ds-need-help { left: .77cqw; top: 241.83cqw; width: 51.40cqw; }
+.ds-business-group-card { left: 47.21cqw; top: 242.79cqw; width: 52.72cqw; }
+.ds-upload-file { left: 47.21cqw; top: 277.15cqw; width: 52.59cqw; }
+.ds-banner { left: .75cqw; top: 312.56cqw; width: 98.32cqw; }
+.bm-ds .usd { left: 4.9cqw; top: 291.5cqw; width: 43cqw; height: 14.5cqw; box-sizing: border-box; padding: 2.6cqw 2.8cqw; border-radius: 1.1cqw;
+  background: #fff; box-shadow: 0 .6cqw 2cqw rgba(30, 70, 55, .12); color: #1d1d1d; font-family: 'Open Sans', system-ui, sans-serif; }
+.bm-ds .usd b { display: flex; align-items: center; gap: 1.8cqw; font-size: 3.9cqw; line-height: 1; font-weight: 500; }
+.bm-ds .usd svg { width: 5cqw; height: auto; border-radius: .3cqw; }
+.bm-ds .usd span { display: block; margin-top: 1.3cqw; font-size: 2.6cqw; color: #9a9a9a; }
+.bm-ds .row { position: absolute; left: 0; display: flex; width: max-content; will-change: transform; }
+.bm-ds .colours { top: 11.75cqw; animation: ds-right 70s linear infinite; }
+.bm-ds .colours img { width: 1209.6cqw; }
+.bm-ds .icons { top: 333.5cqw; animation: ds-left 30s linear infinite; }
+.bm-ds .icons img { width: 21.1cqw; margin-right: -2.65cqw; }
+@keyframes ds-left { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-50%, 0, 0); } }
+@keyframes ds-right { from { transform: translate3d(-50%, 0, 0); } to { transform: translate3d(0, 0, 0); } }
+.bm-ds:not(.run) .row { animation-play-state: paused; }
+
+/* ── wireframe → high fidelity, by tap ─────────────────────────────────── */
+.bm-ba { margin-top: 28px; }
+.bm-ba .pic { position: relative; aspect-ratio: 2000 / 1301; border-radius: 10px; overflow: hidden; cursor: pointer; background: #fff;
+  box-shadow: 0 1px 0 rgba(0,0,0,.04), 0 10px 30px -12px rgba(30, 70, 55, .3); -webkit-tap-highlight-color: transparent; }
+.bm-ba .pic img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.bm-ba .pic .hi { clip-path: circle(0% at var(--x, 50%) var(--y, 50%)); transition: clip-path .7s cubic-bezier(.6, 0, .2, 1); }
+.bm-ba.on .pic .hi { clip-path: circle(150% at var(--x, 50%) var(--y, 50%)); }
+.bm-ba figcaption { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-top: 14px; }
+.bm-ba .name { position: relative; display: grid; font-size: 17px; font-weight: 600; color: #1c1c1c; }
+.bm-ba .name span { grid-area: 1 / 1; transition: opacity .35s, transform .35s; }
+.bm-ba .name span + span, .bm-ba.on .name span:first-child { opacity: 0; transform: translateY(6px); }
+.bm-ba.on .name span + span { opacity: 1; transform: none; }
+.bm-ba .hint em { font-style: normal; }
+.bm-ba .hint { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #5d6e68; }
+.bm-ba .hint i { width: 8px; height: 8px; border-radius: 50%; background: #00b876; animation: ba-ping 1.8s ease-out infinite; }
+@keyframes ba-ping { 0% { box-shadow: 0 0 0 0 rgba(0, 184, 118, .5); } 80%, 100% { box-shadow: 0 0 0 8px rgba(0, 184, 118, 0); } }
+
+/* ── Designing for different users by role: company → group → units ──── */
+.bm-org { aspect-ratio: 643 / 710; }
+.bm-org .o, .bm-org .g, .bm-org .u { position: absolute; border-radius: 1.6cqw; }
+.bm-org .o { inset: 1.25cqw; border-radius: 2.2cqw; background: #25624f; box-shadow: 0 2cqw 5cqw -2cqw rgba(20, 60, 45, .45); overflow: hidden; }
+.bm-org .g { left: 7.15cqw; right: 7.15cqw; top: 59cqw; bottom: 7.8cqw; background: rgba(255, 255, 255, .1); }
+.bm-org .u { left: 6.2cqw; right: 6.2cqw; top: 12.4cqw; bottom: 4.6cqw; background: rgba(255, 255, 255, .12); }
+.bm-org b { position: absolute; font-size: 4.3cqw; font-weight: 600; color: #fff; letter-spacing: -.005em; }
+.bm-org .o > b { left: 7.15cqw; top: 50.5cqw; }
+.bm-org .g > b, .bm-org .u > b { left: 6.2cqw; top: 5.2cqw; }
+.bm-org .o::after { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.14) 50%, transparent 65%); transform: translateX(-120%); }
+/* once, as it comes into view: the company, then its groups, then their units */
+.bm-org:not(.in) .o { opacity: 0; transform: translateY(5cqw) scale(.97); }
+.bm-org:not(.in) .g, .bm-org:not(.in) .u { clip-path: inset(100% 0 0 0 round 1.6cqw); }
+.bm-org:not(.in) b { opacity: 0; transform: translateY(2cqw); }
+.bm-org .o { transition: opacity .7s ease, transform .9s cubic-bezier(.2, .8, .2, 1); }
+.bm-org .g, .bm-org .u { clip-path: inset(0 0 0 0 round 1.6cqw); transition: clip-path .8s cubic-bezier(.65, 0, .25, 1); }
+.bm-org b { transition: opacity .5s ease, transform .6s cubic-bezier(.2, .8, .2, 1); }
+.bm-org .o > b { transition-delay: .35s; }
+.bm-org .g { transition-delay: .55s; } .bm-org .g > b { transition-delay: 1s; }
+.bm-org .u { transition-delay: 1.05s; } .bm-org .u > b { transition-delay: 1.5s; }
+.bm-org.in .o::after { animation: org-sheen 1.4s 1.7s cubic-bezier(.4, 0, .2, 1) both; }
+@keyframes org-sheen { to { transform: translateX(120%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .bm-ds .row, .bm-days .link, .bm-days .dot, .bm-ba .hint i { animation: none; }
+  .bm-days .dot { fill: #4caf70; }
+}
