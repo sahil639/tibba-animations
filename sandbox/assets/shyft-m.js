@@ -74,13 +74,16 @@ if (matchMedia('(max-width: 760px)').matches) {
 }
 
 /* the bottomsheet stack (see shyft-m.css): one sequence on the compositor
-   (transforms and opacity only), the same easing and spacing card to card */
+   (transforms and opacity only), one easing throughout. The nine fly in
+   from alternate sides, overlapping 170ms apart, all settled by 1800ms;
+   the full sheet fades in on top, the Figma panel rises under it, and
+   only then the caption fades in. Replay runs all of it again. */
 if (matchMedia('(max-width: 760px)').matches) {
   const box = document.querySelector('.sm-sheets');
   if (box) {
-    const sheets = [...box.querySelectorAll('.sh')], last = sheets.pop(), panel = box.querySelector('.sp-panel');
+    const sheets = [...box.querySelectorAll('.sh')], last = sheets.pop(), panel = box.querySelector('.sp-panel'), cap = box.querySelector('figcaption');
     const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const EASE = 'cubic-bezier(.22, 1, .36, 1)', IN = 700, GAP = 430;
+    const EASE = 'cubic-bezier(.22, 1, .36, 1)', IN = 440, GAP = 170;   /* 8 × 170 + 440 = 1800 */
     let live = [];
     const play = () => {
       live.forEach(a => a.cancel()); live = [];
@@ -88,14 +91,15 @@ if (matchMedia('(max-width: 760px)').matches) {
       if (still) { sheets.forEach(s => s.querySelector('i').style.opacity = .72); box.classList.add('done'); return; }
       const run = (el, frames, opt) => { const a = el.animate(frames, { fill: 'both', easing: EASE, ...opt }); live.push(a); return a; };
       sheets.forEach((s, k) => {
-        const at = k * GAP;
-        run(s, [{ transform: 'translate3d(-190%, 0, 0)', opacity: 0 }, { opacity: 1, offset: .35 }, { transform: 'translate3d(-50%, 0, 0)', opacity: 1 }], { duration: IN, delay: at });
-        /* veiled as the next one lands on it */
-        run(s.querySelector('i'), [{ opacity: 0 }, { opacity: .72 }], { duration: 380, delay: at + GAP + IN * .55, easing: 'ease-out' });
+        const at = k * GAP, from = k % 2 ? 'translate3d(140%, 0, 0)' : 'translate3d(-190%, 0, 0)';   /* 1 left, 2 right, … */
+        run(s, [{ transform: from, opacity: 0 }, { opacity: 1, offset: .3 }, { transform: 'translate3d(-50%, 0, 0)', opacity: 1 }], { duration: IN, delay: at });
+        /* veiled as the next one lands on it (the ninth, as the full sheet arrives) */
+        run(s.querySelector('i'), [{ opacity: 0 }, { opacity: .72 }], { duration: 260, delay: at + GAP + IN * .6, easing: 'ease-out' });
       });
-      const top = sheets.length * GAP + IN * .55;
-      run(last, [{ transform: 'translate3d(-50%, 10px, 0) scale(.97)', opacity: 0 }, { transform: 'translate3d(-50%, 0, 0) scale(1)', opacity: 1 }], { duration: 650, delay: top });
-      const end = run(panel, [{ transform: 'translate3d(-50%, 22px, 0)', opacity: 0 }, { transform: 'translate3d(-50%, 0, 0)', opacity: 1 }], { duration: 600, delay: top + 520 });
+      const settled = (sheets.length - 1) * GAP + IN;          /* 1800 */
+      run(last, [{ transform: 'translate3d(-50%, 8px, 0) scale(.98)', opacity: 0 }, { transform: 'translate3d(-50%, 0, 0) scale(1)', opacity: 1 }], { duration: 500, delay: settled + 60 });
+      run(panel, [{ transform: 'translate3d(-50%, 18px, 0)', opacity: 0 }, { transform: 'translate3d(-50%, 0, 0)', opacity: 1 }], { duration: 500, delay: settled + 460 });
+      const end = run(cap, [{ opacity: 0, transform: 'translate3d(0, 6px, 0)' }, { opacity: 1, transform: 'none' }], { duration: 600, delay: settled + 1060, easing: 'ease-out' });
       end.finished.then(() => box.classList.add('done')).catch(() => {});
     };
     const io = new IntersectionObserver(es => { if (es[0].isIntersecting) { io.disconnect(); play(); } }, { threshold: .3 });

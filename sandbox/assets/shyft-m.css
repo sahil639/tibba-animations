@@ -87,7 +87,10 @@
 .sm-sheets .sh i { position: absolute; inset: 3% 3.5% 2% 3.5%; border-radius: 7%/5%; background: #fff; opacity: 0; pointer-events: none; }
 .sm-sheets .sp-panel { position: absolute; left: 50%; top: 96cqw; width: 44cqw; transform: translate3d(-50%, 0, 0); will-change: transform, opacity; }
 .sm-sheets .sp-panel img { width: 100%; }
-.sm-sheets:not(.done):not(.go) .sh, .sm-sheets:not(.done):not(.go) .sp-panel { opacity: 0; }
+.sm-sheets:not(.done):not(.go) .sh, .sm-sheets:not(.done):not(.go) .sp-panel, .sm-sheets:not(.done):not(.go) figcaption { opacity: 0; }
+/* the full sheet and the panel stand off the faded stack */
+.sm-sheets .sh:nth-last-child(2) img { filter: drop-shadow(0 12px 22px rgba(70, 50, 160, .2)) drop-shadow(0 2px 4px rgba(70, 50, 160, .08)); }
+.sm-sheets .sp-panel img { filter: drop-shadow(0 14px 22px rgba(20, 10, 60, .3)); }
 .sm-sheets figcaption { margin: 2px auto 0; max-width: 30ch; font: 500 max(13px, 4.3cqw) / 1.45 ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
   letter-spacing: .01em; color: #8a7cf3; }
 .sm-sheets .replay { display: inline-flex; align-items: center; gap: 7px; margin-top: 20px; padding: 9px 16px 9px 13px; border: 1px solid #dcd6fb; border-radius: 12px;
