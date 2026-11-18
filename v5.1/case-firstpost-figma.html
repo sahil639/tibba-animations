@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-18T08:28:06.692Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-18T09:48:29.931Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -27,6 +27,36 @@ gtag('config', 'G-DZS8N17C9N');
 <script src="assets/cases.js" defer></script>
 <script src="assets/case-figma.js" defer></script>
 <link rel="stylesheet" href="assets/tune.css">
+<style>
+  /* phones (Nov 2026): the shows and the ad screens drift right to left in
+     their frames, a seamless loop (the script at the foot of the page) */
+  .fp-loop { display: none; }
+  @media (max-width: 760px) {
+    .fp-desk { display: none; }
+    .fp-loop { display: block; position: relative; overflow: hidden; container-type: inline-size; margin: 0 calc(-1 * var(--over, 0px));
+      border-radius: 8px; background: #000 0 0 / 100% 100% no-repeat; contain: paint; }
+    .fp-shows { aspect-ratio: 1308 / 2000; background-image: url('assets/work/firstpost-figma/m/shows-bg.webp'); }
+    .fp-screens { aspect-ratio: 2000 / 1639; background-image: url('assets/work/firstpost-figma/m/screens-bg.webp'); }
+    .fp-track { position: absolute; left: 0; display: flex; align-items: flex-start; width: max-content; margin: 0; padding: 0; list-style: none;
+      transform: translate3d(0, 0, 0); will-change: transform; backface-visibility: hidden;
+      animation: fp-run var(--t, 60s) linear infinite; animation-play-state: paused; }
+    .fp-loop.run .fp-track { animation-play-state: running; }
+    @keyframes fp-run { to { transform: translate3d(-50%, 0, 0); } }
+    .fp-track li { flex: none; }
+    .fp-track img { display: block; max-width: none; height: auto; pointer-events: none; }
+    /* the shows: 481 × 886 cards, 26 apart, 200 down a 730-wide frame */
+    .fp-shows .fp-track { top: 27.4cqw; }
+    .fp-shows li { margin-right: 3.56cqw; }
+    .fp-shows img { width: 65.9cqw; aspect-ratio: 481 / 886; }
+    /* the screens: drawn at the frame's scale (730 wide), 57 down, a label under each */
+    .fp-screens .fp-track { top: 7.8cqw; }
+    .fp-screens li { display: flex; flex-direction: column; align-items: center; margin-right: 9.5cqw; }
+    .fp-screens .fp-shot { display: flex; align-items: center; height: 59.2cqw; }
+    .fp-screens img { width: calc(var(--w) / 730 * 100cqw); }
+    .fp-screens span { margin-top: 3.6cqw; font: 400 max(11.5px, 3cqw) / 1.2 'Literata', Georgia, serif; color: #f2f2f2; white-space: nowrap; letter-spacing: .005em; }
+    @media (prefers-reduced-motion: reduce) { .fp-track { animation: none; } }
+  }
+</style>
 <style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
 html[data-wb-dock] body { padding-right: 0 !important; }</style>
 </head>
@@ -87,19 +117,19 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
       <figure class="cf-fig"><img src="assets/work/firstpost-figma/video-first.webp" width="2000" height="1125" alt="The video-first home page" loading="lazy" decoding="async"></figure>
       <div class="cf-head"><div><h2>Creating Firstpost’s Video Experience</h2></div><hr></div>
       <div class="cf-split" style="--fw:720"><div class="cf-text"><p>The challenge here was to design an experience that fulfilled the expectations set by other players but took a step forward at the same time.</p><p>After designing a base experience, we conducted design workshops with the product team to explore different directions the experience could take. As an outcome, we were able to create an innovative experience for viewers that was unique to Firstpost. We were also able to explore different avenues of monetisation for the business from these workshops.</p></div><figure class="fp-player" data-yt="zLyYWibhFhc" data-loop="20" aria-label="The Firstpost player, playing the first twenty seconds of a Vantage episode"></figure></div>
-      <figure class="cf-fig"><img src="assets/work/firstpost-figma/experience-2.webp" width="2760" height="1553" alt="The video page" loading="lazy" decoding="async"></figure>
+      <figure class="cf-fig"><picture><source media="(max-width: 760px)" srcset="assets/work/firstpost-figma/m/experience.webp" width="730" height="1062"><img src="assets/work/firstpost-figma/experience-2.webp" width="2760" height="1553" alt="The video page" loading="lazy" decoding="async"></picture></figure>
       <div class="cf-head"><div><h2>Rebranding Firstpost’s shows</h2></div><hr></div>
       <div class="cf-text"><p>All the Firstpost shows were rebranded to have a fresh and modern feel to them and match the visual style defined for Firstpost 2.0</p></div>
-      <figure class="cf-fig"><img src="assets/work/firstpost-figma/shows.webp" width="2000" height="1125" alt="The rebranded shows" loading="lazy" decoding="async"></figure>
+      <figure class="cf-fig fp-desk" data-loop="shows"><img src="assets/work/firstpost-figma/shows.webp" width="2000" height="1125" alt="The rebranded shows" loading="lazy" decoding="async"></figure>
       <div class="cf-head"><div><h2>Mobile First Approach</h2></div><hr></div>
       <div class="cf-text"><p>With 85% of the users accessing Firstpost’s website on their phones and only 15% use it on desktop, a trend concurrent with our times, the mobile web experience became a central point of focus for us.</p></div>
       <figure class="cf-fig"><img src="assets/work/firstpost-figma/mobile.webp" width="2760" height="2070" alt="The mobile web experience" loading="lazy" decoding="async"></figure>
       <div class="cf-head"><div><h2>Designing for Business</h2></div><hr></div>
       <div class="cf-text"><p>Since ads on the website were a primary channel of monetisation, we designed the UI keeping business objectives in mind. Additionally, we also designed for sponsored content on the platform.</p></div>
-      <figure class="cf-fig"><img src="assets/work/firstpost-figma/business.webp" width="2760" height="1553" alt="Ads and sponsored content in the layout" loading="lazy" decoding="async"></figure>
+      <figure class="cf-fig fp-desk" data-loop="screens"><img src="assets/work/firstpost-figma/business.webp" width="2760" height="1553" alt="Ads and sponsored content in the layout" loading="lazy" decoding="async"></figure>
       <div class="cf-head"><div><h2>A scalable Design System across platforms</h2></div><hr></div>
       <div class="cf-text"><p>Built today, for the future. Our robust design system was built around Firstpost being a video-first platform and was structured to cater to MWeb, Desktop and the Mobile App. The system ranges all the way from type and colour styles to the video player components. It was designed to cater to the product roadmap for the coming year.</p></div>
-      <figure class="cf-fig"><img src="assets/work/firstpost-figma/system.webp" width="1228" height="2000" alt="The design system: Literata and Inter, colour, and the player components" loading="lazy" decoding="async"></figure>
+      <figure class="cf-fig"><picture><source media="(max-width: 760px)" srcset="assets/work/firstpost-figma/m/system.webp" width="333" height="2000"><img src="assets/work/firstpost-figma/system.webp" width="1228" height="2000" alt="The design system: Literata and Inter, colour, and the player components" loading="lazy" decoding="async"></picture></figure>
       <div class="cf-head"><div><h2>The Firstpost App</h2></div><hr></div>
       <div class="cf-text"><p>We also worked on creating the foundation for their first mobile app, keeping in mind the significant pivot for their business and content strategy along with the identified user types</p></div>
       <figure class="cf-fig"><img src="assets/work/firstpost-figma/app.webp" width="2000" height="1500" alt="The Firstpost app" loading="lazy" decoding="async"></figure>
@@ -130,6 +160,46 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   }
 </script>
 
+<script>
+  /* phones: the two loops. Each is built where its desktop plate stands
+     (the plate is hidden), its pictures fetched as it nears the screen, and
+     its set laid twice so the track slides one set's width (-50%) and starts
+     again on the same frame — no seam. It drifts only while in view. */
+  if (matchMedia('(max-width: 760px)').matches) {
+    const dir = 'assets/work/firstpost-figma/m/';
+    const slug = n => n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '');
+    /* a file's name as words: "market-dashboard.png" → "Market Dashboard";
+       capitals already set (ATF, MREC) are kept, the small words stay small */
+    const label = n => n.replace(/\.[a-z]+$/i, '').split(/[-_\s]+/).map((w, i) =>
+      w === w.toUpperCase() ? w : (i && /^(on|and|of|the|in|for|to|a)$/i.test(w)) ? w.toLowerCase() : w[0].toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+    const sets = {
+      shows: { speed: 26, alt: 'The rebranded shows', items: ['Between the lines', 'Fast and Factual', 'First Sports', 'Flashback', 'Vantage'].map(n => ({ src: dir + 'slides-' + slug(n) + '.webp', w: 481, h: 886, alt: n })) },
+      screens: { speed: 30, alt: 'Ads and sponsored content in the layout', items: [['ATF Ads.png', 195, 432], ['Dedicated page.png', 195, 432], ['Firstfold unit.png', 588, 422], ['Gutter Ads.png', 596, 430], ['MREC + Leaderboard.png', 596, 430], ['Section on Homepage.png', 588, 422]]
+        .map(([f, w, h]) => ({ src: dir + 'screens-' + slug(f.replace(/\.png$/, '')) + '.webp', w, h, label: label(f) })) }
+    };
+    document.head.insertAdjacentHTML('beforeend', '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400&display=swap">');
+    const near = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { near.unobserve(e.target); fill(e.target); } }), { rootMargin: '1200px 0px' });
+    const seen = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('run', e.isIntersecting)));
+    const item = (it, kind, clone) => {
+      const img = `<img src="${it.src}" width="${it.w}" height="${it.h}" alt="${clone ? '' : (it.alt || it.label)}" decoding="async" draggable="false"${kind === 'screens' ? ` style="--w:${it.w}"` : ''}>`;
+      return kind === 'screens' ? `<li><div class="fp-shot">${img}</div><span>${it.label}</span></li>` : `<li>${img}</li>`;
+    };
+    function fill(box) {
+      const kind = box.dataset.kind, set = sets[kind], track = box.querySelector('.fp-track');
+      track.innerHTML = set.items.map(it => item(it, kind)).join('') + set.items.map(it => item(it, kind, true)).join('').replace(/<li>/g, '<li aria-hidden="true">');
+      const time = () => box.style.setProperty('--t', (track.scrollWidth / 2 / set.speed).toFixed(2) + 's');
+      Promise.all([...track.images || track.querySelectorAll('img')].map(i => i.decode().catch(() => {}))).then(time); time();
+      document.fonts && document.fonts.ready.then(time);
+      seen.observe(box);
+    }
+    document.querySelectorAll('.fp-desk[data-loop]').forEach(fig => {
+      const kind = fig.dataset.loop, box = document.createElement('figure');
+      box.className = 'fp-loop fp-' + kind; box.dataset.kind = kind; box.setAttribute('aria-label', sets[kind].alt);
+      box.innerHTML = '<ul class="fp-track"></ul>';
+      fig.after(box); near.observe(box);
+    });
+  }
+</script>
 <script type="module">
   import { mountSiteNav } from './assets/site-nav.js?v=10';
   mountSiteNav(document.getElementById('ca-header'), { current: 'Work' });
