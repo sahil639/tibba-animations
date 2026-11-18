@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-18T09:48:29.931Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-18T10:02:01.567Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -29,32 +29,31 @@ gtag('config', 'G-DZS8N17C9N');
 <link rel="stylesheet" href="assets/tune.css">
 <style>
   /* phones (Nov 2026): the shows and the ad screens drift right to left in
-     their frames, a seamless loop (the script at the foot of the page) */
-  .fp-loop { display: none; }
+     their frames — a seamless loop a finger can also swipe either way (the
+     script at the foot of the page). Class names are fl-*: fp-track is the
+     player's progress bar (case-figma.css) and lent the loops its grey. */
+  .fl-loop { display: none; }
   @media (max-width: 760px) {
     .fp-desk { display: none; }
-    .fp-loop { display: block; position: relative; overflow: hidden; container-type: inline-size; margin: 0 calc(-1 * var(--over, 0px));
-      border-radius: 8px; background: #000 0 0 / 100% 100% no-repeat; contain: paint; }
-    .fp-shows { aspect-ratio: 1308 / 2000; background-image: url('assets/work/firstpost-figma/m/shows-bg.webp'); }
-    .fp-screens { aspect-ratio: 2000 / 1639; background-image: url('assets/work/firstpost-figma/m/screens-bg.webp'); }
-    .fp-track { position: absolute; left: 0; display: flex; align-items: flex-start; width: max-content; margin: 0; padding: 0; list-style: none;
-      transform: translate3d(0, 0, 0); will-change: transform; backface-visibility: hidden;
-      animation: fp-run var(--t, 60s) linear infinite; animation-play-state: paused; }
-    .fp-loop.run .fp-track { animation-play-state: running; }
-    @keyframes fp-run { to { transform: translate3d(-50%, 0, 0); } }
-    .fp-track li { flex: none; }
-    .fp-track img { display: block; max-width: none; height: auto; pointer-events: none; }
-    /* the shows: 481 × 886 cards, 26 apart, 200 down a 730-wide frame */
-    .fp-shows .fp-track { top: 27.4cqw; }
-    .fp-shows li { margin-right: 3.56cqw; }
-    .fp-shows img { width: 65.9cqw; aspect-ratio: 481 / 886; }
+    .fl-loop { display: block; position: relative; overflow: hidden; container-type: inline-size; margin: 0 calc(-1 * var(--over, 0px));
+      border-radius: 8px; background: #000 0 0 / 100% 100% no-repeat; contain: paint; touch-action: pan-y; cursor: grab;
+      -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+    .fl-shows { aspect-ratio: 1308 / 2000; background-image: url('assets/work/firstpost-figma/m/shows-bg.webp'); }
+    .fl-screens { aspect-ratio: 2000 / 1639; background-image: url('assets/work/firstpost-figma/m/screens-bg.webp'); }
+    .fl-track { position: absolute; left: 0; display: flex; align-items: flex-start; width: max-content; margin: 0; padding: 0; list-style: none;
+      background: none; transform: translate3d(0, 0, 0); will-change: transform; backface-visibility: hidden; }
+    .fl-track li { flex: none; }
+    .fl-track img { display: block; max-width: none; height: auto; pointer-events: none; }
+    /* the shows: 480 × 886 cards, 26 apart, 200 down a 730-wide frame */
+    .fl-shows .fl-track { top: 27.4cqw; }
+    .fl-shows li { margin-right: 3.56cqw; }
+    .fl-shows img { width: 65.8cqw; aspect-ratio: 480 / 886; }
     /* the screens: drawn at the frame's scale (730 wide), 57 down, a label under each */
-    .fp-screens .fp-track { top: 7.8cqw; }
-    .fp-screens li { display: flex; flex-direction: column; align-items: center; margin-right: 9.5cqw; }
-    .fp-screens .fp-shot { display: flex; align-items: center; height: 59.2cqw; }
-    .fp-screens img { width: calc(var(--w) / 730 * 100cqw); }
-    .fp-screens span { margin-top: 3.6cqw; font: 400 max(11.5px, 3cqw) / 1.2 'Literata', Georgia, serif; color: #f2f2f2; white-space: nowrap; letter-spacing: .005em; }
-    @media (prefers-reduced-motion: reduce) { .fp-track { animation: none; } }
+    .fl-screens .fl-track { top: 7.8cqw; }
+    .fl-screens li { display: flex; flex-direction: column; align-items: center; margin-right: 9.5cqw; }
+    .fl-screens .fl-shot { display: flex; align-items: center; height: 59.2cqw; }
+    .fl-screens img { width: calc(var(--w) / 730 * 100cqw); }
+    .fl-screens span { margin-top: 3.6cqw; font: 400 max(11.5px, 3cqw) / 1.2 'Literata', Georgia, serif; color: #f2f2f2; white-space: nowrap; letter-spacing: .005em; }
   }
 </style>
 <style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
@@ -123,7 +122,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
       <figure class="cf-fig fp-desk" data-loop="shows"><img src="assets/work/firstpost-figma/shows.webp" width="2000" height="1125" alt="The rebranded shows" loading="lazy" decoding="async"></figure>
       <div class="cf-head"><div><h2>Mobile First Approach</h2></div><hr></div>
       <div class="cf-text"><p>With 85% of the users accessing Firstpost’s website on their phones and only 15% use it on desktop, a trend concurrent with our times, the mobile web experience became a central point of focus for us.</p></div>
-      <figure class="cf-fig"><img src="assets/work/firstpost-figma/mobile.webp" width="2760" height="2070" alt="The mobile web experience" loading="lazy" decoding="async"></figure>
+      <figure class="cf-fig"><picture><source media="(max-width: 760px)" srcset="assets/work/firstpost-figma/m/mobile.webp" width="2000" height="1500"><img src="assets/work/firstpost-figma/mobile.webp" width="2760" height="2070" alt="The mobile web experience" loading="lazy" decoding="async"></picture></figure>
       <div class="cf-head"><div><h2>Designing for Business</h2></div><hr></div>
       <div class="cf-text"><p>Since ads on the website were a primary channel of monetisation, we designed the UI keeping business objectives in mind. Additionally, we also designed for sponsored content on the platform.</p></div>
       <figure class="cf-fig fp-desk" data-loop="screens"><img src="assets/work/firstpost-figma/business.webp" width="2760" height="1553" alt="Ads and sponsored content in the layout" loading="lazy" decoding="async"></figure>
@@ -162,9 +161,12 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
 
 <script>
   /* phones: the two loops. Each is built where its desktop plate stands
-     (the plate is hidden), its pictures fetched as it nears the screen, and
-     its set laid twice so the track slides one set's width (-50%) and starts
-     again on the same frame — no seam. It drifts only while in view. */
+     (the plate is hidden) and its pictures fetched as it nears the screen.
+     The set is laid twice and the track's offset kept within one set's
+     width, so it wraps onto the same frame either way — no end, no seam.
+     It drifts right to left while in view; a horizontal swipe takes it
+     (touch-action: pan-y leaves a vertical swipe to the page), a flick
+     coasts, and the drift eases back in from wherever it was let go. */
   if (matchMedia('(max-width: 760px)').matches) {
     const dir = 'assets/work/firstpost-figma/m/';
     const slug = n => n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '');
@@ -173,29 +175,60 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     const label = n => n.replace(/\.[a-z]+$/i, '').split(/[-_\s]+/).map((w, i) =>
       w === w.toUpperCase() ? w : (i && /^(on|and|of|the|in|for|to|a)$/i.test(w)) ? w.toLowerCase() : w[0].toUpperCase() + w.slice(1).toLowerCase()).join(' ');
     const sets = {
-      shows: { speed: 26, alt: 'The rebranded shows', items: ['Between the lines', 'Fast and Factual', 'First Sports', 'Flashback', 'Vantage'].map(n => ({ src: dir + 'slides-' + slug(n) + '.webp', w: 481, h: 886, alt: n })) },
-      screens: { speed: 30, alt: 'Ads and sponsored content in the layout', items: [['ATF Ads.png', 195, 432], ['Dedicated page.png', 195, 432], ['Firstfold unit.png', 588, 422], ['Gutter Ads.png', 596, 430], ['MREC + Leaderboard.png', 596, 430], ['Section on Homepage.png', 588, 422]]
+      shows: { speed: 26, alt: 'The rebranded shows', items: ['Between the lines', 'Fast and Factual', 'First Sports', 'Flashback', 'Vantage'].map(n => ({ src: dir + 'slides-' + slug(n) + '.webp', w: 480, h: 886, alt: n })) },
+      screens: { speed: 30, alt: 'Ads and sponsored content in the layout', items: [['ATF Ads.png', 194, 431], ['Dedicated page.png', 194, 431], ['Firstfold unit.png', 587, 421], ['Gutter Ads.png', 595, 429], ['MREC + Leaderboard.png', 595, 429], ['Section on Homepage.png', 587, 421]]
         .map(([f, w, h]) => ({ src: dir + 'screens-' + slug(f.replace(/\.png$/, '')) + '.webp', w, h, label: label(f) })) }
     };
+    const still = matchMedia('(prefers-reduced-motion: reduce)');
     document.head.insertAdjacentHTML('beforeend', '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400&display=swap">');
-    const near = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { near.unobserve(e.target); fill(e.target); } }), { rootMargin: '1200px 0px' });
-    const seen = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('run', e.isIntersecting)));
     const item = (it, kind, clone) => {
       const img = `<img src="${it.src}" width="${it.w}" height="${it.h}" alt="${clone ? '' : (it.alt || it.label)}" decoding="async" draggable="false"${kind === 'screens' ? ` style="--w:${it.w}"` : ''}>`;
-      return kind === 'screens' ? `<li><div class="fp-shot">${img}</div><span>${it.label}</span></li>` : `<li>${img}</li>`;
+      return kind === 'screens' ? `<li><div class="fl-shot">${img}</div><span>${it.label}</span></li>` : `<li>${img}</li>`;
     };
-    function fill(box) {
-      const kind = box.dataset.kind, set = sets[kind], track = box.querySelector('.fp-track');
+    function loop(box) {
+      const kind = box.dataset.kind, set = sets[kind], track = box.querySelector('.fl-track');
       track.innerHTML = set.items.map(it => item(it, kind)).join('') + set.items.map(it => item(it, kind, true)).join('').replace(/<li>/g, '<li aria-hidden="true">');
-      const time = () => box.style.setProperty('--t', (track.scrollWidth / 2 / set.speed).toFixed(2) + 's');
-      Promise.all([...track.images || track.querySelectorAll('img')].map(i => i.decode().catch(() => {}))).then(time); time();
-      document.fonts && document.fonts.ready.then(time);
-      seen.observe(box);
+      const clone = track.children[set.items.length];
+      let span = 1, x = 0, v = -set.speed, held = null, lastX = 0, lastT = 0, seen = false, raf = 0, prev = 0;
+      const measure = () => { span = clone.offsetLeft || 1; };
+      const draw = () => { x = ((x % span) - span) % span; track.style.transform = `translate3d(${x}px, 0, 0)`; };
+      const tick = t => {
+        const dt = Math.min(.05, prev ? (t - prev) / 1000 : 0); prev = t;
+        if (!held) {
+          const aim = still.matches ? 0 : -set.speed;           /* the drift */
+          v += (aim - v) * (1 - Math.exp(-dt / .6));              /* a flick fades into it */
+          x += v * dt; draw();
+        }
+        raf = seen ? requestAnimationFrame(tick) : 0;
+      };
+      const go = () => { if (!raf && seen) { prev = 0; raf = requestAnimationFrame(tick); } };
+      new IntersectionObserver(es => { seen = es[0].isIntersecting; go(); }).observe(box);
+      box.addEventListener('pointerdown', e => {
+        held = e.pointerId; lastX = e.clientX; lastT = e.timeStamp; v = 0;
+        try { box.setPointerCapture(e.pointerId); } catch (_) {}
+      });
+      box.addEventListener('pointermove', e => {
+        if (held !== e.pointerId) return;
+        const dx = e.clientX - lastX, dt = Math.max(1, e.timeStamp - lastT) / 1000;
+        x += dx; draw(); v = v * .4 + (dx / dt) * .6; lastX = e.clientX; lastT = e.timeStamp;
+      });
+      const let_go = e => {
+        if (held !== e.pointerId) return;
+        held = null; if (e.timeStamp - lastT > 80) v = 0;          /* held still, then lifted: no fling */
+        v = Math.max(-2500, Math.min(2500, v)); go();
+      };
+      box.addEventListener('pointerup', let_go);
+      box.addEventListener('pointercancel', let_go);              /* a vertical swipe: the page took it */
+      measure(); draw();
+      Promise.all([...track.querySelectorAll('img')].map(i => i.decode().catch(() => {}))).then(measure);
+      document.fonts && document.fonts.ready.then(measure);
+      addEventListener('resize', measure);
     }
+    const near = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { near.unobserve(e.target); loop(e.target); } }), { rootMargin: '1200px 0px' });
     document.querySelectorAll('.fp-desk[data-loop]').forEach(fig => {
       const kind = fig.dataset.loop, box = document.createElement('figure');
-      box.className = 'fp-loop fp-' + kind; box.dataset.kind = kind; box.setAttribute('aria-label', sets[kind].alt);
-      box.innerHTML = '<ul class="fp-track"></ul>';
+      box.className = 'fl-loop fl-' + kind; box.dataset.kind = kind; box.setAttribute('aria-label', sets[kind].alt);
+      box.innerHTML = '<ul class="fl-track"></ul>';
       fig.after(box); near.observe(box);
     });
   }
