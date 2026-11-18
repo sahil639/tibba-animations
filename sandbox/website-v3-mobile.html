@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-18T11:58:05.711Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-18T12:19:29.686Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -442,9 +442,11 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   <section class="hero" aria-labelledby="hero-title">
     <h1 id="hero-title">Tibba<br>Design<br>Studio<em>.</em></h1>
     <!-- the hero mountain, full screen, its summit in the middle: the range
-         at 30°, drawn from the scene's own contours (assets/hero-mountain-30.svg,
-         made by tools/render-hero-mobile.html). The video versions are gone. -->
-    <img class="hero-art" id="hero-art" src="assets/hero-mountain-30.svg" width="360" height="780" alt="" aria-hidden="true" fetchpriority="high" decoding="async">
+         at 30°, a slow seamless 10.5 s loop (assets/video/hero-mountain-30.mp4,
+         its first frame the poster), the far country drawn out to the top of
+         the screen. Made by tools/render-hero-mobile.html?terrain=2000. -->
+    <video class="hero-vid" id="hero-vid" muted loop playsinline autoplay preload="auto"
+      poster="assets/video/hero-mountain-30.jpg" src="assets/video/hero-mountain-30.mp4" aria-hidden="true" tabindex="-1"></video>
     <div class="hero-foot">
       <p>Helping ambitious teams<br>reach the next peak.</p>
       <p>We partner with founders and design leaders to turn ambitious ideas into shipped, high-impact work.</p>

@@ -568,7 +568,10 @@ let CASE_CAM = null;            // filled once PEAK_H and TREK exist, below
    spacing per vertex stays what the hero was authored against (~1.09 units).
    Every vertex also carries the peak that owns it and how strongly, which is
    what lets one summit light up while the rest of the range stays as line. */
-const TERRAIN = 500, RES = 460;
+/* opts.terrainSize (an offline render's choice, e.g. the phone hero) widens
+   the plane and keeps the same spacing per vertex, so far country reaches
+   further without the near contours coarsening; the site never sets it. */
+const TERRAIN = opts.terrainSize || 500, RES = Math.round(460 * TERRAIN / 500);
 const geo = new THREE.PlaneGeometry(TERRAIN, TERRAIN, RES, RES);
 geo.rotateX(-Math.PI/2);
 const pos = geo.attributes.position;
@@ -802,7 +805,7 @@ camTarget.set(H_TGT.x, H_TGT.y - HERO_INTRO_TGT_Y, H_TGT.z);
 
 // Ground
 const ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(700,700),
+  new THREE.PlaneGeometry(Math.max(700, TERRAIN * 1.4), Math.max(700, TERRAIN * 1.4)),
   /* Black, not the near-black navy this was. The terrain fades to alpha, so
      the ground plane and the page behind it have to be the same colour or the
      plane's far edge draws a line across the view. */
@@ -1361,6 +1364,9 @@ if (opts.backdrop === 'behind') {
   CT.X0 = -270; CT.X1 = 270;
   CT.Z0 = -270; CT.Z1 = 270;
   CT.FADE_R = 250;
+  /* a wider plane (opts.terrainSize, offline renders only) takes the field
+     and its fade out with it, so the far country is drawn to the horizon */
+  if (opts.terrainSize > 560) { const R = opts.terrainSize / 2 - 20; CT.X0 = CT.Z0 = -R; CT.X1 = CT.Z1 = R; CT.FADE_R = R - 10; }
 
   /* Dots five times longer than the range uses. The period is in WORLD units,
      and these two scenes look at the world from very different distances: the

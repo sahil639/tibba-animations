@@ -44,7 +44,7 @@
   Object.defineProperty(window, 'devicePixelRatio', { get: () => DPR });
   const SECONDS = 10.5, FPS = 30, N = Math.round(SECONDS * FPS);
 
-  const scene = createRangeScene({ canvas: cv, mode: 'hero', ink: false, palette: 'peak', backdrop: 'behind', hover: false, lockFade: 0.9, quality: 'high' });
+  const scene = createRangeScene({ canvas: cv, mode: 'hero', ink: false, palette: 'peak', backdrop: 'behind', hover: false, lockFade: 0.9, quality: 'high', terrainSize: num('terrain', 500) });
   scene.setAccent('#FF4B1F'); scene.setDepth(0.22); scene.setHover(false); scene.setFill(null); scene.lockTo(0);
   scene.setRunning(false);
   window.scene = scene;
