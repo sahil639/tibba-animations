@@ -1,0 +1,72 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Shyft & Mindhouse on phones (Nov 2026) — loaded only under 760px
+   (case-shyft-mindhouse-figma.html). Each piece stands where a desktop plate
+   stands; the plate (.sm-desk) is hidden. Motion: assets/shyft-m.js.
+   ══════════════════════════════════════════════════════════════════════════ */
+.sm-desk { display: none !important; }
+.sm-m { display: block; position: relative; margin: 0 calc(-1 * var(--over, 0px)); }
+.sm-m img { display: block; max-width: none; height: auto; pointer-events: none; }
+
+/* ── card carousels (Designing for Conversion, Designing to overcome…) ── */
+.sm-cards { margin-inline: calc(-1 * var(--over, 0px) - 16px); }
+.sm-track { display: flex; gap: 12px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding-inline: 16px;
+  padding: 4px 16px 18px; scrollbar-width: none; -webkit-overflow-scrolling: touch; touch-action: pan-x pan-y; }
+.sm-track::-webkit-scrollbar { display: none; }
+.sm-card { flex: none; width: min(82vw, 340px); scroll-snap-align: start; container-type: inline-size; margin: 0; box-sizing: border-box;
+  padding: 7cqw 7cqw 9cqw; border-radius: 14px; background: #fff; color: #1b1b1f;
+  box-shadow: 0 1px 2px rgba(40, 30, 120, .05), 0 12px 30px -16px rgba(60, 50, 160, .28); }
+.sm-card > img { width: 100%; border-radius: 3cqw; }
+.sm-card h3 { margin: 11cqw 0 0; font-size: 6.8cqw; line-height: 1.2; font-weight: 600; letter-spacing: -.01em; }
+.sm-card p { margin: 4cqw 0 0; font-size: 4.4cqw; line-height: 1.5; color: #2b2b33; }
+.sm-card p + p { margin-top: 2.6cqw; }
+.sm-dots { display: flex; justify-content: center; gap: 6px; margin-top: 2px; }
+.sm-dots i { width: 6px; height: 6px; border-radius: 3px; background: #c9c6ee; transition: width .3s, background .3s; }
+.sm-dots i.on { width: 18px; background: #6c5ce7; }
+
+/* ── Designing for Shyft Pass: the card that tilts under a finger ──────── */
+.sm-pass { aspect-ratio: 2000 / 1660; overflow: hidden; border-radius: 12px; background: url('work/shyft-mindhouse-figma/m/pass-bg.webp') 0 0 / 100% 100% no-repeat;
+  display: grid; place-items: center; perspective: 900px; margin-top: 28px; }
+.sm-pass .pc { position: relative; width: 66%; aspect-ratio: 723 / 443; transform-style: preserve-3d; will-change: transform; touch-action: none; cursor: grab;
+  -webkit-tap-highlight-color: transparent; }
+.sm-pass .pc img { width: 100%; height: 100%; }
+.sm-pass .shadow { position: absolute; left: 6%; right: 6%; top: 14%; bottom: -2%; border-radius: 9%/15%; background: rgba(8, 0, 40, .55);
+  filter: blur(18px); transform: translate3d(var(--sx, 0px), var(--sy, 14px), -40px); opacity: .85; }
+.sm-pass .shine { position: absolute; inset: 0; border-radius: 4.2%/6.9%; pointer-events: none; mix-blend-mode: soft-light; opacity: var(--so, 0);
+  background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, .95), rgba(255, 255, 255, .25) 28%, rgba(255, 255, 255, 0) 60%); }
+.sm-pass .glare { position: absolute; inset: 0; border-radius: 4.2%/6.9%; pointer-events: none; opacity: calc(var(--so, 0) * .7);
+  background: linear-gradient(calc(var(--ga, 115deg)), rgba(255,255,255,0) 30%, rgba(255,255,255,.22) 48%, rgba(255,255,255,0) 62%); mix-blend-mode: screen; }
+.sm-pass .hint { position: absolute; bottom: 5%; left: 0; right: 0; text-align: center; font-size: 12px; letter-spacing: .02em; color: rgba(255,255,255,.6); pointer-events: none; transition: opacity .4s; }
+.sm-pass.used .hint { opacity: 0; }
+/* the switcher, moved under "Storytelling to drive conversions" */
+.cf-cols + .cf-devbox { margin-top: 28px; }
+
+/* ── Crafting the UI for the entire therapy flow ───────────────────────── */
+.sm-flow { aspect-ratio: 397 / 2000; overflow: hidden; border-radius: 12px; container-type: inline-size;
+  background: linear-gradient(180deg, #f4f4fc 0%, #ecebfc 22%, #d9d7fb 48%, #c3c0fa 70%, #aaa6f8 100%); }
+.sm-flow > img { position: absolute; }
+.f-pricing { left: 5.4cqw; top: 60.4cqw; width: 89.2cqw; }
+.f-doctor { left: .2cqw; top: 147.4cqw; width: 99.6cqw; }
+.f-session { left: 8.3cqw; top: 219.6cqw; width: 83.8cqw; }
+.f-filter { left: 2.3cqw; top: 413cqw; width: 97.2cqw; }
+.sm-flow .row { position: absolute; left: 0; display: flex; align-items: flex-start; width: max-content; will-change: transform;
+  animation: sm-right var(--t, 40s) linear infinite; animation-play-state: paused; }
+.sm-flow.run .row { animation-play-state: running; }
+@keyframes sm-right { from { transform: translate3d(-50%, 0, 0); } to { transform: translate3d(0, 0, 0); } }
+/* row 1: the therapist's facts, drawn */
+.sm-flow .facts { top: 11.3cqw; --t: 34s; }
+.sm-flow .fact { position: relative; flex: none; box-sizing: border-box; min-width: 57cqw; height: 36.5cqw; margin-right: 8.8cqw; padding: 15.5cqw 7cqw 0 7.5cqw;
+  border-radius: 2cqw; background: #f7f8fd; box-shadow: 0 2.4cqw 6cqw -3cqw rgba(70, 60, 170, .22); color: #3d405c; white-space: nowrap; }
+.sm-flow .fact span { display: block; font-size: 4.7cqw; letter-spacing: .01em; color: #5a5e78; }
+.sm-flow .fact b { display: block; margin-top: 1.6cqw; font-size: 7cqw; font-weight: 600; color: #3d405c; }
+.sm-flow .fact svg { position: absolute; top: 0; right: 6cqw; width: 12cqw; height: 12cqw; fill: #e4e3fb; }
+/* row 5: individual, couples, teen */
+.sm-flow .roles { top: 330cqw; --t: 30s; }
+.sm-flow .roles img { width: 63.5cqw; margin-right: 7.6cqw; border-radius: 1.4cqw; box-shadow: 0 3cqw 7cqw -3cqw rgba(70, 60, 170, .3); }
+/* the heads, ticking by */
+.sm-heads { overflow: hidden; margin-top: 22px; height: 46px; -webkit-mask: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+.sm-heads .row { display: flex; width: max-content; height: 100%; will-change: transform; animation: sm-left 36s linear infinite; animation-play-state: paused; }
+.sm-heads.run .row { animation-play-state: running; }
+.sm-heads .row img { height: 100%; width: auto; }
+@keyframes sm-left { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-50%, 0, 0); } }
+
+@media (prefers-reduced-motion: reduce) { .sm-flow .row, .sm-heads .row { animation: none; } }
