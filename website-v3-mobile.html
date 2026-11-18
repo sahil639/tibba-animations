@@ -433,9 +433,11 @@ section { scroll-margin-top: 64px; }
   <section class="hero" aria-labelledby="hero-title">
     <h1 id="hero-title">Tibba<br>Design<br>Studio<em>.</em></h1>
     <!-- the hero mountain, full screen, its summit in the middle — versions
-         to compare, ?hero=a, ?hero=b or ?hero=c (remembered on this device):
+         to compare, ?hero=a, b, c or d (remembered on this device):
            C  assets/video/hero-mountain-angled.mp4 — the same loop from a lower,
               more angled camera (34° rather than 52°), the horizon at the top
+           D  assets/video/hero-mountain-30.mp4 — at 30°, the original phone
+              video's angle, framed as C
            A  assets/hero-mountain-m.svg — the scene's own contours as vectors
            B  assets/video/hero-mountain-m.mp4 — the scene as a seamless muted
               10.5 s loop (default); the still poster for reduced motion/data
@@ -447,10 +449,11 @@ section { scroll-margin-top: 64px; }
       (function () {
         let v = new URLSearchParams(location.search).get('hero');
         try { if (v) localStorage.setItem('tibba.hero', v); else v = localStorage.getItem('tibba.hero'); } catch (e) {}
-        const svg = /^(a|svg)$/i.test(v || ''), angled = /^c$/i.test(v || '');
-        document.documentElement.dataset.hero = svg ? 'a' : angled ? 'c' : 'b';
+        const svg = /^(a|svg)$/i.test(v || ''), angled = /^c$/i.test(v || ''), thirty = /^d$/i.test(v || '');
+        document.documentElement.dataset.hero = svg ? 'a' : angled ? 'c' : thirty ? 'd' : 'b';
         const vid = document.getElementById('hero-vid'), art = document.getElementById('hero-art');
         if (svg) { vid.remove(); art.src = 'assets/hero-mountain-m.svg'; art.hidden = false; }
+        else if (thirty) { vid.poster = 'assets/video/hero-mountain-30.jpg'; vid.autoplay = true; vid.src = 'assets/video/hero-mountain-30.mp4'; }
         else if (angled) { vid.poster = 'assets/video/hero-mountain-angled.jpg'; vid.autoplay = true; vid.src = 'assets/video/hero-mountain-angled.mp4'; }
         else { vid.autoplay = true; vid.src = 'assets/video/hero-mountain-m.mp4'; }
       })();
