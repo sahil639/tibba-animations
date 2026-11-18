@@ -72,3 +72,34 @@ if (matchMedia('(max-width: 760px)').matches) {
     if (still) card.style.transition = 'none';
   }
 }
+
+/* the bottomsheet stack (see shyft-m.css): one sequence on the compositor
+   (transforms and opacity only), the same easing and spacing card to card */
+if (matchMedia('(max-width: 760px)').matches) {
+  const box = document.querySelector('.sm-sheets');
+  if (box) {
+    const sheets = [...box.querySelectorAll('.sh')], last = sheets.pop(), panel = box.querySelector('.sp-panel');
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const EASE = 'cubic-bezier(.22, 1, .36, 1)', IN = 700, GAP = 430;
+    let live = [];
+    const play = () => {
+      live.forEach(a => a.cancel()); live = [];
+      box.classList.remove('done'); box.classList.add('go');
+      if (still) { sheets.forEach(s => s.querySelector('i').style.opacity = .72); box.classList.add('done'); return; }
+      const run = (el, frames, opt) => { const a = el.animate(frames, { fill: 'both', easing: EASE, ...opt }); live.push(a); return a; };
+      sheets.forEach((s, k) => {
+        const at = k * GAP;
+        run(s, [{ transform: 'translate3d(-190%, 0, 0)', opacity: 0 }, { opacity: 1, offset: .35 }, { transform: 'translate3d(-50%, 0, 0)', opacity: 1 }], { duration: IN, delay: at });
+        /* veiled as the next one lands on it */
+        run(s.querySelector('i'), [{ opacity: 0 }, { opacity: .72 }], { duration: 380, delay: at + GAP + IN * .55, easing: 'ease-out' });
+      });
+      const top = sheets.length * GAP + IN * .55;
+      run(last, [{ transform: 'translate3d(-50%, 10px, 0) scale(.97)', opacity: 0 }, { transform: 'translate3d(-50%, 0, 0) scale(1)', opacity: 1 }], { duration: 650, delay: top });
+      const end = run(panel, [{ transform: 'translate3d(-50%, 22px, 0)', opacity: 0 }, { transform: 'translate3d(-50%, 0, 0)', opacity: 1 }], { duration: 600, delay: top + 520 });
+      end.finished.then(() => box.classList.add('done')).catch(() => {});
+    };
+    const io = new IntersectionObserver(es => { if (es[0].isIntersecting) { io.disconnect(); play(); } }, { threshold: .3 });
+    io.observe(box);
+    box.querySelector('.replay').addEventListener('click', play);
+  }
+}

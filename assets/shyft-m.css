@@ -70,3 +70,28 @@
 @keyframes sm-left { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-50%, 0, 0); } }
 
 @media (prefers-reduced-motion: reduce) { .sm-flow .row, .sm-heads .row { animation: none; } }
+
+/* ── Shyft Design System: the bottomsheets, stacking (in place of the first
+   bottomsheet plate). Nine sheets slide in from the left and settle on one
+   another, each fading under a white veil as the next lands; the full sheet
+   lands on top unveiled, then the Figma panel rises under it. Once, on first
+   sight, and again from Replay (assets/shyft-m.js). ─────────────────────── */
+.sm-sheets { container-type: inline-size; text-align: center; padding-bottom: 6px; }
+.sm-sheets .stage { position: relative; height: 146cqw; overflow: hidden; margin: 0 -16px; }
+.sm-sheets .stage::before { content: ''; position: absolute; left: 10%; right: 10%; top: 62cqw; height: 46cqw; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(150, 132, 245, .38), rgba(150, 132, 245, 0)); filter: blur(6px); }
+.sm-sheets .sh { position: absolute; top: 8.5cqw; left: 50%; height: 92cqw; transform: translate3d(-50%, 0, 0); will-change: transform, opacity; }
+.sm-sheets .sh img { height: 100%; width: auto; }
+/* the nine under the top one sit a size up, so their veiled edges show round it */
+.sm-sheets .sh:not(:nth-last-child(2)) { top: 6cqw; height: 104cqw; }
+.sm-sheets .sh i { position: absolute; inset: 3% 3.5% 2% 3.5%; border-radius: 7%/5%; background: #fff; opacity: 0; pointer-events: none; }
+.sm-sheets .sp-panel { position: absolute; left: 50%; top: 96cqw; width: 44cqw; transform: translate3d(-50%, 0, 0); will-change: transform, opacity; }
+.sm-sheets .sp-panel img { width: 100%; }
+.sm-sheets:not(.done):not(.go) .sh, .sm-sheets:not(.done):not(.go) .sp-panel { opacity: 0; }
+.sm-sheets figcaption { margin: 2px auto 0; max-width: 30ch; font: 500 max(13px, 4.3cqw) / 1.45 ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  letter-spacing: .01em; color: #8a7cf3; }
+.sm-sheets .replay { display: inline-flex; align-items: center; gap: 7px; margin-top: 20px; padding: 9px 16px 9px 13px; border: 1px solid #dcd6fb; border-radius: 12px;
+  background: #fff; color: #1d1b2e; font: 600 15px/1 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; box-shadow: 0 6px 18px -10px rgba(110, 90, 230, .45);
+  cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .15s; }
+.sm-sheets .replay:active { transform: scale(.96); }
+.sm-sheets .replay svg { width: 17px; height: 17px; }
