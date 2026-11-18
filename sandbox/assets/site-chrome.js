@@ -196,6 +196,7 @@
      it. Nothing is rendered until somebody asks. */
   function mountPanel() {
     if (document.querySelector('.panel-tab')) return;
+    if (matchMedia('(max-width: 760px)').matches) return;   /* phones: no services nudge (Nov 2026) */
 
     const tab = document.createElement('button');
     tab.type = 'button';

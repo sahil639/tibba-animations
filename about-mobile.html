@@ -10,8 +10,8 @@
 <link rel="stylesheet" href="assets/type.css">
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/ca-nav.css">
-<link rel="stylesheet" href="assets/site-shell.css?v=2">
-<link rel="stylesheet" href="assets/site-footer.css?v=3">
+<link rel="stylesheet" href="assets/site-shell.css?v=3">
+<link rel="stylesheet" href="assets/site-footer.css?v=5">
 <script src="assets/odometer.js" defer></script>
 <!-- ─────────────────────────────────────────────────────────────────────────
      About us — for phones (about.html sends screens up to 760px here)
@@ -173,7 +173,7 @@ section { scroll-margin-top: 64px; }
 <!-- the site footer, the same on every phone page (assets/site-footer.js) -->
 <footer id="footer" data-site-footer></footer>
 <script type="module">
-  import { mountSiteFooter } from './assets/site-footer.js?v=2';
+  import { mountSiteFooter } from './assets/site-footer.js?v=3';
   mountSiteFooter(document.getElementById('footer'));
 </script>
 
@@ -194,7 +194,7 @@ section { scroll-margin-top: 64px; }
 
 </script>
 <script type="module">
-  import { mountSiteNav } from './assets/site-nav.js?v=9';
+  import { mountSiteNav } from './assets/site-nav.js?v=10';
   mountSiteNav(document.getElementById('ca-header'), { current: 'About', home: 'website-v3-mobile.html', nav: [
     { label: 'Work', href: 'website-v3-mobile.html#work' }, { label: 'Services', href: 'website-v3-mobile.html#services' },
     { label: 'About', href: 'about-mobile.html' }, { label: 'Contact', href: '#footer' }] });

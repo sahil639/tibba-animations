@@ -88,4 +88,9 @@ export function mountSiteNav(header, { nav = SITE_NAV, home = 'website-v3.html',
   document.addEventListener('pointerdown', e => { if (header.classList.contains('open') && !header.contains(e.target)) menu(false); }, { passive: true });
   addEventListener('keydown', e => { if (e.key === 'Escape') menu(false); });
   requestAnimationFrame(() => document.documentElement.classList.add('site-nav-in'));
+  /* phones, every page: a long press on an image opens no save / copy menu */
+  if (matchMedia('(max-width: 760px)').matches) {
+    document.addEventListener('contextmenu', e => { if (e.target.closest('img, video, picture, svg, canvas')) e.preventDefault(); });
+    document.addEventListener('dragstart', e => { if (e.target.closest('img, video, picture, svg')) e.preventDefault(); });
+  }
 }

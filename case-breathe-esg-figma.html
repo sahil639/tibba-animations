@@ -8,14 +8,14 @@
 <link rel="stylesheet" href="assets/type.css">
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/ca-nav.css">
-<link rel="stylesheet" href="assets/site-shell.css?v=2">
+<link rel="stylesheet" href="assets/site-shell.css?v=3">
 <link rel="stylesheet" href="assets/work.css">
 <link rel="stylesheet" href="assets/case-figma.css?v=3">
 <link rel="stylesheet" href="assets/workbench.css">
 <script src="assets/manifest.js"></script>
 <script src="assets/whats-new.js"></script>
 <script src="assets/workbench.js" defer></script>
-<script src="assets/site-chrome.js" defer></script>
+<script src="assets/site-chrome.js?v=2" defer></script>
 <script src="assets/work.js" defer></script>
 <script src="assets/cases.js" defer></script>
 <script src="assets/case-figma.js" defer></script>
@@ -108,13 +108,13 @@
   if (matchMedia('(max-width: 760px)').matches) {
     const old = document.getElementById('footer'), foot = document.createElement('footer');
     foot.id = 'footer'; foot.setAttribute('data-site-footer', ''); old.replaceWith(foot);
-    document.head.insertAdjacentHTML('beforeend', '<link rel="stylesheet" href="assets/site-footer.css?v=3">');
-    import('./assets/site-footer.js?v=2').then(m => m.mountSiteFooter(foot));
+    document.head.insertAdjacentHTML('beforeend', '<link rel="stylesheet" href="assets/site-footer.css?v=5">');
+    import('./assets/site-footer.js?v=3').then(m => m.mountSiteFooter(foot, { light: true }));
   }
 </script>
 
 <script type="module">
-  import { mountSiteNav } from './assets/site-nav.js?v=9';
+  import { mountSiteNav } from './assets/site-nav.js?v=10';
   mountSiteNav(document.getElementById('ca-header'), { current: 'Work' });
 </script>
 <!-- primary / secondary typography control (assets/type-control.js) -->

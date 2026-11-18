@@ -70,3 +70,15 @@
 .sf-col ul { list-style: none; margin-top: 22px !important; display: grid; gap: 12px; font-size: 17px; color: #fff; }
 
 .sf-legal { grid-column: 1 / -1; padding: 16px 22px; border-top: 1px solid var(--ln); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--mute); }
+
+/* the light footer — the same footer for the light case studies (Breathe ESG,
+   Shyft & Mindhouse): their page tint, ink for type and hairlines */
+.sf.sf-light { --ln: rgba(14,17,20,.14); --mute: rgba(14,17,20,.58); color: #0E1114;
+  background: radial-gradient(38% 34% at 76% 96%, rgba(255,120,60,.12), rgba(255,120,60,0) 100%), #f5f9fa; }
+.sf-light .sf-talk > h2, .sf-light .sf-word, .sf-light .sf-col ul, .sf-light .sf-mail { color: #0E1114; }
+.sf-light input, .sf-light textarea { color: #0E1114; border-bottom-color: rgba(14,17,20,.28); }
+.sf-light .sf-btn { color: #fff; background: #C9124B; border-color: #C9124B; }
+.sf-light .sf-done, .sf-light .sf-cases a, .sf-light .sf-next i { color: #0E1114; }
+.sf-light .sf-next span, .sf-light .sf-cases span, .sf-light .sf-again { color: rgba(14,17,20,.62); }
+
+.sf-light .sf-flame { filter: brightness(.62) contrast(1.25) saturate(1.3); }

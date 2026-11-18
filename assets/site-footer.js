@@ -9,7 +9,7 @@
      <footer id="footer" data-site-footer></footer>
      <link rel="stylesheet" href="assets/site-footer.css">
      import { mountSiteFooter } from './assets/site-footer.js';
-     mountSiteFooter(document.getElementById('footer'));
+     mountSiteFooter(document.getElementById('footer'));          // or { light: true }
 
    Light on purpose: plain markup in the page — no frame, no canvas, no
    resize or scroll listeners, nothing running while the page scrolls. The
@@ -30,10 +30,11 @@ export const CASES = [
 ];
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-export function mountSiteFooter(host) {
+export function mountSiteFooter(host, { light = false } = {}) {
   if (!host || host.dataset.mounted) return;
   host.dataset.mounted = '1';
   host.classList.add('sf');
+  if (light) host.classList.add('sf-light');
   host.setAttribute('aria-label', 'Footer');
   host.innerHTML = `
   <section class="sf-talk" aria-labelledby="sf-talk-h">

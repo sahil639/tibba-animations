@@ -9,13 +9,12 @@
 <link rel="preload" href="assets/fonts/VendSans-Variable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/type.css">
 <link rel="stylesheet" href="assets/ca-nav.css">
-<link rel="stylesheet" href="assets/site-shell.css?v=2">
+<link rel="stylesheet" href="assets/site-shell.css?v=3">
 <link rel="stylesheet" href="assets/work.css">
-<link rel="stylesheet" href="assets/site-footer.css?v=3">
+<link rel="stylesheet" href="assets/site-footer.css?v=5">
 <script src="assets/work.js"></script>
 <script src="assets/service-icons.js" defer></script>
 <script src="assets/scene-video.js" defer></script>
-<script src="assets/rive-slot.js" defer></script>
 <style>
 /* ══════════════════════════════════════════════════════════════════════════
    Website v3 — on a phone
@@ -378,6 +377,40 @@ section { scroll-margin-top: 64px; }
 .stage-panel .out { margin: 32px 0 0 !important; }
 .stage-panel .svc { margin-top: 32px; }
 .stage-panel .svc li:first-child { padding-top: 0 !important; }
+
+/* ══ Nov 2026 (7), phones ══════════════════════════════════════════════ */
+/* Our work: each card's four images in turn — 2.5 s each, 10 s a loop,
+   a short crossfade between; the first image is always beneath */
+.case .rv.loop { aspect-ratio: 1080 / 1341; background: #0e0e10; }
+.case .rv.loop img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.case .rv.loop img:not(.loop-base) { opacity: 0; animation: loop-4 10s linear infinite both paused; will-change: opacity; }
+.case .rv.loop.run img:not(.loop-base) { animation-play-state: running; }
+.case .rv.loop img:nth-child(3) { animation-delay: 2.5s; }
+.case .rv.loop img:nth-child(4) { animation-delay: 5s; }
+.case .rv.loop img:nth-child(5) { animation-delay: 7.5s; }
+@keyframes loop-4 { 0% { opacity: 0; } 4% { opacity: 1; } 25% { opacity: 1; } 29% { opacity: 0; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .case .rv.loop img:not(.loop-base) { animation: none; } }
+/* More work: the line opens on a grid row (0fr → 1fr), height and fade on
+   one curve, so nothing jumps */
+.index .ix-d { flex-basis: 100%; display: grid; grid-template-rows: 0fr; max-height: none !important; margin: 0 !important; opacity: 0;
+  transition: grid-template-rows .32s cubic-bezier(.4,0,.2,1), opacity .24s cubic-bezier(.4,0,.2,1); }
+.index .ix-d > p { min-height: 0; overflow: hidden; padding-top: 8px; font-size: 14px; line-height: 1.45; color: var(--mute); }
+.index li[aria-expanded="true"] .ix-d { grid-template-rows: 1fr; opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .index .ix-d { transition: none; } }
+/* Our services: the new bag icons, as drawn */
+.st-ico img { mix-blend-mode: normal !important; opacity: 1 !important; }
+/* the case study, under the stage's heading: a tinted panel, the client's
+   logo, the link, and a light that sweeps across now and then */
+.stage-panel .cs-row { position: relative; overflow: hidden; margin: 24px 0 0; padding: 16px 18px; gap: 14px; border: 1px solid color-mix(in srgb, var(--c) 30%, transparent);
+  background: color-mix(in srgb, var(--c) 16%, #000); font-size: 15px; -webkit-tap-highlight-color: transparent; }
+.stage-panel .cs-row span { text-align: right; }
+.stage-panel .cs-row i { font-size: 20px; }
+.stage-panel .cs-row::after { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 45%; pointer-events: none;
+  background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,.14) 50%, transparent 100%); transform: translateX(-120%) skewX(-12deg);
+  animation: cs-shine 3.2s cubic-bezier(.4,0,.2,1) 1s infinite; }
+@keyframes cs-shine { 0% { transform: translateX(-120%) skewX(-12deg); } 45%, 100% { transform: translateX(330%) skewX(-12deg); } }
+@media (prefers-reduced-motion: reduce) { .stage-panel .cs-row::after { animation: none; display: none; } }
+.stage-panel .svc { margin-top: 32px !important; }
 </style>
 </head>
 <body>
@@ -387,8 +420,10 @@ section { scroll-margin-top: 64px; }
 <main>
   <section class="hero" aria-labelledby="hero-title">
     <h1 id="hero-title">Tibba<br>Design<br>Studio<em>.</em></h1>
-    <!-- the hero mountain, full screen, its summit in the middle — two
-         versions to compare, ?hero=a or ?hero=b (remembered on this device):
+    <!-- the hero mountain, full screen, its summit in the middle — versions
+         to compare, ?hero=a, ?hero=b or ?hero=c (remembered on this device):
+           C  assets/video/hero-mountain-angled.mp4 — the same loop from a lower,
+              more angled camera (34° rather than 52°), the horizon at the top
            A  assets/hero-mountain-m.svg — the scene's own contours as vectors
            B  assets/video/hero-mountain-m.mp4 — the scene as a seamless muted
               10.5 s loop (default); the still poster for reduced motion/data
@@ -400,10 +435,11 @@ section { scroll-margin-top: 64px; }
       (function () {
         let v = new URLSearchParams(location.search).get('hero');
         try { if (v) localStorage.setItem('tibba.hero', v); else v = localStorage.getItem('tibba.hero'); } catch (e) {}
-        const svg = /^(a|svg)$/i.test(v || '');
-        document.documentElement.dataset.hero = svg ? 'a' : 'b';
+        const svg = /^(a|svg)$/i.test(v || ''), angled = /^c$/i.test(v || '');
+        document.documentElement.dataset.hero = svg ? 'a' : angled ? 'c' : 'b';
         const vid = document.getElementById('hero-vid'), art = document.getElementById('hero-art');
         if (svg) { vid.remove(); art.src = 'assets/hero-mountain-m.svg'; art.hidden = false; }
+        else if (angled) { vid.poster = 'assets/video/hero-mountain-angled.jpg'; vid.autoplay = true; vid.src = 'assets/video/hero-mountain-angled.mp4'; }
         else { vid.autoplay = true; vid.src = 'assets/video/hero-mountain-m.mp4'; }
       })();
     </script>
@@ -421,14 +457,13 @@ section { scroll-margin-top: 64px; }
   </div>
 
   <section class="pad" aria-labelledby="brands-h">
-    <p class="eyebrow">[ Brands ]</p>
-    <h2 class="h2" id="brands-h">We’ve worked with start-ups and market leaders</h2>
+    <h2 class="h2" id="brands-h" style="margin-top:0">We’ve worked with start-ups and market leaders</h2>
     <p class="lede">Over the past decade we’ve helped companies deliver food, perform services, insure health, provide financial services, publish news and sell products.</p>
     <div class="marquee" id="marquee" aria-label="Brands we have worked with">
-      <div class="mrow" style="--d:44s"><span><img src="assets/logos/groww.svg" alt="Groww" loading="lazy"></span><span><img src="assets/logos/paytm.svg" alt="Paytm" loading="lazy"></span><span><img src="assets/logos/zomato.svg" alt="Zomato" loading="lazy"></span><span><img src="assets/logos/firstpost.svg" alt="Firstpost" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/groww.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/paytm.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/zomato.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/firstpost.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/groww.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/paytm.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/zomato.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/firstpost.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/groww.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/paytm.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/zomato.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/firstpost.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/groww.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/paytm.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/zomato.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/firstpost.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/groww.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/paytm.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/zomato.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/firstpost.svg" alt="" loading="lazy"></span></div>
-      <div class="mrow rev" style="--d:52s"><span><img src="assets/logos/urban-company.svg" alt="Urban Company" loading="lazy"></span><span><img src="assets/logos/hdfc-bank.svg" alt="HDFC Bank" loading="lazy" style="filter:brightness(1.5)"></span><span><img src="assets/logos/the-indian-express.svg" alt="The Indian Express" loading="lazy"></span><span><img src="assets/logos/the-times-of-india.svg" alt="The Times of India" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/urban-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/hdfc-bank.svg" alt="" loading="lazy" style="filter:brightness(1.5)"></span><span aria-hidden="true"><img src="assets/logos/the-indian-express.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/the-times-of-india.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/urban-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/hdfc-bank.svg" alt="" loading="lazy" style="filter:brightness(1.5)"></span><span aria-hidden="true"><img src="assets/logos/the-indian-express.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/the-times-of-india.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/urban-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/hdfc-bank.svg" alt="" loading="lazy" style="filter:brightness(1.5)"></span><span aria-hidden="true"><img src="assets/logos/the-indian-express.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/the-times-of-india.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/urban-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/hdfc-bank.svg" alt="" loading="lazy" style="filter:brightness(1.5)"></span><span aria-hidden="true"><img src="assets/logos/the-indian-express.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/the-times-of-india.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/urban-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/hdfc-bank.svg" alt="" loading="lazy" style="filter:brightness(1.5)"></span><span aria-hidden="true"><img src="assets/logos/the-indian-express.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/the-times-of-india.svg" alt="" loading="lazy"></span></div>
-      <div class="mrow" style="--d:48s"><span><img src="assets/logos/policybazaar.svg" alt="Policybazaar" loading="lazy" style="filter:brightness(2.6)"></span><span><img src="assets/logos/breatheesg.svg" alt="Breathe ESG" loading="lazy"></span><span><img src="assets/logos/shyft.svg" alt="Shyft" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/policybazaar.svg" alt="" loading="lazy" style="filter:brightness(2.6)"></span><span aria-hidden="true"><img src="assets/logos/breatheesg.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/shyft.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/policybazaar.svg" alt="" loading="lazy" style="filter:brightness(2.6)"></span><span aria-hidden="true"><img src="assets/logos/breatheesg.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/shyft.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/policybazaar.svg" alt="" loading="lazy" style="filter:brightness(2.6)"></span><span aria-hidden="true"><img src="assets/logos/breatheesg.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/shyft.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/policybazaar.svg" alt="" loading="lazy" style="filter:brightness(2.6)"></span><span aria-hidden="true"><img src="assets/logos/breatheesg.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/shyft.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/policybazaar.svg" alt="" loading="lazy" style="filter:brightness(2.6)"></span><span aria-hidden="true"><img src="assets/logos/breatheesg.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/shyft.svg" alt="" loading="lazy"></span></div>
-      <div class="mrow rev" style="--d:56s"><span><img src="assets/logos/apnaklub.svg" alt="Apnaklub" loading="lazy"></span><span><img src="assets/logos/simsim.svg" alt="simsim" loading="lazy"></span><span><img src="assets/logos/bombay-shirt-company.svg" alt="Bombay Shirt Company" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/apnaklub.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/simsim.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/bombay-shirt-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/apnaklub.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/simsim.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/bombay-shirt-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/apnaklub.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/simsim.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/bombay-shirt-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/apnaklub.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/simsim.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/bombay-shirt-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/apnaklub.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/simsim.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/bombay-shirt-company.svg" alt="" loading="lazy"></span></div>
+      <div class="mrow" style="--d:58s"><span><img src="assets/logos/groww.svg" alt="Groww" loading="lazy"></span><span><img src="assets/logos/paytm.svg" alt="Paytm" loading="lazy"></span><span><img src="assets/logos/zomato.svg" alt="Zomato" loading="lazy"></span><span><img src="assets/logos/firstpost.svg" alt="Firstpost" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/groww.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/paytm.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/zomato.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/firstpost.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/groww.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/paytm.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/zomato.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/firstpost.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/groww.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/paytm.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/zomato.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/firstpost.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/groww.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/paytm.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/zomato.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/firstpost.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/groww.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/paytm.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/zomato.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/firstpost.svg" alt="" loading="lazy"></span></div>
+      <div class="mrow rev" style="--d:68s"><span><img src="assets/logos/urban-company.svg" alt="Urban Company" loading="lazy"></span><span><img src="assets/logos/hdfc-bank.svg" alt="HDFC Bank" loading="lazy" style="filter:brightness(1.5)"></span><span><img src="assets/logos/the-indian-express.svg" alt="The Indian Express" loading="lazy"></span><span><img src="assets/logos/the-times-of-india.svg" alt="The Times of India" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/urban-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/hdfc-bank.svg" alt="" loading="lazy" style="filter:brightness(1.5)"></span><span aria-hidden="true"><img src="assets/logos/the-indian-express.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/the-times-of-india.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/urban-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/hdfc-bank.svg" alt="" loading="lazy" style="filter:brightness(1.5)"></span><span aria-hidden="true"><img src="assets/logos/the-indian-express.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/the-times-of-india.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/urban-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/hdfc-bank.svg" alt="" loading="lazy" style="filter:brightness(1.5)"></span><span aria-hidden="true"><img src="assets/logos/the-indian-express.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/the-times-of-india.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/urban-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/hdfc-bank.svg" alt="" loading="lazy" style="filter:brightness(1.5)"></span><span aria-hidden="true"><img src="assets/logos/the-indian-express.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/the-times-of-india.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/urban-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/hdfc-bank.svg" alt="" loading="lazy" style="filter:brightness(1.5)"></span><span aria-hidden="true"><img src="assets/logos/the-indian-express.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/the-times-of-india.svg" alt="" loading="lazy"></span></div>
+      <div class="mrow" style="--d:62s"><span><img src="assets/logos/policybazaar.svg" alt="Policybazaar" loading="lazy" style="filter:brightness(2.6)"></span><span><img src="assets/logos/breatheesg.svg" alt="Breathe ESG" loading="lazy"></span><span><img src="assets/logos/shyft.svg" alt="Shyft" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/policybazaar.svg" alt="" loading="lazy" style="filter:brightness(2.6)"></span><span aria-hidden="true"><img src="assets/logos/breatheesg.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/shyft.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/policybazaar.svg" alt="" loading="lazy" style="filter:brightness(2.6)"></span><span aria-hidden="true"><img src="assets/logos/breatheesg.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/shyft.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/policybazaar.svg" alt="" loading="lazy" style="filter:brightness(2.6)"></span><span aria-hidden="true"><img src="assets/logos/breatheesg.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/shyft.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/policybazaar.svg" alt="" loading="lazy" style="filter:brightness(2.6)"></span><span aria-hidden="true"><img src="assets/logos/breatheesg.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/shyft.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/policybazaar.svg" alt="" loading="lazy" style="filter:brightness(2.6)"></span><span aria-hidden="true"><img src="assets/logos/breatheesg.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/shyft.svg" alt="" loading="lazy"></span></div>
+      <div class="mrow rev" style="--d:72s"><span><img src="assets/logos/apnaklub.svg" alt="Apnaklub" loading="lazy"></span><span><img src="assets/logos/simsim.svg" alt="simsim" loading="lazy"></span><span><img src="assets/logos/bombay-shirt-company.svg" alt="Bombay Shirt Company" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/apnaklub.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/simsim.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/bombay-shirt-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/apnaklub.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/simsim.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/bombay-shirt-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/apnaklub.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/simsim.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/bombay-shirt-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/apnaklub.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/simsim.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/bombay-shirt-company.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/apnaklub.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/simsim.svg" alt="" loading="lazy"></span><span aria-hidden="true"><img src="assets/logos/bombay-shirt-company.svg" alt="" loading="lazy"></span></div>
     </div>
   </section>
 
@@ -449,25 +484,25 @@ section { scroll-margin-top: 64px; }
       <article class="case" data-peak style="--c:#4DD9C0">
         <h3>How we helped Groww <span class="hi">boost engagement</span> on their app</h3>
         <p>A deep engagement with Groww to design and improve features that engage users on their consumer app, along with design support for other product initiatives.</p>
-        <a class="rv" href="case-groww-figma.html" data-rive="groww" aria-label="Groww — the work"><span class="slot" data-folder="groww" data-alt="Groww — the work"></span></a>
+        <a class="rv loop" href="case-groww-figma.html" aria-label="Groww — the work"><img class="loop-base" src="assets/m/loops/groww-1.webp" width="1080" height="1341" alt="" decoding="async"><img src="assets/m/loops/groww-1.webp" width="1080" height="1341" alt="" decoding="async"><img src="assets/m/loops/groww-2.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"><img src="assets/m/loops/groww-3.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"><img src="assets/m/loops/groww-4.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"></a>
         <a class="btn-p case-go" style="--btn-bg:#4DD9C0" href="case-groww-figma.html">View case study<span class="btn-p-ic" aria-hidden="true"></span></a>
       </article>
       <article class="case" data-peak style="--c:#E05555">
         <h3>How we helped Firstpost <span class="hi">2x their traffic</span> through a strategic redesign</h3>
         <p>A design overhaul of Firstpost’s website and the creation of their first mobile app, with a significant pivot for their business and content strategy.</p>
-        <a class="rv" href="case-firstpost-figma.html" data-rive="firstpost" aria-label="Firstpost — the work"><span class="slot" data-folder="firstpost" data-alt="Firstpost — the work"></span></a>
+        <a class="rv loop" href="case-firstpost-figma.html" aria-label="Firstpost — the work"><img class="loop-base" src="assets/m/loops/firstpost-1.webp" width="1080" height="1341" alt="" decoding="async"><img src="assets/m/loops/firstpost-1.webp" width="1080" height="1341" alt="" decoding="async"><img src="assets/m/loops/firstpost-2.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"><img src="assets/m/loops/firstpost-3.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"><img src="assets/m/loops/firstpost-4.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"></a>
         <a class="btn-p case-go" style="--btn-bg:#E05555" href="case-firstpost-figma.html">View case study<span class="btn-p-ic" aria-hidden="true"></span></a>
       </article>
       <article class="case" data-peak style="--c:#4CAF70">
         <h3>How we helped Breathe ESG <span class="hi">accelerate sales</span>, streamline releases and elevate customer experience</h3>
         <p>An MVP to v1 redesign of Breathe ESG’s SaaS platform, to make it easier for companies to track their ESG metrics and regulatory compliance.</p>
-        <a class="rv" href="case-breathe-esg-figma.html" data-rive="breathe-esg" aria-label="Breathe ESG — the work"><span class="slot" data-folder="breathe-esg" data-alt="Breathe ESG — the work"></span></a>
+        <a class="rv loop" href="case-breathe-esg-figma.html" aria-label="Breathe ESG — the work"><img class="loop-base" src="assets/m/loops/breathe-esg-1.webp" width="1080" height="1341" alt="" decoding="async"><img src="assets/m/loops/breathe-esg-1.webp" width="1080" height="1341" alt="" decoding="async"><img src="assets/m/loops/breathe-esg-2.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"><img src="assets/m/loops/breathe-esg-3.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"><img src="assets/m/loops/breathe-esg-4.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"></a>
         <a class="btn-p case-go" style="--btn-bg:#4CAF70" href="case-breathe-esg-figma.html">View case study<span class="btn-p-ic" aria-hidden="true"></span></a>
       </article>
       <article class="case" data-peak style="--c:#7B8FF5">
         <h3>How we helped Shyft &amp; Mindhouse <span class="hi">grow their business</span> and supercharge product led growth</h3>
         <p>Conceptualising and designing a therapy experience, alongside redesigning their websites and apps to impact revenue.</p>
-        <a class="rv" href="case-shyft-mindhouse-figma.html" data-rive="shyft-mindhouse" aria-label="Shyft &amp; Mindhouse — the work"><span class="slot" data-folder="shyft-mindhouse" data-alt="Shyft &amp; Mindhouse — the work"></span></a>
+        <a class="rv loop" href="case-shyft-mindhouse-figma.html" aria-label="Shyft &amp; Mindhouse — the work"><img class="loop-base" src="assets/m/loops/shyft-mindhouse-1.webp" width="1080" height="1341" alt="" decoding="async"><img src="assets/m/loops/shyft-mindhouse-1.webp" width="1080" height="1341" alt="" decoding="async"><img src="assets/m/loops/shyft-mindhouse-2.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"><img src="assets/m/loops/shyft-mindhouse-3.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"><img src="assets/m/loops/shyft-mindhouse-4.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"></a>
         <a class="btn-p case-go" style="--btn-bg:#7B8FF5" href="case-shyft-mindhouse-figma.html">View case study<span class="btn-p-ic" aria-hidden="true"></span></a>
       </article>
     </div>
@@ -477,16 +512,16 @@ section { scroll-margin-top: 64px; }
   <section id="more" class="pad" aria-labelledby="more-h">
     <h2 class="h2" id="more-h">More work</h2>
     <ol class="index">
-      <li tabindex="0" role="button" aria-expanded="false"><b>Zomato</b><span>Foodtech · 2015</span><p class="ix-d">Designed the first version of the food delivery app.</p></li>
-      <li tabindex="0" role="button" aria-expanded="false"><b>Urban Company</b><span>Services · 2016</span><p class="ix-d">The first market versions of the apps, with research in the workflow.</p></li>
-      <li tabindex="0" role="button" aria-expanded="false"><b>Paytm</b><span>Fintech · 2017</span><p class="ix-d">Product design for the Paytm app.</p></li>
-      <li tabindex="0" role="button" aria-expanded="false"><b>The Times of India</b><span>News · 2018</span><p class="ix-d">Design for the Times of India website.</p></li>
-      <li tabindex="0" role="button" aria-expanded="false"><b>Bombay Shirt Company</b><span>Ecommerce · 2018</span><p class="ix-d">Design for the Bombay Shirt Company ecommerce site.</p></li>
-      <li tabindex="0" role="button" aria-expanded="false"><b>HDFC Bank</b><span>Fintech · 2019</span><p class="ix-d">Design for HDFC Bank’s rewards platform.</p></li>
-      <li tabindex="0" role="button" aria-expanded="false"><b>Policybazaar</b><span>Insurtech · 2019</span><p class="ix-d">Product design for the Policybazaar app.</p></li>
-      <li tabindex="0" role="button" aria-expanded="false"><b>simsim</b><span>Social commerce · 2020</span><p class="ix-d">Design for simsim’s social commerce app.</p></li>
-      <li tabindex="0" role="button" aria-expanded="false"><b>The Indian Express</b><span>News · 2021</span><p class="ix-d">Design for The Indian Express app and website.</p></li>
-      <li tabindex="0" role="button" aria-expanded="false"><b>Apnaklub</b><span>Commerce · 2022</span><p class="ix-d">Product design for Apnaklub’s B2B wholesale app.</p></li>
+      <li tabindex="0" role="button" aria-expanded="false"><b>Zomato</b><span>Foodtech · 2015</span><div class="ix-d"><p>Designed the first version of the food delivery app.</p></div></li>
+      <li tabindex="0" role="button" aria-expanded="false"><b>Urban Company</b><span>Services · 2016</span><div class="ix-d"><p>The first market versions of the apps, with research in the workflow.</p></div></li>
+      <li tabindex="0" role="button" aria-expanded="false"><b>Paytm</b><span>Fintech · 2017</span><div class="ix-d"><p>Product design for the Paytm app.</p></div></li>
+      <li tabindex="0" role="button" aria-expanded="false"><b>The Times of India</b><span>News · 2018</span><div class="ix-d"><p>Design for the Times of India website.</p></div></li>
+      <li tabindex="0" role="button" aria-expanded="false"><b>Bombay Shirt Company</b><span>Ecommerce · 2018</span><div class="ix-d"><p>Design for the Bombay Shirt Company ecommerce site.</p></div></li>
+      <li tabindex="0" role="button" aria-expanded="false"><b>HDFC Bank</b><span>Fintech · 2019</span><div class="ix-d"><p>Design for HDFC Bank’s rewards platform.</p></div></li>
+      <li tabindex="0" role="button" aria-expanded="false"><b>Policybazaar</b><span>Insurtech · 2019</span><div class="ix-d"><p>Product design for the Policybazaar app.</p></div></li>
+      <li tabindex="0" role="button" aria-expanded="false"><b>simsim</b><span>Social commerce · 2020</span><div class="ix-d"><p>Design for simsim’s social commerce app.</p></div></li>
+      <li tabindex="0" role="button" aria-expanded="false"><b>The Indian Express</b><span>News · 2021</span><div class="ix-d"><p>Design for The Indian Express app and website.</p></div></li>
+      <li tabindex="0" role="button" aria-expanded="false"><b>Apnaklub</b><span>Commerce · 2022</span><div class="ix-d"><p>Product design for Apnaklub’s B2B wholesale app.</p></div></li>
     </ol>
   </section>
 
@@ -518,17 +553,13 @@ section { scroll-margin-top: 64px; }
 <!-- the site footer, the same on every phone page (assets/site-footer.js) -->
 <footer id="footer" data-site-footer></footer>
 <script type="module">
-  import { mountSiteFooter } from './assets/site-footer.js?v=2';
+  import { mountSiteFooter } from './assets/site-footer.js?v=3';
   mountSiteFooter(document.getElementById('footer'));
 </script>
 
 <script>
   /* the cover of each summit: a real image the moment it lands in
      assets/work/<folder>/, its placeholder until then (assets/work.js) */
-  /* the cover of each summit: under its Rive animation until that plays */
-  document.querySelectorAll('.slot').forEach(s => {
-    s.outerHTML = TibbaWork.img(s.dataset.folder, 'cover', s.dataset.alt, '4 / 5');
-  });
   document.querySelectorAll('.case .wk-img').forEach(el => el.style.setProperty('--c', el.closest('.case').style.getPropertyValue('--c')));
   document.querySelectorAll('.yr').forEach(e => { e.textContent = new Date().getFullYear(); });
 
@@ -556,15 +587,15 @@ section { scroll-margin-top: 64px; }
       const st = S[i];
       tabs.forEach((b, k) => b.setAttribute('aria-selected', String(k === i)));
       panel.innerHTML = `<p class="out">${st.outcome}</p>
-        <ol class="svc">${st.services.map(([n, k, l], j) => `<li><span aria-hidden="true">${ic(k)}</span><span><b>${esc(n)}</b><span>${esc(l)}</span></span></li>`).join('')}</ol>
-        <a class="cs-row" href="${st.cs[4]}"><img src="assets/logos/${{Groww:'groww', Firstpost:'firstpost', 'Breathe ESG':'breatheesg'}[st.cs[2]]}.svg" alt="${st.cs[2]}"><span>Read our case study</span><i aria-hidden="true">→</i></a>`;
+        <a class="cs-row" href="${st.cs[4]}" style="--c:${st.cs[0]}"><img src="assets/logos/${{Groww:'groww', Firstpost:'firstpost', 'Breathe ESG':'breatheesg'}[st.cs[2]]}.svg" alt="${st.cs[2]}"><span>Read our case study</span><i aria-hidden="true">→</i></a>
+        <ol class="svc">${st.services.map(([n, k, l], j) => `<li><span aria-hidden="true">${ic(k)}</span><span><b>${esc(n)}</b><span>${esc(l)}</span></span></li>`).join('')}</ol>`;
     }
     tabs.forEach((b, i) => b.addEventListener('click', () => pick(i)));
     pick(0);
   });
 </script>
 <script type="module">
-  import { mountSiteNav } from './assets/site-nav.js?v=9';
+  import { mountSiteNav } from './assets/site-nav.js?v=10';
   mountSiteNav(document.getElementById('ca-header'), { home: 'website-v3-mobile.html', nav: [
     { label: 'Work', href: '#work' }, { label: 'Services', href: '#services' }, { label: 'About', href: 'about.html' }, { label: 'Contact', href: '#footer' }] });
 </script>
@@ -592,21 +623,11 @@ section { scroll-margin-top: 64px; }
   })();
 </script>
 <script>
-  /* ── summits: each card's Rive animation (assets/rive/<client>.riv) in
-     its portrait frame — loaded as its card comes near, played only while
-     it is on screen ─────────────────────────────────────────────────────── */
+  /* ── summits: each card's four images in turn, 2.5 s each (a CSS loop);
+     paused while the card is off screen ────────────────────────────────── */
   addEventListener('DOMContentLoaded', () => {
-    const slots = [...document.querySelectorAll('.case .rv')], players = new Map();
-    const near = new IntersectionObserver(es => es.forEach(e => {
-      if (!e.isIntersecting || players.has(e.target) || !window.TibbaRive) return;
-      players.set(e.target, window.TibbaRive.mount(e.target, { names: [e.target.dataset.rive], autoplay: false }));
-      near.unobserve(e.target);
-    }), { rootMargin: '60% 0px' });
-    const seen = new IntersectionObserver(es => es.forEach(e => {
-      const r = players.get(e.target); if (!r) return;
-      e.isIntersecting ? r.play() : r.pause();
-    }), { threshold: .25 });
-    slots.forEach(el => { near.observe(el); seen.observe(el); });
+    const io = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('run', e.isIntersecting)), { rootMargin: '20% 0px' });
+    document.querySelectorAll('.case .rv.loop').forEach(el => io.observe(el));
   });
 
 </script>
@@ -625,11 +646,6 @@ section { scroll-margin-top: 64px; }
 <script type="module" src="assets/type-control.js"></script>
 <script type="module">
   const ICONS = await import('./assets/m-icons.js');
-  /* each case: its summit as a small static icon */
-  document.querySelectorAll('.case[data-peak]').forEach((c, i) => {
-    const k = ['groww', 'firstpost', 'breathe', 'shyft'][i];
-    c.insertAdjacentHTML('afterbegin', `<span class="case-ico" aria-hidden="true"><img src="assets/m/case-ico/${k}.webp" width="80" height="80" alt="" loading="lazy" decoding="async"></span>`);
-  });
   /* more work: tap a name, its one line opens — one row open at a time */
   const rows = [...document.querySelectorAll('.index li')];
   rows.forEach(li => {
@@ -643,10 +659,9 @@ section { scroll-margin-top: 64px; }
   /* brands: the rows drift only while the section is on screen */
   const mq = document.getElementById('marquee');
   if (mq) new IntersectionObserver(([e]) => mq.classList.toggle('run', e.isIntersecting)).observe(mq);
-  /* the stage tabs: the desktop bags as icons */
-  /* the stage tabs: their bags — sling, daypack, expedition pack */
+  /* the stage tabs: their bags — small bag, backpack, rucksack */
   document.querySelectorAll('.stages button').forEach((b, i) => b.insertAdjacentHTML('afterbegin',
-    `<span class="st-ico"><img src="assets/m/stage/${['early', 'mid', 'established'][i]}.webp" width="30" height="30" alt="" decoding="async"></span>`));
+    `<span class="st-ico"><img src="assets/m/stage/${['early', 'mid', 'established'][i]}.svg" width="30" height="30" alt="" decoding="async"></span>`));
 </script>
 </body>
 </html>
