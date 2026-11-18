@@ -97,9 +97,9 @@ if (matchMedia('(max-width: 760px)').matches) {
         run(s.querySelector('i'), [{ opacity: 0 }, { opacity: .72 }], { duration: 260, delay: at + GAP + IN * .6, easing: 'ease-out' });
       });
       const settled = (sheets.length - 1) * GAP + IN;          /* 1800 */
-      run(last, [{ transform: 'translate3d(-50%, 8px, 0) scale(.98)', opacity: 0 }, { transform: 'translate3d(-50%, 0, 0) scale(1)', opacity: 1 }], { duration: 500, delay: settled + 60 });
-      run(panel, [{ transform: 'translate3d(-50%, 18px, 0)', opacity: 0 }, { transform: 'translate3d(-50%, 0, 0)', opacity: 1 }], { duration: 500, delay: settled + 460 });
-      const end = run(cap, [{ opacity: 0, transform: 'translate3d(0, 6px, 0)' }, { opacity: 1, transform: 'none' }], { duration: 600, delay: settled + 1060, easing: 'ease-out' });
+      run(last, [{ transform: 'translate3d(-50%, 8px, 0) scale(.98)', opacity: 0 }, { transform: 'translate3d(-50%, 0, 0) scale(1)', opacity: 1 }], { duration: 300, delay: settled + 40 });
+      run(panel, [{ transform: 'translate3d(-50%, 18px, 0)', opacity: 0 }, { transform: 'translate3d(-50%, 0, 0)', opacity: 1 }], { duration: 320, delay: settled + 220 });
+      const end = run(cap, [{ opacity: 0, transform: 'translate3d(0, 6px, 0)' }, { opacity: 1, transform: 'none' }], { duration: 380, delay: settled + 560, easing: 'ease-out' });
       end.finished.then(() => box.classList.add('done')).catch(() => {});
     };
     const io = new IntersectionObserver(es => { if (es[0].isIntersecting) { io.disconnect(); play(); } }, { threshold: .3 });
