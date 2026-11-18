@@ -112,3 +112,7 @@
   .bm-ds .row, .bm-days .link, .bm-days .dot, .bm-ba .hint i { animation: none; }
   .bm-days .dot { fill: #4caf70; }
 }
+
+/* type (Nov 2026): body 15px, headings a tenth smaller */
+.cf-stack-card .sp h3 { font-size: calc(6.2cqw * .9); }
+.cf-stack-card .sp p { font-size: 15px; line-height: 1.5; }

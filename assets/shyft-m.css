@@ -101,3 +101,7 @@
 .cf-kpis { gap: 14px; margin-top: 8px; }
 .cf-kpis > .cf-metric { gap: 14px; padding: 28px 22px; border: 1px solid #e2e2e2; border-bottom: 1px solid #e2e2e2; }
 .cf-kpis > .cf-metric:last-child { border-bottom: 1px solid #e2e2e2; }
+
+/* type (Nov 2026): body 15px, headings a tenth smaller */
+.sm-card h3 { font-size: 17px; }
+.sm-card p { font-size: 15px; line-height: 1.5; }

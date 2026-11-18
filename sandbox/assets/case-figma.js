@@ -171,3 +171,12 @@
   box.addEventListener('pointerleave', e => { if (e.pointerType !== 'touch') go(false); });
   box.addEventListener('pointerup', e => { if (e.pointerType === 'touch') go(!on); });
 })();
+
+/* phones: Other projects rises in as its own panel, once (case-figma.css) */
+if (matchMedia('(max-width: 760px)').matches) {
+  const next = document.querySelector('.cf-next');
+  if (next) {
+    const io = new IntersectionObserver(es => { if (es[0].isIntersecting) { next.classList.add('in'); io.disconnect(); } }, { threshold: .12 });
+    io.observe(next);
+  }
+}
