@@ -33,7 +33,7 @@ body #ui {
   --t-knob:   #9A9A9E;
   --t-accent: #E85D3D;
 
-  font-family: 'F37 Analog', system-ui, sans-serif;
+  font-family: 'Vend Sans', system-ui, sans-serif;
   font-size: 13px;
   line-height: 1.35;
   color: var(--t-ink);

@@ -1194,12 +1194,12 @@ function drawTrack() {
   const g = cv.getContext('2d'); g.scale(d, d);
   const w = r.width - 16, x0 = 8, h = r.height, D = S.anim.duration;
   g.clearRect(0, 0, r.width, h);
-  g.font = '9px "F37 Analog", system-ui'; g.fillStyle = 'rgba(233,236,242,.4)'; g.strokeStyle = 'rgba(233,236,242,.14)'; g.lineWidth = 1;
+  g.font = '9px "Vend Sans", system-ui'; g.fillStyle = 'rgba(233,236,242,.4)'; g.strokeStyle = 'rgba(233,236,242,.14)'; g.lineWidth = 1;
   for (let s = 0; s <= D; s += D > 20 ? 5 : 1) { const x = x0 + s / D * w; g.beginPath(); g.moveTo(x + .5, h * .62); g.lineTo(x + .5, h); g.stroke(); if (s % (D > 20 ? 10 : 2) === 0) g.fillText(s + 's', x + 3, h * .56); }
   g.strokeStyle = 'rgba(233,236,242,.28)'; g.beginPath(); g.moveTo(x0, h * .78 + .5); g.lineTo(x0 + w, h * .78 + .5); g.stroke();
   /* what is animating, as a band */
   const on = [S.path.length && 'camera', S.anim.lines !== 'none' && 'lines: ' + S.anim.lines, S.anim.terrain !== 'none' && 'land: ' + S.anim.terrain, S.react.source !== 'off' && 'reactive'].filter(Boolean);
-  g.font = '9.5px "F37 Analog", system-ui'; g.fillStyle = 'rgba(233,236,242,.62)';
+  g.font = '9.5px "Vend Sans", system-ui'; g.fillStyle = 'rgba(233,236,242,.62)';
   g.fillText((on.join('  ·  ') || 'nothing animates yet — pick a camera move or a line behaviour').toUpperCase(), x0, 10);
   S.path.forEach((k, i) => { const x = x0 + k.t * w, y = h * .78;
     g.save(); g.translate(x, y); g.rotate(Math.PI / 4); g.fillStyle = i === selKey ? '#FF4B1F' : '#E9ECF2'; g.fillRect(-4, -4, 8, 8); g.restore(); });

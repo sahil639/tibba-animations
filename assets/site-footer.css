@@ -1,7 +1,7 @@
 /* The site footer, for phones (assets/site-footer.js) — the same on every
-   page: Vend Sans (the site's 'F37 Analog'), black, one hairline grid */
+   page: Vend Sans (the site's 'Vend Sans'), black, one hairline grid */
 .sf { --ln: rgba(233,236,242,.2); --mute: rgba(233,236,242,.55); position: relative; display: grid; grid-template-columns: 1fr 1fr;
-  margin: 0; border-top: 1px solid var(--ln); color: #E8E3DC; font: 400 15px/1.6 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased;
+  margin: 0; border-top: 1px solid var(--ln); color: #E8E3DC; font: 400 15px/1.6 'Vend Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased;
   background: radial-gradient(38% 34% at 76% 96%, rgba(255,120,60,.16), rgba(255,120,60,0) 100%), #000; text-align: left; }
 .sf *, .sf *::before, .sf *::after { box-sizing: border-box; }
 .sf h2, .sf p, .sf ul, .sf ol { margin: 0; padding: 0; }
@@ -16,7 +16,7 @@
 .sf-fld { position: relative; display: block; }
 .sf input, .sf textarea { display: block; width: 100%; margin: 0; padding: 6px 0 10px; border: 0; border-bottom: 1px solid rgba(233,236,242,.32); border-radius: 0;
   background: none; color: #fff; outline: none; resize: none; -webkit-appearance: none; appearance: none;
-  font: 400 16px/1.35 'F37 Analog', system-ui, sans-serif; letter-spacing: -.005em; }
+  font: 400 16px/1.35 'Vend Sans', system-ui, sans-serif; letter-spacing: -.005em; }
 .sf textarea { height: 76px; }
 .sf input::placeholder, .sf textarea::placeholder { color: var(--mute); }
 .sf-fld::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: #C9124B; transform: scaleX(0); transform-origin: left; transition: transform .45s cubic-bezier(.22,1,.36,1); }
@@ -25,7 +25,7 @@
 .sf-mail svg { width: 26px; height: 26px; flex: none; }
 .sf-btn { justify-self: start; display: inline-flex; align-items: center; gap: 14px; padding: 15px 20px 15px 22px; cursor: pointer;
   border: 1px solid rgba(201,18,75,.25); border-radius: 0; background: color-mix(in srgb, #C9124B 24%, #000); color: #fff;
-  font: 400 15px/1 'F37 Analog', system-ui, sans-serif; letter-spacing: .02em; text-transform: uppercase; -webkit-tap-highlight-color: transparent; }
+  font: 400 15px/1 'Vend Sans', system-ui, sans-serif; letter-spacing: .02em; text-transform: uppercase; -webkit-tap-highlight-color: transparent; }
 .sf-btn svg { width: 20px; height: 20px; }
 .sf-btn:active { transform: scale(.97); }
 

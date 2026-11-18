@@ -13,7 +13,7 @@
 
    What the shell adds on top:
      · one navbar for the whole site — the About hero's floating pill
-       (assets/ca-nav.js), set in F37, its links scrolling smoothly to
+       (assets/ca-nav.js), set in Vend Sans, its links scrolling smoothly to
        their sections, its mark the changing-on-scroll Tibba logo, and a
        ticker in the studio's voice
      · the gate: a section marked `gate` (the loader) holds the page still
@@ -21,7 +21,7 @@
      · seams: a section's top edge is softened while it scrolls in, so one
        scene hands over to the next instead of cutting
      · PAGE_CSS (assets/site-sections.js) injected into every framed page:
-       F37 throughout, no second navbar, no lead-in spacers
+       Vend Sans throughout, no second navbar, no lead-in spacers
      · the refresh button, bottom left: reloads every section from source
        (cache-busted) where it stands, so the page picks up the latest
        version of each design without losing its place

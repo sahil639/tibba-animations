@@ -15,7 +15,7 @@
    so the hierarchy survives), line height, letter spacing, weight, and text
    transform. Any setting left at "Default" leaves the page alone.
 
-   Fonts: the site's own F37 Analog (default); Miriam Libre, Vend Sans,
+   Fonts: the site's own Vend Sans (default); Miriam Libre, Vend Sans,
    Cairo, Sofia Sans and Didactic Gothic from Google Fonts (loaded only once
    one is chosen); Brixela from assets/fonts/BrixelaDEMO-Regular.ttf (the
    demo cut).
@@ -39,7 +39,7 @@ const KEY = 'tibba.type';
 const DISPLAY_PX = 28;               // at or above this, text counts as primary
 
 export const FONTS = {
-  default:  { label: 'Site default — F37 Analog', stack: null, w: [100, 700] },
+  default:  { label: 'Site default — Vend Sans', stack: null, w: [100, 700] },
   miriam:   { label: 'Miriam Libre',    stack: "'Miriam Libre', sans-serif",    google: 'Miriam+Libre:wght@400..700', w: [400, 700] },
   vend:     { label: 'Vend Sans',       stack: "'Vend Sans', sans-serif",       google: 'Vend+Sans:wght@300..700',    w: [300, 700] },
   cairo:    { label: 'Cairo',           stack: "'Cairo', sans-serif",           google: 'Cairo:wght@200..1000',       w: [200, 1000] },
@@ -155,7 +155,7 @@ function panel() {
   const root = document.createElement('div');
   root.id = 'tc-root';
   root.innerHTML = `<style>
-    #tc-root { --o: #C9124B; font: 400 12px/1.4 'F37 Analog', system-ui, sans-serif; color: #E9ECF2; }
+    #tc-root { --o: #C9124B; font: 400 12px/1.4 'Vend Sans', system-ui, sans-serif; color: #E9ECF2; }
     #tc-root * { box-sizing: border-box; font-family: inherit; }
     .tc-btn { position: fixed; z-index: 2147483000; left: 12px; bottom: 12px; display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px 8px 10px;
       background: rgba(10,10,11,.92); border: 1px solid rgba(233,236,242,.16); color: #fff; cursor: pointer; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; backdrop-filter: blur(8px); }
@@ -262,7 +262,7 @@ function panel() {
       sec.querySelector('select').value = R.font;
       const sample = sec.querySelector('.tc-sample');
       ensureFont(R.font);
-      sample.style.fontFamily = FONTS[R.font].stack || "'F37 Analog', system-ui, sans-serif";
+      sample.style.fontFamily = FONTS[R.font].stack || "'Vend Sans', system-ui, sans-serif";
       sample.style.fontWeight = R.weight || (r === 'primary' ? 300 : 400);
       sample.style.letterSpacing = R.ls != null ? R.ls + 'em' : '';
       sample.style.textTransform = R.transform || '';

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-18T07:44:07.991Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-18T08:13:58.844Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -14,7 +14,7 @@ gtag('config', 'G-DZS8N17C9N');
 <title>Tibba Design Studio — product design for ambitious teams</title>
 <meta name="description" content="Tibba Design Studio partners with founders and design leaders to turn ambitious ideas into shipped, high-impact products — Groww, Firstpost, Breathe ESG, Shyft & Mindhouse and more.">
 <link rel="preload" href="assets/fonts/VendSans-Variable.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/type.css?v=2">
 <link rel="stylesheet" href="assets/ca-nav.css">
 <link rel="stylesheet" href="assets/site-shell.css?v=3">
 <link rel="stylesheet" href="assets/work.css">
@@ -47,7 +47,7 @@ gtag('config', 'G-DZS8N17C9N');
    ═════════════════════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: #000; color: #E9ECF2; font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+body { margin: 0; background: #000; color: #E9ECF2; font-family: 'Vend Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 img { display: block; max-width: 100%; }
 a { color: inherit; }
 p, h1, h2, h3, ul, ol, dl, dd, figure, blockquote { margin: 0; padding: 0; }
@@ -418,6 +418,18 @@ section { scroll-margin-top: 64px; }
 @keyframes cs-shine { 0% { transform: translateX(-120%) skewX(-12deg); } 45%, 100% { transform: translateX(330%) skewX(-12deg); } }
 @media (prefers-reduced-motion: reduce) { .stage-panel .cs-row::after { animation: none; display: none; } }
 .stage-panel .svc { margin-top: 32px !important; }
+
+/* the stats as the case studies' metric cards: the four corner brackets
+   (assets/work/groww-figma/corner-a.svg, placed as .cf-metric places them),
+   the number at the top left, its line at the bottom left */
+.stats div { position: relative; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; min-height: 112px; }
+.stats strong, .stats span { margin: 0; }
+.stats span { margin-top: 18px !important; }
+.stats div > i { position: absolute; width: 15.5px; height: 15.5px; background: url('assets/work/groww-figma/corner-a.svg') 0 0 / 100% 100% no-repeat; pointer-events: none; }
+.stats div > i:nth-of-type(1) { left: -1.5px; top: -1.2px; }
+.stats div > i:nth-of-type(2) { left: -1.5px; bottom: -1.8px; transform: scaleY(-1); }
+.stats div > i:nth-of-type(3) { right: -1.5px; top: -1.2px; transform: scaleX(-1); }
+.stats div > i:nth-of-type(4) { right: -1.5px; bottom: -1.8px; transform: rotate(180deg); }
 </style>
 <style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
 html[data-wb-dock] body { padding-right: 0 !important; }</style>
@@ -459,10 +471,10 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   </section>
 
   <div class="stats" aria-label="The studio in numbers">
-    <div><strong>12+</strong><span>Years of experience</span></div>
-    <div><strong>30+</strong><span>Products shipped</span></div>
-    <div><strong>08</strong><span>Unicorns serviced</span></div>
-    <div><strong>$400M</strong><span>Revenue unlocked for clients</span></div>
+    <div><strong>12+</strong><span>Years of experience</span><i></i><i></i><i></i><i></i></div>
+    <div><strong>30+</strong><span>Products shipped</span><i></i><i></i><i></i><i></i></div>
+    <div><strong>08</strong><span>Unicorns serviced</span><i></i><i></i><i></i><i></i></div>
+    <div><strong>$400M</strong><span>Revenue unlocked for clients</span><i></i><i></i><i></i><i></i></div>
   </div>
 
   <section class="pad" aria-labelledby="brands-h">

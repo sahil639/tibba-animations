@@ -20,7 +20,7 @@
      gate      true: scrolling waits for the page's "ready" (the loader)
 
    PAGE_CSS is injected into a section's page when it is framed, to make
-   the pages read as one site: F37 everywhere, no second navbar, and the
+   the pages read as one site: Vend Sans everywhere, no second navbar, and the
    standalone pages' lead-in spacers taken out so sections meet edge to
    edge.
    ═════════════════════════════════════════════════════════════════════════ */
@@ -124,15 +124,15 @@ export const ABOUT_SECTIONS = [
   FOOTER,
 ];
 
-/* F37 everywhere, and only the landing's own navbar */
-const SITE_CSS = `html, body { font-family: 'F37 Analog', system-ui, sans-serif; }
+/* Vend Sans everywhere, and only the landing's own navbar */
+const SITE_CSS = `html, body { font-family: 'Vend Sans', system-ui, sans-serif; }
   /* phones and touch screens: no live background blur (each one re-blurs
      everything behind it on every frame of a scroll) — the plates keep their
      tint, which is most of the look */
   @media (max-width: 760px), (pointer: coarse) {
     *, *::before, *::after { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
   }
-  .mono, [class*="mono"] { font-family: 'F37 Analog', system-ui, sans-serif !important; }
+  .mono, [class*="mono"] { font-family: 'Vend Sans', system-ui, sans-serif !important; }
   #ca-header, #hero-logo { display: none !important; }`;
 export const PAGE_CSS = {
   '*': SITE_CSS,

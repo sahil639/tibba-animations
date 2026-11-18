@@ -1,14 +1,14 @@
 /* ══════════════════════════════════════════════════════════════════════════
    Mountains Lab — the chrome (assets/mountains-lab.js builds it)
    ─────────────────────────────────────────────────────────────────────────
-   Website v3's system: black, F37 Analog, hairlines, spaced small capitals
+   Website v3's system: black, Vend Sans, hairlines, spaced small capitals
    for labels, orange (#FF4B1F) for the one thing that is on. The panel down
    the left, the tools across the top, the timeline along the foot; the
    mountain has the rest of the screen.
    ═════════════════════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; overflow: hidden; background: #000; }
-body { color: #E9ECF2; font-family: 'F37 Analog', system-ui, sans-serif; font-size: 13px; --o: #FF4B1F; --line: rgba(233,236,242,.12); --line-2: rgba(233,236,242,.22); --mute: rgba(233,236,242,.55); --raise: #111113; --panel-w: 316px; }
+body { color: #E9ECF2; font-family: 'Vend Sans', system-ui, sans-serif; font-size: 13px; --o: #FF4B1F; --line: rgba(233,236,242,.12); --line-2: rgba(233,236,242,.22); --mute: rgba(233,236,242,.55); --raise: #111113; --panel-w: 316px; }
 #lab { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
 body.sculpting #lab { cursor: none; }
 button, input, select, textarea { font: inherit; color: inherit; }

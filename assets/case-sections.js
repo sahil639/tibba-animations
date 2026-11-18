@@ -16,7 +16,7 @@
 
    Matcha Cartel is the interaction reference only. Type, colour, spacing and
    copy are this site's and this client's; the lime and the mono face are
-   gone, replaced by F37 Analog and the case's own colour (--client).
+   gone, replaced by Vend Sans and the case's own colour (--client).
    ═════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';

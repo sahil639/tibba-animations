@@ -3,7 +3,7 @@
    (services-topo.html and services-compass.html)
    ═════════════════════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+body { background: #000; color: var(--ink-warm); font-family: 'Vend Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 button { font: inherit; color: inherit; }
 
 .ss-page { position: relative; min-height: 100vh; min-height: 100svh; display: grid;

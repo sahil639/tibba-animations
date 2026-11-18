@@ -5,7 +5,7 @@
 <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Our summits — Summits v2</title>
-<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/type.css?v=2">
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/workbench.css">
 <script src="assets/manifest.js"></script>
@@ -31,7 +31,7 @@
 .fs-peak i { position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; background: var(--accent);
   box-shadow: 0 0 0 1px rgba(0,0,0,.6); transform: scale(.55); opacity: .6; transition: transform .45s cubic-bezier(.65,0,.35,1), opacity .45s linear; }
 .fs-peak.arrived i { transform: scale(1); opacity: 1; }
-.fs-peak em { position: absolute; left: 12px; top: -20px; font: 400 9.5px/1 'F37 Analog', system-ui, sans-serif; font-style: normal;
+.fs-peak em { position: absolute; left: 12px; top: -20px; font: 400 9.5px/1 'Vend Sans', system-ui, sans-serif; font-style: normal;
   letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.45); white-space: nowrap; transition: color .4s linear; }
 .fs-peak.on em { color: #fff; }
 .fs-peak.on i::after { content: ''; position: absolute; inset: -1px; border: 1px solid var(--accent); animation: fs-ping 2.2s cubic-bezier(.16,.62,.36,1) infinite; }
@@ -42,7 +42,7 @@
 /* the rail, as on Three Summits */
 #rail { position: absolute; right: 26px; top: 50%; transform: translateY(-50%); z-index: 6; display: grid; gap: 14px; opacity: 1; pointer-events: auto; }
 #rail button { appearance: none; -webkit-appearance: none; display: flex; align-items: center; justify-content: flex-end; gap: 9px;
-  background: none; border: 0; padding: 2px 0; cursor: pointer; color: #fff; font: 11px/1 'F37 Analog', system-ui, sans-serif;
+  background: none; border: 0; padding: 2px 0; cursor: pointer; color: #fff; font: 11px/1 'Vend Sans', system-ui, sans-serif;
   letter-spacing: .12em; opacity: .36; transition: opacity .25s; }
 #rail button .tick { display: block; width: 16px; height: 1px; background: currentColor; order: 2; transition: width .35s cubic-bezier(.22,.9,.3,1), background .35s; }
 #rail button .nm { font-size: 9.5px; text-transform: uppercase; letter-spacing: .16em; opacity: 0; transition: opacity .25s; }

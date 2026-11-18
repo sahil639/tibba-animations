@@ -70,7 +70,7 @@ export function barWord(host, letters, o = {}) {
     const R = Math.round(O.rows);
     rows = letters.map(L => {
       const W = 120, H = 154, off = document.createElement('canvas'); off.width = W; off.height = H;
-      const g = off.getContext('2d'); g.textAlign = 'center'; g.font = `${O.weight} 172px 'F37 Analog', system-ui, sans-serif`; g.fillText(L, W / 2, H - 14);
+      const g = off.getContext('2d'); g.textAlign = 'center'; g.font = `${O.weight} 172px 'Vend Sans', system-ui, sans-serif`; g.fillText(L, W / 2, H - 14);
       const px = g.getImageData(0, 0, W, H).data, out = [];
       for (let r = 0; r < R; r++) {
         const y = Math.round((r + .5) / R * H), runs = []; let s = -1;

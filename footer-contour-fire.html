@@ -5,7 +5,7 @@
 <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Footer — contour ridge fire</title>
-<link rel="stylesheet" href="assets/type.css">
+<link rel="stylesheet" href="assets/type.css?v=2">
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/workbench.css">
 <script src="assets/manifest.js"></script>
@@ -34,7 +34,7 @@
    FOOTER_DESIGN in the script, on the panel, bakeable.
    ═════════════════════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #000; color: var(--ink-warm); font-family: 'F37 Analog', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+body { background: #000; color: var(--ink-warm); font-family: 'Vend Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
 
 .fd-intro { padding: clamp(96px, 14vh, 150px) var(--gut) clamp(32px, 5vh, 56px); display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 24px; }
 .fd-intro .k { display: flex; align-items: center; gap: 10px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
@@ -192,7 +192,7 @@ body.single .fd .tag { display: none; }
       if (!C.c.overlay) return;
       const f = fc.features(), t = (now - t0) / 1000, s = f.s;
       g.lineWidth = 1; g.strokeStyle = ACC; g.fillStyle = ACC;
-      g.font = "400 10px 'F37 Analog', system-ui, sans-serif";
+      g.font = "400 10px 'Vend Sans', system-ui, sans-serif";
       /* the scan line, sweeping down the sheet */
       const sy = ((t * 0.09 * C.c.scan) % 1) * r.height;
       const sg = g.createLinearGradient(0, sy - 40, 0, sy);

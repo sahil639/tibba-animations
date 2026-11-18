@@ -11,7 +11,7 @@
 body {
   background: #000;
   color: var(--ink-warm);
-  font-family: 'F37 Analog', system-ui, sans-serif;
+  font-family: 'Vend Sans', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   --case: var(--accent);
@@ -67,7 +67,7 @@ body.in-cases #rail { opacity: 1; pointer-events: auto; }
 #rail button {
   -webkit-appearance: none; appearance: none; background: none; border: 0; cursor: pointer;
   display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 3px 0;
-  color: var(--ink-warm); font: 10px/1 'F37 Analog', system-ui, sans-serif; letter-spacing: .14em;
+  color: var(--ink-warm); font: 10px/1 'Vend Sans', system-ui, sans-serif; letter-spacing: .14em;
   text-transform: uppercase; opacity: .38; transition: opacity .25s;
 }
 #rail .lbl { opacity: 0; transform: translateX(6px); transition: opacity .3s, transform .4s var(--ease); white-space: nowrap; }
@@ -103,7 +103,7 @@ body[data-layout="cards"] #rail button[aria-current="true"]:not(:hover) .lbl { o
   transition: transform .5s cubic-bezier(.34, 1.56, .64, 1), border-color .3s, background .3s;
 }
 .trail-camp b {
-  position: absolute; left: 9px; top: -6px; font: 500 9px/1 'F37 Analog', system-ui, sans-serif;
+  position: absolute; left: 9px; top: -6px; font: 500 9px/1 'Vend Sans', system-ui, sans-serif;
   letter-spacing: .12em; color: rgba(255,255,255,.55); opacity: 0; transition: opacity .4s .1s;
 }
 .trail-camp.on i { transform: rotate(45deg) scale(1); }
@@ -126,7 +126,7 @@ body.no-camps .trail-camp { display: none; }
   border: 1px solid var(--accent); opacity: 0;
 }
 .trail-pen em {
-  position: absolute; left: 20px; top: -30px; font: 400 10px/1 'F37 Analog', system-ui, sans-serif;
+  position: absolute; left: 20px; top: -30px; font: 400 10px/1 'Vend Sans', system-ui, sans-serif;
   font-style: normal; letter-spacing: .18em; text-transform: uppercase; color: #fff; white-space: nowrap;
   opacity: 0; transform: translateX(-6px); transition: opacity .4s .25s, transform .6s .25s var(--ease);
 }
@@ -146,7 +146,7 @@ body.no-camps .trail-camp { display: none; }
   display: inline-flex; align-items: center; gap: 8px;
   padding: 8px 10px; border: 1px solid var(--line); border-radius: 2px;
   background: rgba(10, 10, 12, .62); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-  color: var(--ink-warm); font: 10.5px/1 'F37 Analog', system-ui, sans-serif;
+  color: var(--ink-warm); font: 10.5px/1 'Vend Sans', system-ui, sans-serif;
   letter-spacing: .14em; text-transform: uppercase;
   transition: border-color .2s, color .2s;
 }
