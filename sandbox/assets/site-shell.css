@@ -51,8 +51,7 @@ html.site-locked .ca.ca-header.site-nav { transform: translateY(calc(-100% - 4px
 .site-drawer { display: none; }
 /* "Contact", in the phone's row before the toggle (the toggle opens the drawer) */
 .site-contact { display: none; margin-left: auto; color: #f1eee7; text-decoration: none; white-space: nowrap;
-  font: 600 10px/1 'Vend Sans', var(--ca-mono), sans-serif; letter-spacing: .14em; text-transform: uppercase; -webkit-tap-highlight-color: transparent;
-  -webkit-text-stroke: .45px currentColor; }   /* heavier: the shipped Vend Sans file is a single Light cut, so the weight is drawn on */
+  font: 600 10px/1 'Vend Sans', var(--ca-mono), sans-serif; letter-spacing: .14em; text-transform: uppercase; -webkit-tap-highlight-color: transparent; }
 .site-contact:hover { color: #C9124B; }
 .site-contact + .site-menu { margin-left: 0; }
 
