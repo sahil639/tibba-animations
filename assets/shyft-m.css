@@ -57,31 +57,6 @@
 
 @media (prefers-reduced-motion: reduce) { .sm-flow .row, .sm-heads .row { animation: none; } }
 
-/* ── Shyft Design System: the bottomsheets, stacking (in place of the first
-   bottomsheet plate). Nine sheets slide in from the left and settle on one
-   another, each fading under a white veil as the next lands; the full sheet
-   lands on top unveiled, then the Figma panel rises under it. Once, on first
-   sight, and again from Replay (assets/shyft-m.js). ─────────────────────── */
-.sm-sheets { container-type: inline-size; text-align: center; padding-bottom: 6px; }
-.sm-sheets .stage { position: relative; height: var(--sh, 146cqw); overflow: hidden; margin: 0 -16px; }
-.sm-sheets .stage::before { content: ''; position: absolute; left: 10%; right: 10%; top: var(--gy, 62cqw); height: 46cqw; border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(150, 132, 245, .38), rgba(150, 132, 245, 0)); filter: blur(6px); }
-/* each sheet and the panel carry their own left / top / width (cqw) */
-.sm-sheets .sh, .sm-sheets .sp-panel { position: absolute; will-change: transform, opacity; }
-.sm-sheets .sh img, .sm-sheets .sp-panel img { width: 100%; height: auto; }
-.sm-sheets .sh i { position: absolute; inset: 3% 3.5% 2% 3.5%; border-radius: 7%/5%; background: #fff; opacity: 0; pointer-events: none; }
-.sm-sheets:not(.done):not(.go) .sh, .sm-sheets:not(.done):not(.go) .sp-panel, .sm-sheets:not(.done):not(.go) figcaption { opacity: 0; }
-/* the full sheet and the panel stand off the faded stack */
-.sm-sheets .sh:nth-last-child(2) img { filter: drop-shadow(0 12px 22px rgba(70, 50, 160, .2)) drop-shadow(0 2px 4px rgba(70, 50, 160, .08)); }
-.sm-sheets .sp-panel img { filter: drop-shadow(0 14px 22px rgba(20, 10, 60, .3)); }
-.sm-sheets figcaption { margin: 2px auto 0; max-width: 30ch; font: 500 max(13px, 4.3cqw) / 1.45 ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-  letter-spacing: .01em; color: #8a7cf3; }
-.sm-sheets .replay { display: inline-flex; align-items: center; gap: 7px; margin-top: 20px; padding: 9px 16px 9px 13px; border: 1px solid #dcd6fb; border-radius: 12px;
-  background: #fff; color: #1d1b2e; font: 600 15px/1 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; box-shadow: 0 6px 18px -10px rgba(110, 90, 230, .45);
-  cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .15s; }
-.sm-sheets .replay:active { transform: scale(.96); }
-.sm-sheets .replay svg { width: 17px; height: 17px; }
-
 /* Post launch optimisation: the two results as stat boxes (shyft-m.js adds the
    metric card's class and corner brackets) */
 .cf-kpis { gap: 14px; margin-top: 8px; }
@@ -95,13 +70,7 @@
 /* ── Nov 2026 (2) ─────────────────────────────────────────────────────── */
 /* The Brief: the two brands as cards, each its logo and its line */
 
-/* the bottomsheet stack carries its own caption: no line above it */
-.cf-statement:has(+ .cf-duo-stack) { display: none; }
 
-/* the stacks: the cards still fly in from off the sides, clipped there, but
-   the stage no longer cuts the last card's and the panel's shadows below */
-.sm-sheets .stage { overflow: visible; overflow-x: clip; overflow-y: visible; }
-@supports not (overflow: clip) { .sm-sheets .stage { overflow: hidden; padding-bottom: 40px; margin-bottom: -40px; } }
 
 /* Redesigned the Onboarding: the shared iPhone (assets/m-phone.css); the Shyft screens are white */
 .m-phone.sm-m { display: grid; }
