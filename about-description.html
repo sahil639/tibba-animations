@@ -23,7 +23,7 @@
    component, done without React. The progress runs from the passage's top
    at 82% of the screen to its foot at 42%; each word takes its own share
    of it, smoothed as a spring would. Scrolling back dims them again.
-   Phones: no reveal (the words are simply there).
+   The motion itself: assets/text-fade.js (shared with about-mobile.html).
    ═════════════════════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: #000; color: var(--ink-warm); font-family: 'Vend Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
@@ -37,11 +37,10 @@ body { background: #000; color: var(--ink-warm); font-family: 'Vend Sans', syste
 #copy { padding-top: 4vh; }
 #copy p { color: #fff; font-size: clamp(28px, 3.9vw, 68px); line-height: 1.12; letter-spacing: -.03em; font-weight: 500; }
 #copy p + p { margin-top: .75em; }
-#copy .w { display: inline-block; white-space: nowrap; opacity: var(--o, 1); will-change: opacity; }
+#copy .tf-w { display: inline-block; white-space: nowrap; }   /* a word of the fade-in (assets/text-fade.js) */
 #copy .hl { color: var(--accent); }
 .after { height: 60vh; }
 @media (max-width: 640px) { #copy p { line-height: 1.16; } }
-/* phones: no reveal, the words are simply there */
 @media (max-width: 760px) { #reveal-stage { padding-bottom: clamp(56px, 10vh, 120px); } #copy { padding-top: 2vh; } #copy p { font-size: clamp(28px, 7vw, 40px); } .after { display: none; } }
 </style>
 </head>
@@ -72,60 +71,11 @@ body { background: #000; color: var(--ink-warm); font-family: 'Vend Sans', syste
 </section>
 <div class="after"></div>
 
+<script src="assets/text-fade.js?v=1"></script>
 <script>
-  /* the fade-in (text-scroll-reveal's "fade-in" preset, in plain JS) */
-  (function () {
-    const DIM = 0.16;                                    // a word's opacity before its turn
-    const copy = document.getElementById('copy');
-    const words = [];
-    copy.querySelectorAll('p').forEach(p => {
-      const walk = node => [...node.childNodes].forEach(n => {
-        if (n.nodeType === 3) {
-          const frag = document.createDocumentFragment();
-          n.textContent.split(/(\s+)/).forEach(tok => {
-            if (!tok) return;
-            if (/^\s+$/.test(tok)) { frag.appendChild(document.createTextNode(' ')); return; }
-            const w = document.createElement('span'); w.className = 'w'; w.textContent = tok; words.push(w); frag.appendChild(w);
-          });
-          n.replaceWith(frag);
-        } else if (n.nodeType === 1) walk(n);
-      });
-      walk(p);
-    });
-    if (matchMedia('(max-width: 760px)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const N = words.length;
-    /* each word's turn: in reading order over the first 78% of the progress,
-       taking at least 14% of it (or 1.8 words' worth) */
-    const span = Math.max(0.14, 1.8 / N);
-    const at = words.map((w, i) => { const a = i / N * 0.78; return [a, Math.min(1, a + span)]; });
-    /* progress: the passage's top at 82% of the screen → its foot at 42% */
-    /* in the About page this is an iframe as tall as its content, so the
-       scroll is the top page's: measure against that window */
-    let host = null; try { host = window.frameElement && window.top.innerHeight ? window.frameElement : null; } catch (e) {}
-    const target = () => { const r = copy.getBoundingClientRect(), off = host ? host.getBoundingClientRect().top : 0, vh = host ? window.top.innerHeight : innerHeight;
-      return Math.min(1, Math.max(0, (vh * 0.82 - (r.top + off)) / (vh * 0.4 + r.height))); };
-    let s = target(), v = 0, last = performance.now(), visible = true, done = '';
-    function paint() {
-      for (let i = 0; i < N; i++) {
-        const [a, b] = at[i], k = Math.min(1, Math.max(0, (s - a) / (b - a)));
-        const o = (DIM + (1 - DIM) * k).toFixed(3);
-        if (words[i]._o !== o) { words[i]._o = o; words[i].style.setProperty('--o', o); }
-      }
-    }
-    function loop(now) {
-      requestAnimationFrame(loop);
-      const dt = Math.min(0.05, (now - last) / 1000); last = now;
-      if (!visible) return;
-      /* a light spring after the scroll (stiffness 150, damping 28, mass .22) */
-      const x = target(), K = 150, D = 28, M = 0.22;
-      for (let step = 0; step < 4; step++) { const h = dt / 4; v += ((K * (x - s) - D * v) / M) * h; s += v * h; }
-      if (Math.abs(x - s) < 1e-4 && Math.abs(v) < 1e-3) { s = x; v = 0; }
-      const key = s.toFixed(4); if (key !== done) { done = key; paint(); }
-    }
-    paint();
-    new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { rootMargin: '20% 0px' }).observe(copy);
-    requestAnimationFrame(loop);
-  })();
+  /* the fade-in (assets/text-fade.js, shared with the phone page); phones
+     never load this section, about-mobile.html has its own copy */
+  tibbaTextFade(document.getElementById('copy'), { dim: 0.16, start: 0.82, end: 0.42 });
 </script>
 <!-- primary / secondary typography control (assets/type-control.js) -->
 <script type="module" src="assets/type-control.js"></script>

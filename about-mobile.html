@@ -58,13 +58,15 @@ section { scroll-margin-top: 64px; }
 @media (prefers-reduced-motion: reduce) { .hero .mt .r, .statement, .asc-dot { animation: none; opacity: 1; } .asc-dot::after { animation: none; } }
 .hero svg.mt { display: block; }
 
-/* ── who we are: plain text, the layout as it was ─────────────────────── */
+/* ── who we are: the words fade in as the passage rises (assets/text-fade.js,
+   the desktop section's own script; nothing pinned) ─────────────────── */
 .who { padding: clamp(72px, 11vh, 120px) var(--gut) clamp(56px, 10vh, 120px); }
 .who h2 { padding-bottom: clamp(18px, 3vh, 32px); color: #fff; font-weight: 400; font-size: 18px; line-height: 1.15; letter-spacing: -.02em; }
 .who .copy { padding-top: 2vh; }
 .who .copy p { color: #fff; font-size: 28px; line-height: 1.16; letter-spacing: -.03em; font-weight: 500; }
 .who .copy p + p { margin-top: .75em; }
 .who .copy .hl { color: var(--accent); }
+.who .copy .tf-w { display: inline-block; white-space: nowrap; }
 
 /* ── the numbers (still: no odometer, Nov 2026) ──────────────────────── */
 .an { padding: clamp(64px, 10vh, 120px) var(--gut); }
@@ -206,6 +208,13 @@ section { scroll-margin-top: 64px; }
   mountSiteNav(document.getElementById('ca-header'), { current: 'About', home: 'website-v3-mobile.html', nav: [
     { label: 'Work', href: 'website-v3-mobile.html#work' }, { label: 'Services', href: 'website-v3-mobile.html#services' },
     { label: 'About', href: 'about-mobile.html' }, { label: 'Contact', href: '#footer' }] });
+</script>
+<script src="assets/text-fade.js?v=1" defer></script>
+<script>
+  /* Who we are: the fade-in, as desktop has it; on a phone the passage is
+     taller than the screen, so the run starts as its top reaches 90% of the
+     screen and ends as its foot reaches 70%, while it is still being read */
+  addEventListener('DOMContentLoaded', () => tibbaTextFade(document.querySelector('.who .copy'), { dim: 0.16, start: 0.9, end: 0.7 }));
 </script>
 </body>
 </html>
