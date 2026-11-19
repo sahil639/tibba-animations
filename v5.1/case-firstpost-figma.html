@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-19T08:22:50.939Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-19T08:24:54.769Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -19,6 +19,7 @@ gtag('config', 'G-DZS8N17C9N');
 <link rel="stylesheet" href="assets/work.css">
 <link rel="stylesheet" href="assets/case-figma.css?v=11">
 <link rel="stylesheet" href="assets/fp-ds.css?v=2" media="(max-width: 760px)">
+<link rel="stylesheet" href="assets/m-phone.css?v=1" media="(max-width: 760px)">
 <link rel="stylesheet" href="assets/workbench.css">
 <script src="assets/manifest.js"></script>
 <script src="assets/whats-new.js"></script>
@@ -35,6 +36,8 @@ gtag('config', 'G-DZS8N17C9N');
      player's progress bar (case-figma.css) and lent the loops its grey. */
   .fl-loop { display: none; }
   .fpds { display: none; }
+  .fp-mphone { display: none !important; }
+  @media (max-width: 760px) { .fp-mphone { display: grid !important; } }
   @media (max-width: 760px) {
     .fp-desk { display: none; }
     .fl-loop { display: block; position: relative; overflow: hidden; container-type: inline-size; margin: 0 calc(-1 * var(--over, 0px));
@@ -125,7 +128,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
       <figure class="cf-fig fp-desk" data-loop="shows"><img src="assets/work/firstpost-figma/shows.webp" width="2000" height="1125" alt="The rebranded shows" loading="lazy" decoding="async"></figure>
       <div class="cf-head"><div><h2>Mobile First Approach</h2></div><hr></div>
       <div class="cf-text"><p>With 85% of the users accessing Firstpost’s website on their phones and only 15% use it on desktop, a trend concurrent with our times, the mobile web experience became a central point of focus for us.</p></div>
-      <figure class="cf-fig"><picture><source media="(max-width: 760px)" srcset="assets/work/firstpost-figma/m/mobile.webp" width="2000" height="1500"><img src="assets/work/firstpost-figma/mobile.webp" width="2760" height="2070" alt="The mobile web experience" loading="lazy" decoding="async"></picture></figure>
+      <figure class="cf-fig fp-desk"><picture><source media="(max-width: 760px)" srcset="assets/work/firstpost-figma/m/mobile.webp" width="2000" height="1500"><img src="assets/work/firstpost-figma/mobile.webp" width="2760" height="2070" alt="The mobile web experience" loading="lazy" decoding="async"></picture></figure><figure class="m-phone no-island dark fp-mphone" style="--ar: 713 / 1551" aria-label="The Firstpost mobile web: videos, an article and the home page, screen by screen"><div class="body"><div class="screen"><img class="on" src="assets/work/firstpost-figma/m/mf-1.webp" width="713" height="1551" alt="Videos" loading="lazy" decoding="async"><img src="assets/work/firstpost-figma/m/mf-2.webp" width="713" height="1551" alt="An article" loading="lazy" decoding="async"><img src="assets/work/firstpost-figma/m/mf-3.webp" width="713" height="1551" alt="The home page" loading="lazy" decoding="async"></div><i class="island" aria-hidden="true"></i></div></figure>
       <div class="cf-head"><div><h2>Designing for Business</h2></div><hr></div>
       <div class="cf-text"><p>Since ads on the website were a primary channel of monetisation, we designed the UI keeping business objectives in mind. Additionally, we also designed for sponsored content on the platform.</p></div>
       <figure class="cf-fig fp-desk" data-loop="screens"><img src="assets/work/firstpost-figma/business.webp" width="2760" height="1553" alt="Ads and sponsored content in the layout" loading="lazy" decoding="async"></figure>
@@ -242,6 +245,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
 </script>
 <script type="module" src="assets/case-devices.js?v=2"></script>
 <script src="assets/fp-ds.js?v=1" defer></script>
+<script src="assets/m-phone.js?v=1" defer></script>
 <script type="module" src="assets/fp-player.js"></script>
 <!-- primary / secondary typography control (assets/type-control.js) -->
 <script type="module" src="assets/type-control.js"></script>

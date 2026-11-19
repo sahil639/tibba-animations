@@ -121,15 +121,9 @@
 .sm-sheets .stage { overflow: visible; overflow-x: clip; overflow-y: visible; }
 @supports not (overflow: clip) { .sm-sheets .stage { overflow: hidden; padding-bottom: 40px; margin-bottom: -40px; } }
 
-/* Redesigned the Onboarding: an iPhone, its three screens in turn */
-.sm-phone { display: grid; place-items: center; padding: 8px 0; }
-.sm-phone .body { position: relative; width: min(68%, 260px); padding: 3.2%; border-radius: 15% / 7%; background: #16161a;
-  box-shadow: inset 0 0 0 1.5px #3a3a40, inset 0 0 0 4px #0b0b0d, 0 24px 44px -22px rgba(30, 20, 90, .45); }
-.sm-phone .screen { position: relative; aspect-ratio: 689 / 1490; overflow: hidden; border-radius: 12% / 5.6%; background: #fff; }
-.sm-phone .screen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity .9s cubic-bezier(.4, 0, .2, 1); }
-.sm-phone .screen img.on { opacity: 1; }
-.sm-phone .island { position: absolute; left: 50%; top: 5.2%; width: 27%; height: 2.9%; margin-left: -13.5%; border-radius: 99px; background: #000; }
-@media (prefers-reduced-motion: reduce) { .sm-phone .screen img { transition: none; } }
+/* Redesigned the Onboarding: the shared iPhone (assets/m-phone.css); the Shyft screens are white */
+.m-phone.sm-m { display: grid; }
+.sm-phone .screen { background: #fff; }
 
 /* Challenges in the therapy landscape: three cards, side by side, swiped */
 .cf-cols.sm-chal { display: flex; gap: 12px; row-gap: 0; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: 16px; overscroll-behavior-x: contain;
