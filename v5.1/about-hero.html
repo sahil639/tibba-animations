@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- Tibba Design Studio, website v5.1 — built 2026-11-19T10:22:10.365Z by tools/make-sandbox.mjs -->
+<!-- Tibba Design Studio, website v5.1 — built 2026-11-19T10:27:10.704Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -60,7 +60,7 @@ body { color: var(--ink-warm); font-family: 'Vend Sans', system-ui, sans-serif; 
 .hero::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
   background: linear-gradient(90deg, rgba(0,0,0,.86) 0%, rgba(0,0,0,.62) 30%, rgba(0,0,0,0) 56%),
               linear-gradient(0deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,0) 34%); }
-.statement { position: absolute; z-index: 2; left: var(--gut); top: 50%; transform: translateY(-46%); margin: 0; pointer-events: none;
+.statement { position: absolute; z-index: 2; left: var(--side); top: 50%; transform: translateY(-46%); margin: 0; pointer-events: none;
   color: #fff; font-weight: 300; text-transform: uppercase; font-size: clamp(52px, 8.2vw, 168px); line-height: .9; letter-spacing: -.05em;
   text-shadow: 0 2px 30px rgba(0,0,0,.6); }
 .statement .ln { display: flex; gap: .25em; overflow: hidden; }
@@ -93,7 +93,7 @@ body { color: var(--ink-warm); font-family: 'Vend Sans', system-ui, sans-serif; 
    them — a floor of black from the bottom edge only */
 @media (min-width: 761px) {
   .hero::after { background: linear-gradient(0deg, rgba(0,0,0,.9) 0%, rgba(0,0,0,.6) 22%, rgba(0,0,0,0) 46%); }
-  .statement { top: auto; bottom: 7%; transform: none; right: var(--gut); font-size: clamp(48px, 6.4vw, 128px); }
+  .statement { top: auto; bottom: 7%; transform: none; right: var(--side); font-size: clamp(48px, 6.4vw, 128px); }
   .statement .ln { display: inline-flex; margin-right: .25em; }
 }
 @media (prefers-reduced-motion: reduce) { .statement .ln > span { transition: none; transform: none; } .asc-dot::after { animation: none; } }
