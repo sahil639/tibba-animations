@@ -106,8 +106,16 @@
       }
       return dm > eps ? simplify(P.slice(0, im + 1), eps).slice(0, -1).concat(simplify(P.slice(im), eps)) : [a, b];
     }
+    /* ?split=R: each run is the massif's (within R of the summit in plan)
+       or the country's, so the page can quiet the one and not the other */
+    const SPLIT = num('split', 0), BAND = num('band', 14), NB = 5;       // band k: SPLIT + (k-1)·BAND … SPLIT + k·BAND out
+    const OP = [1, .62, .36, .2, .12];                                  // and how present each is
+    const byBand = Array.from({ length: NB }, () => new Map());          // band → line → key → paths (each ridge its own <g class="r">, for the page to bring in)
     let kept = 0;
+    let li = -1;
     for (const L of lines) {
+      li++;
+      let cls = 0;
       const P = L.closed ? L.pts.concat([L.pts[0]]) : L.pts;
       let run = [], acc = [0, 0, 0], an = 0;
       const flush = () => {
@@ -115,13 +123,15 @@
           const col = `#${acc.map(v => qc(v / an).toString(16).padStart(2, '0')).join('')}`;
           const wd = Math.max(.5, Math.round(L.w * 4) / 4);
           const key = col + '|' + wd + '|' + (L.dot ? 1 : 0);
-          const s = simplify(run, .45);
-          (runs.get(key) || runs.set(key, []).get(key)).push('M' + s.map(p => f(p[0]) + ' ' + f(p[1])).join('L'));
+          const s = simplify(run, .45), B = byBand[cls], M = B.get(li) || B.set(li, new Map()).get(li);
+          (M.get(key) || M.set(key, []).get(key)).push('M' + s.map(p => f(p[0]) + ' ' + f(p[1])).join('L'));
           kept += s.length;
         }
         run = []; acc = [0, 0, 0]; an = 0;
       };
       for (const p of P) {
+        const c = !SPLIT || p[4] <= SPLIT ? 0 : Math.min(NB - 1, 1 + Math.floor((p[4] - SPLIT) / BAND));
+        if (c !== cls) { const last = run[run.length - 1]; flush(); if (last) run.push(last); cls = c; }
         const on = !p[3] && p[2] < 1 && p[0] > -20 && p[0] < W + 20 && p[1] > -20 && p[1] < H + 20;
         const s = on ? look(p[0], p[1]) : { l: 0 };
         if (on && s.l > groundL + 14) { run.push(p); acc[0] += s.col[0]; acc[1] += s.col[1]; acc[2] += s.col[2]; an++;
@@ -130,16 +140,17 @@
       }
       flush();
     }
-    let body = '';
-    for (const [key, ds] of runs) {
+    const paths = M => { let b = ''; for (const [key, ds] of M) {
       const [col, wd, dot] = key.split('|');
-      body += `<path stroke="${col}" stroke-width="${wd}"${dot === '1' ? ` stroke-dasharray="${f(wd * 1.2)} ${f(wd * 2.6)}"` : ''} d="${ds.join('')}"/>`;
-    }
+      b += `<path stroke="${col}" stroke-width="${wd}"${dot === '1' ? ` stroke-dasharray="${f(wd * 1.2)} ${f(wd * 2.6)}"` : ''} d="${ds.join('')}"/>`;
+    } return b; };
+    const ridges = B => [...B.values()].map(M => `<g class="r">${paths(M)}</g>`).join('');
+    const body = byBand.map((B, k) => B.size ? `<g class="${k ? 'terrain' : 'peak'}"${k ? ` opacity="${OP[k]}"` : ''}>${ridges(B)}</g>` : '').reverse().join('');
     const out = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" aria-hidden="true">` +
       `<rect width="${W}" height="${H}" fill="${ground}"/><g fill="none" stroke-linecap="round" stroke-linejoin="round">${body}</g></svg>`;
     await put('hero-mountain-m.svg', new Blob([out], { type: 'image/svg+xml' }));
     await put('svgref.png', await png());
-    return { kb: Math.round(out.length / 1024), groups: runs.size, points: kept, ground };
+    return { kb: Math.round(out.length / 1024), ridges: byBand.reduce((n, B) => n + B.size, 0), points: kept, ground };
   };
   await wait(1500);
   log.textContent = 'ready'; window.__ready = true;

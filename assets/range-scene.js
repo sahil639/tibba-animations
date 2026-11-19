@@ -3284,7 +3284,9 @@ return {
     };
     return (CT_LINES || []).map(L => ({ w: L.weight * u, dot: L.dotted, ring: L.ring, closed: L.closed,
       pts: L.p3.map(p => { _rc.set(p[0], p[1], p[2]); mountainGroup.localToWorld(_rc); _rc.project(camera);
-        return [(_rc.x * 0.5 + 0.5) * w, (-_rc.y * 0.5 + 0.5) * h, _rc.z, hidden(p) ? 1 : 0]; }) }));
+        /* 4: how far out from the studio's summit (plan, local units); 5: the height */
+        return [(_rc.x * 0.5 + 0.5) * w, (-_rc.y * 0.5 + 0.5) * h, _rc.z, hidden(p) ? 1 : 0,
+          Math.hypot(p[0] - (PEAK_TOP[0] || PEAKS[0]).x, p[2] - (PEAK_TOP[0] || PEAKS[0]).z), p[1]]; }) }));
   },
 
   /** Peak 0's summit on screen, CSS pixels relative to the canvas. */
