@@ -451,6 +451,7 @@ body:has(.cf-light) { background: #f5f9fa; }
 .cf .cf-top.row { display: grid; grid-template-columns: minmax(0, 900fr) minmax(0, 570fr); column-gap: max(32px, calc(72 * var(--tu))); align-items: start; }
 .cf .cf-top.row .cf-metrics { grid-template-columns: 1fr 1fr; }
 .cf .cf-top.row .cf-metric { padding: max(24px, calc(40 * var(--tu))) max(20px, calc(28 * var(--tu))); min-height: max(170px, calc(245 * var(--tu))); justify-content: center; }
+.cf .cf-top.row .cf-metric .l { min-height: 2.6em; }   /* two lines held for every label, so the numbers line up across the row */
 .cf .cf-top.row .cf-facts { display: flex; flex-direction: column; justify-content: space-between; align-self: stretch; gap: 40px; }
 .cf .cf-top.row .cf-facts dl { display: block; border-top: 0; }
 .cf .cf-top.row .cf-facts dl > div { flex-direction: row; justify-content: space-between; gap: 20px; padding: 22px 0; border-bottom: 1px solid var(--hair); }
