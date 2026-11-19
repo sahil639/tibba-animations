@@ -26,7 +26,7 @@
 
    Every tunable: SITE_HERO_CONFIG.
    ═════════════════════════════════════════════════════════════════════════ */
-import { createRangeScene } from './range-scene.js?v=2';
+import { createRangeScene } from './range-scene.js?v=3';
 
 const $ = s => document.querySelector(s);
 const clamp01 = t => t < 0 ? 0 : t > 1 ? 1 : t;
@@ -35,6 +35,10 @@ const smooth = t => t * t * (3 - 2 * t);
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const ACCENT = '#C9124B';
 const SKIP = /[?&]noloader\b/.test(location.search);
+/* back after the loader has played (the shell reloads an unloaded frame):
+   open on the hero exactly as it was left — copy in place, the route drawn */
+const SETTLED = /[?&]settled\b/.test(location.search);
+if (SETTLED) document.documentElement.classList.add('hero-settled');
 
 export const SITE_HERO_CONFIG = {
   loader: { duration: 2.4, hold: 0.1, stutter: 0.3, band: 3.0, ghost: 0.1, glow: 0.7 },
@@ -98,7 +102,7 @@ let t0 = performance.now(), intro = phase === 'hero' ? 1 : 0, introAt = 0;
 function tellShell() {
   try { if (window.parent !== window) window.parent.postMessage({ tibba: 'ready' }, '*'); } catch {}
 }
-if (phase === 'hero') { document.body.classList.add('ld-gone', 'hero-in'); scene.setFill(null); clearInterval(coordTimer); tellShell(); scene.climbHero(true, 0.5); }
+if (phase === 'hero') { document.body.classList.add('ld-gone', 'hero-in'); scene.setFill(null); clearInterval(coordTimer); tellShell(); scene.climbHero(true, SETTLED ? 0 : 0.5, SETTLED); }
 
 /* the loader's clock starts on its first drawn frame, not when the script
    ran: building the terrain takes a moment, and a clock started before it

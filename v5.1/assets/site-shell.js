@@ -206,6 +206,12 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
 
   /* ── the gate: hold the page while the loader runs ───────────────── */
   let locked = false, gateTimer = 0;
+  /* the loader plays once per page load (Nov 2026). The shell unloads a
+     section's frame when it is far off screen and loads it again on the way
+     back; the hero's frame used to come back with its loader, so scrolling
+     up replayed it. This flag lives in memory only — a reload starts it
+     fresh, so a reload plays the loader again. */
+  let loaderPlayed = false;
   /* overflow:hidden alone is not a lock — a trackpad's momentum, a touch
      drag on iOS and the keyboard can all still move the page — so while
      locked, every way of scrolling is swallowed as well */
@@ -222,10 +228,10 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
     if (!on) { requestAnimationFrame(() => document.documentElement.classList.add('site-nav-in')); if (blocks.length) sync(true); }
     else document.documentElement.classList.remove('site-nav-in');
     clearTimeout(gateTimer);
-    if (on) gateTimer = setTimeout(() => lock(false), C.gateTimeout * 1000);
+    if (on) gateTimer = setTimeout(() => { loaderPlayed = true; lock(false); }, C.gateTimeout * 1000);
   }
   addEventListener('message', e => {
-    if (e.data && e.data.tibba === 'ready' && blocks.some(b => b.frame.contentWindow === e.source)) lock(false);
+    if (e.data && e.data.tibba === 'ready' && blocks.some(b => b.frame.contentWindow === e.source)) { loaderPlayed = true; lock(false); }
     /* the Modular hub: same origin only, and only plain page files */
     if (e.data && e.data.tibba === 'layout' && Array.isArray(e.data.sections) && e.origin === location.origin) {
       const ok = e.data.sections.filter(x => x && typeof x.file === 'string' && /^[\w.-]+\.html(\?[\w=&-]*)?$/.test(x.file));
@@ -235,7 +241,8 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
 
   /* ── the blocks ───────────────────────────────────────────────────── */
   const srcOf = (s, fresh) => s.file + (s.file.includes('?') ? '&' : '?') + 'embed=1&v=' + version
-    + (fresh && s.gate && !/noloader/.test(s.file) ? '&noloader' : '');   // a refresh never replays the loader
+    + ((fresh || loaderPlayed) && s.gate && !/noloader/.test(s.file) ? '&noloader' : '')   // a refresh, or a return, never replays the loader
+    + (loaderPlayed && s.gate ? '&settled' : '');                                            // and a return opens on the finished hero
   function make(s) {
     const sec = document.createElement('section');
     sec.className = 'site-block'; sec.id = 'sec-' + s.id;
@@ -290,6 +297,7 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
   function unload(b) {
     if (!b.loaded) return;
     b.loaded = false;
+    if (b.s.gate) loaderPlayed = true;          // it has been seen: coming back never replays it
     if (b.ro) b.ro.disconnect();
     b.frame.src = 'about:blank';                 // keeps its measured height
   }

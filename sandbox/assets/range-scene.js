@@ -2940,8 +2940,9 @@ return {
     trailMat.uniforms.uColor.value[HERO_ROUTE].copy(srgbVec(hex));
   },
   /** Draw (on) or retract the one accent route up the massif. */
-  climbHero(on, delay = 0) {
+  climbHero(on, delay = 0, instant = false) {
     gsap.killTweensOf(trailProgress, String(HERO_ROUTE));
+    if (instant) { trailProgress[HERO_ROUTE] = on ? 1 : 0; return; }
     gsap.to(trailProgress, { [HERO_ROUTE]: on ? 1 : 0, duration: on ? MORPH.CLIMB : 0.5, ease: on ? 'power1.inOut' : 'power2.in', delay: on ? delay : 0 });
   },
   /** Opt-in route styles (Nov 2026): heroFade (0–1) grades the accent route
