@@ -375,9 +375,10 @@ section { scroll-margin-top: 64px; }
 
 /* the case cards: the Rive animation in a portrait (4:5) frame */
 .case .rv { aspect-ratio: 4 / 5; background: #0e0e10; }
-/* each case's mountain icon */
-.case-ico { width: 80px !important; height: 80px !important; margin: 0 0 16px -8px; }
-.case-ico img { display: block; width: 100%; height: 100%; object-fit: contain; }
+/* each case's mountain icon (assets/m/case-icons/), at its own 100 × 64:
+   drawn on that grid, so it is neither scaled nor cropped (Nov 2026) */
+.case .case-ico { display: block; width: 100px !important; height: 64px !important; margin: 0 0 12px; flex: none; }
+.case .case-ico img { display: block; width: 100px; height: 64px; max-width: none; pointer-events: none; }
 /* services: a little more air */
 .svc li { padding: 18px 0 !important; gap: 16px !important; }
 .svc b { line-height: 1.3; }
@@ -485,24 +486,28 @@ section { scroll-margin-top: 64px; }
     </div>
     <div class="cases">
       <article class="case" data-peak style="--c:#4DD9C0">
+        <span class="case-ico" aria-hidden="true"><img src="assets/m/case-icons/01.svg" width="100" height="64" alt="" decoding="async"></span>
         <h3>How we helped Groww <span class="hi">boost engagement</span> on their app</h3>
         <p>A deep engagement with Groww to design and improve features that engage users on their consumer app, along with design support for other product initiatives.</p>
         <a class="rv loop" href="case-groww-figma.html" aria-label="Groww — the work"><img class="loop-base" src="assets/m/loops/groww-1.webp" width="1080" height="1341" alt="" decoding="async"><img src="assets/m/loops/groww-1.webp" width="1080" height="1341" alt="" decoding="async"><img src="assets/m/loops/groww-2.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"><img src="assets/m/loops/groww-3.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"><img src="assets/m/loops/groww-4.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"></a>
         <a class="btn-p case-go" style="--btn-bg:#4DD9C0" href="case-groww-figma.html">View case study<span class="btn-p-ic" aria-hidden="true"></span></a>
       </article>
       <article class="case" data-peak style="--c:#E05555">
+        <span class="case-ico" aria-hidden="true"><img src="assets/m/case-icons/02.svg" width="100" height="64" alt="" decoding="async"></span>
         <h3>How we helped Firstpost <span class="hi">2x their traffic</span> through a strategic redesign</h3>
         <p>A design overhaul of Firstpost’s website and the creation of their first mobile app, with a significant pivot for their business and content strategy.</p>
         <a class="rv loop" href="case-firstpost-figma.html" aria-label="Firstpost — the work"><img class="loop-base" src="assets/m/loops/firstpost-1.webp" width="1080" height="1341" alt="" decoding="async"><img src="assets/m/loops/firstpost-1.webp" width="1080" height="1341" alt="" decoding="async"><img src="assets/m/loops/firstpost-2.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"><img src="assets/m/loops/firstpost-3.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"><img src="assets/m/loops/firstpost-4.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"></a>
         <a class="btn-p case-go" style="--btn-bg:#E05555" href="case-firstpost-figma.html">View case study<span class="btn-p-ic" aria-hidden="true"></span></a>
       </article>
       <article class="case" data-peak style="--c:#4CAF70">
+        <span class="case-ico" aria-hidden="true"><img src="assets/m/case-icons/03.svg" width="100" height="64" alt="" decoding="async"></span>
         <h3>How we helped Breathe ESG <span class="hi">accelerate sales</span>, streamline releases and elevate customer experience</h3>
         <p>An MVP to v1 redesign of Breathe ESG’s SaaS platform, to make it easier for companies to track their ESG metrics and regulatory compliance.</p>
         <a class="rv loop" href="case-breathe-esg-figma.html" aria-label="Breathe ESG — the work"><img class="loop-base" src="assets/m/loops/breathe-esg-1.webp" width="1080" height="1341" alt="" decoding="async"><img src="assets/m/loops/breathe-esg-1.webp" width="1080" height="1341" alt="" decoding="async"><img src="assets/m/loops/breathe-esg-2.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"><img src="assets/m/loops/breathe-esg-3.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"><img src="assets/m/loops/breathe-esg-4.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"></a>
         <a class="btn-p case-go" style="--btn-bg:#4CAF70" href="case-breathe-esg-figma.html">View case study<span class="btn-p-ic" aria-hidden="true"></span></a>
       </article>
       <article class="case" data-peak style="--c:#7B8FF5">
+        <span class="case-ico" aria-hidden="true"><img src="assets/m/case-icons/04.svg" width="100" height="64" alt="" decoding="async"></span>
         <h3>How we helped Shyft &amp; Mindhouse <span class="hi">grow their business</span> and supercharge product led growth</h3>
         <p>Conceptualising and designing a therapy experience, alongside redesigning their websites and apps to impact revenue.</p>
         <a class="rv loop" href="case-shyft-mindhouse-figma.html" aria-label="Shyft &amp; Mindhouse — the work"><img class="loop-base" src="assets/m/loops/shyft-mindhouse-1.webp" width="1080" height="1341" alt="" decoding="async"><img src="assets/m/loops/shyft-mindhouse-1.webp" width="1080" height="1341" alt="" decoding="async"><img src="assets/m/loops/shyft-mindhouse-2.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"><img src="assets/m/loops/shyft-mindhouse-3.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"><img src="assets/m/loops/shyft-mindhouse-4.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"></a>

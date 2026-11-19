@@ -584,15 +584,16 @@ body:has(.cf-light) { background: #f5f9fa; }
    right across the screen like a border. Scaled up a quarter and pinned by
    its foot, the bezel rises past the top edge and the hero opens on the
    device's screen itself (Nov 2026). */
-/* Phones (Nov 2026): each case opens on its own portrait thumbnail
-   (assets/m/thumbs/), shown whole — the hero takes the image's 526 × 855
+/* Phones (Nov 2026): each case opens on its own portrait header
+   (assets/m/headers/, 1576 × 2565: three device pixels to each CSS pixel at
+   a phone's width, so it stays sharp on Retina), shown whole — the hero takes the image's
    shape, so nothing is cropped or stretched; the title sits on its foot. */
 @media (max-width: 760px) {
-  .cf-hero.cover { height: auto !important; aspect-ratio: 526 / 855; background-size: 100% 100% !important; background-position: 50% 0 !important; }
-  [data-case="groww"] .cf-hero.cover { background-image: url('m/thumbs/groww.webp') !important; }
-  [data-case="firstpost"] .cf-hero.cover { background-image: url('m/thumbs/firstpost.webp') !important; }
-  [data-case="breathe-esg"] .cf-hero.cover { background-image: url('m/thumbs/breathe-esg.webp') !important; }
-  [data-case="shyft-and-mindhouse"] .cf-hero.cover { background-image: url('m/thumbs/shyft-mindhouse.webp') !important; }
+  .cf-hero.cover { height: auto !important; aspect-ratio: 1576 / 2565; background-size: 100% 100% !important; background-position: 50% 0 !important; }
+  [data-case="groww"] .cf-hero.cover { background-image: url('m/headers/groww.webp') !important; }
+  [data-case="firstpost"] .cf-hero.cover { background-image: url('m/headers/firstpost.webp') !important; }
+  [data-case="breathe-esg"] .cf-hero.cover { background-image: url('m/headers/breathe-esg.webp') !important; }
+  [data-case="shyft-and-mindhouse"] .cf-hero.cover { background-image: url('m/headers/shyft-mindhouse.webp') !important; }
 }
 /* phones: the shared site footer (assets/site-footer.js) keeps the framed
    one's place — 180px below the page, on the light cases in the page's tint */
