@@ -275,15 +275,6 @@ window.TIBBA_SITE = {
      "state": "live"
     },
     {
-     "id": "about-numbers",
-     "updated": "2026-10-12T16:00:00+07:00",
-     "change": "New: the numbers from the old About page, as their own section",
-     "label": "About us — numbers",
-     "file": "about-numbers.html",
-     "note": "Founded in 2023, a decade of work behind it: three figures on the odometer",
-     "state": "live"
-    },
-    {
      "id": "about-foundations-01",
      "updated": "2026-10-01T12:00:00+07:00",
      "change": "Rebuilt as Metrics plates: open once, live contours per card",

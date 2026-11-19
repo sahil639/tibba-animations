@@ -118,14 +118,12 @@ export const ABOUT_SECTIONS = [
     variants: [{ file: 'about-hero.html', label: 'About us — hero' }] },
   { id: 'about-description', label: 'Description', folder: 'About us — description', nav: 'Who we are',
     variants: [{ file: 'about-description.html', label: 'About us — description' }] },
-  /* from the old single-page About us, kept when the two were merged */
-  /* Nov 2026: not a full screen — as tall as its content (it grows if that needs more) */
-  { id: 'about-numbers', label: 'In numbers', folder: 'About us — numbers', frame: '60vh',
-    variants: [{ file: 'about-numbers.html', label: 'About us — numbers' }] },
-  { id: 'about-foundations', label: 'Foundations', folder: 'About us — foundations', nav: 'Foundation', navMinor: true,
-    variants: [{ file: 'about-foundations.html', label: 'About us — foundations' }] },
+  /* Nov 2026: the numbers are gone (the home page has them); the team comes
+     straight after the description, then the foundations */
   { id: 'about-team', label: 'Team', folder: 'About us — team', nav: 'Team',
     variants: [{ file: 'about-team.html', label: 'About us — team' }] },
+  { id: 'about-foundations', label: 'Foundations', folder: 'About us — foundations', nav: 'Foundation', navMinor: true,
+    variants: [{ file: 'about-foundations.html', label: 'About us — foundations' }] },
   FOOTER,
 ];
 

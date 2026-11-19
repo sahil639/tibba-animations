@@ -168,7 +168,7 @@ body.panel-off .mw-tab { transform: translate(0, -50%); opacity: 1; pointer-even
 
 <script type="module">
   /* the hub arranges Website v3, the current site */
-  import { V3_SECTIONS as SECTIONS, V3_LAYOUT_KEY as KEY, loadLayout, resolveLayout, sectionsFor as sectionsOf } from './assets/site-sections.js?v=4';
+  import { V3_SECTIONS as SECTIONS, V3_LAYOUT_KEY as KEY, loadLayout, resolveLayout, sectionsFor as sectionsOf } from './assets/site-sections.js?v=5';
   const sectionsFor = l => sectionsOf(l, SECTIONS);
   const byId = Object.fromEntries(SECTIONS.map(s => [s.id, s]));
   let layout = loadLayout(SECTIONS, KEY);

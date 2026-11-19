@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" data-wb="nav">
-<!-- Tibba Design Studio, website v5.1 — built 2026-11-19T12:25:22.077Z by tools/make-sandbox.mjs -->
+<!-- Tibba Design Studio, website v5.1 — built 2026-11-19T12:28:56.061Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -29,9 +29,9 @@ gtag('config', 'G-DZS8N17C9N');
 
        About us — hero          about-hero.html
        About us — description   about-description.html
-       About us — numbers       about-numbers.html (from the old page)
-       About us — foundations   about-foundations.html
        About us — team          about-team.html
+       About us — foundations   about-foundations.html
+       (the numbers, about-numbers.html, are off: the home page has them)
        Footer                   footer.html
 
      Same shell, same navbar, same seams and timing as the home landing:
@@ -51,7 +51,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
 
 <script type="module">
   import { mountSite } from './assets/site-shell.js?v=5';
-  import { ABOUT_SECTIONS, ABOUT_LINKS, V3_SECTIONS, V3_LAYOUT_KEY, loadLayout, resolveLayout, sectionsFor } from './assets/site-sections.js?v=4';
+  import { ABOUT_SECTIONS, ABOUT_LINKS, V3_SECTIONS, V3_LAYOUT_KEY, loadLayout, resolveLayout, sectionsFor } from './assets/site-sections.js?v=5';
   /* the same footer as Website v3: whichever one it is set to show (by file,
      since v3 and the About page list their footers differently) */
   const v3 = loadLayout(V3_SECTIONS, V3_LAYOUT_KEY).find(e => e.id === 'footer');

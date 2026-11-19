@@ -16,7 +16,7 @@
    ═════════════════════════════════════════════════════════════════════════ */
 import { mountCaHeader } from './ca-nav.js';
 import { mountLogoMorph, LOGO_MORPH } from './logo-morph.js?v=2';
-import { TICKER } from './site-sections.js?v=4';
+import { TICKER } from './site-sections.js?v=5';
 
 export const SITE_NAV = [
   { label: 'Work', href: 'index.html#work' },
