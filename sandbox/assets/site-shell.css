@@ -174,6 +174,9 @@ html.site-locked .site-refresh { opacity: 0; pointer-events: none; }
   .site-nav .ca-row { gap: 18px; padding: 8px 10px 8px 12px; }
   .site-nav .ca-list { margin-left: auto; gap: 18px; }
   .site-mark { width: 30px; height: 17px; }
+  /* square on every edge, no curved ears at its ends (as the phone's) */
+  .site-nav .ca-panel, .site-nav .ca-panel-inner, .site-nav .ca-panel .ca-panel-inner { border-radius: 0; }
+  .site-nav .ca-panel::before, .site-nav .ca-panel::after { display: none; }
 }
 
 /* Phones (Nov 2026): the menu toggle in the pill's own terms — a dark square
