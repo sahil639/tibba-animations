@@ -29,7 +29,18 @@ document.querySelectorAll('.cf-ba').forEach(box => {
   P.S.show = 'before';
   P.setMode('compare');            // starts on the before
 
-  const btns = [...box.querySelectorAll('.cf-ba-switch button')];
+  /* mWeb / dWeb (phones, boxes with data-views): which device shows; the
+     before / after below acts on both, so it holds whichever is picked */
+  if (box.hasAttribute('data-views')) {
+    box.dataset.view = 'phone';
+    box.insertAdjacentHTML('afterbegin', '<div class="cf-ba-switch cf-view-switch" role="group" aria-label="Show the site on"><button type="button" data-w="phone" aria-pressed="true">mWeb</button><button type="button" data-w="desktop" aria-pressed="false">dWeb</button></div>');
+    const vb = [...box.querySelectorAll('.cf-view-switch button')];
+    vb.forEach(b => b.addEventListener('click', () => {
+      box.dataset.view = b.dataset.w;
+      vb.forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    }));
+  }
+  const btns = [...box.querySelectorAll('.cf-ba-switch:not(.cf-view-switch) button')];
   const mark = which => btns.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === which)));
   mark('before');
   btns.forEach(b => b.addEventListener('click', () => {
