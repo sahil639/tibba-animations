@@ -94,7 +94,7 @@ const PHONE_LOCK = {
   style: { dim: 0.59, thin: 0.05, cool: 0.03, sparse: 0.03 },
 };
 const lock = (t, src) => Object.keys(src).forEach(k => typeof src[k] === 'object' ? lock(t[k], src[k]) : (t[k] = src[k]));
-const PHONE_AT_LOAD = matchMedia('(max-width: 900px)').matches;
+const PHONE_AT_LOAD = matchMedia('(max-width: 760px)').matches;
 if (PHONE_AT_LOAD) lock(C, PHONE_LOCK);
 /* ?view=front (or angled) picks the view from the address, for use inside the site */
 { const v = /[?&]view=(front|angled|raised)\b/.exec(location.search); if (v && !PHONE_AT_LOAD) C.depth.view = v[1]; }
@@ -106,7 +106,7 @@ export function mountBasecamp() {
   const root = document.documentElement;
   const sec = document.getElementById('bc'), stack = document.getElementById('stack'), dock = document.getElementById('dock'),
         panelEl = document.getElementById('bc-panel'), tabsEl = document.getElementById('tabs');
-  const phone = matchMedia('(max-width: 900px)');
+  const phone = matchMedia('(max-width: 760px)');
   const P = pinned(sec);
 
   /* ── the cards ─────────────────────────────────────────────────────── */
@@ -273,11 +273,7 @@ export function mountBasecamp() {
     const m = phone.matches;
     root.classList.toggle('bc-phone', m);
     if (!m && stack.parentNode !== sec) sec.appendChild(stack);
-    /* phones: each card its own small mountain, the peak in its colour */
-    if (m && !root.querySelector('.mpk-box')) import('./mini-peak.js').then(({ mountMiniPeak }) => cards.forEach((c, i) => {
-      const d = document.createElement('div'); d.className = 'mpk-box'; c.querySelector('.in').prepend(d);
-      mountMiniPeak(d, { seed: 7 + i * 13, colour: S[i].colour, peakX: [.5, .42, .58, .5][i] });
-    }));
+    /* no mountain inside the cards (Nov 2026): the range's one place is the box in the top-left corner */
   }
   phone.addEventListener('change', layout); layout();
   /* the range ends exactly on the progress line, whatever the bar's height */
@@ -354,7 +350,7 @@ const SCHEMA = [
   ['dock', 'Scene height under the cards', 30, 70, 1, 'vh'],
 ];
 /* the front view's framing has its own values on desktop */
-const PHONE = matchMedia('(max-width: 900px)');
+const PHONE = matchMedia('(max-width: 760px)');
 const at = p => !PHONE.matches && /^depth\.front(Fill|Base)$/.test(p) ? p.replace('depth.', 'depth.desk.') : p;
 const get = p => at(p).split('.').reduce((o, k) => o[k], C);
 const set = (p, v) => { const ks = at(p).split('.'), last = ks.pop(); ks.reduce((o, k) => o[k], C)[last] = v; };

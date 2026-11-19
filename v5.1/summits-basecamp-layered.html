@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- Tibba Design Studio, website v5.1 — built 2026-11-19T09:34:24.833Z by tools/make-sandbox.mjs -->
+<!-- Tibba Design Studio, website v5.1 — built 2026-11-19T09:38:37.503Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -150,12 +150,12 @@ html, body { background: var(--bg); }
 .bc-dock { margin: 0 auto calc(-1 * clamp(140px, 14vw, 200px)) var(--side); }
 .pn .txt { align-self: end; }
 .bc-phone .bc-dock { display: none; }
-.bc-phone .pn .mpk-box { height: 140px; margin-bottom: 4px; border: 1px solid rgba(233,236,242,.12); background: #000; overflow: hidden; }
+.pn .mpk-box { display: none !important; } .bc-phone .pn .mpk-box { height: 140px; margin-bottom: 4px; border: 1px solid rgba(233,236,242,.12); background: #000; overflow: hidden; }
 /* Nov 2026 (3), desktop, as the reference: the small mountain with no frame;
    the case's image on the right, its top level with the mountain's; the copy
    at the foot of the left column, its button level with the image's foot;
    the title a little larger */
-@media (min-width: 901px) {
+@media (min-width: 761px) {
   .bc-dock { top: var(--dk-top, 0px); border: 0; background: none; margin-left: 0 !important;
     /* sized by the script below so it always stops short of the highest title */
     width: var(--dk-w, clamp(220px, 22vw, 320px)); height: var(--dk-h, clamp(140px, 14vw, 200px)); margin-bottom: calc(-1 * var(--dk-h, clamp(140px, 14vw, 200px))); }
@@ -201,7 +201,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   window.BASECAMP_KEY = 'tibba.bake.basecamp-layered';
 </script>
 <script type="module">
-  import { mountBasecamp } from './assets/basecamp.js';
+  import { mountBasecamp } from './assets/basecamp.js?v=2';
   window.tibba = mountBasecamp();
 </script>
 <script>
@@ -211,7 +211,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
      highest title less a gap, at its own shape, no larger than before; with
      too little room it steps out of the way. The copy does not move. */
   (() => {
-    const dock = document.getElementById('dock'), wide = matchMedia('(min-width: 901px)');
+    const dock = document.getElementById('dock'), wide = matchMedia('(min-width: 761px)');
     const AR = 320 / 200, GAP = 28;
     let raf = 0;
     function fit() {
