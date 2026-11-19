@@ -123,22 +123,16 @@ a { color: inherit; text-decoration: none; }
 .tile.title::after { display: none; }
 .tile.title .eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
 .tile.title h2 {
-  margin-top: 0; max-width: 13ch; color: #fff; font-weight: 400;
-  font-size: clamp(28px, 3.3vw, 54px); line-height: 1.02; letter-spacing: -.035em;
+  margin-top: 0; max-width: 16ch; color: #fff; font-weight: 400;
+  font-size: clamp(24px, 2.4vw, 40px); line-height: 1.06; letter-spacing: -.03em;
 }
-.tile.title p:not(.eyebrow) { max-width: 34ch; padding-top: clamp(16px, 2vh, 24px); border-top: 1px solid rgba(255,255,255,.12);
-  color: var(--ink-warm); font-size: clamp(13px, 1vw, 16px); line-height: 1.5; letter-spacing: -.005em; }   /* fits the tile at 85vh (no eyebrow, Nov 2026) */
+.tile.title p:not(.eyebrow) { max-width: none; color: var(--ink-warm); font-size: clamp(13px, 1vw, 16px); line-height: 1.55; letter-spacing: -.005em; }   /* the tile's full width, no rule above it (Nov 2026) */
 
 /* ── the way in ────────────────────────────────────────────────────────── */
 .tile.cta { grid-column: 4 / span 2; grid-row: 4; background: #0a0a0b; place-items: center start; padding-left: clamp(20px, 2.4vw, 40px); }
 .tile.cta .q { font-size: clamp(18px, 1.8vw, 28px); letter-spacing: -.02em; color: #fff; line-height: 1.15; }
 .tile.cta .q em { font-style: normal; color: var(--accent); }
-.tile.cta .go {
-  margin-top: 14px; display: inline-flex; align-items: center; gap: 10px;
-  font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: #fff;
-}
-.tile.cta .go i { width: 22px; height: 1px; background: var(--accent); display: block; transition: width .3s var(--ease); }
-.tile.cta:hover .go i { width: 46px; }
+.tile.cta .go { margin-top: 18px; }   /* the site's primary button (assets/site.css), as on phones */
 .tile.cta:hover .q, .tile.cta:hover .mark { transform: none; }
 
 /* ── the load-in ─────────────────────────────────────────────────────────
@@ -180,12 +174,12 @@ a { color: inherit; text-decoration: none; }
     </div>
   </div>
   <!-- the fourteen tiles go here, from BRANDS -->
-  <a class="tile cta" href="mailto:hello@tibba.design" id="cta">
+  <div class="tile cta" id="cta">
     <div>
       <p class="q">Your summit <em>next?</em></p>
-      <span class="go">Start a project<i></i></span>
+      <a class="btn-p go" href="mailto:hello@tibba.design">Start a project<span class="btn-p-ic" aria-hidden="true"></span></a>
     </div>
-  </a>
+  </div>
 </section>
 
 <script>

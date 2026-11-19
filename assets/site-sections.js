@@ -89,7 +89,7 @@ export const V3_SECTIONS = [
                { file: 'site-hero.html?noloader', label: 'Same, without the loader' }] },
   /* Nov 2026: back on desktop, where the phone has it (after the numbers):
      the plain grid, brands.html, as desktop had it before the review */
-  { id: 'brands', label: 'Brands', folder: 'Brands section', frame: '85vh',
+  { id: 'brands', label: 'Brands', folder: 'Brands section', frame: '80vh',
     variants: [{ file: 'brands.html', label: 'Brands' }, { file: 'brands-mosaic.html', label: 'Brands — mosaic' }] },
   { id: 'work', label: 'Our summits', folder: 'Our summits', nav: 'Work',
     /* a phone gets Base Camp without the layering: one range, no depth
@@ -150,7 +150,8 @@ export const PAGE_CSS = {
   'case-studies-reel.html': `.after { display: none !important; }`,
   /* the plain grid, fitted to the section's 85vh window; the closing
      question on a grey tile */
-  'brands.html': `#brands { height: 85vh !important; min-height: 0 !important; }
+  /* the grid fills its 80vh window, so its hairline closes the foot as it opens the top */
+  'brands.html': `#brands { height: 100vh !important; min-height: 0 !important; }
     .tile.cta { background: #1d1d20 !important; } .tile.cta:hover { background: #232327 !important; }`,
   'studio-polaroids.html': `#reset { display: none !important; }`,
   'studio-polaroid-frames.html': `#reset { display: none !important; }`,

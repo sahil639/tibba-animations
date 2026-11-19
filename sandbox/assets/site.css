@@ -622,13 +622,14 @@ a { color: inherit; }
 .btn-p {
   --btn-bg: #C9124B; --btn-ink: #fff;
   position: relative; display: inline-flex; align-items: center; justify-content: space-between; gap: 14px;
-  padding: 15px 20px 15px 22px; border: 0; border-radius: 0; background: var(--btn-bg); color: var(--btn-ink);
-  font: inherit; font-size: 13.5px; font-weight: 600; letter-spacing: .14em; line-height: 1; text-transform: uppercase; text-decoration: none;
+  /* Nov 2026, as on phones: a deep tint of the button's colour, a hairline
+     of the same colour at 25%, white words and arrow */
+  padding: 15px 20px 15px 22px; border: 1px solid color-mix(in srgb, var(--btn-bg) 25%, transparent); border-radius: 0;
+  background: color-mix(in srgb, var(--btn-bg) 24%, #000); color: #fff;
+  font: inherit; font-size: 15px; font-weight: 400; letter-spacing: .02em; line-height: 1; text-transform: uppercase; text-decoration: none;
   cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
   transition: transform .45s cubic-bezier(.34,1.56,.64,1), filter .2s linear, box-shadow .3s ease;
 }
-/* the ink follows the ground: black on a light colour, white on a dark one */
-@supports (color: oklch(from red l c h)) { .btn-p { color: oklch(from var(--btn-bg) clamp(0, (0.66 - l) * 1000, 1) 0 0); } }
 .btn-p:hover { filter: brightness(1.06); box-shadow: 0 10px 28px -10px color-mix(in srgb, var(--btn-bg) 60%, transparent); }
 .btn-p:active { transform: scale(.955) translateY(1px); filter: brightness(.9); box-shadow: inset 0 2px 0 rgba(0,0,0,.22); transition-duration: .08s; }
 .btn-p:focus-visible { outline: 1px solid #fff; outline-offset: 3px; }
@@ -650,7 +651,7 @@ a { color: inherit; }
   100% { opacity: 1; transform: rotate(0) scale(1); }
 }
 /* the light version, for an orange or bright ground */
-.btn-p.light { --btn-bg: #fff; --btn-ink: #000; }
+.btn-p.light { --btn-bg: #fff; }
 @media (prefers-reduced-motion: reduce) {
   .btn-p, .btn-p-ic::before { transition: none; }
   .btn-p:hover .btn-p-ic::after, .btn-p:focus-visible .btn-p-ic::after { animation: none; transform: none; }
