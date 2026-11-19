@@ -87,28 +87,7 @@
 .bm-ba .hint i { width: 8px; height: 8px; border-radius: 50%; background: #00b876; animation: ba-ping 1.8s ease-out infinite; }
 @keyframes ba-ping { 0% { box-shadow: 0 0 0 0 rgba(0, 184, 118, .5); } 80%, 100% { box-shadow: 0 0 0 8px rgba(0, 184, 118, 0); } }
 
-/* ── Designing for different users by role: company → group → units ──── */
-.bm-org { aspect-ratio: 643 / 710; }
-.bm-org .o, .bm-org .g, .bm-org .u { position: absolute; border-radius: 1.6cqw; }
-.bm-org .o { inset: 1.25cqw; border-radius: 2.2cqw; background: #25624f; box-shadow: 0 2cqw 5cqw -2cqw rgba(20, 60, 45, .45); overflow: hidden; }
-.bm-org .g { left: 7.15cqw; right: 7.15cqw; top: 59cqw; bottom: 7.8cqw; background: rgba(255, 255, 255, .1); }
-.bm-org .u { left: 6.2cqw; right: 6.2cqw; top: 12.4cqw; bottom: 4.6cqw; background: rgba(255, 255, 255, .12); }
-.bm-org b { position: absolute; font-size: 4.3cqw; font-weight: 600; color: #fff; letter-spacing: -.005em; }
-.bm-org .o > b { left: 7.15cqw; top: 50.5cqw; }
-.bm-org .g > b, .bm-org .u > b { left: 6.2cqw; top: 5.2cqw; }
-.bm-org .o::after { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.14) 50%, transparent 65%); transform: translateX(-120%); }
-/* once, as it comes into view: the company, then its groups, then their units */
-.bm-org:not(.in) .o { opacity: 0; transform: translateY(5cqw) scale(.97); }
-.bm-org:not(.in) .g, .bm-org:not(.in) .u { clip-path: inset(100% 0 0 0 round 1.6cqw); }
-.bm-org:not(.in) b { opacity: 0; transform: translateY(2cqw); }
-.bm-org .o { transition: opacity .7s ease, transform .9s cubic-bezier(.2, .8, .2, 1); }
-.bm-org .g, .bm-org .u { clip-path: inset(0 0 0 0 round 1.6cqw); transition: clip-path .8s cubic-bezier(.65, 0, .25, 1); }
-.bm-org b { transition: opacity .5s ease, transform .6s cubic-bezier(.2, .8, .2, 1); }
-.bm-org .o > b { transition-delay: .35s; }
-.bm-org .g { transition-delay: .55s; } .bm-org .g > b { transition-delay: 1s; }
-.bm-org .u { transition-delay: 1.05s; } .bm-org .u > b { transition-delay: 1.5s; }
-.bm-org.in .o::after { animation: org-sheen 1.4s 1.7s cubic-bezier(.4, 0, .2, 1) both; }
-@keyframes org-sheen { to { transform: translateX(120%); } }
+/* the org chart and the role cards: assets/breathe-roles.css (both widths) */
 
 @media (prefers-reduced-motion: reduce) {
   .bm-ds .row, .bm-days .link, .bm-days .dot, .bm-ba .hint i { animation: none; }

@@ -1,0 +1,19 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Breathe ESG, The outcome (Nov 2026): ENVIRONMENT | SOCIAL | GOVERNANCE
+   running across the panel, as the reference — large, bold, monospaced
+   capitals in a faint white, thin rules between them, the ends fading into
+   the green. One component on both widths; only the size and spacing change.
+   A CSS loop (translateX over one set, the set laid twice, so it joins with
+   no jump); paused under the pointer; still for reduced motion.
+   ══════════════════════════════════════════════════════════════════════════ */
+.esg-tick { --pad: clamp(20px, 1rem + 3.5vw, 96px); --fs: clamp(26px, 1rem + 2.6vw, 64px); --sp: clamp(18px, 2.4vw, 40px);
+  margin: clamp(28px, 1rem + 3vw, 64px) calc(-1 * var(--pad)) 0; overflow: hidden; contain: paint;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); mask: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
+.esg-tick ul { display: flex; width: max-content; margin: 0; padding: 0; list-style: none; will-change: transform; animation: esg-run 34s linear infinite; }
+.esg-tick li { display: flex; align-items: center; padding: calc(var(--fs) * .32) 0; }
+.esg-tick li span { padding: 0 var(--sp); font: 700 var(--fs) / 1 ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace; letter-spacing: .01em;
+  text-transform: uppercase; white-space: nowrap; color: rgba(255, 255, 255, .24); }
+.esg-tick li::after { content: ''; align-self: stretch; width: 1px; background: rgba(255, 255, 255, .2); }
+@keyframes esg-run { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-50%, 0, 0); } }
+@media (hover: hover) { .esg-tick:hover ul { animation-play-state: paused; } }
+@media (prefers-reduced-motion: reduce) { .esg-tick ul { animation: none; } }

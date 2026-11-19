@@ -7,13 +7,6 @@ if (matchMedia('(max-width: 760px)').matches) {
   const ds = document.querySelector('.bm-ds');
   if (ds) new IntersectionObserver(es => ds.classList.toggle('run', es[0].isIntersecting)).observe(ds);
 
-  /* the org chart builds itself once, the first time it is seen */
-  const org = document.querySelector('.bm-org');
-  if (org) {
-    const io = new IntersectionObserver(es => { if (es[0].isIntersecting) { org.classList.add('in'); io.disconnect(); } }, { threshold: .35 });
-    io.observe(org);
-  }
-
   /* wireframe ↔ high fidelity: a tap opens the other one in a circle from the finger */
   const ba = document.querySelector('.bm-ba');
   if (ba) {

@@ -1,0 +1,77 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Breathe ESG, "Designing for different users by role" (Nov 2026) — both
+   widths, one component each:
+     · the organisation (.bm-org): company → business group → business units,
+       built in code, building itself once on first sight (breathe-roles.js)
+     · the five user types (.br-card): an icon, a title, a line
+   Phones: the chart, then the cards stacked under it. Desktop: the chart on
+   the left, the cards down a staggered column on the right, each block with
+   its caption. Only the layout changes between them.
+   ══════════════════════════════════════════════════════════════════════════ */
+.br-roles { display: grid; gap: 36px; margin: 0; }
+.br-block { margin: 0; }
+.br-block > figcaption { margin-top: 18px; text-align: center; font: 500 14px/1.4 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; color: #1c1c1c; letter-spacing: .01em; }
+.bm-org { display: block; position: relative; margin: 0; container-type: inline-size; }
+.bm-org { aspect-ratio: 643 / 710; }
+.bm-org .o, .bm-org .g, .bm-org .u { position: absolute; border-radius: 1.6cqw; }
+.bm-org .o { inset: 1.25cqw; border-radius: 2.2cqw; background: #25624f; box-shadow: 0 2cqw 5cqw -2cqw rgba(20, 60, 45, .45); overflow: hidden; }
+.bm-org .g { left: 7.15cqw; right: 7.15cqw; top: 59cqw; bottom: 7.8cqw; background: rgba(255, 255, 255, .1); }
+.bm-org .u { left: 6.2cqw; right: 6.2cqw; top: 12.4cqw; bottom: 4.6cqw; background: rgba(255, 255, 255, .12); }
+.bm-org b { position: absolute; font-size: 4.3cqw; font-weight: 600; color: #fff; letter-spacing: -.005em; }
+.bm-org .o > b { left: 7.15cqw; top: 50.5cqw; }
+.bm-org .g > b, .bm-org .u > b { left: 6.2cqw; top: 5.2cqw; }
+.bm-org .o::after { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.14) 50%, transparent 65%); transform: translateX(-120%); }
+/* once, as it comes into view: the company, then its groups, then their units */
+.bm-org:not(.in) .o { opacity: 0; transform: translateY(5cqw) scale(.97); }
+.bm-org:not(.in) .g, .bm-org:not(.in) .u { clip-path: inset(100% 0 0 0 round 1.6cqw); }
+.bm-org:not(.in) b { opacity: 0; transform: translateY(2cqw); }
+.bm-org .o { transition: opacity .7s ease, transform .9s cubic-bezier(.2, .8, .2, 1); }
+.bm-org .g, .bm-org .u { clip-path: inset(0 0 0 0 round 1.6cqw); transition: clip-path .8s cubic-bezier(.65, 0, .25, 1); }
+.bm-org b { transition: opacity .5s ease, transform .6s cubic-bezier(.2, .8, .2, 1); }
+.bm-org .o > b { transition-delay: .35s; }
+.bm-org .g { transition-delay: .55s; } .bm-org .g > b { transition-delay: 1s; }
+.bm-org .u { transition-delay: 1.05s; } .bm-org .u > b { transition-delay: 1.5s; }
+.bm-org.in .o::after { animation: org-sheen 1.4s 1.7s cubic-bezier(.4, 0, .2, 1) both; }
+@keyframes org-sheen { to { transform: translateX(120%); } }
+
+
+/* the user types */
+.br-cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 20px; }
+.br-card { display: grid; grid-template-columns: 42px minmax(0, 1fr); column-gap: 17px; align-items: center; padding: 22px 20px 22px 17px;
+  border-radius: 10px; background: #fff; box-shadow: 0 1px 2px rgba(20, 50, 40, .05), 0 10px 28px -18px rgba(20, 50, 40, .3); }
+.br-card .ic { width: 42px; height: 42px; border-radius: 50%; background: #52b87b; display: grid; place-items: center; }
+.br-card .ic svg { width: 18px; height: 18px; fill: #fff; }
+.br-card h3 { margin: 0; font-weight: 600; font-size: 17px; line-height: 1.35; letter-spacing: -.005em; color: #1c1c1c; }
+.br-card p { margin: 6px 0 0; font: 400 14px/1.45 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; color: #2a2a2a; }
+/* they arrive one after another, once, after the chart */
+.br-card { opacity: 0; transform: translate3d(0, 14px, 0); transition: opacity .6s ease, transform .8s cubic-bezier(.16, 1, .3, 1); transition-delay: calc(var(--k) * 90ms + 300ms); }
+.br-roles.in .br-card { opacity: 1; transform: none; }
+
+/* desktop: side by side, as the reference */
+@media (min-width: 761px) {
+  .br-roles { grid-template-columns: minmax(0, 46fr) minmax(0, 54fr); gap: clamp(32px, 6vw, 96px); align-items: start; }
+  .br-cards { gap: clamp(10px, 1.1vw, 14px); }
+  .br-card { width: 66%; }
+  .br-card:nth-child(1) { margin-left: 5%; } .br-card:nth-child(2) { margin-left: 31%; } .br-card:nth-child(3) { margin-left: 0; }
+  .br-card:nth-child(4) { margin-left: 34%; } .br-card:nth-child(5) { margin-left: 15%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .br-card { opacity: 1; transform: none; transition: none; }
+  .bm-org .o, .bm-org .g, .bm-org .u, .bm-org b { transition: none !important; }
+  .bm-org.in .o::after { animation: none; }
+}
+/* over the case pages' own h3 / p type */
+.br-roles .br-card h3 { font-family: inherit; font-weight: 700 !important; font-size: 17px !important; line-height: 1.35 !important; color: #1c1c1c !important; }
+.br-roles .br-card p { font: 400 14px/1.45 ui-monospace, 'SF Mono', Menlo, Consolas, monospace !important; color: #2a2a2a !important; }
+/* desktop: the cards at the reference's desktop scale, so the column of five
+   stands about as tall as the chart beside it */
+@media (min-width: 761px) {
+  .br-roles { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 4vw, 64px); }
+  .br-card { width: 78%; grid-template-columns: 34px minmax(0, 1fr); column-gap: 14px; padding: 14px 16px 14px 14px; border-radius: 6px; }
+  .br-card .ic { width: 34px; height: 34px; } .br-card .ic svg { width: 15px; height: 15px; }
+  .br-roles .br-card h3 { font-size: clamp(13px, 1vw, 15px) !important; }
+  .br-roles .br-card p { margin-top: 4px; font: 400 clamp(11.5px, .85vw, 13px)/1.45 'Vend Sans', system-ui, sans-serif !important; color: #3a3a3a !important; }
+  .br-card:nth-child(1) { margin-left: 4%; } .br-card:nth-child(2) { margin-left: 20%; } .br-card:nth-child(3) { margin-left: 0; }
+  .br-card:nth-child(4) { margin-left: 22%; } .br-card:nth-child(5) { margin-left: 10%; }
+  .br-block > figcaption { font: 400 clamp(14px, 1.05vw, 17px)/1.4 'Vend Sans', system-ui, sans-serif; }
+}
