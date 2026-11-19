@@ -1,0 +1,26 @@
+/* Shyft & Mindhouse, Designing for Shyft Pass (Nov 2026): the card that
+   tilts under a finger — or, on desktop, under the mouse — at both widths.
+   Motion: assets/shyft-pass.js. */
+.sm-pass { display: grid; position: relative; margin: 28px 0 0; }
+.sm-pass img { display: block; max-width: none; height: auto; pointer-events: none; }
+/* ── Designing for Shyft Pass: the card that tilts under a finger ──────── */
+.sm-pass { aspect-ratio: 2000 / 1660; overflow: hidden; border-radius: 12px; background: url('work/shyft-mindhouse-figma/m/pass-bg.webp') 0 0 / 100% 100% no-repeat;
+  display: grid; place-items: center; perspective: 900px; margin-top: 28px; }
+.sm-pass .pc { position: relative; width: 66%; aspect-ratio: 723 / 443; transform-style: preserve-3d; will-change: transform; touch-action: none; cursor: grab;
+  -webkit-tap-highlight-color: transparent; }
+.sm-pass .pc img { width: 100%; height: 100%; }
+.sm-pass .shadow { position: absolute; left: 6%; right: 6%; top: 14%; bottom: -2%; border-radius: 9%/15%; background: rgba(8, 0, 40, .55);
+  filter: blur(18px); transform: translate3d(var(--sx, 0px), var(--sy, 14px), -40px); opacity: .85; }
+.sm-pass .shine { position: absolute; inset: 0; border-radius: 4.2%/6.9%; pointer-events: none; mix-blend-mode: soft-light; opacity: var(--so, 0);
+  background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, .95), rgba(255, 255, 255, .25) 28%, rgba(255, 255, 255, 0) 60%); }
+.sm-pass .glare { position: absolute; inset: 0; border-radius: 4.2%/6.9%; pointer-events: none; opacity: calc(var(--so, 0) * .7);
+  background: linear-gradient(calc(var(--ga, 115deg)), rgba(255,255,255,0) 30%, rgba(255,255,255,.22) 48%, rgba(255,255,255,0) 62%); mix-blend-mode: screen; }
+.sm-pass .hint { position: absolute; bottom: 5%; left: 0; right: 0; text-align: center; font-size: 12px; letter-spacing: .02em; color: rgba(255,255,255,.6); pointer-events: none; transition: opacity .4s; }
+.sm-pass.used .hint { opacity: 0; }
+@media (max-width: 760px) { .sm-pass { margin-inline: calc(-1 * var(--over, 0px)); } }
+/* desktop: the same plate, shorter — the ground covers it, the card a third of its width */
+@media (min-width: 761px) {
+  .sm-pass { aspect-ratio: 2000 / 1000; background-size: cover; background-position: center; perspective: 1400px; }
+  .sm-pass .pc { width: 40%; }
+  .sm-pass .hint { font-size: 13px; }
+}
