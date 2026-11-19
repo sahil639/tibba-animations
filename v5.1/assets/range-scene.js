@@ -1121,7 +1121,7 @@ const CT = {
   INDEX_EVERY: 5,    // every Nth line is an index (heavy) contour
   W_MINOR: 1.05,     // CSS px — sleeker than it was (1.35)
   W_INDEX: 2.10,
-  LIFT: 0.12,        // world units the ribbon floats off the surface
+  LIFT: opts.quality === 'high' ? 0.34 : 0.12,   // world units the ribbon floats off the surface (Base Camp's small, distant view: more, or the body cuts notches in the lines as it turns)
   OPACITY: 0.7,      // quieter, so the mountain sits back rather than pulling focus
   STEP: opts.quality === 'high' ? 0.6 : matchMedia('(max-width: 760px), (pointer: coarse)').matches ? 0.74 : 0.56,   // field spacing — fine enough to resolve the fluting (coarser on phones: about half the field to march)
   /* The window marching squares runs over. It has to contain every landform
@@ -1958,7 +1958,8 @@ mountainGroup.add(contourMesh);
    uniforms, so a summit slid sideways or lowered occludes where it is drawn) */
 const depthMat = new THREE.ShaderMaterial({
   colorWrite: false, depthWrite: true,
-  polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 2,
+  /* pushed back further in the small Base Camp view, where depth precision is coarse */
+  polygonOffset: true, polygonOffsetFactor: opts.quality === 'high' ? 4 : 2, polygonOffsetUnits: opts.quality === 'high' ? 16 : 2,
   side: THREE.DoubleSide,
   defines: { NP: PEAKS.length },
   uniforms: { uPeak: mountainMat.uniforms.uPeak, uLit: mountainMat.uniforms.uLit, uShift: mountainMat.uniforms.uShift,

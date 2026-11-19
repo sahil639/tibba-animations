@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-19T09:11:36.143Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-19T09:12:58.388Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -156,7 +156,7 @@ html, body { background: var(--bg); }
    at the foot of the left column, its button level with the image's foot;
    the title a little larger */
 @media (min-width: 901px) {
-  .bc-dock { top: var(--dk-top, 19vh); border: 0; background: none;
+  .bc-dock { top: var(--dk-top, 0px); border: 0; background: none; margin-left: 0 !important;
     /* sized by the script below so it always stops short of the highest title */
     width: var(--dk-w, clamp(220px, 22vw, 320px)); height: var(--dk-h, clamp(140px, 14vw, 200px)); margin-bottom: calc(-1 * var(--dk-h, clamp(140px, 14vw, 200px))); }
   .bc-dock.dk-off { visibility: hidden; }
@@ -220,11 +220,9 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
       const titles = [...document.querySelectorAll('.pn .sl-title')];
       if (!titles.length) return;
       const highest = Math.min(...titles.map(t => t.getBoundingClientRect().top - t.closest('.pn').getBoundingClientRect().top));
-      const maxH = Math.min(200, Math.max(140, innerWidth * .14)), maxW = Math.min(320, Math.max(220, innerWidth * .22));
-      const want = Math.min(maxH, maxW / AR), FLOOR = 84;          /* under the navbar */
-      /* level with the image's top (19vh) while it fits there; when it does
-         not, it rises toward the navbar before it shrinks */
-      const top = Math.max(FLOOR, Math.min(innerHeight * .19, highest - GAP - want));
+      /* Nov 2026: bigger, and docked into the page's top-left corner */
+      const maxH = Math.min(300, Math.max(180, innerWidth * .2)), maxW = Math.min(480, Math.max(290, innerWidth * .32));
+      const want = Math.min(maxH, maxW / AR), top = 0;
       let h = Math.min(want, highest - top - GAP);
       dock.style.setProperty('--dk-top', top.toFixed(1) + 'px');
       dock.classList.toggle('dk-off', h < 72);
