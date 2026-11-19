@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- Tibba Design Studio, website v5.1 — built 2026-11-19T09:41:21.136Z by tools/make-sandbox.mjs -->
+<!-- Tibba Design Studio, website v5.1 — built 2026-11-19T09:42:04.635Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -62,7 +62,7 @@ body { background: #000; color: var(--ink-warm); font-family: 'Vend Sans', syste
 .member .scene::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(10,10,12,0) 55%, rgba(10,10,12,.85) 100%); }
 .who { position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--ph) * 100%); z-index: 1; }
 .who img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%; user-select: none; }
-.who canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.who canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; mix-blend-mode: soft-light; opacity: .8; }   /* the dither blended into the portrait, not over it */
 .member .name { margin-top: 16px; color: #fff; font-weight: 300; font-size: clamp(20px, 1.7vw, 30px); line-height: 1; letter-spacing: -.03em; opacity: 0; }
 .member .role { margin-top: 8px; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-mute); opacity: 0; }
 @media (max-width: 900px) {
@@ -103,11 +103,12 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     entrance: { duration: 1.1, stagger: 0.14, ease: 'power1.inOut' },   // as Metrics' open — plays once
     hoverLift: 1.6,                            // the contours' strength on hover, × their resting opacity
     dither: {
-      intensity: 0.4,      // 0 = none, 1 = the whole portrait goes one-bit (Nov 2026: lighter)
+      intensity: 0.75,     // 0 = none, 1 = every lit cell shows (Nov 2026: refined — fine dots, blended into the photo)
       cell: 2,             // px per dither dot
       duration: 0.55,      // s for the dissolve, in and out
       contrast: 1.25,      // tone curve before dithering
-      ink: '#E8E3DC',      // the lit dots
+      ink: '#FFFFFF',      // the lit dots (blended soft-light over the photo, so they lift its light tones only)
+      dot: 0.62,           // each dot's size within its cell (finer than the cell, so the photo shows between)
       ground: '#34322e',   // the unlit dots
     },
     /* one contour field per member — see assets/card-topo.js */
@@ -125,7 +126,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     { name: 'Sahil Pednekar', role: 'Designer',          img: 'assets/people/sahil.png' },
   ];
   const C = TEAM_CONFIG;
-  const BAKE_KEY = 'tibba.bake.about-team';
+  const BAKE_KEY = 'tibba.bake.about-team.v2';   // Nov 2026: the refined dither, not an older bake
   applyBaked(BAKE_KEY, C);
   const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const host = document.getElementById('people');
@@ -192,9 +193,11 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     const ink = C.dither.ink, ground = C.dither.ground;
     for (let y = 0; y < G.ch; y++) for (let x = 0; x < G.cw; x++) {
       const v = G.grid[y * G.cw + x];
-      if (v < 0 || bayer(x + 3, y + 5) > reach) continue;
-      g.fillStyle = v ? ink : ground;
-      g.fillRect(x * G.cell, y * G.cell, Math.ceil(G.cell), Math.ceil(G.cell));
+      /* only the lit dots: the unlit ones would darken the face */
+      if (v < 1 || bayer(x + 3, y + 5) > reach) continue;
+      g.fillStyle = ink;
+      const sz = G.cell * (C.dither.dot || 1), off = (G.cell - sz) / 2;
+      g.fillRect(x * G.cell + off, y * G.cell + off, sz, sz);
     }
   }
   function animate(i) {
