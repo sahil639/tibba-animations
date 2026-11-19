@@ -149,7 +149,10 @@ html, body { background: var(--bg); }
    at the foot of the left column, its button level with the image's foot;
    the title a little larger */
 @media (min-width: 901px) {
-  .bc-dock { top: 19vh; border: 0; background: none; }
+  .bc-dock { top: var(--dk-top, 19vh); border: 0; background: none;
+    /* sized by the script below so it always stops short of the highest title */
+    width: var(--dk-w, clamp(220px, 22vw, 320px)); height: var(--dk-h, clamp(140px, 14vw, 200px)); margin-bottom: calc(-1 * var(--dk-h, clamp(140px, 14vw, 200px))); }
+  .bc-dock.dk-off { visibility: hidden; }
   .pn .in { grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: clamp(40px, 5.5vw, 120px); align-items: stretch;
     padding: 19vh var(--side) 0; align-content: start; }
   .pn .media { align-self: start; }
@@ -190,6 +193,46 @@ html, body { background: var(--bg); }
 <script type="module">
   import { mountBasecamp } from './assets/basecamp.js';
   window.tibba = mountBasecamp();
+</script>
+<script>
+  /* desktop (Nov 2026): the mountain box never reaches the copy. Each card is
+     pinned to the top of the screen, so a title's place on screen is its
+     place in its card: the box takes the room between its own top and the
+     highest title less a gap, at its own shape, no larger than before; with
+     too little room it steps out of the way. The copy does not move. */
+  (() => {
+    const dock = document.getElementById('dock'), wide = matchMedia('(min-width: 901px)');
+    const AR = 320 / 200, GAP = 28;
+    let raf = 0;
+    function fit() {
+      raf = 0;
+      if (!wide.matches) { dock.style.removeProperty('--dk-h'); dock.style.removeProperty('--dk-w'); dock.classList.remove('dk-off'); return; }
+      const titles = [...document.querySelectorAll('.pn .sl-title')];
+      if (!titles.length) return;
+      const highest = Math.min(...titles.map(t => t.getBoundingClientRect().top - t.closest('.pn').getBoundingClientRect().top));
+      const maxH = Math.min(200, Math.max(140, innerWidth * .14)), maxW = Math.min(320, Math.max(220, innerWidth * .22));
+      const want = Math.min(maxH, maxW / AR), FLOOR = 84;          /* under the navbar */
+      /* level with the image's top (19vh) while it fits there; when it does
+         not, it rises toward the navbar before it shrinks */
+      const top = Math.max(FLOOR, Math.min(innerHeight * .19, highest - GAP - want));
+      let h = Math.min(want, highest - top - GAP);
+      dock.style.setProperty('--dk-top', top.toFixed(1) + 'px');
+      dock.classList.toggle('dk-off', h < 72);
+      h = Math.max(72, h);
+      dock.style.setProperty('--dk-h', h.toFixed(1) + 'px');
+      dock.style.setProperty('--dk-w', (h * AR).toFixed(1) + 'px');
+    }
+    const ask = () => { if (!raf) raf = requestAnimationFrame(fit); };
+    addEventListener('resize', ask);
+    wide.addEventListener('change', ask);
+    /* the cards are written by the module: fit once they are there, and
+       whenever their copy reflows (fonts arriving, a title rewrapping) */
+    const stack = document.getElementById('stack');
+    new MutationObserver(ask).observe(stack, { childList: true });
+    new ResizeObserver(ask).observe(stack);
+    if (document.fonts) document.fonts.ready.then(ask);
+    ask();
+  })();
 </script>
 <!-- primary / secondary typography control (assets/type-control.js) -->
 <script type="module" src="assets/type-control.js"></script>
