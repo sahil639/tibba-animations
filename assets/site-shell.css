@@ -165,3 +165,13 @@ html.site-locked .site-refresh { opacity: 0; pointer-events: none; }
   img, video, picture, svg, canvas { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; -webkit-user-drag: none; }
   .panel-tab, .panel-veil, .panel { display: none !important; }
 }
+
+/* Desktop navbar as the phone's (Nov 2026): the same hanging pill, drawn
+   wider, with the mark on its left and the links on its right — the links
+   themselves are unchanged. Phones keep their own rules above. */
+@media (min-width: 761px) {
+  .site-nav .ca-panel { width: 400px; max-width: calc(100vw - 32px); padding: 0 5px 5px; }
+  .site-nav .ca-row { gap: 18px; padding: 8px 10px 8px 12px; }
+  .site-nav .ca-list { margin-left: auto; gap: 18px; }
+  .site-mark { width: 30px; height: 17px; }
+}

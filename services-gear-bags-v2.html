@@ -183,6 +183,12 @@ button { font: inherit; color: inherit; }
   padding: clamp(16px, 1.6vw, 24px) !important; overflow: hidden; }
 .cs p { font-size: clamp(17px, 1.4vw, 22px) !important; }
 .cs .cs-pk { grid-area: pk; align-self: stretch; min-height: 110px; margin: calc(-1 * clamp(16px, 1.6vw, 24px)) calc(-1 * clamp(16px, 1.6vw, 24px)) calc(-1 * clamp(16px, 1.6vw, 24px)) 0; }
+/* Nov 2026 (3): the case card is its line and, on its right, the client's
+   mountain icon (as on the phone's case cards, assets/m/case-icons), at its
+   own 100 × 64; no button */
+.cs { grid-template-columns: minmax(0, 1fr) auto !important; grid-template-areas: 'p ic' !important; align-items: center !important; }
+.cs .cs-ic { grid-area: ic; display: block; width: 100px; height: 64px; }
+.cs .cs-pk, .cs .btn-p { display: none !important; }
 /* Nov 2026 (2): the icon close to its service's name */
 .sv { grid-template-columns: auto minmax(0, 1fr) !important; column-gap: 12px !important; }
 .sv .nm, .sv .ds { grid-column: 2 !important; }
@@ -206,12 +212,9 @@ button { font: inherit; color: inherit; }
       <p class="blurb" id="blurb"></p>
       <div class="lists" id="lists"></div>
       <div class="next" id="next">
-        <div class="cs" style="--c:#4CAF70"><small>Early-stage companies</small><b>Breathe ESG</b><p>How we helped Breathe ESG <em>accelerate sales</em>, streamline releases and elevate customer experience</p>
-          <a class="btn-p" href="case-breathe-esg-figma.html" target="_top">View case study<span class="btn-p-ic" aria-hidden="true"></span></a></div>
-        <div class="cs" style="--c:#E05555"><small>Mid-size companies</small><b>Firstpost</b><p>How we helped Firstpost <em>2x their traffic</em> through a strategic redesign</p>
-          <a class="btn-p" href="case-firstpost-figma.html" target="_top">View case study<span class="btn-p-ic" aria-hidden="true"></span></a></div>
-        <div class="cs" style="--c:#4DD9C0"><small>Established companies</small><b>Groww</b><p>How we helped Groww <em>boost engagement</em> on their app</p>
-          <a class="btn-p" href="case-groww-figma.html" target="_top">View case study<span class="btn-p-ic" aria-hidden="true"></span></a></div>
+        <div class="cs" style="--c:#4CAF70"><small>Early-stage companies</small><b>Breathe ESG</b><p>How we helped Breathe ESG <em>accelerate sales</em>, streamline releases and elevate customer experience</p><img class="cs-ic" src="assets/m/case-icons/03.svg" width="100" height="64" alt="" aria-hidden="true"></div>
+        <div class="cs" style="--c:#E05555"><small>Mid-size companies</small><b>Firstpost</b><p>How we helped Firstpost <em>2x their traffic</em> through a strategic redesign</p><img class="cs-ic" src="assets/m/case-icons/02.svg" width="100" height="64" alt="" aria-hidden="true"></div>
+        <div class="cs" style="--c:#4DD9C0"><small>Established companies</small><b>Groww</b><p>How we helped Groww <em>boost engagement</em> on their app</p><img class="cs-ic" src="assets/m/case-icons/01.svg" width="100" height="64" alt="" aria-hidden="true"></div>
       </div>
     </section>
   </div>
@@ -365,12 +368,6 @@ button { font: inherit; color: inherit; }
 </script>
 <!-- primary / secondary typography control (assets/type-control.js) -->
 <script type="module" src="assets/type-control.js"></script>
-<script type="module">
-  import { mountMiniPeak } from './assets/mini-peak.js';
-  document.querySelectorAll('.cs').forEach((c, i) => {
-    const d = document.createElement('div'); d.className = 'cs-pk'; c.appendChild(d);
-    mountMiniPeak(d, { seed: 21 + i * 9, colour: getComputedStyle(c).getPropertyValue('--c').trim(), rings: 16 });
-  });
-</script>
+
 </body>
 </html>

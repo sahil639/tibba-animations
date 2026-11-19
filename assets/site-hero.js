@@ -26,7 +26,7 @@
 
    Every tunable: SITE_HERO_CONFIG.
    ═════════════════════════════════════════════════════════════════════════ */
-import { createRangeScene } from './range-scene.js';
+import { createRangeScene } from './range-scene.js?v=2';
 
 const $ = s => document.querySelector(s);
 const clamp01 = t => t < 0 ? 0 : t > 1 ? 1 : t;
@@ -50,7 +50,7 @@ const C = SITE_HERO_CONFIG;
 /* distances are ×1.25 of what they were: the mountain at 80% of its old size */
 const PLAN = { elev: 90, azim: 0, dist: 310, x: 0, y: 12 };
 const FROM = { elev: 30, azim: 6, dist: 152, x: 2, y: 22 };   // the hero (a closer, larger peak)
-const TO   = { elev: 26, azim: 14, dist: 188, x: 46, y: 20 }; // aside, for the metrics
+const TO   = { elev: 26, azim: 14, dist: 150, x: 38, y: 20 }; // aside, for the metrics (Nov 2026: closer, so larger)
 const NARROW_TO = { dist: 135, x: -44, y: -20 };                  // a phone: above the metrics
 
 const scene = createRangeScene({
@@ -60,6 +60,13 @@ const scene = createRangeScene({
 scene.setAccent(ACCENT);
 scene.setDepth(0.22);
 scene.setHover(false);
+/* desktop (Nov 2026): the country round the peak a little more present; the
+   accent route graded from its summit down; the stats' routes as points
+   that climb with a fading trail and leave off the top */
+if (!matchMedia('(max-width: 760px)').matches) {
+  scene.setInk({ offPeak: 0.5, depthOp: 0.52 });
+  scene.setRouteStyle({ heroFade: 1, statsComet: true });
+}
 document.documentElement.style.setProperty('--accent', ACCENT);
 window.tibba = { scene, CONFIG: C };
 
@@ -135,7 +142,7 @@ const LAYOUT = { left: '50%', top: '18%', width: '46vw', aspect: 1.39, boxes: [
 const host = $('#metrics');
 host.innerHTML = `<div class="mcluster">${METRICS.map((m, i) => `
   <article class="mbox" data-i="${i}">
-    <span class="plate"></span><span class="hl"></span>
+    <span class="plate"></span><span class="hl"></span><i class="cn tl"></i><i class="cn tr"></i><i class="cn bl"></i><i class="cn br"></i>
     <div class="in"><span class="v" data-v="${m.v}">${m.v}</span><span class="l">${m.l}</span></div>
   </article>`).join('')}</div>`;
 const cluster = host.querySelector('.mcluster');
@@ -154,6 +161,7 @@ function build() {
     tl.fromTo(q('.hl'), { scaleX: 0, opacity: 1 }, { scaleX: 1, duration: .28, ease: 'power3.inOut' }, o)
       .fromTo(q('.plate'), { clipPath: 'inset(50% 0% 50% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: .34, ease: 'power3.inOut' }, o + .24)
       .to(q('.hl'), { opacity: 0, duration: .16, ease: 'none' }, o + .52)
+      .fromTo(q('.cn'), { opacity: 0 }, { opacity: 1, duration: .2, ease: 'none' }, o + .5)
       .fromTo(q('.v'), { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .24, ease: 'power2.out' }, o + .64)
       .fromTo(q('.l'), { opacity: 0 }, { opacity: 1, duration: .2, ease: 'none' }, o + .72);
   });
@@ -175,7 +183,6 @@ function run(to) {
 }
 
 /* ══ 2 · the rings: click for the definition ══════════════════════════ */
-const card = $('#def-card');
 let ringsLive = false, cardOpen = false;
 function ringAt(x, y) {
   const rs = scene.ringScreen(); let best = -1, bd = Infinity;
@@ -188,69 +195,19 @@ function ringAt(x, y) {
   return best;
 }
 const stage = $('#stage');
-/* hover a ring and the definition opens beside it; move off the rings (and
-   off the card) and it closes, after a beat so the pointer can cross the
-   gap to the card. Touch has no hover: a tap does the same. */
-let hoverRing = -1, closeT = 0;
+/* hover (Nov 2026): the definition card is gone; the summit's rings still
+   answer the pointer, and the accent route glows while it is under it */
+let routeHot = false;
 stage.addEventListener('pointermove', e => {
   if (e.pointerType === 'touch') return;
-  if (!ringsLive) { stage.style.cursor = ''; return; }
-  if (e.target.closest('#def-card')) { clearTimeout(closeT); return; }
+  if (!ringsLive) { if (routeHot) { routeHot = false; scene.setRouteHot(false); } return; }
   const i = ringAt(e.clientX, e.clientY);
   scene.setRingHover(i < 0 ? null : i);
-  stage.style.cursor = i < 0 ? '' : 'help';
-  if (i >= 0) {
-    clearTimeout(closeT);
-    if (i !== hoverRing || !cardOpen) { hoverRing = i; const r = scene.ringScreen()[i]; openCard(r.x + r.r, r.y); }
-  } else if (cardOpen && !closeT) {
-    closeT = setTimeout(() => { closeT = 0; hoverRing = -1; closeCard(); }, 320);
-  }
+  const hot = scene.nearHeroRoute(e.clientX, e.clientY, 18);
+  if (hot !== routeHot) { routeHot = hot; scene.setRouteHot(hot); }
 });
-stage.addEventListener('pointerleave', () => { scene.setRingHover(null); clearTimeout(closeT); closeT = 0; hoverRing = -1; if (cardOpen) closeCard(); });
-/* the card's peak: a rock face drawn once, posterised into five warm tones
-   (a ridged noise field shaded from the left, under a jagged skyline) */
-function rockArt() {
-  const W = 300, H = 372, c = document.createElement('canvas'); c.width = W; c.height = H;
-  const g = c.getContext('2d'), img = g.createImageData(W, H), d = img.data;
-  const h2 = (x, y) => { let n = Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263); n = Math.imul(n ^ (n >>> 13), 1274126177); return ((n ^ (n >>> 16)) >>> 0) / 4294967295; };
-  const vn = (x, y) => { const xi = Math.floor(x), yi = Math.floor(y), u = x - xi, v = y - yi, su = u * u * (3 - 2 * u), sv = v * v * (3 - 2 * v);
-    const a = h2(xi, yi), b = h2(xi + 1, yi), cc = h2(xi, yi + 1), dd = h2(xi + 1, yi + 1); return a + (b - a) * su + (cc - a) * sv + (a - b - cc + dd) * su * sv; };
-  const ridged = (x, y) => { let s = 0, a = .55, f = 1; for (let o = 0; o < 5; o++) { s += a * (1 - Math.abs(vn(x * f, y * f) * 2 - 1)); f *= 2.1; a *= .5; } return s; };
-  /* the skyline: a summit right of centre, a long left shoulder, a right one */
-  const sky = x => { const px = .58, top = .2; const l = x < px ? top + Math.pow((px - x) / px, .9) * .58 : top + Math.pow((x - px) / (1 - px), 1.1) * .34;
-    return l + (vn(x * 14, 3) - .5) * .05 + (vn(x * 40, 9) - .5) * .02; };
-  const TONES = [[46, 41, 38], [74, 63, 50], [107, 90, 66], [143, 125, 94], [176, 162, 132]];
-  const h = (x, y) => ridged(x * 5 + y * 3.4, y * 6 - x * 2.2) * .8 + (1 - y) * .5;   // streaks running down the slopes
-  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
-    const x = i / W, y = j / H, o = (j * W + i) * 4;
-    if (y < sky(x)) { d[o + 3] = 0; continue; }
-    const e = .004, nx = h(x - e, y) - h(x + e, y), ny = h(x, y - e) - h(x, y + e);
-    let L = .5 + nx * 7 - ny * 2.5 + (x < .58 ? .08 : -.1);            // lit from the left
-    L *= 1 - Math.max(0, y - .62) * 1.1;                               // darker toward the foot
-    const t = TONES[Math.max(0, Math.min(4, Math.floor(L * 5)))];
-    d[o] = t[0]; d[o + 1] = t[1]; d[o + 2] = t[2]; d[o + 3] = 175;
-  }
-  g.putImageData(img, 0, 0);
-  return c.toDataURL('image/png');
-}
-setTimeout(() => card.style.setProperty('--rock', `url(${rockArt()})`), 400);
-function openCard(x, y) {
-  const w = Math.min(440, innerWidth - 32), h = w * 736 / 594;
-  card.style.left = Math.min(innerWidth - w - 16, Math.max(16, x + 28)) + 'px';
-  card.style.top = Math.max(16, Math.min(innerHeight - h - 16, y - h * .3)) + 'px';
-  card.classList.add('on'); card.setAttribute('aria-hidden', 'false'); cardOpen = true;
-}
-function closeCard() { card.classList.remove('on'); card.setAttribute('aria-hidden', 'true'); cardOpen = false; }
-stage.addEventListener('click', e => {
-  if (e.target.closest('#def-card')) return;
-  if (ringsLive && e.pointerType !== 'mouse') {
-    const i = ringAt(e.clientX, e.clientY);
-    if (i >= 0) { const r = scene.ringScreen()[i]; openCard(r.x + r.r, r.y); return; }
-  }
-  if (cardOpen) closeCard();
-});
-$('#def-close').addEventListener('click', closeCard);
-addEventListener('keydown', e => { if (e.key === 'Escape') closeCard(); });
+stage.addEventListener('pointerleave', () => { scene.setRingHover(null); if (routeHot) { routeHot = false; scene.setRouteHot(false); } });
+function closeCard() {}
 
 /* ══ the frame: loader, intro, then the scroll ═════════════════════════ */
 const scope = $('#scope');
@@ -316,7 +273,6 @@ function frame(now) {
   stage.style.setProperty('--m-on', clamp01((k - 0.2) / 0.2).toFixed(3));
   scene.setHover(intro > 0.6);
   ringsLive = intro >= 1 && k < 0.25;
-  if (!ringsLive && cardOpen) closeCard();
   if (PHONE.matches) return;
   /* the turn has finished: the routes in the clients' colours climb the peak
      while the numbers roll; back above it, they go */

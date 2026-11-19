@@ -134,6 +134,17 @@ body:not(.ld-gone) { overflow: hidden; }
   .foot-fade { height: 8vh; }
   .hero-title { top: 27%; } .hero-side { left: var(--side); max-width: none; } .hero-cue { display: none; }
 }
+/* desktop (Nov 2026): the stat boxes as the phone's — a 2 × 2 grid of flat
+   boxes, a hairline round each, dark-grey corner brackets, the number top
+   left and its label at the foot — still drawing themselves open */
+@media (min-width: 821px) {
+  .mcluster { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; left: 50%; top: 50%; width: min(44vw, 680px); aspect-ratio: auto; transform: translateY(-50%); }
+  .mbox { position: relative; left: auto; top: auto; width: auto; height: auto; aspect-ratio: 1.5; padding: clamp(18px, 1.7vw, 28px) clamp(18px, 1.6vw, 26px); }
+  .mbox .plate { border: 1px solid rgba(233,236,242,.12); background: #0b0b0c; -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .mbox .cn { width: 15.5px; height: 15.5px; border-color: #3a3a3e; }
+  .mbox .v { font-size: clamp(44px, 3.9vw, 72px); }
+  .mbox .l { font-size: clamp(13px, 1vw, 16px); letter-spacing: 0; text-transform: none; line-height: 1.35; color: rgba(233,236,242,.6); }
+}
 /* ── phones: one screen of hero, then the stats in the flow ───────────── */
 @media (max-width: 760px) {
   #scope { height: auto; }
@@ -177,14 +188,6 @@ body:not(.ld-gone) { overflow: hidden; }
       <p class="hero-cue"><i></i>Scroll</p>
     </div>
 
-    <aside id="def-card" role="dialog" aria-label="What Tibba means" aria-hidden="true">
-      <button id="def-close" type="button" aria-label="Close">×</button>
-      <p class="k"><span>Definition</span><span>n.</span></p>
-      <h3>tibba</h3>
-      <p class="ipa">/ tɪb-bɑ /</p>
-      <ol><li><span>01</span>a higher place</li><li><span>02</span>a peak</li></ol>
-      <p class="aim">A higher place, that's exactly where we aim to take you and your business, with design.</p>
-    </aside>
 
     <div id="metrics"></div>
     <i class="foot-fade" aria-hidden="true"></i>
@@ -193,7 +196,7 @@ body:not(.ld-gone) { overflow: hidden; }
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.min.js"}}</script>
-<script type="module" src="assets/site-hero.js"></script>
+<script type="module" src="assets/site-hero.js?v=2"></script>
 <!-- primary / secondary typography control (assets/type-control.js) -->
 <script type="module" src="assets/type-control.js"></script>
 </body>

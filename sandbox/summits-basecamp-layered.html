@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-19T08:24:54.769Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-19T09:00:27.088Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -151,6 +151,20 @@ html, body { background: var(--bg); }
 .pn .txt { align-self: end; }
 .bc-phone .bc-dock { display: none; }
 .bc-phone .pn .mpk-box { height: 140px; margin-bottom: 4px; border: 1px solid rgba(233,236,242,.12); background: #000; overflow: hidden; }
+/* Nov 2026 (3), desktop, as the reference: the small mountain with no frame;
+   the case's image on the right, its top level with the mountain's; the copy
+   at the foot of the left column, its button level with the image's foot;
+   the title a little larger */
+@media (min-width: 901px) {
+  .bc-dock { top: 19vh; border: 0; background: none; }
+  .pn .in { grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: clamp(40px, 5.5vw, 120px); align-items: stretch;
+    padding: 19vh var(--side) 0; align-content: start; }
+  .pn .media { align-self: start; }
+  .pn .txt { align-self: end; padding-bottom: 0; }
+  .pn .txt .sl-title { font-size: clamp(30px, 3.05vw, 60px); line-height: 1.08; }
+  .pn .txt .sl-body { max-width: 34em; }
+  .rv { max-height: none; }
+}
 </style>
 <link rel="stylesheet" href="assets/tune.css">
 <style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
@@ -178,7 +192,8 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
      move slides it off and the dim fades it, with no collapse first.
      dim / fill: the country behind recedes further and carries less colour,
      so the angled view's grey shelf stays as depth, not as a band. */
-  window.BASECAMP_PRESET = { depth: { view: 'raised', raisedElev: 15, bgScale: 1.18, desk: { frontFill: 0.39, frontBase: 0.23 } },   // 0.39: the summit at 80%
+  window.BASECAMP_PRESET = { contours: { levels: 29 },   /* Nov 2026: 35% fewer ridges than the default 44 */
+    depth: { view: 'raised', raisedElev: 15, bgScale: 1.18, desk: { frontFill: 0.39, frontBase: 0.23 } },   // 0.39: the summit at 80%
     style: { contrast: 0.75, dim: 0.8, fill: '#151A27' }, layers: { on: true, lift: 0 } };
   window.BASECAMP_KEY = 'tibba.bake.basecamp-layered';
 </script>

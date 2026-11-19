@@ -952,6 +952,13 @@ const trailMat = new THREE.ShaderMaterial({
        routes are set thinner and dotted below */
     uWScale:  { value: new Array(NTR).fill(1) },
     uDot:     { value: new Array(NTR).fill(0) },
+    /* opt-in (Nov 2026, the desktop hero): uFade grades a route from full
+       at the summit to dark and faded at its foot; uComet draws only a
+       point and the trail just behind it, which runs off the top; uHot
+       brightens a route (hover) */
+    uFade:    { value: new Array(NTR).fill(0) },
+    uComet:   { value: new Array(NTR).fill(0) },
+    uHot:     { value: new Array(NTR).fill(0) },
     uGlow:    { value: 0 },     // the route is the accent exactly; bloom is opt-in
     uFogNear: { value: 210 },
     uFogFar:  { value: 430 },
@@ -963,14 +970,16 @@ const trailMat = new THREE.ShaderMaterial({
     uniform float uWidth, uFogNear, uFogFar;
     uniform float uProgress[NT];
     uniform vec3 uColor[NT];
-    uniform float uWScale[NT], uDot[NT];
-    varying float vArc, vProg, vFog, vDot;
+    uniform float uWScale[NT], uDot[NT], uFade[NT], uComet[NT], uHot[NT];
+    varying float vArc, vProg, vFog, vDot, vFade, vComet, vHot;
     varying vec3 vCol;
     void main(){
-      float ws = 1.0, dt = 0.0;
+      float ws = 1.0, dt = 0.0, fd = 0.0, cm = 0.0, ht = 0.0;
       for (int i = 0; i < NT; i++){
-        if (abs(float(i) - aTrail) < 0.5){ ws = uWScale[i]; dt = uDot[i]; }
+        if (abs(float(i) - aTrail) < 0.5){ ws = uWScale[i]; dt = uDot[i]; fd = uFade[i]; cm = uComet[i]; ht = uHot[i]; }
       }
+      vFade = fd; vComet = cm; vHot = ht;
+      ws *= 1.0 + ht * 0.45;
       vec4 cur = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       vec4 prv = projectionMatrix * modelViewMatrix * vec4(aPrev,   1.0);
       vec4 nxt = projectionMatrix * modelViewMatrix * vec4(aNext,   1.0);
@@ -1005,12 +1014,24 @@ const trailMat = new THREE.ShaderMaterial({
     }`,
   fragmentShader: `
     precision highp float;
-    varying float vArc, vProg, vFog, vDot;
+    varying float vArc, vProg, vFog, vDot, vFade, vComet, vHot;
     varying vec3 vCol;
     uniform float uGlow;
     void main(){
       /* a dotted route: short marks along its length, the gaps left out */
       if (vDot > 0.5 && fract(vArc * 120.0) > 0.42) discard;
+      /* a comet: the point at 1 - progress and a tail behind it (toward the
+         foot), fading out; progress runs past 1 so the tail leaves the top */
+      if (vComet > 0.5) {
+        float hd = 1.0 - vProg, tail = 0.24;
+        float d = vArc - hd;                               /* 0 at the point, > 0 behind it */
+        if (d < -0.004 || d > tail || vProg < 0.001) discard;
+        float tr = 1.0 - smoothstep(0.0, tail, d);
+        float pt = exp(-pow(d / 0.012, 2.0));
+        vec3 cc = vCol + vec3(1.0) * pt * 0.6;
+        gl_FragColor = vec4(cc, vFog * min(1.0, tr * tr * 0.85 + pt));
+        return;
+      }
       /* aArc is 1 at the trailhead and 0 at the summit, so after climbing a
          fraction p the walked part is everything with aArc above 1 - p. The
          edges have to run low-to-high or smoothstep reverses and an unclimbed
@@ -1029,6 +1050,14 @@ const trailMat = new THREE.ShaderMaterial({
          1.0 and clipped it, which is what turned a coral route orange. */
       vec3 col = vCol + vCol * uGlow * 0.3 + vec3(1.0) * head * 0.75;
       float a = on * vFog * (0.92 + 0.08 * head);
+      /* the graded route: brightest at the summit (vArc 0), darker and
+         fading toward the foot; hot lifts it a little toward white */
+      if (vFade > 0.0) {
+        float g = pow(vArc, 0.9);
+        col *= mix(1.0, 0.38, g * vFade);
+        a *= mix(1.0, 0.08, smoothstep(0.25, 1.0, vArc) * vFade);
+      }
+      col += (vCol * 0.45 + vec3(0.12)) * vHot;
       gl_FragColor = vec4(col, min(1.0, a));
     }`,
 });
@@ -1040,6 +1069,7 @@ trailMesh.renderOrder = 4;          // above the contours — it is the top mark
 mountainGroup.add(trailMesh);
 
 const trailProgress = new Array(NTR).fill(0);
+let COMET = false;
 
 // Base origin dot (world scale adjusted each frame ≈ BASE_DOT_SCREEN_PX on screen).
 // It moves to the foot of whichever ascent is active.
@@ -2914,8 +2944,45 @@ return {
     gsap.killTweensOf(trailProgress, String(HERO_ROUTE));
     gsap.to(trailProgress, { [HERO_ROUTE]: on ? 1 : 0, duration: on ? MORPH.CLIMB : 0.5, ease: on ? 'power1.inOut' : 'power2.in', delay: on ? delay : 0 });
   },
+  /** Opt-in route styles (Nov 2026): heroFade (0–1) grades the accent route
+      from the summit down; statsComet makes the stats' routes a point with a
+      fading trail that climbs and leaves off the top, once. */
+  setRouteStyle(o) {
+    const u = trailMat.uniforms;
+    if (o.heroFade != null) u.uFade.value[HERO_ROUTE] = o.heroFade;
+    if (o.statsComet != null) STATS_ROUTES.forEach(r => { u.uComet.value[r] = o.statsComet ? 1 : 0; if (o.statsComet) { u.uDot.value[r] = 0; u.uWScale.value[r] = 0.75; } });
+    if (o.statsComet != null) COMET = !!o.statsComet;
+  },
+  /** Hover on the accent route: eases its glow in or out. */
+  setRouteHot(on) {
+    gsap.to(trailMat.uniforms.uHot.value, { [HERO_ROUTE]: on ? 1 : 0, duration: on ? 0.35 : 0.6, ease: 'power2.out', overwrite: true });
+  },
+  /** Is (x, y) — canvas pixels — within px of the drawn accent route? */
+  nearHeroRoute(x, y, px = 16) {
+    if (trailProgress[HERO_ROUTE] < 0.5) return false;
+    const P = trailPaths[HERO_ROUTE], step = 6;
+    mountainGroup.updateMatrixWorld();
+    for (let i = 0; i < P.length; i += step) {
+      _rc.copy(P[i]).applyMatrix4(mountainGroup.matrixWorld).project(camera);
+      if (_rc.z > 1) continue;
+      const sx = (_rc.x * 0.5 + 0.5) * vpW(), sy = (-_rc.y * 0.5 + 0.5) * vpH();
+      if ((sx - x) ** 2 + (sy - y) ** 2 < px * px) return true;
+    }
+    return false;
+  },
   /** The four routes in the clients' colours, one after another (or retracted together). */
   climbStats(on) {
+    if (COMET) {
+      /* comets: each climbs once, past the top, and is gone */
+      STATS_ROUTES.forEach((r, k) => {
+        gsap.killTweensOf(trailProgress, String(r));
+        if (!on) { trailProgress[r] = 0; return; }
+        trailProgress[r] = 0;
+        gsap.to(trailProgress, { [r]: 1.26, duration: MORPH.CLIMB * 0.9, ease: 'power1.inOut', delay: k * 0.35,
+          onComplete: () => { trailProgress[r] = 0; } });
+      });
+      return;
+    }
     STATS_ROUTES.forEach((r, k) => {
       gsap.killTweensOf(trailProgress, String(r));
       gsap.to(trailProgress, { [r]: on ? 1 : 0, duration: on ? MORPH.CLIMB * 0.85 : 0.45, ease: on ? 'power1.inOut' : 'power2.in', delay: on ? k * 0.22 : 0 });

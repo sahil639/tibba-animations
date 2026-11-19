@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-19T08:24:54.769Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-19T09:00:27.088Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -268,18 +268,25 @@ function along(curve, u, geo, mat, name, lift = 0, up = [0, 1, 0]) {
   return m;
 }
 
-/* the Tibba mark — the icon alone, white, cut from the logo's own path */
+/* the Tibba logo — the mark and the wordmark, white, from the logo's own
+   paths (viewBox 8 8 88 20) — so every bag carries the name (Nov 2026) */
+const LOGO_W = 88, LOGO_H = 20;
 const markTex = (() => {
-  const cv = document.createElement('canvas'); cv.width = 620; cv.height = 400;
-  const g = cv.getContext('2d'); g.scale(cv.width / 31.04, cv.height / 20); g.translate(-8, -8);
+  const cv = document.createElement('canvas'); cv.width = 1408; cv.height = 320;
+  const g = cv.getContext('2d'); g.scale(cv.width / LOGO_W, cv.height / LOGO_H); g.translate(-8, -8);
   g.fillStyle = '#fff';
-  g.fill(new Path2D('M39.0383 28H8L28.2219 8L39.0383 28ZM15.0685 24.6037L26.2673 20.151L34.3324 24.5768L27.5681 12.0807L15.0685 24.6037Z'), 'evenodd');
-  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t;
+  ['M39.0383 28H8L28.2219 8L39.0383 28ZM15.0685 24.6037L26.2673 20.151L34.3324 24.5768L27.5681 12.0807L15.0685 24.6037Z',
+   'M52.1765 19.1546H49.2938V23.8402C49.2938 24.2745 49.2938 25.2116 50.7123 25.2116C51.1699 25.2116 51.6732 25.1201 52.1765 24.9601L52.1536 27.6343C51.4215 27.8858 50.6894 28 49.8887 28C47.761 28 45.8621 27.0401 45.8621 24.1602V19.1546H44.0547V16.4804H45.8621V14.8119L49.2938 12.2749V16.4804H52.1765V19.1546Z',
+   'M54.0722 14.9262V11.8177H57.5955V14.9262H54.0722ZM54.0951 27.7486V16.4804H57.5497V27.7486H54.0951Z',
+   'M66.6026 16.229C69.0735 16.229 71.1326 18.3318 71.1326 22.1031C71.1326 25.4858 69.4624 28 66.534 28C65.5502 28 64.3605 27.7029 63.5827 26.9029V27.7486H60.128V11.8177H63.5827V17.3718C64.269 16.6861 65.4358 16.229 66.6026 16.229ZM65.6189 24.7773C67.0831 24.7773 67.7008 23.9316 67.7008 22.1488C67.7008 20.3889 67.1288 19.3832 65.5731 19.3832C63.7886 19.3832 63.2624 20.7546 63.2624 22.1488C63.2624 23.5888 63.8572 24.7773 65.6189 24.7773Z',
+   'M79.3377 16.229C81.8086 16.229 83.8676 18.3318 83.8676 22.1031C83.8676 25.4858 82.1975 28 79.269 28C78.2853 28 77.0956 27.7029 76.3177 26.9029V27.7486H72.8631V11.8177H76.3177V17.3718C77.0041 16.6861 78.1709 16.229 79.3377 16.229ZM78.3539 24.7773C79.8181 24.7773 80.4359 23.9316 80.4359 22.1488C80.4359 20.3889 79.8639 19.3832 78.3082 19.3832C76.5236 19.3832 75.9974 20.7546 75.9974 22.1488C75.9974 23.5888 76.5923 24.7773 78.3539 24.7773Z',
+   'M90.1738 16.229C93.3768 16.229 95.2986 17.9204 95.2986 20.5946V27.7486H92.1414L91.9126 26.6287C90.9975 27.84 89.7849 28 88.9613 28C86.4218 28 84.5915 26.4229 84.5915 24.1145C84.5915 22.8116 85.1863 21.8745 86.1472 21.3488C86.8565 20.9603 87.7487 20.7774 88.7554 20.7774H91.8668V20.5946C91.8668 19.7946 91.1805 19.2232 89.9222 19.2232C89.0757 19.2232 88.2063 19.4746 87.1996 20.4346L84.7059 18.3547C86.1244 16.869 88.2063 16.229 90.1738 16.229ZM89.5104 25.2344C90.7458 25.2344 91.7982 24.4344 91.8668 23.3145H89.2587C88.8926 23.3145 88.5952 23.3831 88.3893 23.5202C88.1605 23.6802 88.0461 23.9088 88.0461 24.183C88.0461 24.7544 88.5266 25.2344 89.5104 25.2344Z'].forEach(d => g.fill(new Path2D(d), 'evenodd'));
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
 })();
 const markMat = new THREE.MeshBasicMaterial({ map: markTex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
 const marks = [];
 function mark(pos, w, rotY = 0) {
-  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, w * 20 / 31.04), markMat);
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, w * LOGO_H / LOGO_W), markMat);
   m.position.set(...pos); m.rotation.y = rotY; bag.add(m); marks.push(m); return m;
 }
 
@@ -379,36 +386,53 @@ makeBag('Hiking pack', () => {
   /* the haul loop */
   add(strap([[-0.2, 5.6, -0.98], [0, 5.92, -1.15], [0.2, 5.6, -0.98]], 0.09, 0.04, [0, 0, 1], { seg: 12 }).g, solidDark(), 'haul-loop');
   /* the mark, centred on the front pocket */
-  mark([0.32, 3.3, 1.765], 0.62);
+  mark([0.32, 3.3, 1.765], 1.25);
 }, { dir: [-1.05, 0.78, 0.95], zoom: 1.05 });
 
-/* ── 2 · the waist pack ──────────────────────────────────────────────────── */
-makeBag('Waist pack', () => {
-  const curve = x => 0.32 * (x / 1.6) * (x / 1.6);          // the pouch curves back toward the wearer
-  /* the pouch: long, deep, its ends swept back */
-  add(block(3.2, 1.9, 1.15, 0.52, [26, 16, 10], { deform: (v, x, y, z) => { v.z -= curve(v.x); if (z > 0) v.z += 0.1 * (1 - x * x) * (1 - y * y); } }).translate(0, 1.0, 0),
-    surface({ k: [0.9, 1.25, 0.7], c: [0.2, 0.0, 0.5], seed: 2.2 }), 'pouch');
-  /* the front pocket, its rings centred a little left, as in the drawing */
-  add(block(2.6, 1.42, 0.44, 0.42, [22, 14, 6], { deform: (v, x, y, z) => { v.z -= curve(v.x); if (z > 0) v.z += 0.17 * (1 - x * x) * (1 - y * y); } }).translate(-0.05, 0.92, 0.66),
-    surface({ k: [1.0, 1.35, 0.45], c: [-0.45, -0.05, 0.3], seed: 8.1 }), 'front-pocket');
-  /* the zips' orange pulls */
-  add(block(0.09, 0.34, 0.05, 0.02, [1, 3, 1]).rotateZ(0.2).translate(1.32, 1.42, 0.64 - curve(1.32)), solidAccent(), 'zip-pull');
-  add(block(0.09, 0.34, 0.05, 0.02, [1, 3, 1]).rotateZ(-0.15).translate(-1.62, 1.55, 0.18 - curve(1.62)), solidAccent(), 'zip-pull');
-  /* the belt, from one end of the pouch round behind the wearer to the other */
-  /* the belt: slim webbing, plain — a wide ringed band read as a headband */
-  const belt = strap([[-1.62, 1.05, -0.3], [-1.85, 1.1, -1.0], [-1.55, 1.15, -2.0], [-0.2, 1.2, -2.6], [1.45, 1.2, -2.5], [2.35, 1.1, -1.7], [2.2, 1.05, -0.7], [1.62, 1.0, -0.3]],
-    0.26, 0.05, [0, 1, 0], { seg: 120, r: 0.02 });
-  add(belt.g, solidDark(), 'belt');
-  /* the buckle, orange, in the belt behind on the right */
-  along(belt.curve, 0.64, block(0.4, 0.3, 0.1, 0.04, [3, 3, 1]), solidAccent(), 'buckle', 0.03);
-  /* the belt tabs where it meets the pouch */
-  for (const sx of [-1, 1]) add(block(0.22, 0.62, 0.5, 0.08, [2, 4, 3]).translate(sx * 1.62, 1.03, -0.28), surface({ k: [0.5, 0.5, 0.5], c: [0, 0, 0], seed: 4 }), 'tab');
-  mark([-0.05, 0.92, 1.12], 0.5);
-}, { dir: [0.34, 0.5, 1.0], zoom: 1.4, shift: [0, 0, 0.6] });
+/* ── 2 · the sling (Nov 2026, after the reference photo) ─────────────────
+   A flat, wide body whose top corners rise into two wings, the strap arcing
+   from one wing over to the other; a tall pouch on the front (where the
+   camera rides), a smaller pocket beside it with two webbing loops, orange
+   zip pulls and a carabiner on the left wing. Built as the rucksack is. */
+makeBag('Sling', () => {
+  bag.rotation.y = -0.62;   /* flat: turned to face the shared view, rather than the view turned to it */
+  /* the body: wide and flat, its top corners pulled up and in to the wings */
+  add(block(3.4, 1.9, 0.6, 0.26, [28, 18, 6], { deform: (v, x, y, z) => {
+      const up = Math.max(0, y + 0.2) / 1.2, wing = Math.pow(Math.abs(x), 2.2);
+      v.y += up * wing * 1.55; v.x *= 1 - up * wing * 0.22;
+      if (z > 0) v.z += 0.1 * (1 - x * x) * (1 - y * y);
+    } }).translate(0, 1.15, 0),
+    surface({ k: [0.95, 0.9, 0.3], c: [0.1, 0.2, 0.2], seed: 2.2 }), 'body');
+  /* the tall front pouch, right of centre */
+  add(block(1.0, 1.5, 0.5, 0.2, [10, 14, 5], { deform: (v, x, y, z) => { if (z > 0) v.z += 0.14 * (1 - x * x) * (1 - y * y); } }).translate(0.55, 1.15, 0.52),
+    surface({ k: [0.5, 0.75, 0.25], c: [0.05, 0.1, 0.2], seed: 8.1 }), 'front-pouch');
+  /* the smaller pocket on the left, low */
+  add(block(1.3, 0.95, 0.3, 0.14, [12, 9, 3], { deform: (v, x, y, z) => { if (z > 0) v.z += 0.07 * (1 - x * x) * (1 - y * y); } }).translate(-0.75, 0.82, 0.42),
+    surface({ k: [0.65, 0.48, 0.15], c: [-0.2, 0.0, 0.1], seed: 5.3 }), 'side-pocket');
+  /* two webbing loops down the small pocket */
+  for (const x of [-1.1, -0.55]) add(block(0.13, 0.62, 0.05, 0.02, [1, 4, 1]).translate(x, 1.0, 0.6), solidDark(), 'webbing');
+  /* the strap: from the left wing's tip, up and over, to the right wing's */
+  const sl = strap([[-1.62, 2.65, 0.0], [-1.55, 3.7, -0.15], [-0.7, 4.75, -0.28], [0.6, 4.95, -0.3], [1.5, 4.15, -0.2], [1.66, 2.65, 0.0]], 0.28, 0.05, [0, 0, 1], { seg: 90, r: 0.02 });
+  add(sl.g, solidDark(), 'strap');
+  /* where the strap meets each wing, a dark tab and an orange buckle on the right */
+  for (const sx of [-1, 1]) add(block(0.34, 0.3, 0.16, 0.05, [2, 2, 1]).translate(sx * 1.64, 2.62, 0.02), solidDark(), 'tab');
+  along(sl.curve, 0.86, block(0.36, 0.28, 0.1, 0.04, [3, 3, 1]), solidAccent(), 'buckle', 0.03, [0, 0, 1]);
+  /* orange zip pulls on the pouch and the pocket */
+  add(block(0.08, 0.3, 0.05, 0.02, [1, 3, 1]).translate(0.96, 1.82, 0.78), solidAccent(), 'zip-pull');
+  add(block(0.08, 0.26, 0.05, 0.02, [1, 3, 1]).translate(-0.2, 1.24, 0.6), solidAccent(), 'zip-pull');
+  /* the carabiner on the left wing, in the accent */
+  {
+    const tg = new THREE.TorusGeometry(0.26, 0.045, 10, 36); tg.scale(1, 1.45, 1);
+    tg.setAttribute('aLocal', tg.attributes.position.clone());
+    const cb = add(tg, solidAccent(), 'carabiner');
+    cb.position.set(-1.78, 2.1, 0.12); cb.rotation.set(0, 0.5, 0.25);
+  }
+  /* the logo, on the front pouch */
+  mark([0.55, 1.05, 0.99], 0.8);
+}, { dir: [-1.05, 0.78, 0.95], zoom: 1.05 });
 
 /* ── 3 · the daypack ─────────────────────────────────────────────────────── */
 makeBag('Daypack', () => {
-  BAG_FILL = '#3A3E47';               // a lighter body than the other two: higher key
   /* the body: tall and slim, a technical pack rather than a school bag —
      a near-flat top, tapering a little */
   add(block(2.15, 4.3, 1.3, 0.5, [18, 34, 12], { taper: 0.1, deform: (v, x, y, z) => { if (y > 0) v.y += 0.12 * y * y * (1 - x * x * 0.8); } }).translate(0, 2.35, 0),
@@ -427,9 +451,8 @@ makeBag('Daypack', () => {
   add(strap([[0.7, 0.55, 0.96], [0.72, 1.75, 1.0], [0.7, 2.95, 0.96]], 0.045, 0.03, [0, 0, 1], { seg: 30 }).g, solidDark(), 'pocket-zip');
   add(block(0.1, 0.36, 0.05, 0.02, [1, 3, 1]).translate(0.72, 2.7, 1.03), solidAccent(), 'zip-pull');
   add(strap([[-1.02, 3.35, 0.05], [-0.88, 3.38, 0.6], [0, 3.42, 0.74], [0.88, 3.38, 0.6], [1.02, 3.35, 0.05]], 0.1, 0.04, [0, 1, 0], { seg: 30 }).g, solidAccent(), 'compression-strap');
-  mark([0, 1.75, 1.12], 0.5);
-  BAG_FILL = null;
-}, { dir: [0.6, 0.62, 1.0], zoom: 1.3, shift: [0, 0.1, 0] });
+  mark([0, 1.75, 1.36], 1.0);   /* just proud of the pocket's padded front (z 1.3) */
+}, { dir: [-1.05, 0.78, 0.95], zoom: 1.05 });   /* Nov 2026: the rucksack's material, view and scale */
 
 /* ── applying the config ─────────────────────────────────────────────────── */
 let cur = Math.min(BAGS.length - 1, Math.max(0, C.view.bag | 0));

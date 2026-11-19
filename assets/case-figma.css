@@ -679,3 +679,18 @@ body:has(.cf-light) { background: #f5f9fa; }
   .cf-ba[data-view="phone"] .cf-proto .proto-phone, .cf-ba[data-view="desktop"] .cf-proto .proto-desktop { transition-delay: 0s; }
 }
 @media (max-width: 760px) and (prefers-reduced-motion: reduce) { .cf-ba[data-views] .cf-proto .proto-device { transition: none; } }
+
+/* Firstpost and Groww on phones (Nov 2026): the stat cards as the home
+   page's — two to a row, small flat boxes, a hairline, dark-grey corner
+   brackets, the number top left and its line at the foot */
+@media (max-width: 760px) {
+  :is([data-case="firstpost"], [data-case="groww"]) .cf-top.row .cf-metrics { grid-template-columns: 1fr 1fr; gap: 10px; }
+  :is([data-case="firstpost"], [data-case="groww"]) .cf .cf-top.row .cf-metric { justify-content: space-between; align-items: flex-start; gap: 18px; min-height: 112px;
+    padding: 16px 14px; border: 1px solid rgba(233,236,242,.12); background: #0b0b0c; }
+  :is([data-case="firstpost"], [data-case="groww"]) .cf-metric .v { margin: 0; font-weight: 300; font-size: 34px; line-height: .9; letter-spacing: -.04em; color: #fff; }
+  :is([data-case="firstpost"], [data-case="groww"]) .cf .cf-top.row .cf-metric .v,
+  .cf :is([data-case="firstpost"], [data-case="groww"]) .cf-top.row .cf-metric .v { font-size: 34px; }
+  :is([data-case="firstpost"], [data-case="groww"]) .cf-metric .l { margin: 0; font-size: 12.5px; line-height: 1.35; color: rgba(233,236,242,.6); }
+  :is([data-case="firstpost"], [data-case="groww"]) .cf-metric > i { background: #3a3a3e;
+    -webkit-mask: url('work/groww-figma/corner-a.svg') 0 0 / 100% 100% no-repeat; mask: url('work/groww-figma/corner-a.svg') 0 0 / 100% 100% no-repeat; }
+}
