@@ -43,6 +43,22 @@ window.TIBBA_SITE = {
    ]
   },
   {
+   "id": "brands",
+   "label": "Brands section",
+   "note": "The logo wall.",
+   "pages": [
+    {
+     "id": "brands-01",
+     "updated": "2026-10-07T17:15:00+07:00",
+     "change": "Firstpost's own logo",
+     "label": "Brands",
+     "file": "brands.html",
+     "note": "Fourteen tiles and a title filling the viewport; each plays its own contour field on hover",
+     "state": "live"
+    }
+   ]
+  },
+  {
    "id": "summits",
    "label": "Our summits",
    "note": "The case-study range. Working copies of the two animations that fit it.",
@@ -89,12 +105,48 @@ window.TIBBA_SITE = {
    "note": "The four summits at full length, off one template.",
    "pages": [
     {
+     "id": "case-groww-v2",
+     "updated": "2026-10-19T18:00:00+07:00",
+     "change": "Redesigned on the editorial template: a four-column grid, one container system (hero, full, half, card), large statements, captions",
+     "label": "Just. Case Study – Groww v1",
+     "file": "case-groww-v2.html",
+     "note": "The editorial template (assets/case-editorial.js): a small centred cover, the meta line, the title as a statement, the ledger; rows, copy-and-image pairs and full-width containers; Other projects",
+     "state": "live"
+    },
+    {
      "id": "case-groww-figma",
      "updated": "2026-11-04T18:00:00+07:00",
      "change": "The thumbnail as the hero and on the next-case cards; the home page’s footer",
      "label": "Just. Case Study – Groww v4",
      "file": "case-groww-figma.html",
      "note": "Built from the Figma frame (node 1459:6620): the big GROWW hero, metric cards (two reveal on hover), the facts, the Groww logo slide, the feed, the publisher icons, Stories with its portrait (a reel to come), four columns of iPhones that run in alternate directions while pointed at, XIRR, Keep climbing",
+     "state": "live"
+    },
+    {
+     "id": "case-firstpost-v2",
+     "updated": "2026-10-19T18:00:00+07:00",
+     "change": "Redesigned on the editorial template: a four-column grid, one container system (hero, full, half, card), large statements, captions",
+     "label": "Just. Case Study – Firstpost v1",
+     "file": "case-firstpost-v2.html",
+     "note": "The same system, Firstpost’s colour and numbers",
+     "state": "live"
+    },
+    {
+     "id": "case-breathe-esg-v2",
+     "updated": "2026-10-19T18:00:00+07:00",
+     "change": "Redesigned on the editorial template: a four-column grid, one container system (hero, full, half, card), large statements, captions",
+     "label": "Just. Case Study – Breathe ESG v1",
+     "file": "case-breathe-esg-v2.html",
+     "note": "The same system, with the scattered cards, the globe and the burst-and-reader kept",
+     "state": "live"
+    },
+    {
+     "id": "case-shyft-mindhouse-v2",
+     "updated": "2026-10-19T18:00:00+07:00",
+     "change": "Redesigned on the editorial template: a four-column grid, one container system (hero, full, half, card), large statements, captions",
+     "label": "Just. Case Study – Shyft & Mindhouse v1",
+     "file": "case-shyft-mindhouse-v2.html",
+     "note": "The same system, Shyft & Mindhouse’s colour and story",
      "state": "live"
     },
     {

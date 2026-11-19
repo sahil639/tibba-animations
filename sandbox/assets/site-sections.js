@@ -87,6 +87,10 @@ export const V3_SECTIONS = [
   { id: 'opening', label: 'Loader → Hero → Metrics', folder: 'Loader · Hero section · Metrics', nav: null, gate: true,
     variants: [{ file: 'site-hero.html', label: 'Loader, Active Peak and Metrics as one scene' },
                { file: 'site-hero.html?noloader', label: 'Same, without the loader' }] },
+  /* Nov 2026: back on desktop, where the phone has it (after the numbers):
+     the plain grid, brands.html, as desktop had it before the review */
+  { id: 'brands', label: 'Brands', folder: 'Brands section', frame: '85vh',
+    variants: [{ file: 'brands.html', label: 'Brands' }, { file: 'brands-mosaic.html', label: 'Brands — mosaic' }] },
   { id: 'work', label: 'Our summits', folder: 'Our summits', nav: 'Work',
     /* a phone gets Base Camp without the layering: one range, no depth
        layers, no Rive per card — the same section at a fraction of the work */
@@ -169,7 +173,8 @@ export function loadLayout(list = HOME_SECTIONS, key = LAYOUT_KEY) {
   return resolveLayout(saved, list);
 }
 /* a saved layout over the registry: unknown ids dropped, new sections
-   appended (on), variants clamped to what exists */
+   added (on) where the registry has them — straight after the section
+   before them — and variants clamped to what exists */
 export function resolveLayout(saved, list = HOME_SECTIONS) {
   const byId = Object.fromEntries(list.map(s => [s.id, s]));
   const out = [];
@@ -177,7 +182,11 @@ export function resolveLayout(saved, list = HOME_SECTIONS) {
     const s = byId[e.id]; if (!s || out.some(o => o.id === e.id)) return;
     out.push({ id: e.id, on: e.on !== false, variant: Math.min(s.variants.length - 1, Math.max(0, e.variant | 0)) });
   });
-  list.forEach(s => { if (!out.some(o => o.id === s.id)) out.push({ id: s.id, on: true, variant: 0 }); });
+  list.forEach((s, i) => {
+    if (out.some(o => o.id === s.id)) return;
+    const prev = i ? out.findIndex(o => o.id === list[i - 1].id) : -1;
+    out.splice(prev + 1, 0, { id: s.id, on: true, variant: 0 });
+  });
   return out;
 }
 export function sectionsFor(layout, list = HOME_SECTIONS) {
