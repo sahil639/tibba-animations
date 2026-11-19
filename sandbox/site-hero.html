@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- Tibba Design Studio, website v5.1 — built 2026-11-19T12:24:46.306Z by tools/make-sandbox.mjs -->
+<!-- Tibba Design Studio, website v5.1 — built 2026-11-19T12:25:22.077Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -38,7 +38,7 @@ body:not(.ld-gone) { overflow: hidden; }
 #peak-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 /* the foot of the section melts into the black of the next one */
 .foot-fade { position: absolute; left: 0; right: 0; bottom: 0; height: 30vh; z-index: 4; pointer-events: none;
-  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.55) 45%, #000 100%); opacity: calc(.35 + var(--lock, 0) * .65); }
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.55) 45%, #000 100%); opacity: calc(.12 + var(--lock, 0) * .88); }   /* lighter on the hero: the terrain reaches the foot */
 #stage::after { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 1;
   background: linear-gradient(270deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.5) 34%, rgba(0,0,0,0) 56%); opacity: var(--lock, 0); }
 
@@ -69,7 +69,7 @@ body:not(.ld-gone) { overflow: hidden; }
    foot of the frame for the line and its sub — so both sit on near-solid
    black and the contours only run where there is no copy. */
 .hero-copy::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background: linear-gradient(0deg, #000 0%, rgba(0,0,0,.92) 16%, rgba(0,0,0,.55) 30%, rgba(0,0,0,0) 46%),
+  background: radial-gradient(70% 55% at 0% 100%, #000 0%, rgba(0,0,0,.9) 32%, rgba(0,0,0,.5) 58%, rgba(0,0,0,0) 100%),   /* Nov 2026: under the line and its sub, bottom left only — the terrain runs on into the bottom right */
               linear-gradient(90deg, rgba(0,0,0,.8) 0%, rgba(0,0,0,.45) 26%, rgba(0,0,0,0) 44%); }
 .hero-copy { isolation: isolate; }
 .hero-title h1 { color: #fff; font-weight: 300; font-size: clamp(48px, 7.2vw, 132px); line-height: .92; letter-spacing: -.045em; text-transform: uppercase; }
