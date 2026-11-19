@@ -31,7 +31,7 @@
    ═════════════════════════════════════════════════════════════════════════ */
 import { mountCaHeader } from './ca-nav.js';
 import { mountLogoMorph, LOGO_MORPH } from './logo-morph.js';
-import { PAGE_CSS, TICKER } from './site-sections.js?v=3';
+import { PAGE_CSS, TICKER } from './site-sections.js?v=4';
 
 const clamp01 = t => t < 0 ? 0 : t > 1 ? 1 : t;
 export const SITE_CONFIG = {

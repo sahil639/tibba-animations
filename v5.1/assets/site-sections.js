@@ -119,7 +119,8 @@ export const ABOUT_SECTIONS = [
   { id: 'about-description', label: 'Description', folder: 'About us — description', nav: 'Who we are',
     variants: [{ file: 'about-description.html', label: 'About us — description' }] },
   /* from the old single-page About us, kept when the two were merged */
-  { id: 'about-numbers', label: 'In numbers', folder: 'About us — numbers',
+  /* Nov 2026: not a full screen — as tall as its content (it grows if that needs more) */
+  { id: 'about-numbers', label: 'In numbers', folder: 'About us — numbers', frame: '60vh',
     variants: [{ file: 'about-numbers.html', label: 'About us — numbers' }] },
   { id: 'about-foundations', label: 'Foundations', folder: 'About us — foundations', nav: 'Foundation', navMinor: true,
     variants: [{ file: 'about-foundations.html', label: 'About us — foundations' }] },
