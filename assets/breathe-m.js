@@ -35,7 +35,7 @@ if (matchMedia('(max-width: 760px)').matches) {
   const fist = document.querySelector('.bm-fist');
   if (fist) {
     const t = fist.querySelector('.f-tibba'), b = fist.querySelector('.f-breathe');
-    /* knuckle to knuckle in image 4 (618 wide): (236, 325) → (369, 156); each fist travels half */
+    /* how far apart they start: knuckle to knuckle (236, 325) → (369, 156) on a 618 frame; each fist travels half */
     const DX = (369 - 236) / 618 / 2, DY = (156 - 325) / 618 / 2;
     let on = false, raf = 0, bumped = false;
     const ease = p => 1 - Math.pow(1 - p, 2.2);
@@ -45,7 +45,9 @@ if (matchMedia('(max-width: 760px)').matches) {
       /* 0 as the frame's top comes up past the bottom fifth, 1 when its middle reaches the screen's middle */
       const p = Math.max(0, Math.min(1, (vh * .92 - r.top) / (vh * .92 - (vh / 2 - r.height / 2))));
       const k = still ? (p > .5 ? 1 : 0) : ease(p);
-      const x = DX * w * k * 1.02, y = DY * w * k * 1.02;
+      /* the CSS places them where they meet; until then each is half the
+         gap back along the line of the bump */
+      const x = -DX * w * (1 - k) * 1.02, y = -DY * w * (1 - k) * 1.02;
       t.style.transform = `translate3d(${x}px, ${y}px, 0)`;
       b.style.transform = `translate3d(${-x}px, ${-y}px, 0)`;
       if (p >= 1 && !bumped) { bumped = true; fist.classList.remove('bump'); void fist.offsetWidth; fist.classList.add('bump'); }

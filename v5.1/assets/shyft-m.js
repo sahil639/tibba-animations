@@ -117,3 +117,17 @@ if (matchMedia('(max-width: 760px)').matches) {
     d.insertAdjacentHTML('beforeend', '<i></i><i></i><i></i><i></i>');
   });
 }
+
+/* Redesigned the Onboarding: the iPhone's three screens in turn, 1 → 2 → 3
+   → 1, each crossfading into the next; only while it is on screen */
+if (matchMedia('(max-width: 760px)').matches) {
+  document.querySelectorAll('.sm-phone').forEach(ph => {
+    const shots = [...ph.querySelectorAll('.screen img')];
+    let i = 0, t = 0;
+    const next = () => { shots[i].classList.remove('on'); i = (i + 1) % shots.length; shots[i].classList.add('on'); };
+    new IntersectionObserver(([e]) => {
+      clearInterval(t);
+      if (e.isIntersecting) { shots.forEach(s => { s.loading = 'eager'; }); t = setInterval(next, 2800); }
+    }).observe(ph);
+  });
+}
