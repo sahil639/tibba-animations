@@ -17,3 +17,9 @@
 @keyframes esg-run { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-50%, 0, 0); } }
 @media (hover: hover) { .esg-tick:hover ul { animation-play-state: paused; } }
 @media (prefers-reduced-motion: reduce) { .esg-tick ul { animation: none; } }
+
+/* Nov 2026: the outcome full bleed — the green runs edge to edge, its
+   content kept to the page's column, and the ticker across the whole
+   screen (both widths) */
+.cf-outcome-panel { margin-inline: calc(50% - 50vw); padding-inline: max(20px, calc(50vw - 50%)); }
+.cf-outcome-panel .esg-tick { margin-inline: min(-20px, calc(50% - 50vw)); }

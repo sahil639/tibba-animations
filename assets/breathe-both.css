@@ -1,0 +1,42 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Breathe ESG at both widths (Nov 2026): the fist bump in Getting started
+   (in place of the drawn plate desktop had) and the wireframe ↔ high
+   fidelity switch — both were phones only. Motion: assets/breathe-both.js.
+   ══════════════════════════════════════════════════════════════════════════ */
+.bm-both { display: block; position: relative; margin: 0; container-type: inline-size; }
+.bm-both img { display: block; max-width: none; height: auto; pointer-events: none; }
+/* desktop: the fist takes the plate's place beside the words */
+.cf-split > .bm-fist { flex: none; width: calc(611 / 1380 * 100% + var(--over, 0px)); margin-left: calc(-1 * var(--over, 0px)); }
+@media (max-width: 760px) { .cf-split > .bm-fist { align-self: stretch; width: auto; margin: 0 calc(-1 * var(--over, 0px)); } .bm-ba { margin-inline: calc(-1 * var(--over, 0px)); } }
+/* ── Getting started: the fist bump ─────────────────────────────────────── */
+.bm-fist { aspect-ratio: 660 / 584; overflow: hidden; border-radius: 10px; background: #f4f8f9; }
+.bm-fist img { position: absolute; will-change: transform; }
+/* where the bump ends, as the reference has it (Nov 2026, fitted to it): the
+   tibba fist low left, the Breathe fist high right, knuckles meeting near
+   the middle; the script slides them in from apart */
+.bm-fist .f-tibba { width: 97.5cqw; left: -30.6cqw; top: 5cqw; }
+.bm-fist .f-breathe { width: 121cqw; left: 10.6cqw; top: -31.8cqw; }
+.bm-fist .glow { position: absolute; left: 45.5%; top: 36%; width: 70cqw; height: 70cqw; margin: -35cqw 0 0 -35cqw; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 200, 120, .55), rgba(0, 184, 118, .22) 45%, rgba(0, 184, 118, 0) 75%);
+  opacity: 0; transform: scale(.4); pointer-events: none; }
+.bm-fist.bump .glow { animation: f-glow 1.6s cubic-bezier(.2, .7, .2, 1) forwards; }
+@keyframes f-glow { 0% { opacity: 0; transform: scale(.35); } 18% { opacity: 1; transform: scale(1.05); } 100% { opacity: .55; transform: scale(.9); } }
+
+/* ── wireframe → high fidelity, by tap ─────────────────────────────────── */
+.bm-ba { margin-top: 28px; }
+.bm-ba .pic { position: relative; aspect-ratio: 2000 / 1301; border-radius: 10px; overflow: hidden; cursor: pointer; background: #fff;
+  box-shadow: 0 1px 0 rgba(0,0,0,.04), 0 10px 30px -12px rgba(30, 70, 55, .3); -webkit-tap-highlight-color: transparent; }
+.bm-ba .pic img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.bm-ba .pic .hi { clip-path: circle(0% at var(--x, 50%) var(--y, 50%)); transition: clip-path .7s cubic-bezier(.6, 0, .2, 1); }
+.bm-ba.on .pic .hi { clip-path: circle(150% at var(--x, 50%) var(--y, 50%)); }
+.bm-ba figcaption { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-top: 14px; }
+.bm-ba .name { position: relative; display: grid; font-size: 17px; font-weight: 600; color: #1c1c1c; }
+.bm-ba .name span { grid-area: 1 / 1; transition: opacity .35s, transform .35s; }
+.bm-ba .name span + span, .bm-ba.on .name span:first-child { opacity: 0; transform: translateY(6px); }
+.bm-ba.on .name span + span { opacity: 1; transform: none; }
+.bm-ba .hint em { font-style: normal; }
+.bm-ba .hint { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #5d6e68; }
+.bm-ba .hint i { width: 8px; height: 8px; border-radius: 50%; background: #00b876; animation: ba-ping 1.8s ease-out infinite; }
+@keyframes ba-ping { 0% { box-shadow: 0 0 0 0 rgba(0, 184, 118, .5); } 80%, 100% { box-shadow: 0 0 0 8px rgba(0, 184, 118, 0); } }
+
+@media (prefers-reduced-motion: reduce) { .bm-ba .hint i { animation: none; } }
