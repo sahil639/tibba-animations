@@ -96,7 +96,7 @@ const root = document.getElementById('team');
 root.insertAdjacentHTML('beforeend', TEAM.map((p, i) => `
   <figure class="shot" style="--i:${i};--x:${p.x};--y:${p.y};--w:${p.w}">
     <div class="ph"><img src="${p.src}" width="580" height="597" alt="${p.t}" loading="lazy" decoding="async"></div>
-    <figcaption><b>${p.t}</b><span>${p.s}</span></figcaption>
+    <figcaption><b>${p.t}</b></figcaption>
   </figure>`).join(''));
 /* set from script: the data URL's quotes would close a style attribute */
 root.querySelectorAll('.shot .ph').forEach((el, i) => el.style.setProperty('--cur', cursor(TEAM[i].k)));
