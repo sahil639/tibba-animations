@@ -40,9 +40,9 @@
 
   /* the climbs between the summits — no deep page, a cover and a line each */
   const MORE = [
-    { folder: 'apnaklub', client: 'Apnaklub', sector: 'Commerce', colour: '#C9A227', year: '2022',
+    { folder: 'apnaklub', client: 'Apnaklub', sector: 'Commerce', colour: '#3B6CFF', year: '2022',
       line: 'Research into users and market, and an app designed to reach product–market fit.', tags: 'App design · B2B ecommerce' },
-    { folder: 'indian-express', client: 'The Indian Express', sector: 'News & media', colour: '#D8D2C4', year: '2021',
+    { folder: 'indian-express', client: 'The Indian Express', sector: 'News & media', colour: '#FF1204', year: '2021',
       line: 'A brand new mobile app for the flagship product, and a monetisation strategy to go with it.', tags: 'App · Website · News' },
     { folder: 'cipher-docs', client: "Zeta's Cipher Docs", sector: 'Fintech', colour: '#8C7CF0', year: '2022',
       line: 'A documentation portal rebuilt from scratch, tested with the developers who use it.', tags: 'Docs portal · Fintech' },
