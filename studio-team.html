@@ -85,12 +85,12 @@ const cursor = k => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='h
 /* the six, round the title: x, y the photo's top-left (share of the
    section), w its width */
 const TEAM = [
-  { src: 'assets/studio/team-01-ridge.webp',  t: 'On the ridge',          s: 'A monsoon climb, the whole team',   k: 'mountain', x: .07, y: .07, w: 'clamp(150px, 15vw, 250px)' },
-  { src: 'assets/studio/team-02-review.webp', t: 'Crit hour',             s: 'Reviewing the work, together',       k: 'eye',      x: .33, y: .03, w: 'clamp(130px, 12vw, 200px)' },
-  { src: 'assets/studio/team-03-talk.webp',   t: 'Speaking at VizChitra', s: 'Data, design and news',              k: 'mic',      x: .63, y: .06, w: 'clamp(140px, 14vw, 230px)' },
-  { src: 'assets/studio/team-04-desk.webp',   t: 'Home base',             s: 'Where the climbs are planned',       k: 'home',     x: .80, y: .40, w: 'clamp(140px, 14vw, 230px)' },
-  { src: 'assets/studio/team-05-cheers.webp', t: 'After the launch',      s: 'Two steins, one shipped app',        k: 'beer',     x: .55, y: .63, w: 'clamp(150px, 16vw, 260px)' },
-  { src: 'assets/studio/team-06-placeholder.svg', t: 'Next climb',        s: 'A photo still on its way',           k: 'flag',     x: .17, y: .60, w: 'clamp(130px, 13vw, 210px)' },
+  { src: 'assets/studio/team-01-ridge.webp',  t: 'On the ridge',          s: 'A monsoon climb, the whole team',   k: 'mountain', x: .05, y: .06, w: 'clamp(200px, 20vw, 340px)' },
+  { src: 'assets/studio/team-02-review.webp', t: 'Crit hour',             s: 'Reviewing the work, together',       k: 'eye',      x: .31, y: .02, w: 'clamp(175px, 16vw, 270px)' },
+  { src: 'assets/studio/team-03-talk.webp',   t: 'Speaking at VizChitra', s: 'Data, design and news',              k: 'mic',      x: .60, y: .05, w: 'clamp(190px, 19vw, 310px)' },
+  { src: 'assets/studio/team-04-desk.webp',   t: 'Home base',             s: 'Where the climbs are planned',       k: 'home',     x: .78, y: .40, w: 'clamp(190px, 19vw, 310px)' },
+  { src: 'assets/studio/team-05-cheers.webp', t: 'After the launch',      s: 'Two steins, one shipped app',        k: 'beer',     x: .53, y: .6, w: 'clamp(200px, 21.5vw, 350px)' },
+  { src: 'assets/studio/team-06-placeholder.svg', t: 'Next climb',        s: 'A photo still on its way',           k: 'flag',     x: .14, y: .58, w: 'clamp(175px, 17.5vw, 285px)' },
 ];
 const root = document.getElementById('team');
 root.insertAdjacentHTML('beforeend', TEAM.map((p, i) => `
