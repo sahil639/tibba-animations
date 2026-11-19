@@ -655,15 +655,10 @@ body:has(.cf-light) { background: #f5f9fa; }
    The player: under 860px it shrank to fit content that has no width of its
    own (a size container holding only absolute layers), so it fell to its
    padding, a 24px square. It stretches across the column now. On phones it
-   gives way to the player video itself: muted, looping, inline, at its own
-   proportions, its poster showing until it plays. */
+   keeps the same player as desktop (Nov 2026: the brief already shows the
+   intro clip, so this section shows the component, not that clip again). */
 @media (max-width: 860px) { .cf-split > .fp-player { align-self: stretch; } }
-.fp-m { display: none; }
-@media (max-width: 760px) {
-  .cf-split > .fp-player { display: none; }
-  .cf-split > .fp-m { display: block; align-self: stretch; margin: 0; border-radius: 10px; overflow: hidden; background: #0f0f10; }
-  .fp-m video { display: block; width: 100%; height: auto; aspect-ratio: 680 / 682; pointer-events: none; }
-}
+@media (max-width: 760px) { .cf-split > .fp-player { padding: 3%; } }
 
 /* Before / after with mWeb / dWeb on phones (case-devices.js adds the switch
    when the box has data-views): one device at a time, both in one cell so
