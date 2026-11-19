@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-19T07:32:20.213Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-19T07:36:50.249Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -122,7 +122,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
 </main>
 
 <div id="contact"></div>
-<iframe class="cf-foot" id="footer" src="footer-dusk-grid.html?embed=1&v=3" title="Contact" loading="lazy"></iframe>
+<iframe class="cf-foot" id="footer" src="footer-dusk-grid-light.html?embed=1&v=3" title="Contact" loading="lazy"></iframe>
 <script>
   /* phones: the site footer, the same on every page (assets/site-footer.js),
      in place of the framed one — swapped before the frame ever loads */
@@ -130,7 +130,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     const old = document.getElementById('footer'), foot = document.createElement('footer');
     foot.id = 'footer'; foot.setAttribute('data-site-footer', ''); old.replaceWith(foot);
     document.head.insertAdjacentHTML('beforeend', '<link rel="stylesheet" href="assets/site-footer.css?v=6">');
-    import('./assets/site-footer.js?v=3').then(m => m.mountSiteFooter(foot));
+    import('./assets/site-footer.js?v=3').then(m => m.mountSiteFooter(foot, { light: true }));
   }
 </script>
 

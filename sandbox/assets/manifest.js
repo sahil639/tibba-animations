@@ -171,6 +171,15 @@ window.TIBBA_SITE = {
      "file": "footer-dusk-grid.html",
      "note": "A contact form over the campfire on the left; page and social links, the studio and its local time, and TIBBA drawn as a blueprint on the right; orange to green to black, bottom up",
      "state": "live"
+    },
+    {
+     "id": "footer-dusk-grid-light",
+     "updated": "2026-10-19T12:00:00+07:00",
+     "change": "New: the dusk grid footer in a light theme on #F5F9FA",
+     "label": "Footer — dusk grid, light",
+     "file": "footer-dusk-grid-light.html",
+     "note": "The dusk grid footer on #F5F9FA: near-black ink and hairlines, a warm glow at the foot under the fire, the fire drawn in dark dots with orange running to amber; hover still stokes it",
+     "state": "live"
     }
    ]
   },
