@@ -41,10 +41,10 @@ export function mountSiteNav(header, { nav = SITE_NAV, home = 'website-v3.html',
   setInterval(() => { if (!document.hidden) turn(); }, 500);
   if (current) header.querySelectorAll('.ca-link').forEach((a, i) => { if (items[i] && items[i].label === current) a.setAttribute('aria-current', 'page'); });
 
-  /* the phone's row: "Contact us" (to the footer), then the pink toggle */
+  /* the phone's row: "Contact" (to the footer), then the pink toggle */
   const contactHref = foot ? '#contact' : home + '#footer';
   const row = header.querySelector('.ca-row');
-  row.insertAdjacentHTML('beforeend', `<a class="site-contact" href="${contactHref}">Contact us</a><button class="site-menu" type="button" aria-expanded="false" aria-controls="site-drawer" aria-label="Menu">
+  row.insertAdjacentHTML('beforeend', `<a class="site-contact" href="${contactHref}">Contact</a><button class="site-menu" type="button" aria-expanded="false" aria-controls="site-drawer" aria-label="Menu">
     <span class="site-menu-tg" aria-hidden="true"><i></i><i></i></span></button>`);
   row.insertAdjacentHTML('afterend', `<div class="site-drawer" id="site-drawer"><div class="site-drawer-in">
     <ol class="site-drawer-list">${items.map((it, i) => `<li><a href="${it.href}"${it.label === current ? ' aria-current="page"' : ''}><small>0${i + 1}</small>${it.label}</a></li>`).join('')}</ol>
