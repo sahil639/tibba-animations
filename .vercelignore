@@ -1,1 +1,6 @@
-planning
+# Only Website v5.1 is deployed (Nov 2026): vercel.json serves the v5.1
+# folder at the root. Everything else (the playground, Website v3's working
+# files, the sandbox and archive/) stays in the repo and is never uploaded.
+/*
+!/v5.1
+!/vercel.json

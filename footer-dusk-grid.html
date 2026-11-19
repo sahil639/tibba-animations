@@ -99,7 +99,7 @@ body { background: #000; }
 .dg .legal { grid-column: 1 / -1; grid-row: 4; display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; padding: 16px clamp(22px, 3.2vw, 56px); border-top: 1px solid var(--ln);
   font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: rgba(233,236,242,.55); }
 .dg .legal a { color: rgba(233,236,242,.55); } .dg .legal a:hover { color: #fff; }
-.dg .legal > span:last-child { display: flex; gap: 22px; }
+.dg .legal > span:last-child:not(:first-child) { display: flex; gap: 22px; }   /* a links group, never the copyright line */
 
 @media (max-width: 860px) {
   .dg { grid-template-columns: 1fr 1fr; grid-template-rows: none; }

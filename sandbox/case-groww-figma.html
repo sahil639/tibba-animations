@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- sandbox: a frozen copy of Website v3, made 2026-11-18T12:20:34.620Z by tools/make-sandbox.mjs -->
+<!-- sandbox: a frozen copy of Website v3, made 2026-11-19T07:27:42.008Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -17,18 +17,19 @@ gtag('config', 'G-DZS8N17C9N');
 <link rel="stylesheet" href="assets/ca-nav.css">
 <link rel="stylesheet" href="assets/site-shell.css?v=3">
 <link rel="stylesheet" href="assets/work.css">
-<link rel="stylesheet" href="assets/case-figma.css?v=6">
+<link rel="stylesheet" href="assets/case-figma.css?v=7">
 <link rel="stylesheet" href="assets/workbench.css">
 <script src="assets/manifest.js"></script>
 <script src="assets/whats-new.js"></script>
 <script src="assets/workbench.js" defer></script>
-<script src="assets/site-chrome.js?v=2" defer></script>
+<script src="assets/site-chrome.js?v=3" defer></script>
 <script src="assets/work.js" defer></script>
 <script src="assets/cases.js" defer></script>
 <script src="assets/case-figma.js?v=2" defer></script>
 <link rel="stylesheet" href="assets/tune.css">
 <style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
 html[data-wb-dock] body { padding-right: 0 !important; }</style>
+<script>window.WB_RELEASE = true;</script>
 </head>
 
 <!-- Just. Case Study – Groww v4. Built from the Figma frame "Just. Case Study –
@@ -131,14 +132,14 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
 </main>
 
 <div id="contact"></div>
-<iframe class="cf-foot" id="footer" src="footer-dusk-grid.html?embed=1&v=2" title="Contact" loading="lazy"></iframe>
+<iframe class="cf-foot" id="footer" src="footer-dusk-grid.html?embed=1&v=3" title="Contact" loading="lazy"></iframe>
 <script>
   /* phones: the site footer, the same on every page (assets/site-footer.js),
      in place of the framed one — swapped before the frame ever loads */
   if (matchMedia('(max-width: 760px)').matches) {
     const old = document.getElementById('footer'), foot = document.createElement('footer');
     foot.id = 'footer'; foot.setAttribute('data-site-footer', ''); old.replaceWith(foot);
-    document.head.insertAdjacentHTML('beforeend', '<link rel="stylesheet" href="assets/site-footer.css?v=5">');
+    document.head.insertAdjacentHTML('beforeend', '<link rel="stylesheet" href="assets/site-footer.css?v=6">');
     import('./assets/site-footer.js?v=3').then(m => m.mountSiteFooter(foot));
   }
 </script>

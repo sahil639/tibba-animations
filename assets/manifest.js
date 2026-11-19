@@ -26,12 +26,8 @@ window.TIBBA_SITE = {
      not a section — it is where all of them end up. */
   feature: {
     id: 'final', label: 'Tibba Design Studio — the websites',
-    note: 'Website v1, v2 and v3: the whole site, every section assembled in order. The thing all the work below feeds into.',
+    note: 'Website v5.1 is the one live version (the only thing deployed). Website v3 is the working copy it is built from; v1 and v2 are in the Archive.',
     pages: [
-      { id: 'final-website', updated: '2026-10-12T16:00:00+07:00', change: 'Renamed: Final website is now Website v1', label: 'Website v1', file: 'final-website.html',
-        note: 'Loader, hero and its three scroll states, metrics, brands, the four-summit walk, services, testimonials', state: 'live' },
-      { id: 'final-website-v2', updated: '2026-10-12T16:00:00+07:00', change: 'Renamed from Final Website v2; the dropdown index added', label: 'Website v2', file: 'final-website-v2.html',
-        note: 'The live sections as one website: loader into Active Peak into Metrics, Brands, Summits v3, case reel, Compass v4, testimonials, polaroids, footer; one navbar, refresh bottom left', state: 'live' },
       { id: 'website-v5-1', updated: '2026-11-06T12:00:00+07:00', change: 'New: a frozen copy of the staging site as it stands — home, phone page, About and the four case studies', label: 'Website v5.1', file: 'v5.1/index.html',
         note: 'Every page of the staging website, copied as-is into v5.1/: open index.html (the home), website-v3-mobile.html (phones), about.html, and case-groww / firstpost / breathe-esg / shyft-mindhouse-figma.html — all linked to each other inside the folder', state: 'live' },
       { id: 'website-v3', updated: '2026-10-23T18:00:00+07:00', change: 'Phones: stats straight under the hero (no turn), plain Base Camp without Rive, off-screen sections paused, smoother scroll', label: 'Website v3', file: 'website-v3.html',
@@ -286,6 +282,10 @@ window.TIBBA_SITE = {
     { id: 'archive', label: 'Archive',
       note: 'Earlier designs, kept for reference. Nothing in here is part of Website v3.',
       pages: [
+        { id: 'final-website', updated: '2026-10-12T16:00:00+07:00', change: 'Renamed: Final website is now Website v1', label: 'Website v1 (archived)', file: 'archive/final-website.html',
+          note: 'Loader, hero and its three scroll states, metrics, brands, the four-summit walk, services, testimonials', state: 'live' },
+        { id: 'final-website-v2', updated: '2026-10-12T16:00:00+07:00', change: 'Renamed from Final Website v2; the dropdown index added', label: 'Website v2 (archived)', file: 'archive/final-website-v2.html',
+          note: 'The live sections as one website: loader into Active Peak into Metrics, Brands, Summits v3, case reel, Compass v4, testimonials, polaroids, footer; one navbar, refresh bottom left', state: 'live' },
         { id: 'about-campfire', updated: '2026-09-29T12:00:00+07:00', change: 'New: tent and campfire at night, smoke into the section above', label: 'Campsite', file: 'about-campfire.html',
                  note: 'An isometric night diorama in the Sylva manner: a lit tent, a campfire, moss, and smoke that climbs into the section above', state: 'live' },
         { id: 'about-campfire-contour', updated: '2026-09-28T11:19:18+07:00', change: 'Controls, looser rocks, calmer hover, real smoke', label: 'Campfire — contour', file: 'about-campfire-contour.html',

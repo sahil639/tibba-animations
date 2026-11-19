@@ -404,8 +404,11 @@
     /* Opening a page is seeing it: mark it before the menu is drawn, so the
        page you are on is never flagged as new in its own menu. */
     if (CURRENT) NEW.markSeen(CURRENT.id);
-    var nav = buildNav();
-    document.body.appendChild(nav);
+    /* the released copy (v5.1, tools/make-sandbox.mjs sets WB_RELEASE) has
+       no site menu at all: it would link to playground pages that are not
+       deployed. The dock is still built, hidden, so page panels stay in it. */
+    var nav = window.WB_RELEASE ? document.createElement('div') : buildNav();
+    if (!window.WB_RELEASE) document.body.appendChild(nav);
     /* the assembled websites carry the index and nothing else: no dock
        (<html data-wb="nav">) */
     if (document.documentElement.getAttribute('data-wb') === 'nav') {

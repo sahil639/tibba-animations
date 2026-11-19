@@ -30,8 +30,8 @@
     /* The work is the summits section now — the card grid that used to sit
        under it has gone, and the walk through the four peaks is what the link
        should land on. */
-    { label: 'Work',     href: 'final-website.html#range' },
-    { label: 'Services', href: 'final-website.html#services' },
+    { label: 'Work',     href: 'website-v3.html#work' },
+    { label: 'Services', href: 'website-v3.html#services' },
   ];
 
   /* The studio's mark and wordmark, from assets/brand/tibba-black.svg.
@@ -77,7 +77,7 @@
     return `
       <div class="wrap">
         <div class="nav-plate">
-          <a class="nav-mark" href="final-website.html"
+          <a class="nav-mark" href="website-v3.html"
              aria-label="Tibba Design Studio — home">${MARK}</a>
           <nav class="nav-links" aria-label="Primary">${links}</nav>
         </div>
@@ -123,9 +123,9 @@
 
           <div class="footer-cols">
             ${col('studio', [
-              ['Services', 'final-website.html#services'],
-              ['Case study', 'final-website.html#range'],
-              ['Testimonial', 'final-website.html#testimonials'],
+              ['Services', 'website-v3.html#services'],
+              ['Case study', 'website-v3.html#work'],
+              ['Testimonial', 'website-v3.html#testimonials'],
               ['About us', 'about.html'],
             ])}
             ${col('elsewhere', [
@@ -163,8 +163,10 @@
          last, so there is nothing for a scroll listener to switch. */
     }
 
+    /* phones mount the one shared footer (assets/site-footer.js) into the
+       same element: leave it alone, whichever script runs first */
     const foot = document.querySelector('[data-site-footer]');
-    if (foot) {
+    if (foot && !foot.dataset.mounted && !matchMedia('(max-width: 760px)').matches) {
       foot.className = 'site-footer';
       foot.innerHTML = footerHTML();
 

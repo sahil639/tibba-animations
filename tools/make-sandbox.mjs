@@ -55,7 +55,8 @@ for (const js of ['assets/site-chrome.js', 'assets/work.js', 'assets/cases.js', 
 
 /* the chrome off: one stylesheet appended after every page's own */
 const OFF = `<style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
-html[data-wb-dock] body { padding-right: 0 !important; }</style>`;
+html[data-wb-dock] body { padding-right: 0 !important; }</style>
+<script>window.WB_RELEASE = true;</script>`;
 /* Google Analytics (staging), first thing in every page's <head>. The
    desktop site is a shell of framed sections, so the tag loads only in
    the top window: one page view per visit, not one per section frame. */
@@ -77,5 +78,21 @@ for (const f of pages) {
   await writeFile(join(OUT, f), html);
 }
 await writeFile(join(OUT, 'index.html'), await readFile(join(OUT, 'website-v3.html'), 'utf8'));
+/* the manifest (what the hidden site menu reads) lists the whole playground;
+   in the copy it lists only the pages the copy has, so nothing in it links
+   to a page that is not deployed with it (Nov 2026) */
+{
+  const vm = await import('node:vm');
+  const ctx = { window: {} };
+  vm.runInNewContext(await readFile(join(ROOT, 'assets/manifest.js'), 'utf8'), ctx);
+  const site = ctx.window.TIBBA_SITE, keep = p => pages.has(p.file.split(/[?#]/)[0]);
+  site.feature.pages = site.feature.pages.filter(keep);
+  site.sections = site.sections.map(sec => ({ ...sec, pages: sec.pages.filter(keep) })).filter(sec => sec.pages.length);
+  await writeFile(join(OUT, 'assets/manifest.js'), `/* the copy's manifest: only its own pages (tools/make-sandbox.mjs) */
+window.TIBBA_SITE = ${JSON.stringify(site, null, 1)};
+window.TIBBA_PAGES = [window.TIBBA_SITE.feature, ...window.TIBBA_SITE.sections]
+  .flatMap(s => s.pages.map(p => ({ ...p, section: s.id, sectionLabel: s.label })));
+`);
+}
 console.log(`sandbox: ${pages.size} pages + assets → sandbox/`);
 console.log([...pages].sort().join('\n'));

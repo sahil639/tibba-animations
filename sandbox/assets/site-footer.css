@@ -69,7 +69,8 @@
 .sf-col + .sf-col { border-left: 1px solid var(--ln); }
 .sf-col ul { list-style: none; margin-top: 22px !important; display: grid; gap: 12px; font-size: 17px; color: #fff; }
 
-.sf-legal { grid-column: 1 / -1; padding: 16px 22px; border-top: 1px solid var(--ln); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--mute); }
+.sf .sf-legal { grid-column: 1 / -1; padding: 16px 22px calc(16px + env(safe-area-inset-bottom, 0px)); overflow-wrap: anywhere;   /* .sf p would zero the padding: the line sat on the screen's left edge */
+  border-top: 1px solid var(--ln); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--mute); }
 
 /* the light footer — the same footer for the light case studies (Breathe ESG,
    Shyft & Mindhouse): their page tint, ink for type and hairlines */
