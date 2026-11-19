@@ -30,8 +30,8 @@
     /* The work is the summits section now — the card grid that used to sit
        under it has gone, and the walk through the four peaks is what the link
        should land on. */
-    { label: 'Work',     href: 'website-v3.html#work' },
-    { label: 'Services', href: 'website-v3.html#services' },
+    { label: 'Work',     href: 'index.html#work' },
+    { label: 'Services', href: 'index.html#services' },
   ];
 
   /* The studio's mark and wordmark, from assets/brand/tibba-black.svg.
@@ -77,7 +77,7 @@
     return `
       <div class="wrap">
         <div class="nav-plate">
-          <a class="nav-mark" href="website-v3.html"
+          <a class="nav-mark" href="index.html"
              aria-label="Tibba Design Studio — home">${MARK}</a>
           <nav class="nav-links" aria-label="Primary">${links}</nav>
         </div>
@@ -123,9 +123,9 @@
 
           <div class="footer-cols">
             ${col('studio', [
-              ['Services', 'website-v3.html#services'],
-              ['Case study', 'website-v3.html#work'],
-              ['Testimonial', 'website-v3.html#testimonials'],
+              ['Services', 'index.html#services'],
+              ['Case study', 'index.html#work'],
+              ['Testimonial', 'index.html#testimonials'],
               ['About us', 'about.html'],
             ])}
             ${col('elsewhere', [

@@ -148,7 +148,7 @@ export function sectionLinks(root = document) {
     const id = a.dataset.sec;
     let T; try { T = window.top; void T.document; } catch (err) { return; }
     const shell = T.tibba && typeof T.tibba.goTo === 'function' ? T.tibba : null;
-    const home = /website-v3(-mobile)?\.html$|\/$/.test(T.location.pathname) || !!shell;
+    const home = /(website-v3(-mobile)?|index|mobile)(\.html)?$|\/$/.test(T.location.pathname) || !!shell;
     if (!home) return;                                   // another page: let the link navigate
     e.preventDefault();
     if (shell) { shell.goTo(id === 'top' ? null : id); return; }

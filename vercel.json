@@ -4,10 +4,40 @@
   "outputDirectory": "v5.1",
   "cleanUrls": true,
   "redirects": [
-    { "source": "/v5.1", "destination": "/", "permanent": false },
-    { "source": "/v5.1/:path*", "destination": "/:path*", "permanent": false },
-    { "source": "/contour-ridge-studies", "destination": "/", "permanent": false },
-    { "source": "/tibba-studio", "destination": "/", "permanent": false },
-    { "source": "/about-landing", "destination": "/about", "permanent": true }
+    {
+      "source": "/website-v3",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/website-v3-mobile",
+      "destination": "/mobile",
+      "permanent": false
+    },
+    {
+      "source": "/v5.1",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/v5.1/:path*",
+      "destination": "/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/contour-ridge-studies",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/tibba-studio",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/about-landing",
+      "destination": "/about",
+      "permanent": true
+    }
   ]
 }

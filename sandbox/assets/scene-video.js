@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════════════════════
-   The phone page's two scenes, as video — website-v3-mobile.html
+   The phone page's two scenes, as video — mobile.html
    ─────────────────────────────────────────────────────────────────────────
    The 3D scenes of the desktop site, pre-rendered (tools/render-basecamp.html,
    tools/render-bags.html → tools/encode-videos.sh → assets/video/):

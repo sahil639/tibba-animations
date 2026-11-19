@@ -141,14 +141,14 @@ export const slider = (id, label, min, max, step, val, unit = '') => `<div class
    A link carries data-sec (top, work, more, services, studio). In the home
    page — Website v3's shell on a desktop, website-v3-mobile on a phone —
    it travels there in place; anywhere else (About, a case study) it goes
-   to website-v3.html#<section>, which opens straight on that section. */
+   to index.html#<section>, which opens straight on that section. */
 export function sectionLinks(root = document) {
   root.addEventListener('click', e => {
     const a = e.target.closest('a[data-sec]'); if (!a) return;
     const id = a.dataset.sec;
     let T; try { T = window.top; void T.document; } catch (err) { return; }
     const shell = T.tibba && typeof T.tibba.goTo === 'function' ? T.tibba : null;
-    const home = /website-v3(-mobile)?\.html$|\/$/.test(T.location.pathname) || !!shell;
+    const home = /(website-v3(-mobile)?|index|mobile)(\.html)?$|\/$/.test(T.location.pathname) || !!shell;
     if (!home) return;                                   // another page: let the link navigate
     e.preventDefault();
     if (shell) { shell.goTo(id === 'top' ? null : id); return; }

@@ -157,7 +157,7 @@ export const TICKER = 'Have a summit in mind? Let’s climb it together  ·  Now
 
 /* the navbar's links, the same on every page; Contact goes to the footer */
 export const HOME_LINKS = [{ label: 'Work', target: 'summits' }, { label: 'Services', target: 'services' }, { label: 'About', href: 'about.html' }, { label: 'Contact', target: 'footer' }];
-export const ABOUT_LINKS = [{ label: 'Work', href: 'website-v3.html#work' }, { label: 'Services', href: 'website-v3.html#services' }, { label: 'About', target: 'about-hero' }, { label: 'Contact', target: 'footer' }];
+export const ABOUT_LINKS = [{ label: 'Work', href: 'index.html#work' }, { label: 'Services', href: 'index.html#services' }, { label: 'About', target: 'about-hero' }, { label: 'Contact', target: 'footer' }];
 
 /* the Modular hub's layout, stored per browser: [{ id, on, variant }] */
 export const LAYOUT_KEY = 'tibba.site.home';

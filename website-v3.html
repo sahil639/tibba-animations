@@ -4,17 +4,12 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script>
-  /* phones get Website v3 as one ordinary page (website-v3-mobile.html):
-     the framed sections below cannot scroll natively on a phone. ?desktop
-     keeps this version. Runs first, before anything else loads. */
-  if (matchMedia('(max-width: 760px)').matches && !/[?&]desktop\b/.test(location.search))
-    location.replace('website-v3-mobile.html' + location.hash);
-</script>
+<!-- the desktop and phone versions of this page, tied together (assets/pair.js) -->
+<script src="assets/pair.js?v=2" data-side="desktop" data-pair="website-v3-mobile.html"></script>
 <!-- the hero's three.js and GSAP come from these: open the connections early -->
 <link rel="preconnect" href="https://unpkg.com" crossorigin>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-<title>Tibba Design Studio — v3</title>
+<title>Tibba Design Studio — product design for ambitious teams</title>
 <link rel="stylesheet" href="assets/type.css?v=2">
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/ca-nav.css">

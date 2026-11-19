@@ -19,13 +19,13 @@ import { mountLogoMorph, LOGO_MORPH } from './logo-morph.js?v=2';
 import { TICKER } from './site-sections.js';
 
 export const SITE_NAV = [
-  { label: 'Work', href: 'website-v3.html#work' },
-  { label: 'Services', href: 'website-v3.html#services' },
+  { label: 'Work', href: 'index.html#work' },
+  { label: 'Services', href: 'index.html#services' },
   { label: 'About', href: 'about.html' },
-  { label: 'Contact', href: 'website-v3.html#footer' },
+  { label: 'Contact', href: 'index.html#footer' },
 ];
 
-export function mountSiteNav(header, { nav = SITE_NAV, home = 'website-v3.html', current = null } = {}) {
+export function mountSiteNav(header, { nav = SITE_NAV, home = 'index.html', current = null } = {}) {
   const foot = document.querySelector('[data-site-footer], #footer');
   const items = nav.map(it => it.label === 'Contact' && foot ? { ...it, href: '#contact' } : it);
   mountCaHeader(header, { nav: items, announcement: TICKER, home, mark: '<span class="site-mark" aria-hidden="true"></span>' });

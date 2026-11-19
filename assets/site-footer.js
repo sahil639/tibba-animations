@@ -62,7 +62,7 @@ export function mountSiteFooter(host, { light = false } = {}) {
   /* Pages: on the home page itself, travel to the section in place */
   host.addEventListener('click', e => {
     const a = e.target.closest('a[data-sec]'); if (!a) return;
-    const onHome = /website-v3(-mobile)?\.html$|\/$/.test(location.pathname);
+    const onHome = /(website-v3(-mobile)?|index|mobile)(\.html)?$|\/$/.test(location.pathname);
     if (!onHome) return;
     const id = a.dataset.sec, el = id === 'top' ? null : document.getElementById(id);
     if (id !== 'top' && !el) return;

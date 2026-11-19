@@ -78,10 +78,10 @@
   function heroLedger() {
     const scope = (C.meta.find(m => /expertise/i.test(m.k)) || { v: '' }).v.split(/,\s*/).filter(Boolean);
     const rows = C.meta.filter(m => !/expertise/i.test(m.k));
-    const top = [['Tibba', 'website-v3.html'], ['Case studies', 'website-v3.html#work', true], [C.client], [S.sector], [S.year], [`${pad(idx + 1)} / ${pad(W.SUMMITS.length)}`]];
+    const top = [['Tibba', 'index.html'], ['Case studies', 'index.html#work', true], [C.client], [S.sector], [S.year], [`${pad(idx + 1)} / ${pad(W.SUMMITS.length)}`]];
     return `<section class="c3-ledger">
       <ol class="c3-cols">${top.map(([t, href, dot]) => `<li>${href ? `<a href="${href}">` : '<span>'}${dot ? '<i class="c3-dot"></i>' : ''}${esc(t)}${href ? '</a>' : '</span>'}</li>`).join('')}</ol>
-      <a class="c3-back" href="website-v3.html#work"><i aria-hidden="true"></i><span>Go back</span></a>
+      <a class="c3-back" href="index.html#work"><i aria-hidden="true"></i><span>Go back</span></a>
       <dl class="c3-facts">
         ${C.status ? `<div><dt>Status</dt><dd><b class="c3-pip"></b>${esc(C.status)}</dd></div>` : ''}
         ${rows.map(m => `<div><dt>${esc(m.k)}</dt><dd>${esc(m.v)}</dd></div>`).join('')}
@@ -110,7 +110,7 @@
   /* ── next ────────────────────────────────────────────────────────────── */
   const nextThree = [1, 2, 3].map(k => W.SUMMITS[(idx + k) % W.SUMMITS.length]).filter(s => s !== S).slice(0, 3);
   const next = `<section class="c3-next">
-    <header><h2>Keep climbing.</h2><a class="c3-all" href="website-v3.html#work"><span>All work</span><i aria-hidden="true"></i></a></header>
+    <header><h2>Keep climbing.</h2><a class="c3-all" href="index.html#work"><span>All work</span><i aria-hidden="true"></i></a></header>
     <div class="c3-cards">${nextThree.map(s => { const o = window.TIBBA_CASES[s.key];
       return `<a class="c3-card" href="${s.file}" style="--c:${o.colour}">
         ${W.img(s.folder, 'cover', o.client, '16 / 10')}

@@ -67,7 +67,7 @@ if (window.top === window) { var g = document.createElement('script'); g.async =
 window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date());
 gtag('config', '${GA}');
 </script>`;
-const STAMP = `<!-- sandbox: a frozen copy of Website v3, made ${new Date().toISOString()} by tools/make-sandbox.mjs -->`;
+const STAMP = `<!-- Tibba Design Studio, website v5.1 — built ${new Date().toISOString()} by tools/make-sandbox.mjs -->`;
 
 await rm(OUT, { recursive: true, force: true });
 await mkdir(OUT, { recursive: true });
@@ -78,6 +78,22 @@ for (const f of pages) {
   await writeFile(join(OUT, f), html);
 }
 await writeFile(join(OUT, 'index.html'), await readFile(join(OUT, 'website-v3.html'), 'utf8'));
+/* the released copy's own names (Nov 2026): the desktop home is index.html
+   (served at /) and the phone home mobile.html (/mobile) — nothing in the
+   copy is called v3. Every reference in its pages and scripts is rewritten;
+   the old names stay as one-line forwards so links already out there land. */
+{
+  const RENAME = [['website-v3-mobile.html', 'mobile.html'], ['website-v3.html', 'index.html']];
+  const rewrite = t => RENAME.reduce((acc, [a, b]) => acc.split(a).join(b), t);
+  await writeFile(join(OUT, 'mobile.html'), await readFile(join(OUT, 'website-v3-mobile.html'), 'utf8'));
+  const files = [...(await readdir(OUT)).filter(f => f.endsWith('.html')).map(f => join(OUT, f)),
+                 ...(await readdir(join(OUT, 'assets'))).filter(f => /\.(js|css)$/.test(f)).map(f => join(OUT, 'assets', f))];
+  for (const f of files) { const t = await readFile(f, 'utf8'), n = rewrite(t); if (n !== t) await writeFile(f, n); }
+  const forward = to => `<!DOCTYPE html><meta charset="utf-8"><meta name="robots" content="noindex"><title>Tibba Design Studio</title>
+<meta http-equiv="refresh" content="0; url=${to}"><script>location.replace('${to}' + location.hash)</script>`;
+  await writeFile(join(OUT, 'website-v3.html'), forward('index.html'));
+  await writeFile(join(OUT, 'website-v3-mobile.html'), forward('mobile.html'));
+}
 /* the manifest (what the hidden site menu reads) lists the whole playground;
    in the copy it lists only the pages the copy has, so nothing in it links
    to a page that is not deployed with it (Nov 2026) */
