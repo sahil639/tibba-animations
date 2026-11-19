@@ -304,6 +304,11 @@ section { scroll-margin-top: 64px; }
 .stage-panel .cs .cs-pk i::after { content: ''; position: absolute; inset: -1px; border: 1px solid var(--c); border-radius: 50%; animation: pulse 1.8s cubic-bezier(.16,.62,.36,1) infinite; }
 .quote footer { display: grid; grid-template-columns: 44px 1fr; column-gap: 12px; align-items: center; }
 .quote footer .qpic { grid-row: 1 / span 2; width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #222; }
+.quote .qgo { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; padding: 7px 9px 7px 10px;
+  background: color-mix(in srgb, var(--c) 24%, #000); border: 1px solid color-mix(in srgb, var(--c) 25%, transparent);
+  color: #fff; text-decoration: none; font-size: 10.5px; font-weight: 400; letter-spacing: .06em; line-height: 1; text-transform: uppercase; -webkit-tap-highlight-color: transparent; }   /* small, the buttons' tint (Nov 2026) */
+.quote .qgo span { font-size: 12px; letter-spacing: 0; }
+.quote .qgo:active { filter: brightness(.9); }
 .quote footer .qini { display: grid; place-items: center; font-size: 13px; letter-spacing: .04em; color: #fff; background: color-mix(in srgb, var(--c) 35%, #151515); }
 .case-peak { height: 150px; margin: 0 0 18px; border: 1px solid var(--line); background: #000; overflow: hidden; }
 
@@ -555,10 +560,12 @@ section { scroll-margin-top: 64px; }
     <div class="row">
       <figure class="quote" style="--c:#E05555"><p class="qm" aria-hidden="true">“</p>
         <blockquote>Working with Rahul and team has been an absolute pleasure! The website they’ve designed not only captures the essence of our brand but also resonates with our target audience, resulting in increased engagement and satisfaction.</blockquote>
-        <footer><img class="qpic" src="assets/work/firstpost-figma/milan.webp" alt="" width="44" height="44" loading="lazy"><b>Milan Sachdeva</b>Senior General Manager, Firstpost</footer></figure>
+        <footer><img class="qpic" src="assets/work/firstpost-figma/milan.webp" alt="" width="44" height="44" loading="lazy"><b>Milan Sachdeva</b>Senior General Manager, Firstpost</footer>
+        <a class="qgo" href="case-firstpost-figma.html">View case study<span aria-hidden="true">→</span></a></figure>
       <figure class="quote" style="--c:#4CAF70"><p class="qm" aria-hidden="true">“</p>
         <blockquote>Collaborating with the Tibba Design Studio team on our critical design sprint was transformative for Breathe ESG.</blockquote>
-        <footer><img class="qpic" src="assets/people/shaayak.webp" alt="" width="44" height="44" loading="lazy"><b>Shaayak Chaterjee</b>Founder, Breathe ESG</footer></figure>
+        <footer><img class="qpic" src="assets/people/shaayak.webp" alt="" width="44" height="44" loading="lazy"><b>Shaayak Chaterjee</b>Founder, Breathe ESG</footer>
+        <a class="qgo" href="case-breathe-esg-figma.html">View case study<span aria-hidden="true">→</span></a></figure>
     </div>
   </section>
 
