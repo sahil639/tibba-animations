@@ -83,9 +83,16 @@ body { color: var(--ink-warm); font-family: 'Vend Sans', system-ui, sans-serif; 
   .mt img { animation: mt-in 1s linear .8s forwards; }
   .asc-dot.on { opacity: 0; animation: mt-in .4s linear 1.9s forwards; }
 }
+/* desktop (Nov 2026): the words at the foot, the mountain centred above
+   them — a floor of black from the bottom edge only */
+@media (min-width: 761px) {
+  .hero::after { background: linear-gradient(0deg, rgba(0,0,0,.9) 0%, rgba(0,0,0,.6) 22%, rgba(0,0,0,0) 46%); }
+  .statement { top: auto; bottom: 7%; transform: none; right: var(--gut); font-size: clamp(48px, 6.4vw, 128px); }
+  .statement .ln { display: inline-flex; margin-right: .25em; }
+}
 @media (prefers-reduced-motion: reduce) { .statement .ln > span { transition: none; transform: none; } .asc-dot::after { animation: none; } }
 /* desktop: the home page's contour scene, with its own summit */
-#peak-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; opacity: 0; transition: opacity 1.2s linear; }
+#peak-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; opacity: 0; transition: opacity .2s linear; }
 .hero.live #peak-canvas { opacity: 1; }
 @media (min-width: 761px) { .mt { display: none; } }   /* desktop: the 3D render only, no still before it */
 @media (max-width: 760px) { #peak-canvas { display: none; } }
@@ -136,23 +143,39 @@ body { color: var(--ink-warm); font-family: 'Vend Sans', system-ui, sans-serif; 
      summit, the accent route draws itself up once, and the view swings a
      few degrees either side, slowly. Still, for reduced motion. */
   if (!matchMedia('(max-width: 760px)').matches) {
-    const { createRangeScene } = await import('./assets/range-scene.js?v=3');
+    const { createRangeScene } = await import('./assets/range-scene.js?v=4');
     const hero = document.getElementById('hero'), dot = document.getElementById('dot');
     const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const scene = createRangeScene({ canvas: document.getElementById('peak-canvas'), mode: 'hero', ink: false, palette: 'peak', backdrop: 'behind',
-      hover: false, preserve: /[?&]capture\b/.test(location.search) });
+      hover: true, preserve: /[?&]capture\b/.test(location.search) });
     scene.setAccent('#C9124B'); scene.setDepth(0.22); scene.setHover(false); scene.setFill(null);
-    scene.setInk({ offPeak: 0.5, depthOp: 0.52 });            // the country as present as on the home hero
+    if (!still) scene.setRidgeIn(0);                          // nothing yet: the ridges arrive one by one
+    scene.setInk({ offPeak: 0.2, depthOp: 0.26 });            // the country round it quieter, the summit in focus
     scene.setRouteStyle({ heroFade: 1 });                     // the route graded from its summit, as there
-    const CAM = { elev: 12, azim: 8, dist: 156, tgtX: -44, tgtY: 27 };
+    const CAM = { elev: 12, azim: 8, dist: 118, tgtX: -4, tgtY: 34 };   // closer, centred over the words
     window.tibba = { scene, CAM };
     hero.classList.add('live');
-    setTimeout(() => scene.climbHero(true, 0), still ? 0 : 900);
+    setTimeout(() => scene.climbHero(true, 0), still ? 0 : 1300);
+    if (still) scene.setHover(true);
     const SWEEP = 7.5, SWING = 4.5, SWING_T = 26;           // s per climb of the light; ° and s of the swing
-    const t0 = performance.now();
+    const t0 = performance.now(), LOAD = 1.2;               // s: every ridge in, each at its own random moment
+    /* hover, as on the home hero: the rings under the cursor, and the route
+       glowing while the pointer is on it */
+    let routeHot = false;
+    addEventListener('pointermove', e => {
+      if (e.pointerType === 'touch') return;
+      const hot = scene.nearHeroRoute(e.clientX, e.clientY, 18);
+      if (hot !== routeHot) { routeHot = hot; scene.setRouteHot(hot); }
+    });
+    document.documentElement.addEventListener('pointerleave', () => { if (routeHot) { routeHot = false; scene.setRouteHot(false); } });
+    let loaded = still;
     (function frame(now) {
       requestAnimationFrame(frame);
       const t = (now - t0) / 1000;
+      if (!loaded) {
+        scene.setRidgeIn(Math.min(1, t / LOAD) * 1.07);
+        if (t >= LOAD) { loaded = true; scene.setRidgeIn(null); scene.setHover(true); }
+      }
       scene.setHeroCam(still ? CAM : { ...CAM, azim: CAM.azim + Math.sin(t / SWING_T * Math.PI * 2) * SWING });
       /* the light: up from below the floor to past the summit, then again;
          ghost 1 keeps every line at full strength, only the band glows */

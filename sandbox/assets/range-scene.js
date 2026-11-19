@@ -1527,7 +1527,8 @@ function buildContourGeometry() {
         arc  = new Float32Array(vCount),
         arcW = new Float32Array(vCount),   // the same walk, in world units
         dot  = new Float32Array(vCount),   // 1 on the rings that are dotted
-        rng  = new Float32Array(vCount);   // 1..3 on the summit's accent rings
+        rng  = new Float32Array(vCount),   // 1..3 on the summit's accent rings
+        rnd  = new Float32Array(vCount);   // one random value per ridge (setRidgeIn: each comes in at its own moment)
   const idx = vCount > 65535 ? new Uint32Array(iCount) : new Uint16Array(iCount);
 
   /* every point's height, clear of the mesh */
@@ -1535,7 +1536,9 @@ function buildContourGeometry() {
 
   CT_LINES = lines;                // kept for contourExport() (the phone hero's SVG)
   let v = 0, ii = 0;
+  let _li = 0;
   for (const L of lines) {
+    L._r = (Math.sin(++_li * 12.9898 + 78.233) * 43758.5453) % 1; L._r = Math.abs(L._r);
     const P = L.pts, n = P.length;
     L.p3 = P.map(pt => [pt[0], ySafe(pt[0], pt[1], L.level), pt[1]]);
     const cum = new Float32Array(n); let tot = 0;
@@ -1560,7 +1563,7 @@ function buildContourGeometry() {
         next[o] = np[0]; next[o+1] = yn; next[o+2] = np[1];
         side[v] = sd ? 1 : -1; wid[v] = L.weight; rad[v] = r;
         lev[v] = L.level; arc[v] = cum[i] / tot;
-        arcW[v] = cum[i]; dot[v] = L.dotted ? 1 : 0; rng[v] = L.ring;
+        arcW[v] = cum[i]; dot[v] = L.dotted ? 1 : 0; rng[v] = L.ring; rnd[v] = L._r;
         v++;
       }
     }
@@ -1583,6 +1586,7 @@ function buildContourGeometry() {
   g.setAttribute('aArcW',    new THREE.BufferAttribute(arcW, 1));
   g.setAttribute('aDot',     new THREE.BufferAttribute(dot, 1));
   g.setAttribute('aRing',    new THREE.BufferAttribute(rng, 1));
+  g.setAttribute('aRand',    new THREE.BufferAttribute(rnd, 1));
   g.setIndex(new THREE.BufferAttribute(idx, 1));
   g.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, MAX_H * 0.4, -60), 340);
   CF = null;                       // the field is only needed during the build
@@ -1668,10 +1672,13 @@ const contourMat = new THREE.ShaderMaterial({
     uLitBoost: { value: 0 },
     uHzNear: { value: 1e6 }, uHzFar: { value: 2e6 },
     uLayer: { value: 0 }, uLayerNear: { value: 0 }, uLayerFar: { value: 1 }, uLayerDim: { value: 0.7 },
+    /* setRidgeIn: each ridge shows once this passes its own random value (2 = all shown) */
+    uRidgeIn: { value: 2 },
   },
   vertexShader: `
     attribute vec3 aPrev, aNext;
-    attribute float aSide, aWidth, aRadius, aArc, aLevel, aArcW, aDot, aRing;
+    attribute float aSide, aWidth, aRadius, aArc, aLevel, aArcW, aDot, aRing, aRand;
+    varying float vRand;
     uniform vec2 uHalfRes;
     uniform float uWeight, uFogNear, uFogFar;
     uniform float uLayerNear, uLayerFar, uHzNear, uHzFar;
@@ -1716,7 +1723,7 @@ const contourMat = new THREE.ShaderMaterial({
          every GLSL ES 1.0 driver will take, and three iterations costs less
          than finding out which ones will. */
       vec3 p = position, pP = aPrev, pN = aNext;
-      vRing = aRing; vRingHot = 0.0;
+      vRing = aRing; vRingHot = 0.0; vRand = aRand;
       for (int k = 0; k < 3; k++) {
         if (aRing > float(k) + 0.5 && aRing < float(k) + 1.5) {
           p.y  += uRingLift[k];
@@ -1811,6 +1818,8 @@ const contourMat = new THREE.ShaderMaterial({
     uniform vec3 uInk, uEdge, uHoverCol; uniform float uInkMix;
     uniform float uFillOn, uFillY, uFillBand, uFillGhost, uFillGlow;
     uniform float uLayer, uLayerDim;
+    uniform float uRidgeIn;
+    varying float vRand;
     ${CT_PALETTE_GLSL}
     void main(){
       float t = clamp(vY / vMax, 0.0, 1.0);
@@ -1939,6 +1948,7 @@ const contourMat = new THREE.ShaderMaterial({
       /* layers: the lines dim with distance, so each ridge back reads a step darker */
       col *= 1.0 - uLayer * uLayerDim * vLayerT;
       a *= vHz;
+      a *= smoothstep(vRand, vRand + 0.07, uRidgeIn);   /* the ridges arriving one by one */
 
       if (a < 0.004) discard;
       gl_FragColor = vec4(col, min(1.0, a));
@@ -2940,6 +2950,9 @@ return {
     contourMat.uniforms.uAccent.value.copy(srgbVec(hex));
     trailMat.uniforms.uColor.value[HERO_ROUTE].copy(srgbVec(hex));
   },
+  /** The ridges arriving one by one: t from 0 (none) to 1.07 (all), each
+      ridge coming in at its own random moment; null shows them all. */
+  setRidgeIn(t) { contourMat.uniforms.uRidgeIn.value = t == null ? 2 : t; },
   /** Draw (on) or retract the one accent route up the massif. */
   climbHero(on, delay = 0, instant = false) {
     gsap.killTweensOf(trailProgress, String(HERO_ROUTE));

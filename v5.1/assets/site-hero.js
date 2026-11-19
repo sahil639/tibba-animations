@@ -26,7 +26,7 @@
 
    Every tunable: SITE_HERO_CONFIG.
    ═════════════════════════════════════════════════════════════════════════ */
-import { createRangeScene } from './range-scene.js?v=3';
+import { createRangeScene } from './range-scene.js?v=4';
 
 const $ = s => document.querySelector(s);
 const clamp01 = t => t < 0 ? 0 : t > 1 ? 1 : t;
