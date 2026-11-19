@@ -1,0 +1,31 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Firstpost, "Designing for Business" (Nov 2026): the ad formats as a two-row
+   ticker, after the section on tibba.design — dark cards with a hairline,
+   each holding its screen set in a little and lightly scaled, its name under
+   it; the top row drifts left, the bottom row right, both seamless (each set
+   laid twice). Phones and desktop share it; only the card height changes.
+   Moving only while on screen (assets/fp-biz.js adds .run); still for
+   reduced motion, where each row scrolls by hand instead.
+   ══════════════════════════════════════════════════════════════════════════ */
+.fp-biz { --h: clamp(150px, 21vw, 300px); --gap: clamp(12px, 1.6vw, 24px); position: relative; margin: 0 calc(-1 * var(--over, 0px));
+  display: grid; gap: clamp(18px, 2.4vw, 34px); overflow: hidden;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+.fp-biz .row { overflow: hidden; }
+.fp-biz .track { display: flex; gap: var(--gap); width: max-content; margin: 0; padding: 0; list-style: none; will-change: transform;
+  animation: biz-left var(--t, 46s) linear infinite; animation-play-state: paused; }
+.fp-biz .r2 .track { animation-name: biz-right; --t: 52s; }
+.fp-biz.run .track { animation-play-state: running; }
+@keyframes biz-left { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(calc(-50% - var(--gap) / 2), 0, 0); } }
+@keyframes biz-right { from { transform: translate3d(calc(-50% - var(--gap) / 2), 0, 0); } to { transform: translate3d(0, 0, 0); } }
+.fp-biz li { flex: none; display: flex; flex-direction: column; align-items: center; gap: clamp(10px, 1.1vw, 16px); }
+.fp-biz .card { display: grid; place-items: center; height: var(--h); aspect-ratio: var(--ar); box-sizing: content-box; padding: 0 calc(var(--h) * .02);
+  border: 1px solid #3a3a3d; border-radius: clamp(8px, .8vw, 12px); background: #121214; overflow: hidden; }
+.fp-biz .card img { display: block; height: 100% !important; width: auto !important; max-width: none !important; min-height: 0 !important; transform: scale(.93); pointer-events: none; }
+.fp-biz li span { font: 600 clamp(11.5px, 1.05vw, 16px) / 1.2 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: .01em; color: #f2f2f2; white-space: nowrap; }
+@media (max-width: 760px) { .fp-biz { --h: 150px; --gap: 12px; } }
+@media (prefers-reduced-motion: reduce) {
+  .fp-biz { -webkit-mask: none; mask: none; }
+  .fp-biz .row { overflow-x: auto; scrollbar-width: none; }
+  .fp-biz .track { animation: none; }
+  .fp-biz li[aria-hidden] { display: none; }
+}
