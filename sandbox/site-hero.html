@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- Tibba Design Studio, website v5.1 — built 2026-11-19T12:23:15.704Z by tools/make-sandbox.mjs -->
+<!-- Tibba Design Studio, website v5.1 — built 2026-11-19T12:24:46.306Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -169,15 +169,12 @@ body:not(.ld-gone) { overflow: hidden; }
   .hero-phone .mbox .k, .hero-phone .mbox .v, .hero-phone .mbox .l { opacity: 1; }
   .hero-phone .foot-fade { height: 14vh; }
 }
-/* Nov 2026: the line and its sub under the title, the pair standing on the
-   foot of the hero at the left; the scroll cue moves to the right */
+/* Nov 2026: the title stays in the middle at the left; the line and its sub
+   under it, at the foot of the hero, the same left edge; the scroll cue to
+   the right */
 @media (min-width: 821px) {
-  .hero-title { top: auto; bottom: clamp(28px, 6vh, 64px); transform: none; }
-  .hero-title .hero-side { position: static; margin-top: clamp(22px, 3.2vh, 40px); max-width: 560px; }
+  .hero-side { left: var(--side); right: auto; max-width: 560px; }
   .hero-cue { left: auto; right: var(--side); }
-}
-@media (max-width: 820px) {
-  .hero-title .hero-side { position: static; margin-top: 20px; }
 }
 </style>
 <link rel="stylesheet" href="assets/tune.css">
@@ -203,10 +200,10 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     <div class="hero-copy">
       <div class="hero-title">
         <h1><span><i>Tibba</i></span><span><i>Design</i></span><span><i>Studio<em>.</em></i></span></h1>
-        <div class="hero-side">
-          <p class="lede">Helping ambitious teams reach the next peak.</p>
-          <p class="sub">We partner with founders and design leaders to turn ambitious ideas into shipped, high-impact work.</p>
-        </div>
+      </div>
+      <div class="hero-side">
+        <p class="lede">Helping ambitious teams reach the next peak.</p>
+        <p class="sub">We partner with founders and design leaders to turn ambitious ideas into shipped, high-impact work.</p>
       </div>
       <p class="hero-cue"><i></i>Scroll</p>
     </div>
