@@ -189,6 +189,22 @@ button { font: inherit; color: inherit; }
 .cs { grid-template-columns: minmax(0, 1fr) auto !important; grid-template-areas: 'p ic' !important; align-items: center !important; }
 .cs .cs-ic { grid-area: ic; display: block; width: 100px; height: 64px; }
 .cs .cs-pk, .cs .btn-p { display: none !important; }
+/* Nov 2026 (4), desktop: the right column fills the section's height — the
+   services grow into the room, each with more space round it, and the case
+   card lands level with the foot of the bag; the client's mountain fills
+   the card's right side, top to bottom */
+@media (min-width: 1101px) {
+  .gs-body { align-items: stretch; }
+  .state { display: flex; flex-direction: column; }
+  .lists { flex: 1; display: flex; flex-direction: column; }
+  .lists .list { flex: 1; display: flex; }
+  .lists .list ol { flex: 1; grid-auto-rows: 1fr; align-content: stretch; }
+  .sv { padding: clamp(22px, 2.2vw, 34px) clamp(14px, 1.4vw, 22px) clamp(22px, 2.2vw, 34px) 0 !important; align-content: center; }
+  .next { margin-top: clamp(24px, 3vh, 40px); }
+  .cs { grid-template-columns: minmax(0, 1fr) auto !important; min-height: clamp(150px, 12vw, 190px); padding-top: 0 !important; padding-bottom: 0 !important; align-items: stretch !important; }
+  .cs p { align-self: center; padding: clamp(16px, 1.6vw, 24px) 0; }
+  .cs .cs-ic { width: auto; height: 100%; max-height: none; min-height: clamp(150px, 12vw, 190px); align-self: stretch; object-fit: contain; aspect-ratio: 100 / 64; }
+}
 /* Nov 2026 (2): the icon close to its service's name */
 .sv { grid-template-columns: auto minmax(0, 1fr) !important; column-gap: 12px !important; }
 .sv .nm, .sv .ds { grid-column: 2 !important; }
