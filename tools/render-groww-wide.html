@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Render — a wide SVG of the range, one summit in focus</title>
+<style>
+  html, body { margin: 0; background: #000; color: #ccc; font: 13px system-ui; }
+  iframe { border: 0; display: block; }
+  p { padding: 8px; margin: 0; }
+</style>
+</head>
+<body>
+<!-- ───────────────────────────────────────────────────────────────────────
+     tools/render-groww-wide.html — a local tool, run against dev-server.mjs
+
+     Opens Our Work's range (summits-basecamp-layered.html) in a very wide
+     frame on a virtual clock, with one summit in focus (?focus=0 is Groww)
+     and the rest of the range receding as Base Camp draws it — dimmer,
+     thinner, cooler, sparser. Then exports the scene's own contour lines,
+     projected through that camera, as an SVG: a point is kept only where
+     the rendered frame shows the line (so ridges hide what is behind them),
+     and each run takes its colour from the frame, which carries the focus.
+
+       ?w=2400&h=760&dpr=2&focus=0  →  tools/out/range-wide.svg (+ .png)
+     ───────────────────────────────────────────────────────────────────── -->
+<iframe id="f"></iframe>
+<p id="log">loading…</p>
+<script type="module">
+  const q = new URLSearchParams(location.search), num = (k, d) => +(q.get(k) || d);
+  const W0 = num('w', 2400), H0 = num('h', 760), DPR = num('dpr', 2), FOCUS = num('focus', 0);
+  const log = document.getElementById('log'), f = document.getElementById('f');
+  f.style.width = W0 + 'px'; f.style.height = H0 + 'px';
+  const dt = 1000 / 30;
+  /* the virtual clock, and the range's box filling the whole frame (the
+     page's cards and heading out of the way) */
+  const SHIM = `<base href="${location.origin}/"><script>(() => {
+    let t = 0, id = 0; const q = [];
+    performance.now = () => t; const d0 = Date.now(); Date.now = () => d0 + t;
+    window.requestAnimationFrame = cb => { q.push([++id, cb]); return id; };
+    window.cancelAnimationFrame = i => { const k = q.findIndex(e => e[0] === i); if (k >= 0) q.splice(k, 1); };
+    Object.defineProperty(window, 'devicePixelRatio', { get: () => ${DPR} });
+    window.__advance = ms => { t += ms; q.splice(0).forEach(([, cb]) => cb(t)); };
+    window.__bcFocus = ${FOCUS};
+  })();<\/script><style>
+    .bc-head, #stack, .bc-bar, #bc-panel, #wb-nav, #wb-dock, #tune { display: none !important; }
+    .bc-dock { position: fixed !important; inset: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; visibility: visible !important; }
+    .fs-peak { display: none !important; }
+  </style>`;
+  const html = await (await fetch('/summits-basecamp-layered.html')).text();
+  f.srcdoc = html.replace(/<head>/i, '<head>' + SHIM);
+  await new Promise(r => f.onload = r);
+  const W = f.contentWindow, D = f.contentDocument;
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  for (let i = 0; i < 60 && !(W.tibba && W.tibba.range && D.querySelector('#range canvas')); i++) { W.__advance(dt); await wait(100); }
+  await wait(800);
+  const scene = W.tibba.range.scene, cv = D.querySelector('#range canvas');
+  for (let i = 0; i < 240; i++) { W.__advance(dt); if (i % 40 === 0) await wait(30); }   // settle: the flight, the fades, the lit summit
+  log.textContent = 'settled';
+
+  const put = async (name, body) => fetch('/__save/' + name, { method: 'POST', body });
+  window.render = async () => {
+    W.__advance(dt);
+    /* read the frame straight after it is drawn, in the same task */
+    const c2 = document.createElement('canvas'); c2.width = cv.width; c2.height = cv.height;
+    const g = c2.getContext('2d', { willReadFrequently: true });
+    g.fillStyle = '#000'; g.fillRect(0, 0, c2.width, c2.height); g.drawImage(cv, 0, 0);
+    const lines = scene.contourExport();
+    const Wc = cv.clientWidth, Hc = cv.clientHeight, k = cv.width / Wc;
+    const px = g.getImageData(0, 0, c2.width, c2.height).data;
+    const look = (x, y) => {
+      let best = 0, col = [40, 44, 58]; const r = Math.ceil(2 * k), cx = Math.round(x * k), cy = Math.round(y * k);
+      for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) {
+        const X = cx + i, Y = cy + j; if (X < 0 || Y < 0 || X >= c2.width || Y >= c2.height) continue;
+        const o = (Y * c2.width + X) * 4, l = px[o] * .3 + px[o + 1] * .59 + px[o + 2] * .11;
+        if (l > best) { best = l; col = [px[o], px[o + 1], px[o + 2]]; }
+      }
+      return { l: best, col };
+    };
+    const qc = v => Math.min(255, Math.round(v / 8) * 8), fx = v => v.toFixed(1);
+    function simplify(P, eps) {
+      if (P.length < 3) return P;
+      const [a, b] = [P[0], P[P.length - 1]]; let dm = 0, im = 0;
+      for (let i = 1; i < P.length - 1; i++) {
+        const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1;
+        const d = Math.abs(dy * P[i][0] - dx * P[i][1] + b[0] * a[1] - b[1] * a[0]) / L;
+        if (d > dm) { dm = d; im = i; }
+      }
+      return dm > eps ? simplify(P.slice(0, im + 1), eps).slice(0, -1).concat(simplify(P.slice(im), eps)) : [a, b];
+    }
+    const runs = new Map(); let kept = 0;
+    for (const L of lines) {
+      const P = L.closed ? L.pts.concat([L.pts[0]]) : L.pts;
+      let run = [], acc = [0, 0, 0], an = 0, bright = 0;
+      const flush = () => {
+        if (run.length > 1 && an) {
+          const avg = acc.map(v => v / an), col = '#' + avg.map(v => qc(v).toString(16).padStart(2, '0')).join('');
+          /* the width the frame shows: a dim, receding line drawn thinner */
+          const lum = (avg[0] * .3 + avg[1] * .59 + avg[2] * .11) / 255;
+          const wd = Math.max(.4, Math.round(L.w * (.55 + .6 * Math.min(1, lum * 1.6)) * 4) / 4);
+          const key = col + '|' + wd + '|' + (L.dot ? 1 : 0);
+          const s = simplify(run, .4);
+          (runs.get(key) || runs.set(key, []).get(key)).push('M' + s.map(p => fx(p[0]) + ' ' + fx(p[1])).join('L'));
+          kept += s.length;
+        }
+        run = []; acc = [0, 0, 0]; an = 0;
+      };
+      for (const p of P) {
+        const on = !p[3] && p[2] < 1 && p[0] > -20 && p[0] < Wc + 20 && p[1] > -20 && p[1] < Hc + 20;
+        const s = on ? look(p[0], p[1]) : { l: 0 };
+        if (on && s.l > 2) { run.push(p); acc[0] += s.col[0]; acc[1] += s.col[1]; acc[2] += s.col[2]; an++;
+          if (run.length >= 24) { const last = run[run.length - 1]; flush(); run.push(last); } }
+        else flush();
+      }
+      flush();
+    }
+    let body = '';
+    for (const [key, ds] of runs) {
+      const [col, wd, dot] = key.split('|');
+      body += `<path stroke="${col}" stroke-width="${wd}"${dot === '1' ? ` stroke-dasharray="${fx(wd * 1.2)} ${fx(wd * 2.6)}"` : ''} d="${ds.join('')}"/>`;
+    }
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${Wc} ${Hc}" width="${Wc}" height="${Hc}">` +
+      `<rect width="${Wc}" height="${Hc}" fill="#000"/><g fill="none" stroke-linecap="round" stroke-linejoin="round">${body}</g></svg>`;
+    await put('range-wide.svg', new Blob([svg], { type: 'image/svg+xml' }));
+    await put('range-wide.png', await new Promise(r => c2.toBlob(r, 'image/png')));
+    return { w: Wc, h: Hc, kb: Math.round(svg.length / 1024), groups: runs.size, points: kept, lines: lines.length };
+  };
+  window.__ready = true; log.textContent = 'ready — render()';
+</script>
+</body>
+</html>
