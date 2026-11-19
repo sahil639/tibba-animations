@@ -1,6 +1,6 @@
 /* ══════════════════════════════════════════════════════════════════════════
    Firstpost, "A scalable Design System across platforms", on phones (Nov 2026)
-   — loaded only under 760px (case-firstpost-figma.html). The plate is built
+   — loaded only under 760px (firstpost-casestudy.html). The plate is built
    from the design system's own pieces (assets/work/firstpost-figma/m/ds/,
    one SVG each), laid out as the old flat image had them on a 535-unit
    column. Motion is transforms and opacity only (assets/fp-ds.js adds .in

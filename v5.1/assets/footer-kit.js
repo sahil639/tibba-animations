@@ -162,9 +162,9 @@ export function sectionLinks(root = document) {
 /* ── the form, once sent: the form gives way to a clear "we've got it",
    what happens next, and a way on into the work while they wait ──────── */
 export const CASES = [
-  ['Groww', 'case-groww-figma.html', 'Boosting engagement on the app'],
-  ['Firstpost', 'case-firstpost-figma.html', '2x traffic through a strategic redesign'],
-  ['Breathe ESG', 'case-breathe-esg-figma.html', 'Faster sales, smoother releases'],
+  ['Groww', 'groww-casestudy.html', 'Boosting engagement on the app'],
+  ['Firstpost', 'firstpost-casestudy.html', '2x traffic through a strategic redesign'],
+  ['Breathe ESG', 'breathe-esg-casestudy.html', 'Faster sales, smoother releases'],
 ];
 export function formSuccess(form, { cases = CASES } = {}) {
   const host = form.closest('.talk') || form.parentElement;

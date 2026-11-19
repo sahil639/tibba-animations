@@ -57,7 +57,7 @@ body { background: #000; }
 .cf-metric .k { font-weight: 300; font-size: 16px; line-height: 1.3; color: #f9491e; }
 .cf-metric .v { font-size: clamp(44px, calc(72 * var(--cu)), 88px); line-height: 1.1; }
 .cf-metric .l { font-weight: 300; font-size: 16px; line-height: 1.3; color: #aaa6a2; }
-.cf-metric.light .l { color: #fff; }
+.cf-metric.light .l { color: #aaa6a2; }   /* one colour for every label (Nov 2026) */
 .cf-metric > i { position: absolute; width: 15.5px; height: 15.5px; background: url('work/groww-figma/corner-a.svg') 0 0 / 100% 100% no-repeat; }
 .cf-metric > i:nth-of-type(1) { left: -1.5px; top: -1.2px; }
 .cf-metric > i:nth-of-type(2) { left: -1.5px; bottom: -1.8px; transform: scaleY(-1); }
@@ -192,7 +192,7 @@ body:has(.cf-light) { background: #f5f9fa; }
 .cf-light .cf-metric { border-color: #e2e2e2; }
 .cf-light .cf-metric.on, .cf-light .cf-metric:not(.on):hover { background: #fff; }
 .cf-light .cf-metric .l { color: rgba(0,0,0,.6); }
-.cf-light .cf-metric.light .l { color: #000; }
+.cf-light .cf-metric.light .l { color: rgba(0,0,0,.6); }
 .cf-light .cf-metric > i { filter: invert(1); opacity: .5; }
 .cf-light .cf-facts dl > div { border-bottom-color: var(--hair); }
 .cf-light .cf-facts dt { color: var(--ink-2); }
@@ -695,3 +695,22 @@ body:has(.cf-light) { background: #f5f9fa; }
   :is([data-case="firstpost"], [data-case="groww"]) .cf-metric > i { background: #3a3a3e;
     -webkit-mask: url('work/groww-figma/corner-a.svg') 0 0 / 100% 100% no-repeat; mask: url('work/groww-figma/corner-a.svg') 0 0 / 100% 100% no-repeat; }
 }
+
+/* a video's controls on hover (assets/reel-controls.js): a slim bar at the
+   foot — play/pause, the position, the sound — fading up on hover or
+   focus; always there on a touch screen */
+[data-controls] { position: relative; }
+.vc { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; display: flex; align-items: center; gap: 10px; padding: 26px 12px 12px;
+  background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.62)); opacity: 0; transform: translateY(6px);
+  transition: opacity .25s linear, transform .35s cubic-bezier(.22,1,.36,1); }
+[data-controls]:hover .vc, .vc:focus-within, .vc-live .vc { opacity: 1; transform: none; }
+@media (hover: none) { .vc { opacity: 1; transform: none; } }
+.vc button { flex: none; display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 1px solid rgba(255,255,255,.22);
+  background: rgba(0,0,0,.45); color: #fff; cursor: pointer; -webkit-tap-highlight-color: transparent; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.vc button:hover { background: rgba(255,255,255,.14); }
+.vc button:focus-visible, .vc-track:focus-visible { outline: 1px solid #fff; outline-offset: 2px; }
+.vc svg { width: 14px; height: 14px; }
+.vc-track { position: relative; flex: 1; height: 3px; background: rgba(255,255,255,.25); cursor: pointer; touch-action: none; }
+.vc-track::before { content: ''; position: absolute; left: 0; right: 0; top: -10px; bottom: -10px; }   /* a bigger target than the line */
+.vc-track i { position: absolute; inset: 0; background: #fff; transform-origin: 0 50%; transform: scaleX(0); }
+@media (prefers-reduced-motion: reduce) { .vc { transition: none; } }

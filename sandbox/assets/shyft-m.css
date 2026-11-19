@@ -1,6 +1,6 @@
 /* ══════════════════════════════════════════════════════════════════════════
    Shyft & Mindhouse on phones (Nov 2026) — loaded only under 760px
-   (case-shyft-mindhouse-figma.html). Each piece stands where a desktop plate
+   (shyft-and-mindhouse-casestudy.html). Each piece stands where a desktop plate
    stands; the plate (.sm-desk) is hidden. Motion: assets/shyft-m.js.
    ══════════════════════════════════════════════════════════════════════════ */
 .sm-desk { display: none !important; }

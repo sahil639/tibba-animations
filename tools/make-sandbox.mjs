@@ -83,9 +83,15 @@ await writeFile(join(OUT, 'index.html'), await readFile(join(OUT, 'website-v3.ht
    copy is called v3. Every reference in its pages and scripts is rewritten;
    the old names stay as one-line forwards so links already out there land. */
 {
-  const RENAME = [['website-v3-mobile.html', 'mobile.html'], ['website-v3.html', 'index.html']];
+  /* the case studies (Nov 2026): one name each, /<client>-casestudy — the
+     current pages (case-*-figma.html) take it, and every link to them or to
+     the older editions (case-*-v2.html) is pointed there */
+  const CASES = [['groww', 'groww'], ['firstpost', 'firstpost'], ['breathe-esg', 'breathe-esg'], ['shyft-mindhouse', 'shyft-and-mindhouse']];
+  const CASE_RENAME = CASES.flatMap(([from, to]) => [[`case-${from}-figma.html`, `${to}-casestudy.html`], [`case-${from}-v2.html`, `${to}-casestudy.html`]]);
+  const RENAME = [['website-v3-mobile.html', 'mobile.html'], ['website-v3.html', 'index.html'], ...CASE_RENAME];
   const rewrite = t => RENAME.reduce((acc, [a, b]) => acc.split(a).join(b), t);
   await writeFile(join(OUT, 'mobile.html'), await readFile(join(OUT, 'website-v3-mobile.html'), 'utf8'));
+  for (const [from, to] of CASES) await writeFile(join(OUT, `${to}-casestudy.html`), await readFile(join(OUT, `case-${from}-figma.html`), 'utf8'));
   const files = [...(await readdir(OUT)).filter(f => f.endsWith('.html')).map(f => join(OUT, f)),
                  ...(await readdir(join(OUT, 'assets'))).filter(f => /\.(js|css)$/.test(f)).map(f => join(OUT, 'assets', f))];
   for (const f of files) { const t = await readFile(f, 'utf8'), n = rewrite(t); if (n !== t) await writeFile(f, n); }
@@ -93,6 +99,7 @@ await writeFile(join(OUT, 'index.html'), await readFile(join(OUT, 'website-v3.ht
 <meta http-equiv="refresh" content="0; url=${to}"><script>location.replace('${to}' + location.hash)</script>`;
   await writeFile(join(OUT, 'website-v3.html'), forward('index.html'));
   await writeFile(join(OUT, 'website-v3-mobile.html'), forward('mobile.html'));
+  for (const [from, to] of CASE_RENAME) await writeFile(join(OUT, from), forward(to));
 }
 /* the manifest (what the hidden site menu reads) lists the whole playground;
    in the copy it lists only the pages the copy has, so nothing in it links
@@ -105,7 +112,7 @@ await writeFile(join(OUT, 'index.html'), await readFile(join(OUT, 'website-v3.ht
   site.feature.pages = site.feature.pages.filter(keep);
   site.sections = site.sections.map(sec => ({ ...sec, pages: sec.pages.filter(keep) })).filter(sec => sec.pages.length);
   await writeFile(join(OUT, 'assets/manifest.js'), `/* the copy's manifest: only its own pages (tools/make-sandbox.mjs) */
-window.TIBBA_SITE = ${JSON.stringify(site, null, 1)};
+window.TIBBA_SITE = ${JSON.stringify(site, null, 1).replace(/case-(groww|firstpost|breathe-esg|shyft-mindhouse)-(?:figma|v2)\.html/g, (m, c) => (c === 'shyft-mindhouse' ? 'shyft-and-mindhouse' : c) + '-casestudy.html')};
 window.TIBBA_PAGES = [window.TIBBA_SITE.feature, ...window.TIBBA_SITE.sections]
   .flatMap(s => s.pages.map(p => ({ ...p, section: s.id, sectionLabel: s.label })));
 `);

@@ -38,6 +38,46 @@
       "source": "/about-landing",
       "destination": "/about",
       "permanent": true
+    },
+    {
+      "source": "/case-groww-figma",
+      "destination": "/groww-casestudy",
+      "permanent": true
+    },
+    {
+      "source": "/case-groww-v2",
+      "destination": "/groww-casestudy",
+      "permanent": true
+    },
+    {
+      "source": "/case-firstpost-figma",
+      "destination": "/firstpost-casestudy",
+      "permanent": true
+    },
+    {
+      "source": "/case-firstpost-v2",
+      "destination": "/firstpost-casestudy",
+      "permanent": true
+    },
+    {
+      "source": "/case-breathe-esg-figma",
+      "destination": "/breathe-esg-casestudy",
+      "permanent": true
+    },
+    {
+      "source": "/case-breathe-esg-v2",
+      "destination": "/breathe-esg-casestudy",
+      "permanent": true
+    },
+    {
+      "source": "/case-shyft-mindhouse-figma",
+      "destination": "/shyft-and-mindhouse-casestudy",
+      "permanent": true
+    },
+    {
+      "source": "/case-shyft-mindhouse-v2",
+      "destination": "/shyft-and-mindhouse-casestudy",
+      "permanent": true
     }
   ]
 }

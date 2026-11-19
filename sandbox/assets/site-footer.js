@@ -24,9 +24,9 @@ const PAGES = [['Home', HOME, 'top'], ['Work', HOME + '#work', 'work'], ['Servic
 const SOCIAL = [['Instagram', 'https://www.instagram.com/tibba.design/'], ['LinkedIn', 'https://www.linkedin.com/company/tibba-design-studio/'],
   ['Medium', 'https://medium.com/@tibbadesignstudio'], ['Email', 'mailto:hello@tibba.design']];
 export const CASES = [
-  ['Groww', 'case-groww-figma.html', 'Boosting engagement on the app'],
-  ['Firstpost', 'case-firstpost-figma.html', '2x traffic through a strategic redesign'],
-  ['Breathe ESG', 'case-breathe-esg-figma.html', 'Faster sales, smoother releases'],
+  ['Groww', 'groww-casestudy.html', 'Boosting engagement on the app'],
+  ['Firstpost', 'firstpost-casestudy.html', '2x traffic through a strategic redesign'],
+  ['Breathe ESG', 'breathe-esg-casestudy.html', 'Faster sales, smoother releases'],
 ];
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
