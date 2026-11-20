@@ -458,10 +458,17 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
      a link from About or a case study, and back / forward all open on the
      hero without it. */
   {
-    let reload = false, visited = false;
+    let reload = false, visited = false, arrival = false;
     try { const n = performance.getEntriesByType('navigation')[0]; reload = !!n && n.type === 'reload'; } catch (e) {}
-    try { visited = sessionStorage.getItem('tibba.visited') === '1'; } catch (e) {}
-    if (visited && !reload) sections = sections.map(s => s.gate && !/noloader/.test(s.file) ? { ...s, file: s.file + (s.file.includes('?') ? '&' : '?') + 'noloader' } : s);
+    try {
+      visited = sessionStorage.getItem('tibba.visited') === '1';
+      /* pair.js hands an arrival on: a first visit or reload that landed on
+         the phone page in a desktop window, and was sent here straight away */
+      arrival = sessionStorage.getItem('tibba.arrival') === '1';
+      sessionStorage.removeItem('tibba.arrival');
+      sessionStorage.setItem('tibba.visited', '1');   // from here on, this tab has seen the site
+    } catch (e) {}
+    if (visited && !reload && !arrival) sections = sections.map(s => s.gate && !/noloader/.test(s.file) ? { ...s, file: s.file + (s.file.includes('?') ? '&' : '?') + 'noloader' } : s);
   }
   /* a deep link (#summits, #services …) skips the loader and travels there */
   const deep = location.hash.slice(1);
