@@ -136,7 +136,7 @@ const mo = new MutationObserver(muts => {
 let rz = 0;
 addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { touched.forEach(el => { clear(el); base.delete(el); }); touched = new Set(); apply(); }, 150); });
 /* another page or the shell changed the settings */
-addEventListener('storage', e => { if (e.key === KEY) { T = read(); apply(); syncPanel(); } });
+/* (off: no listener for other pages' settings — see the foot of the file) */
 
 function start() {
   apply();
@@ -281,7 +281,6 @@ function panel() {
 }
 
 /* last, so everything above is declared before the first apply */
-/* Hidden for now (Nov 2026): the site is set in Vend Sans and no saved
-   choice is applied. ?type in the address brings the control back. */
-const ON = /[?&]type\b/.test(location.search) || /[?&]type\b/.test((window.top !== window ? (() => { try { return top.location.search; } catch (e) { return ''; } })() : ''));
-if (ON) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start(); }
+/* Off (Nov 2026): the site is set in Vend Sans alone. No type button is
+   drawn and no saved setting is applied, on any page, with any address.
+   (start() above is kept for reference; nothing calls it.) */
