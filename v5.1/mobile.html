@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- Tibba Design Studio, website v5.1 — built 2026-11-20T10:53:20.387Z by tools/make-sandbox.mjs -->
+<!-- Tibba Design Studio, website v5.1 — built 2026-11-20T10:54:24.807Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -380,8 +380,6 @@ section { scroll-margin-top: 64px; }
 .hero::after { background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) calc(100% - 290px), rgba(0,0,0,.72) calc(100% - 150px), #000 100%); }
 .hero h1 { text-shadow: 0 1px 18px rgba(0,0,0,.9), 0 0 2px rgba(0,0,0,.6); }
 .hero-foot p { text-shadow: 0 1px 12px rgba(0,0,0,.8); }
-/* Nov 2026: the line wraps to the title's own width (--title-w, measured below) */
-.hero-line { max-width: var(--title-w, 100%); }
 
 /* buttons (Nov 2026, the reference): a deep tint of the button's colour,
    a hairline of the same colour at 25%, white words and arrow */
@@ -499,8 +497,8 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     <video class="hero-vid" id="hero-vid" muted loop playsinline autoplay preload="auto" disablepictureinpicture disableremoteplayback
       controlslist="nodownload nofullscreen noremoteplayback noplaybackrate" src="assets/video/hero-mountain-30.mp4" aria-hidden="true" tabindex="-1"></video>
     <div class="hero-foot">
-      <p class="hero-line">Helping ambitious teams reach the next peak.</p>
-      <p>We partner with founders and design leaders to turn ambitious ideas into shipped, high-impact work.</p>
+      <p>Helping ambitious teams<br>reach the next peak.</p>
+      <p>We partner with founders and product leaders to turn ideas into shipped, high-impact work.</p>
     </div>
   </section>
 
@@ -677,19 +675,6 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   import { mountSiteNav } from './assets/site-nav.js?v=13';
   mountSiteNav(document.getElementById('ca-header'), { home: 'mobile.html', nav: [
     { label: 'Work', href: '#work' }, { label: 'Services', href: '#services' }, { label: 'About', href: 'about.html' }, { label: 'Contact', href: '#footer' }] });
-</script>
-<script>
-  /* the hero's line wraps to the width of TIBBA DESIGN STUDIO. above it: the
-     title's set width (its longest line), measured, and again when the
-     screen changes size or the face arrives */
-  (function () {
-    const h = document.getElementById('hero-title'), hero = h && h.closest('.hero');
-    if (!h) return;
-    const fit = () => { const r = document.createRange(); r.selectNodeContents(h); hero.style.setProperty('--title-w', Math.ceil(r.getBoundingClientRect().width) + 'px'); };
-    fit();
-    addEventListener('resize', fit);
-    if (document.fonts) document.fonts.ready.then(fit);
-  })();
 </script>
 <script>
   /* the video stays a still (its poster) for anyone who asks for less

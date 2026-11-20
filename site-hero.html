@@ -174,6 +174,9 @@ body:not(.ld-gone) { overflow: hidden; }
   .hero-side { left: var(--side); right: auto; max-width: 560px; }
   .hero-cue { left: auto; right: var(--side); }
 }
+/* Nov 2026 (desktop): the line wraps to the width of TIBBA DESIGN STUDIO.
+   above it (--title-w: the title's set width, measured by the script below) */
+@media (min-width: 761px) { .hero-side .lede { max-width: var(--title-w, none); } }
 </style>
 <link rel="stylesheet" href="assets/tune.css">
 </head>
@@ -198,9 +201,20 @@ body:not(.ld-gone) { overflow: hidden; }
       </div>
       <div class="hero-side">
         <p class="lede">Helping ambitious teams reach the next peak.</p>
-        <p class="sub">We partner with founders and design leaders to turn ambitious ideas into shipped, high-impact work.</p>
+        <p class="sub">We partner with founders and product leaders to turn ideas into shipped, high-impact work.</p>
       </div>
       <p class="hero-cue"><i></i>Scroll</p>
+      <script>
+        /* the title's set width (its longest line), for the line under it;
+           again when the window changes size or the face arrives */
+        (function () {
+          var h = document.querySelector('.hero-title h1'), root = document.documentElement;
+          if (!h) return;
+          var fit = function () { root.style.setProperty('--title-w', Math.ceil(h.getBoundingClientRect().width) + 'px'); };
+          fit(); addEventListener('resize', fit);
+          if (document.fonts) document.fonts.ready.then(fit);
+        })();
+      </script>
     </div>
 
 
