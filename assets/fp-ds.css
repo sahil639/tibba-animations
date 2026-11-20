@@ -34,8 +34,10 @@ figure.fpds { background: linear-gradient(180deg, #252525 0%, #1c1c1c 3%, #1a1a1
 
 /* the specimens type out: a cover the colour of the card slides off in
    letter-sized steps, once, just after the card arrives */
-.fpds .type { position: absolute; left: 1%; right: 1%; top: 2%; bottom: 2%; overflow: hidden; border-radius: 0 18% 18% 0 / 0 40% 40% 0; }
-.fpds .type::before { content: ''; position: absolute; inset: 0; background: #0d0d0d; transform: translate3d(0, 0, 0); }
+.fpds .type { position: absolute; left: 1%; right: .35%; top: 2%; bottom: 2%; overflow: hidden; border-radius: 0 18% 18% 0 / 0 40% 40% 0; }
+/* the cover is the card's own grey — its 5% white over the plate's #1a1a1a —
+   so only the letters appear, not a dark block sliding off (Nov 2026) */
+.fpds .type::before { content: ''; position: absolute; inset: 0; background: linear-gradient(rgba(255, 255, 255, .05), rgba(255, 255, 255, .05)), #1a1a1a; transform: translate3d(0, 0, 0); }
 .fpds.in .type::before { animation: ds-type calc(var(--n) * 110ms) steps(var(--n), end) calc(var(--i, 0) * 55ms + 650ms) forwards; }
 .fpds .t02 .type { left: 4%; } .fpds .t04 .type { left: 3%; }
 @keyframes ds-type { to { transform: translate3d(101%, 0, 0); } }
