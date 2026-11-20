@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- Tibba Design Studio, website v5.1 — built 2026-11-19T12:36:47.129Z by tools/make-sandbox.mjs -->
+<!-- Tibba Design Studio, website v5.1 — built 2026-11-20T06:20:53.878Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -411,11 +411,15 @@ section { scroll-margin-top: 64px; }
 .case .case-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 14px 0 0; padding: 0; list-style: none;
   font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: rgba(233,236,242,.85); }
 .case .case-tags li + li::before { content: '·'; margin-right: 10px; color: rgba(233,236,242,.4); }
-.case .rv.loop { aspect-ratio: 720 / 894; background: #000; }
-/* each case's mini film (assets/m/loops/<case>.mp4): the card's images with screens from Figma between them, each a
-   slow push-in, soft wipes between, the edges feathered into the page's black;
-   10 s, seamless, playing only while the card is near the screen */
-.case .rv.loop video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.case .rv.loop { aspect-ratio: 1080 / 1341; background: #0e0e10; }
+.case .rv.loop img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.case .rv.loop img:not(.loop-base) { opacity: 0; animation: loop-4 10s linear infinite both paused; will-change: opacity; }
+.case .rv.loop.run img:not(.loop-base) { animation-play-state: running; }
+.case .rv.loop img:nth-child(3) { animation-delay: 2.5s; }
+.case .rv.loop img:nth-child(4) { animation-delay: 5s; }
+.case .rv.loop img:nth-child(5) { animation-delay: 7.5s; }
+@keyframes loop-4 { 0% { opacity: 0; } 4% { opacity: 1; } 25% { opacity: 1; } 29% { opacity: 0; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .case .rv.loop img:not(.loop-base) { animation: none; } }
 /* More work: the line opens on a grid row (0fr → 1fr), height and fade on
    one curve, so nothing jumps */
 .index .ix-d { flex-basis: 100%; display: grid; grid-template-rows: 0fr; max-height: none !important; margin: 0 !important; opacity: 0;
@@ -423,6 +427,23 @@ section { scroll-margin-top: 64px; }
 .index .ix-d > p { min-height: 0; overflow: hidden; padding-top: 8px; font-size: 14px; line-height: 1.45; color: var(--mute); }
 .index li[aria-expanded="true"] .ix-d { grid-template-rows: 1fr; opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .index .ix-d { transition: none; } }
+/* More work, as desktop (Nov 2026): the same six, each in its own colour —
+   open, the name takes the colour with its square before it, the row's
+   line fills in the colour, and the detail shows the project's own image
+   (assets/more-hover/, desktop's hover images), its line and its tags */
+.index > li > b { display: inline-flex; align-items: center; transition: color .3s; }
+.index > li > b::before { content: ''; flex: none; width: 0; height: 8px; margin-right: 0; background: var(--c, #C9124B); transform: scale(0);
+  transition: transform .35s cubic-bezier(.22,1,.36,1), width .35s cubic-bezier(.22,1,.36,1), margin-right .35s cubic-bezier(.22,1,.36,1); }
+.index > li[aria-expanded="true"] > b::before { width: 8px; margin-right: 10px; transform: scale(1); }   /* the name steps over as its square comes in, as desktop's does */
+.index > li { position: relative; }
+.index > li::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: var(--c, #C9124B); transform: scaleX(0); transform-origin: left; transition: transform .5s cubic-bezier(.22,1,.36,1); }
+.index > li[aria-expanded="true"]::after { transform: scaleX(1); }
+.index .ix-d > div { min-height: 0; overflow: hidden; }
+.index .ix-d .ix-img { display: block; width: 100%; height: auto; aspect-ratio: 389 / 291; margin-top: 14px; border: 1px solid rgba(233,236,242,.18); background: #121214; }
+.index .ix-d p { padding-top: 12px; font-size: 14px; line-height: 1.45; color: var(--mute); }
+.index .ix-tags { display: flex; flex-wrap: wrap; gap: 6px 10px; margin: 10px 0 2px; padding: 0; list-style: none; }
+.index .ix-tags li { display: inline; padding: 0; border: 0; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); cursor: auto; }
+.index .ix-tags li:not(:last-child)::after { content: '·'; margin-left: 10px; }   /* the dot ends a line, never starts one */
 /* Our services: the new bag icons, as drawn */
 .st-ico img { mix-blend-mode: normal !important; opacity: 1 !important; }
 /* the case study, under the stage's heading: one plain line of text, the
@@ -510,7 +531,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
         <h3>How we helped Groww <span class="hi">boost engagement</span> on their app</h3>
         <ul class="case-tags"><li>Fintech</li><li>Mobile app</li><li>Website</li><li>Growth</li></ul>
         <p>A deep engagement with Groww to design and improve features that engage users on their consumer app, along with design support for other product initiatives.</p>
-        <a class="rv loop" href="groww-casestudy.html" aria-label="Groww — the work"><video src="assets/m/loops/groww.mp4?v=2" poster="assets/m/loops/groww-poster.jpg?v=2" width="720" height="894" muted loop playsinline autoplay preload="metadata" disablepictureinpicture aria-hidden="true" tabindex="-1"></video></a>
+        <a class="rv loop" href="groww-casestudy.html" aria-label="Groww — the work"><img class="loop-base" src="assets/m/loops/groww-1.webp" width="1080" height="1341" alt="" decoding="async"><img src="assets/m/loops/groww-1.webp" width="1080" height="1341" alt="" decoding="async"><img src="assets/m/loops/groww-2.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"><img src="assets/m/loops/groww-3.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"><img src="assets/m/loops/groww-4.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"></a>
         <a class="btn-p case-go" style="--btn-bg:#4DD9C0" href="groww-casestudy.html">View case study<span class="btn-p-ic" aria-hidden="true"></span></a>
       </article>
       <article class="case" data-peak style="--c:#E05555">
@@ -518,7 +539,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
         <h3>How we helped Firstpost <span class="hi">2x their traffic</span> through a strategic redesign</h3>
         <ul class="case-tags"><li>News &amp; media</li><li>Website</li><li>Mobile app</li><li>Design system</li></ul>
         <p>A design overhaul of Firstpost’s website and the creation of their first mobile app, with a significant pivot for their business and content strategy.</p>
-        <a class="rv loop" href="firstpost-casestudy.html" aria-label="Firstpost — the work"><video src="assets/m/loops/firstpost.mp4?v=2" poster="assets/m/loops/firstpost-poster.jpg?v=2" width="720" height="894" muted loop playsinline autoplay preload="metadata" disablepictureinpicture aria-hidden="true" tabindex="-1"></video></a>
+        <a class="rv loop" href="firstpost-casestudy.html" aria-label="Firstpost — the work"><img class="loop-base" src="assets/m/loops/firstpost-1.webp" width="1080" height="1341" alt="" decoding="async"><img src="assets/m/loops/firstpost-1.webp" width="1080" height="1341" alt="" decoding="async"><img src="assets/m/loops/firstpost-2.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"><img src="assets/m/loops/firstpost-3.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"><img src="assets/m/loops/firstpost-4.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"></a>
         <a class="btn-p case-go" style="--btn-bg:#E05555" href="firstpost-casestudy.html">View case study<span class="btn-p-ic" aria-hidden="true"></span></a>
       </article>
       <article class="case" data-peak style="--c:#4CAF70">
@@ -526,7 +547,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
         <h3>How we helped Breathe ESG <span class="hi">accelerate sales</span>, streamline releases and elevate customer experience</h3>
         <ul class="case-tags"><li>SaaS</li><li>ESG</li><li>Dashboard</li><li>Design sprints</li></ul>
         <p>An MVP to v1 redesign of Breathe ESG’s SaaS platform, to make it easier for companies to track their ESG metrics and regulatory compliance.</p>
-        <a class="rv loop" href="breathe-esg-casestudy.html" aria-label="Breathe ESG — the work"><video src="assets/m/loops/breathe-esg.mp4?v=2" poster="assets/m/loops/breathe-esg-poster.jpg?v=2" width="720" height="894" muted loop playsinline autoplay preload="metadata" disablepictureinpicture aria-hidden="true" tabindex="-1"></video></a>
+        <a class="rv loop" href="breathe-esg-casestudy.html" aria-label="Breathe ESG — the work"><img class="loop-base" src="assets/m/loops/breathe-esg-1.webp" width="1080" height="1341" alt="" decoding="async"><img src="assets/m/loops/breathe-esg-1.webp" width="1080" height="1341" alt="" decoding="async"><img src="assets/m/loops/breathe-esg-2.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"><img src="assets/m/loops/breathe-esg-3.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"><img src="assets/m/loops/breathe-esg-4.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"></a>
         <a class="btn-p case-go" style="--btn-bg:#4CAF70" href="breathe-esg-casestudy.html">View case study<span class="btn-p-ic" aria-hidden="true"></span></a>
       </article>
       <article class="case" data-peak style="--c:#7B8FF5">
@@ -534,7 +555,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
         <h3>How we helped Shyft &amp; Mindhouse <span class="hi">grow their business</span> and supercharge product led growth</h3>
         <ul class="case-tags"><li>Fitness</li><li>Mental health</li><li>Mobile app</li><li>Design system</li></ul>
         <p>Conceptualising and designing a therapy experience, alongside redesigning their websites and apps to impact revenue.</p>
-        <a class="rv loop" href="shyft-and-mindhouse-casestudy.html" aria-label="Shyft &amp; Mindhouse — the work"><video src="assets/m/loops/shyft-mindhouse.mp4?v=2" poster="assets/m/loops/shyft-mindhouse-poster.jpg?v=2" width="720" height="894" muted loop playsinline autoplay preload="metadata" disablepictureinpicture aria-hidden="true" tabindex="-1"></video></a>
+        <a class="rv loop" href="shyft-and-mindhouse-casestudy.html" aria-label="Shyft &amp; Mindhouse — the work"><img class="loop-base" src="assets/m/loops/shyft-mindhouse-1.webp" width="1080" height="1341" alt="" decoding="async"><img src="assets/m/loops/shyft-mindhouse-1.webp" width="1080" height="1341" alt="" decoding="async"><img src="assets/m/loops/shyft-mindhouse-2.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"><img src="assets/m/loops/shyft-mindhouse-3.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"><img src="assets/m/loops/shyft-mindhouse-4.webp" width="1080" height="1341" alt="" decoding="async" loading="lazy"></a>
         <a class="btn-p case-go" style="--btn-bg:#7B8FF5" href="shyft-and-mindhouse-casestudy.html">View case study<span class="btn-p-ic" aria-hidden="true"></span></a>
       </article>
     </div>
@@ -544,16 +565,12 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   <section id="more" class="pad" aria-labelledby="more-h">
     <h2 class="h2" id="more-h">More work</h2>
     <ol class="index">
-      <li tabindex="0" role="button" aria-expanded="false"><b>Zomato</b><span>Foodtech · 2015</span><div class="ix-d"><p>Designed the first version of the food delivery app.</p></div></li>
-      <li tabindex="0" role="button" aria-expanded="false"><b>Urban Company</b><span>Services · 2016</span><div class="ix-d"><p>The first market versions of the apps, with research in the workflow.</p></div></li>
-      <li tabindex="0" role="button" aria-expanded="false"><b>Paytm</b><span>Fintech · 2017</span><div class="ix-d"><p>Product design for the Paytm app.</p></div></li>
-      <li tabindex="0" role="button" aria-expanded="false"><b>The Times of India</b><span>News · 2018</span><div class="ix-d"><p>Design for the Times of India website.</p></div></li>
-      <li tabindex="0" role="button" aria-expanded="false"><b>Bombay Shirt Company</b><span>Ecommerce · 2018</span><div class="ix-d"><p>Design for the Bombay Shirt Company ecommerce site.</p></div></li>
-      <li tabindex="0" role="button" aria-expanded="false"><b>HDFC Bank</b><span>Fintech · 2019</span><div class="ix-d"><p>Design for HDFC Bank’s rewards platform.</p></div></li>
-      <li tabindex="0" role="button" aria-expanded="false"><b>Policybazaar</b><span>Insurtech · 2019</span><div class="ix-d"><p>Product design for the Policybazaar app.</p></div></li>
-      <li tabindex="0" role="button" aria-expanded="false"><b>simsim</b><span>Social commerce · 2020</span><div class="ix-d"><p>Design for simsim’s social commerce app.</p></div></li>
-      <li tabindex="0" role="button" aria-expanded="false" style="--c:#FF1204"><b>The Indian Express</b><span>News · 2021</span><div class="ix-d"><p>Design for The Indian Express app and website.</p></div></li>
-      <li tabindex="0" role="button" aria-expanded="false" style="--c:#3B6CFF"><b>Apnaklub</b><span>Commerce · 2022</span><div class="ix-d"><p>Product design for Apnaklub’s B2B wholesale app.</p></div></li>
+      <li tabindex="0" role="button" aria-expanded="false" style="--c:#3B6CFF"><b>Apnaklub</b><span>Commerce · 2022</span><div class="ix-d"><div><img class="ix-img" src="assets/more-hover/apnaklub.webp" width="389" height="291" alt="" loading="lazy" decoding="async"><p>Helped Apnaklub understand their users and market via research and designed their app to achieve product market fit</p><ul class="ix-tags"><li>App Design</li><li>Wholesale Procurement</li><li>Ecommerce</li><li>B2B</li></ul></div></div></li>
+      <li tabindex="0" role="button" aria-expanded="false" style="--c:#FF1204"><b>The Indian Express</b><span>News &amp; media · 2021</span><div class="ix-d"><div><img class="ix-img" src="assets/more-hover/indian-express.webp" width="389" height="291" alt="" loading="lazy" decoding="async"><p>Redesigned Indian Express’s flagship product to create a brand new mobile app experience and monetisation strategy for the company</p><ul class="ix-tags"><li>Website Design</li><li>App Design</li><li>News &amp; Media</li></ul></div></div></li>
+      <li tabindex="0" role="button" aria-expanded="false" style="--c:#8C7CF0"><b>Zeta’s Cipher Docs</b><span>Fintech · 2022</span><div class="ix-d"><div><img class="ix-img" src="assets/more-hover/zeta.webp" width="389" height="291" alt="" loading="lazy" decoding="async"><p>Worked on a comprehensive overhaul of Cipher’s documentation portal, starting from scratch and employing extensive user testing and research to ensure its success</p><ul class="ix-tags"><li>Documentation Portal</li><li>Fintech</li><li>Authentication</li></ul></div></div></li>
+      <li tabindex="0" role="button" aria-expanded="false" style="--c:#E8E3DC"><b>Urban Company</b><span>Services · 2016</span><div class="ix-d"><div><img class="ix-img" src="assets/more-hover/urban-company.webp" width="389" height="291" alt="" loading="lazy" decoding="async"><p>Designed the first market versions of Urban Company’s (formerly Urbanclap) apps and incorporated research in their design workflow</p><ul class="ix-tags"><li>App Design</li><li>Urban Services</li></ul></div></div></li>
+      <li tabindex="0" role="button" aria-expanded="false" style="--c:#E23744"><b>Zomato</b><span>Foodtech · 2015</span><div class="ix-d"><div><img class="ix-img" src="assets/more-hover/zomato.webp" width="389" height="291" alt="" loading="lazy" decoding="async"><p>Designed the first version of Zomato’s Food Delivery app along with working on multiple other products and services</p><ul class="ix-tags"><li>Website Design</li><li>App Design</li><li>Foodtech</li></ul></div></div></li>
+      <li tabindex="0" role="button" aria-expanded="false" style="--c:#3F6FD8"><b>HDFC’s Smart Buy</b><span>Fintech · 2019</span><div class="ix-d"><div><img class="ix-img" src="assets/more-hover/hdfc-smartbuy.webp" width="389" height="291" alt="" loading="lazy" decoding="async"><p>Helped HDFC design and experiment with layouts for their rewards platform</p><ul class="ix-tags"><li>App Design</li><li>Fintech</li><li>Ecommerce</li></ul></div></div></li>
     </ol>
   </section>
 
@@ -675,14 +692,10 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   })();
 </script>
 <script>
-  /* ── summits: each card's mini film plays while the card is near the
-     screen and pauses off it; reduced motion keeps the poster ─────────── */
+  /* ── summits: each card's four images in turn, 2.5 s each (a CSS loop);
+     paused while the card is off screen ────────────────────────────────── */
   addEventListener('DOMContentLoaded', () => {
-    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const io = new IntersectionObserver(es => es.forEach(e => {
-      const v = e.target.querySelector('video'); if (!v) return; if (still) { v.pause(); return; }
-      if (e.isIntersecting) { const p = v.play(); if (p) p.catch(() => {}); } else v.pause();
-    }), { rootMargin: '20% 0px' });
+    const io = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('run', e.isIntersecting)), { rootMargin: '20% 0px' });
     document.querySelectorAll('.case .rv.loop').forEach(el => io.observe(el));
   });
 
@@ -692,7 +705,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
 <script type="module">
   const ICONS = await import('./assets/m-icons.js');
   /* more work: tap a name, its one line opens — one row open at a time */
-  const rows = [...document.querySelectorAll('.index li')];
+  const rows = [...document.querySelectorAll('.index > li')];
   rows.forEach(li => {
     const t = () => {
       const open = li.getAttribute('aria-expanded') !== 'true';
