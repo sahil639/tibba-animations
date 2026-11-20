@@ -20,10 +20,10 @@
 /* the full sheet and the panel stand off the faded stack */
 .sm-sheets .sh:nth-last-child(2) img { filter: drop-shadow(0 12px 22px rgba(70, 50, 160, .2)) drop-shadow(0 2px 4px rgba(70, 50, 160, .08)); }
 .sm-sheets .sp-panel img { filter: drop-shadow(0 14px 22px rgba(20, 10, 60, .3)); }
-.sm-sheets figcaption { margin: 2px auto 0; max-width: 30ch; font: 500 max(13px, 4.3cqw) / 1.45 ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+.sm-sheets figcaption { margin: 2px auto 0; max-width: 30ch; font: 500 max(13px, 4.3cqw) / 1.45 'Vend Sans', system-ui, sans-serif;
   letter-spacing: .01em; color: #8a7cf3; }
 .sm-sheets .replay { display: inline-flex; align-items: center; gap: 7px; margin-top: 20px; padding: 9px 16px 9px 13px; border: 1px solid #dcd6fb; border-radius: 12px;
-  background: #fff; color: #1d1b2e; font: 600 15px/1 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; box-shadow: 0 6px 18px -10px rgba(110, 90, 230, .45);
+  background: #fff; color: #1d1b2e; font: 600 15px/1 'Vend Sans', system-ui, sans-serif; box-shadow: 0 6px 18px -10px rgba(110, 90, 230, .45);
   cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .15s; }
 .sm-sheets .replay:active { transform: scale(.96); }
 .sm-sheets .replay svg { width: 17px; height: 17px; }

@@ -232,7 +232,7 @@ export function mountPeak(canvas, host) {
       else if (!hov || hov.ring !== p.n || Math.hypot(hov.sx - ptr.x, hov.sy - ptr.y) > 90) hov = { ring: p.n, idx: p.i, t0: now, sx: ptr.x, sy: ptr.y };
     } else hov = null;
 
-    ctx.font = `500 ${narrow ? 11 : 12.5}px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`;
+    ctx.font = `500 ${narrow ? 11 : 12.5}px 'Vend Sans', system-ui, sans-serif`;
     const adv = ctx.measureText('m').width * 1.06, txt = PEAK.text, tlen = adv * txt.length;
     let win = null;
     if (hov && proj[hov.ring]) win = window_(proj[hov.ring], hov.idx, tlen + adv * 1.5);

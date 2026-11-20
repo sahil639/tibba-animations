@@ -15,10 +15,7 @@
    so the hierarchy survives), line height, letter spacing, weight, and text
    transform. Any setting left at "Default" leaves the page alone.
 
-   Fonts: the site's own Vend Sans (default); Miriam Libre, Vend Sans,
-   Cairo, Sofia Sans and Didactic Gothic from Google Fonts (loaded only once
-   one is chosen); Brixela from assets/fonts/BrixelaDEMO-Regular.ttf (the
-   demo cut).
+   Fonts: Vend Sans only — the site's one face (Nov 2026).
 
    ── how it reaches every section ─────────────────────────────────────────
    Settings live in localStorage ('tibba.type'). Every page applies them on
@@ -38,20 +35,25 @@
 const KEY = 'tibba.type';
 const DISPLAY_PX = 28;               // at or above this, text counts as primary
 
+/* Vend Sans only (Nov 2026): the site is set in one face. The other faces
+   once offered here are gone, and a choice of one saved in a browser is
+   dropped (read() below). */
 export const FONTS = {
   default:  { label: 'Site default — Vend Sans', stack: null, w: [100, 700] },
-  miriam:   { label: 'Miriam Libre',    stack: "'Miriam Libre', sans-serif",    google: 'Miriam+Libre:wght@400..700', w: [400, 700] },
-  vend:     { label: 'Vend Sans',       stack: "'Vend Sans', sans-serif",       google: 'Vend+Sans:wght@300..700',    w: [300, 700] },
-  cairo:    { label: 'Cairo',           stack: "'Cairo', sans-serif",           google: 'Cairo:wght@200..1000',       w: [200, 1000] },
-  sofia:    { label: 'Sofia Sans',      stack: "'Sofia Sans', sans-serif",      google: 'Sofia+Sans:wght@1..1000',    w: [100, 1000] },
-  brixela:  { label: 'Brixela',         stack: "'Brixela', sans-serif",         file: 'BrixelaDEMO-Regular.ttf',      w: [400, 400] },
-  didactic: { label: 'Didactic Gothic', stack: "'Didactic Gothic', sans-serif", google: 'Didactic+Gothic',            w: [400, 400] },
+  vend:     { label: 'Vend Sans',       stack: "'Vend Sans', sans-serif",       w: [300, 700] },
 };
 const ROLE = () => ({ font: 'default', size: 1, lh: null, ls: null, weight: null, transform: null });
 const DEFAULTS = () => ({ primary: ROLE(), secondary: ROLE() });
 
 function read() {
-  try { const v = JSON.parse(localStorage.getItem(KEY)); if (v && v.primary && v.secondary) return { primary: { ...ROLE(), ...v.primary }, secondary: { ...ROLE(), ...v.secondary } }; } catch (e) {}
+  try {
+    const v = JSON.parse(localStorage.getItem(KEY));
+    if (v && v.primary && v.secondary) {
+      const r = { primary: { ...ROLE(), ...v.primary }, secondary: { ...ROLE(), ...v.secondary } };
+      for (const k of ['primary', 'secondary']) if (!FONTS[r[k].font]) r[k].font = 'default';   // a face no longer offered
+      return r;
+    }
+  } catch (e) {}
   return DEFAULTS();
 }
 function write(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {} }
@@ -66,10 +68,6 @@ function ensureFont(id) {
     const l = document.createElement('link');
     l.rel = 'stylesheet'; l.href = `https://fonts.googleapis.com/css2?family=${f.google}&display=swap`;
     document.head.appendChild(l);
-  } else {
-    const s = document.createElement('style');
-    s.textContent = `@font-face { font-family: 'Brixela'; src: url('${new URL('./fonts/' + f.file, import.meta.url)}') format('truetype'); font-weight: 400; font-style: normal; font-display: swap; }`;
-    document.head.appendChild(s);
   }
 }
 

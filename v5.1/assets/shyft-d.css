@@ -54,15 +54,13 @@
 .cf-kpis.d-kpis > .cf-metric { flex: 1 1 0; min-width: 0; gap: 14px; padding: 32px 28px; border: 1px solid #e2e2e2; justify-content: flex-start; }
 .cf-kpis.d-kpis > .cf-metric:last-child { border-bottom: 1px solid #e2e2e2; }
 
-/* 5 · …its card headers: a ticker of the topic's icons (shyft-d.js) in the
-   page's lavender circles (as .vs-icon), sliding past; the header image is
-   not shown on desktop. Only the row moves. */
-.d-over .sm-card > img { display: none; }
-.d-over .tk { position: relative; overflow: hidden; margin: 0; padding: 18px 0; border-radius: 10px; background: #f6f5ff;
-  -webkit-mask: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent); mask: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent); }
-.d-over .tk-row { display: flex; width: max-content; will-change: transform; animation: tk-run var(--dur, 20s) linear infinite; animation-play-state: paused; }
-.d-over .tk.run .tk-row { animation-play-state: running; }
-.d-over .tk-ic { flex: none; display: inline-grid; place-items: center; width: 52px; height: 52px; margin-right: 14px; border-radius: 50%; background: #efecff; color: #6a55e0; }
-.d-over .tk-ic svg { width: 24px; height: 24px; }
-@keyframes tk-run { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-50%, 0, 0); } }
-@media (prefers-reduced-motion: reduce) { .d-over .tk-row { animation: none; } }
+/* Crafting the UI: the row of heads ticking by (the phones' .sm-heads) in
+   place of the still strip — the full width of the screen, as the strip was;
+   only the row moves (shyft-d.js runs it while on screen) */
+.sm-heads.d-on { display: block; overflow: hidden; height: clamp(56px, 5.8vw, 100px); margin-inline: calc(50% - 50vw);
+  -webkit-mask: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+.sm-heads.d-on .row { display: flex; width: max-content; height: 100%; will-change: transform; animation: d-heads 60s linear infinite; animation-play-state: paused; }
+.sm-heads.d-on.run .row { animation-play-state: running; }
+.sm-heads.d-on .row img { display: block; height: 100%; width: auto; max-width: none; }
+@keyframes d-heads { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-50%, 0, 0); } }
+@media (prefers-reduced-motion: reduce) { .sm-heads.d-on .row { animation: none; } }

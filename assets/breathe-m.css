@@ -42,7 +42,7 @@
 .ds-upload-file { left: 47.21cqw; top: 277.15cqw; width: 52.59cqw; }
 .ds-banner { left: .75cqw; top: 312.56cqw; width: 98.32cqw; }
 .bm-ds .usd { left: 4.9cqw; top: 291.5cqw; width: 43cqw; height: 14.5cqw; box-sizing: border-box; padding: 2.6cqw 2.8cqw; border-radius: 1.1cqw;
-  background: #fff; box-shadow: 0 .6cqw 2cqw rgba(30, 70, 55, .12); color: #1d1d1d; font-family: 'Open Sans', system-ui, sans-serif; }
+  background: #fff; box-shadow: 0 .6cqw 2cqw rgba(30, 70, 55, .12); color: #1d1d1d; font-family: 'Vend Sans', system-ui, sans-serif; }
 .bm-ds .usd b { display: flex; align-items: center; gap: 1.8cqw; font-size: 3.9cqw; line-height: 1; font-weight: 500; }
 .bm-ds .usd svg { width: 5cqw; height: auto; border-radius: .3cqw; }
 .bm-ds .usd span { display: block; margin-top: 1.3cqw; font-size: 2.6cqw; color: #9a9a9a; }

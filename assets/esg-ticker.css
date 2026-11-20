@@ -11,7 +11,7 @@
   -webkit-mask: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); mask: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
 .esg-tick ul { display: flex; width: max-content; margin: 0; padding: 0; list-style: none; will-change: transform; animation: esg-run 34s linear infinite; }
 .esg-tick li { display: flex; align-items: center; padding: calc(var(--fs) * .32) 0; }
-.esg-tick li span { padding: 0 var(--sp); font: 700 var(--fs) / 1 ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace; letter-spacing: .01em;
+.esg-tick li span { padding: 0 var(--sp); font: 700 var(--fs) / 1 'Vend Sans', system-ui, sans-serif; letter-spacing: .01em;
   text-transform: uppercase; white-space: nowrap; color: rgba(255, 255, 255, .24); }
 .esg-tick li::after { content: ''; align-self: stretch; width: 1px; background: rgba(255, 255, 255, .2); }
 @keyframes esg-run { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-50%, 0, 0); } }

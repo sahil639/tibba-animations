@@ -51,7 +51,7 @@
     .fl-screens li { display: flex; flex-direction: column; align-items: center; margin-right: 9.5cqw; }
     .fl-screens .fl-shot { display: flex; align-items: center; height: 59.2cqw; }
     .fl-screens img { width: calc(var(--w) / 730 * 100cqw); }
-    .fl-screens span { margin-top: 3.6cqw; font: 400 max(11.5px, 3cqw) / 1.2 'Literata', Georgia, serif; color: #f2f2f2; white-space: nowrap; letter-spacing: .005em; }
+    .fl-screens span { margin-top: 3.6cqw; font: 400 max(11.5px, 3cqw) / 1.2 'Vend Sans', system-ui, sans-serif; color: #f2f2f2; white-space: nowrap; letter-spacing: .005em; }
   }
 </style>
 </head>
@@ -176,7 +176,6 @@
         .map(([f, w, h]) => ({ src: dir + 'screens-' + slug(f.replace(/\.png$/, '')) + '.webp', w, h, label: label(f) })) }
     };
     const still = matchMedia('(prefers-reduced-motion: reduce)');
-    document.head.insertAdjacentHTML('beforeend', '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400&display=swap">');
     const item = (it, kind, clone) => {
       const img = `<img src="${it.src}" width="${it.w}" height="${it.h}" alt="${clone ? '' : (it.alt || it.label)}" decoding="async" draggable="false"${kind === 'screens' ? ` style="--w:${it.w}"` : ''}>`;
       return kind === 'screens' ? `<li><div class="fl-shot">${img}</div><span>${it.label}</span></li>` : `<li>${img}</li>`;

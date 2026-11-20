@@ -19,7 +19,7 @@
 .fp-biz li { flex: none; display: flex; flex-direction: column; align-items: center; gap: clamp(10px, 1.1vw, 16px); }
 .fp-biz .card { display: block; height: var(--h); aspect-ratio: var(--ar); padding: 0; border: 0; background: none; }
 .fp-biz .card img { display: block; height: 100% !important; width: auto !important; max-width: none !important; min-height: 0 !important; pointer-events: none; }
-.fp-biz li span { font: 600 clamp(11.5px, 1.05vw, 16px) / 1.2 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: .01em; color: #f2f2f2; white-space: nowrap; }
+.fp-biz li span { font: 600 clamp(11.5px, 1.05vw, 16px) / 1.2 'Vend Sans', system-ui, sans-serif; letter-spacing: .01em; color: #f2f2f2; white-space: nowrap; }
 @media (max-width: 760px) { .fp-biz { --h: 188px; --gap: 12px; } }
 @media (prefers-reduced-motion: reduce) {
   .fp-biz { -webkit-mask: none; mask: none; }
