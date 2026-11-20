@@ -46,7 +46,7 @@
 </button>
 
 <script type="module">
-  import { mountSite } from './assets/site-shell.js?v=6';
+  import { mountSite } from './assets/site-shell.js?v=7';
   import { V3_SECTIONS, V3_LINKS, V3_LAYOUT_KEY, loadLayout, resolveLayout, sectionsFor } from './assets/site-sections.js?v=5';
   /* the arrangement made in the Modular hub, if any (?default ignores it) */
   const layout = /[?&]default\b/.test(location.search) ? resolveLayout(null, V3_SECTIONS) : loadLayout(V3_SECTIONS, V3_LAYOUT_KEY);

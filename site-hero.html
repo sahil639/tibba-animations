@@ -8,6 +8,10 @@
 <link rel="preconnect" href="https://unpkg.com" crossorigin>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 <title>Site hero — loader, Active Peak, Metrics</title>
+<!-- opened again after the loader has played (?noloader / ?settled): the
+     loader's readout is hidden before the first paint, not by the module
+     script a moment later — that moment was a flash of the 000% counter -->
+<script>if (/[?&](noloader|settled)\b/.test(location.search)) document.documentElement.classList.add('ld-skip');</script>
 <link rel="stylesheet" href="assets/type.css?v=3">
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/workbench.css">
@@ -38,6 +42,7 @@ body:not(.ld-gone) { overflow: hidden; }
 /* ── 1 · the loader's readout ─────────────────────────────────────────── */
 .ld { position: absolute; z-index: 5; inset: 0; pointer-events: none; transition: opacity .4s cubic-bezier(.22,1,.36,1), transform .55s cubic-bezier(.22,1,.36,1); }
 .ld-gone .ld { opacity: 0; transform: translateY(-14px); }
+.ld-skip .ld { display: none !important; }
 .ld-top { position: absolute; top: clamp(110px, 15vh, 150px); left: var(--side); }
 .ld-top .k { font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
 .ld-top .n { margin-top: 8px; display: flex; align-items: baseline; gap: 4px; font-size: clamp(40px, 5.2vw, 76px); font-weight: 300; line-height: .9;

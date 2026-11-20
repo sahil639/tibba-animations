@@ -36,7 +36,7 @@ import { PAGE_CSS, TICKER } from './site-sections.js?v=5';
 const clamp01 = t => t < 0 ? 0 : t > 1 ? 1 : t;
 export const SITE_CONFIG = {
   loadAhead: 1.5,      // viewports: how far ahead a section starts loading
-  unloadBeyond: 4,     // viewports: sections further away than this are unloaded
+  unloadBeyond: Infinity,   // viewports: sections further away than this are unloaded (desktop: never — see warm())
   seam: 0.22,          // share of the viewport the incoming edge is softened over
   logoStep: 0.9,       // viewports of scroll per change of the mark's form
   gateTimeout: 14,     // s: never hold the page longer than this, whatever happens
@@ -225,7 +225,7 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
     locked = on;
     document.documentElement.classList.toggle('site-locked', on);
     /* the navbar drops in only once the loader has handed over */
-    if (!on) { requestAnimationFrame(() => document.documentElement.classList.add('site-nav-in')); if (blocks.length) sync(true); }
+    if (!on) { requestAnimationFrame(() => document.documentElement.classList.add('site-nav-in')); if (blocks.length) { sync(true); warm(); } }
     else document.documentElement.classList.remove('site-nav-in');
     clearTimeout(gateTimer);
     if (on) gateTimer = setTimeout(() => { loaderPlayed = true; lock(false); }, C.gateTimeout * 1000);
@@ -293,6 +293,28 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
       sync(true);
     });
     b.frame.src = srcOf(b.s, b.fresh);
+  }
+  /* desktop (Nov 2026): once the hero has handed over, every other section
+     loads in the background, one after another in page order, each once the
+     one before has finished — so a fast scroll down finds them ready instead
+     of black, and none is ever thrown away (scrolling back up never reloads
+     the hero). Off screen they are paused (gate()), so they cost little.
+     Phones keep loading on approach and letting go behind: memory first. */
+  let warming = false;
+  function warm() {
+    if (PHONE || warming) return;
+    warming = true;
+    const next = () => {
+      if (locked) { warming = false; return; }
+      const b = blocks.find(x => !x.loaded);
+      if (!b) { warming = false; return; }
+      let fired = false;
+      const done = () => { if (fired) return; fired = true; setTimeout(next, 250); };
+      b.frame.addEventListener('load', done, { once: true });
+      setTimeout(done, 8000);                 // one that never answers does not hold the rest
+      load(b);
+    };
+    next();
   }
   function unload(b) {
     if (!b.loaded) return;
