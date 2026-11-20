@@ -25,7 +25,7 @@
 /* the email beside the button (Nov 2026), as the desktop footer has it: to its
    right, centred on it; below it, at the left, when the row is too narrow */
 .sf-send { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 18px; }
-.sf-note { margin: 0; font: 400 14px/1.4 'Vend Sans', system-ui, sans-serif; color: rgba(233,236,242,.6); }
+.sf-note { margin: 0; font: 400 16px/1.4 'Vend Sans', system-ui, sans-serif; color: rgba(233,236,242,.6); }
 .sf-note a { color: #fff; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.4); }
 .sf-light .sf-note { color: rgba(14,17,20,.55); }
 .sf-light .sf-note a { color: #0E1114; border-bottom-color: rgba(14,17,20,.35); }
