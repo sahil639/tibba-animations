@@ -149,7 +149,7 @@ html, body { background: var(--bg); }
    at the foot of the left column, its button level with the image's foot;
    the title a little larger */
 @media (min-width: 761px) {
-  .bc-dock { top: var(--dk-top, 0px); border: 0; background: none; margin-left: 0 !important;
+  .bc-dock { top: var(--dk-top, 0px); border: 0; background: none; margin-left: max(0px, calc((100vw - 1440px) / 2)) !important;   /* wide screens (Nov 2026): over the copy's column, not the screen's far edge; 1440 and below: the corner, as before */
     /* sized by the script below so it always stops short of the highest title */
     width: var(--dk-w, clamp(220px, 22vw, 320px)); height: var(--dk-h, clamp(140px, 14vw, 200px)); margin-bottom: calc(-1 * var(--dk-h, clamp(140px, 14vw, 200px))); }
   .bc-dock.dk-off { visibility: hidden; }
