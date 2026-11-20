@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- Tibba Design Studio, website v5.1 — built 2026-11-20T12:33:09.921Z by tools/make-sandbox.mjs -->
+<!-- Tibba Design Studio, website v5.1 — built 2026-11-20T12:40:58.281Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -62,19 +62,6 @@ body { background: #000; color: var(--ink-warm); font-family: 'Vend Sans', syste
 .row:hover .ln { color: #fff; }
 .row:hover .ar { width: 40px; background: var(--c); } .row:hover .ar::after { color: var(--c); }
 
-/* the floating cover */
-.peek { position: fixed; left: 0; top: 0; z-index: 30; width: clamp(280px, 24vw, 389px); pointer-events: none; opacity: 0;
-  transition: opacity .22s linear; will-change: transform; }
-.peek.on { opacity: 1; }
-.peek .card { position: relative; border: 1px solid rgba(233,236,242,.18); box-shadow: 0 30px 60px rgba(0,0,0,.6); transform: scale(.94); transition: transform .28s cubic-bezier(.22,1,.36,1); }
-/* the hover images (assets/more-hover/), whole at their own 389 × 291 */
-.peek .hv { display: none; width: 100%; height: auto; aspect-ratio: 389 / 291; }
-.peek .hv.cur { display: block; }
-.peek.on .card { transform: none; }
-.peek .wk-img { display: none; }
-.peek .wk-img.cur { display: block; }
-.peek .wk-img.ph::after { content: none; }   /* no text on the cover: not even a missing image's label */
-
 @media (max-width: 900px), (hover: none) {
   .cols { display: none; }
   .row { grid-template-columns: 1fr auto; gap: 8px 14px; padding: 18px 0 22px; }
@@ -86,7 +73,6 @@ body { background: #000; color: var(--ink-warm); font-family: 'Vend Sans', syste
   .row .ln { grid-column: 1 / -1; }
   .row .ar { display: none; }
   .row .nm::before { display: none; }
-  .peek { display: none; }
 }
 
 /* Tablets and touch screens (Nov 2026): the phone's More work — an index of
@@ -121,49 +107,17 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   <ol class="list" id="list"></ol>
   <ol class="ix" id="ix" hidden></ol>
 </section>
-<div class="peek" id="peek" aria-hidden="true"><div class="card"><div id="peek-imgs"></div></div></div>
 
 <script>
 (function () {
   const W = window.TibbaWork, esc = W.esc;
-  const list = document.getElementById('list'), peek = document.getElementById('peek'), imgs = document.getElementById('peek-imgs');
+  const list = document.getElementById('list');
   list.innerHTML = W.MORE.map((m, i) => `<li class="row" style="--c:${m.colour}" data-i="${i}">
       <div class="strip">${W.img(m.folder, 'cover', m.client, '16 / 7')}</div>
       <span class="yr">${esc(m.year)}</span><span class="nm">${esc(m.client)}</span>
       <span class="ln">${esc(m.line)}</span><span class="sc">${esc(m.sector)}</span></li>`).join('');
-  /* desktop hover: each project's own image (assets/more-hover/<folder>.webp),
-     fetched up front so it is there the moment a row is hovered — and only
-     where there is a real hover (no touch, wider than a tablet) */
-  const HOVER = { apnaklub: 'apnaklub', 'indian-express': 'indian-express', 'cipher-docs': 'zeta', 'urban-company': 'urban-company', zomato: 'zomato', 'hdfc-smartbuy': 'hdfc-smartbuy' };
-  const desk = matchMedia('(min-width: 901px) and (hover: hover) and (pointer: fine)').matches;
-  imgs.innerHTML = desk ? W.MORE.map(m => HOVER[m.folder]
-    ? `<img class="hv" src="assets/more-hover/${HOVER[m.folder]}.webp" width="389" height="291" alt="" decoding="async">`
-    : W.img(m.folder, 'cover', m.client, '4 / 3')).join('') : '';
   list.querySelectorAll('.wk-img').forEach((el, k) => el.style.setProperty('--c', W.MORE[k].colour));
-  [...imgs.children].forEach((el, k) => el.style.setProperty('--c', W.MORE[k].colour));
-  const covers = [...imgs.children];
-
-  /* the cover follows the pointer, with a lag, leaning into its motion */
-  let x = 0, y = 0, tx = 0, ty = 0, vx = 0, raf = 0, on = false;
-  function tick() {
-    raf = 0;
-    const nx = x + (tx - x) * .16, ny = y + (ty - y) * .16;
-    vx = vx * .8 + (nx - x) * .2; x = nx; y = ny;
-    const lean = Math.max(-8, Math.min(8, vx * .6));
-    peek.style.transform = `translate3d(${(x + 28).toFixed(1)}px, ${(y - peek.offsetHeight * .5).toFixed(1)}px, 0) rotate(${lean.toFixed(2)}deg)`;
-    if (on || Math.abs(tx - x) > .5) raf = requestAnimationFrame(tick);
-  }
-  list.addEventListener('pointermove', e => { tx = e.clientX; ty = e.clientY; if (!raf) raf = requestAnimationFrame(tick); });
-  list.querySelectorAll('.row').forEach(r => {
-    r.addEventListener('pointerenter', e => {
-      if (e.pointerType === 'touch' || !desk) return;
-      if (!on) { x = tx = e.clientX; y = ty = e.clientY; }
-      const i = +r.dataset.i; on = true;
-      covers.forEach((c, k) => c.classList.toggle('cur', k === i));
-      peek.classList.add('on'); if (!raf) raf = requestAnimationFrame(tick);
-    });
-  });
-  list.addEventListener('pointerleave', () => { on = false; peek.classList.remove('on'); });
+  /* desktop: no image follows the pointer (Nov 2026) — the row's own hover is the whole response */
 })();
 </script>
 <script>
