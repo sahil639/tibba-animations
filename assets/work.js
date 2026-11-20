@@ -41,17 +41,17 @@
   /* the climbs between the summits — no deep page, a cover and a line each */
   const MORE = [
     { folder: 'apnaklub', client: 'Apnaklub', sector: 'Commerce', colour: '#3B6CFF', year: '2022',
-      line: 'Research into users and market, and an app designed to reach product–market fit.', tags: 'App design · B2B ecommerce' },
+      line: "Helped Apnaklub understand their users and market via research and designed their app to achieve product market fit", tags: 'App Design · Wholesale Procurement · Ecommerce · B2B' },
     { folder: 'indian-express', client: 'The Indian Express', sector: 'News & media', colour: '#FF1204', year: '2021',
-      line: 'A brand new mobile app for the flagship product, and a monetisation strategy to go with it.', tags: 'App · Website · News' },
+      line: "Redesigned Indian Express’s flagship product to create a brand new mobile app experience and monetisation strategy for the company", tags: 'Website Design · App Design · News & Media' },
     { folder: 'cipher-docs', client: "Zeta's Cipher Docs", sector: 'Fintech', colour: '#8C7CF0', year: '2022',
-      line: 'A documentation portal rebuilt from scratch, tested with the developers who use it.', tags: 'Docs portal · Fintech' },
+      line: "Worked on a comprehensive overhaul of Cipher’s documentation portal, starting from scratch and employing extensive user testing and research to ensure its success", tags: 'Documentation Portal · Fintech · Authentication' },
     { folder: 'urban-company', client: 'Urban Company', sector: 'Services', colour: '#E8E3DC', year: '2016',
-      line: 'The first market versions of the apps, and research brought into the design workflow.', tags: 'App design · Urban services' },
+      line: "Designed the first market versions of Urban Company’s (formerly Urbanclap) apps and incorporated research in their design workflow", tags: 'App Design · Urban Services' },
     { folder: 'zomato', client: 'Zomato', sector: 'Foodtech', colour: '#E23744', year: '2015',
-      line: "The first version of Zomato's food delivery app, and more products besides.", tags: 'App · Website · Foodtech' },
+      line: "Designed the first version of Zomato’s Food Delivery app along with working on multiple other products and services", tags: 'Website Design · App Design · Foodtech' },
     { folder: 'hdfc-smartbuy', client: "HDFC's Smart Buy", sector: 'Fintech', colour: '#3F6FD8', year: '2019',
-      line: 'Layouts designed and tested for the bank’s rewards platform.', tags: 'App design · Rewards' },
+      line: "Helped HDFC design and experiment with layouts for their rewards platform", tags: 'App Design · Fintech · Ecommerce' },
   ];
 
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
