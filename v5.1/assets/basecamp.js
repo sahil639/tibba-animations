@@ -102,6 +102,13 @@ if (PHONE_AT_LOAD) lock(C, PHONE_LOCK);
 const rad = d => d * Math.PI / 180;
 const lerp = (a, b, t) => a + (b - a) * t;
 
+/* the four Figma thumbnails of a case (1413 × 1020, at 2×): the first also
+   lies underneath, so the card is never empty between two fades */
+const THUMBS = folder => {
+  const src = n => `assets/work/${folder}/thumb-${n}.webp`;
+  return `<img class="loop-base" src="${src(1)}" width="2826" height="2040" alt="" decoding="async">`
+    + [1, 2, 3, 4].map(n => `<img src="${src(n)}" width="2826" height="2040" alt="" decoding="async"${n > 1 ? ' loading="lazy"' : ''}>`).join('');
+};
 export function mountBasecamp() {
   const root = document.documentElement;
   const sec = document.getElementById('bc'), stack = document.getElementById('stack'), dock = document.getElementById('dock'),
@@ -120,7 +127,7 @@ export function mountBasecamp() {
           <a class="btn-p" style="--btn-bg:${s.colour}" href="${s.file}">View case study<span class="btn-p-ic" aria-hidden="true"></span></a>
         </div>
         <div class="media">
-          <a class="rv" href="${s.file}" data-rive="${s.folder}" aria-label="${s.client} — the work">${S.slot(s, 0, '928 / 486')}<i class="tint"></i></a>
+          <a class="rv rv-loop" href="${s.file}" aria-label="${s.client} — the work">${THUMBS(s.folder)}<i class="tint"></i></a>
         </div>
       </div>
     </article>`).join('');
@@ -128,18 +135,9 @@ export function mountBasecamp() {
   const cards = [...stack.children], tabs = [...tabsEl.children];
   links(sec);
 
-  /* the Rive files load as their card comes near, never all at once */
-  const rv = cards.map(() => null);
-  const io = new IntersectionObserver(es => es.forEach(e => {
-    const i = +e.target.dataset.i;
-    /* not on a phone: the cards show their still, and the Rive runtime and
-       files (several MB) are never fetched — the scroll stays the phone's */
-    if (e.isIntersecting && !rv[i] && window.TibbaRive && !phone.matches) {
-      rv[i] = window.TibbaRive.mount(e.target.querySelector('.rv'), { names: [S[i].folder], autoplay: false });
-      cardState();
-    }
-  }), { rootMargin: '100% 0px' });
-  cards.forEach(c => io.observe(c));
+  /* Nov 2026: each card's four thumbnails in turn (assets/work/<folder>/thumb-1…4.webp),
+     as the phones' cards have them — the Rive files are no longer fetched here */
+  const rv = cards.map(c => c.querySelector('.rv'));
   let hovered = -1;
   cards.forEach((c, i) => {
     c.addEventListener('pointerenter', () => { hovered = i; cardState(); });
@@ -224,8 +222,7 @@ export function mountBasecamp() {
       const active = i === shown, hov = i === hovered;
       c.classList.toggle('active', active); c.classList.toggle('hovered', hov);
       const r = rv[i]; if (!r) return;
-      r.setBool('active', active); r.setBool('hover', hov);
-      if (C.anim.on && (active || hov || C.rive.playAll)) r.play(); else r.pause();
+      r.classList.toggle('run', !!(C.anim.on && (active || hov || C.rive.playAll)));
     });
   }
 
