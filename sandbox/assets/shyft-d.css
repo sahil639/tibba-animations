@@ -1,0 +1,55 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Shyft & Mindhouse on desktop (Nov 2026) — loaded only above 760px
+   (shyft-and-mindhouse-casestudy.html). The phones' pieces are the source of
+   truth: the same cards, content and phone, laid out for the desktop grid in
+   place of the static plates. Phones are untouched (assets/shyft-m.css).
+   Motion: assets/shyft-d.js.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* the plates these pieces replace */
+.sm-desk.d-off { display: none !important; }
+.sm-m.d-on { display: block; }
+.m-phone.d-on { display: grid; }
+
+/* ── the card (as the phones' .sm-card), on the desktop grid ──────────── */
+.d-on .sm-track { display: grid; gap: max(16px, calc(24 * var(--cu))); }
+.d-on .sm-dots { display: none; }
+.d-on .sm-card { margin: 0; display: flex; flex-direction: column; box-sizing: border-box; padding: max(16px, calc(22 * var(--cu))) max(16px, calc(22 * var(--cu))) max(22px, calc(30 * var(--cu)));
+  border-radius: 14px; background: #fff; color: #1b1b1f;
+  box-shadow: 0 1px 2px rgba(40, 30, 120, .05), 0 12px 30px -16px rgba(60, 50, 160, .28); }
+.d-on .sm-card > img { display: block; width: 100%; height: auto; border-radius: 10px; }
+.d-on .sm-card h3 { margin: max(20px, calc(28 * var(--cu))) 0 0; font-weight: 500; font-size: clamp(18px, calc(22 * var(--cu)), 24px); line-height: 1.2; letter-spacing: -.01em; }
+.d-on .sm-card p { margin: 10px 0 0; font-size: clamp(15px, calc(17 * var(--cu)), 18px); line-height: 1.45; color: var(--ink-2); }
+.d-on .sm-card p + p { margin-top: 8px; }
+
+/* 1 · Designing for Conversion: five cards, three over two, centred */
+.d-conv .sm-track { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.d-conv .sm-card { grid-column: span 2; }
+.d-conv .sm-card:nth-child(4) { grid-column: 2 / span 2; }
+.d-conv .sm-card:nth-child(5) { grid-column: 4 / span 2; }
+
+/* 5 · Designing to overcome the challenges: three cards in a row */
+.d-over .sm-track { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; }
+
+/* 2 · Designing for Shyft Pass: the card larger, its ground taller to match;
+   the three points sit between it and the site (moved by shyft-d.js) */
+.sm-pass { aspect-ratio: 2000 / 1240; }
+.sm-pass .pc { width: 54%; }
+
+/* 3 · Redesigned the Onboarding: the phones' iPhone (assets/m-phone.css),
+   its screens taking turns (shyft-d.js); the Shyft screens are white */
+.d-onb { padding: 0; }
+.d-onb .body { width: clamp(260px, 25vw, 340px); }
+.d-onb .screen { background: #fff; }
+
+/* 4 · Challenges in the therapy landscape: three cards, as on phones */
+.cf-cols.sm-chal { gap: max(16px, calc(24 * var(--cu))); align-items: stretch; }
+.cf-cols.sm-chal > div, .cf-cols.sm-chal > div:first-child, .cf-cols.sm-chal > div:last-child {
+  padding: max(24px, calc(32 * var(--cu))) max(22px, calc(30 * var(--cu))) !important; border: 0 !important; border-radius: 14px; background: #fff;
+  box-shadow: 0 1px 2px rgba(40, 30, 120, .05), 0 12px 30px -16px rgba(60, 50, 160, .28); }
+
+/* 6 · Post launch optimisation: the two results as stat boxes (the metric
+   card at the top of the page, as phones have it), side by side beside the words */
+.cf-kpis.d-kpis { width: calc(720 / 1380 * 100%); flex-direction: row; align-items: stretch; gap: max(16px, calc(24 * var(--cu))); }
+.cf-kpis.d-kpis > .cf-metric { flex: 1 1 0; min-width: 0; gap: 14px; padding: 32px 28px; border: 1px solid #e2e2e2; justify-content: flex-start; }
+.cf-kpis.d-kpis > .cf-metric:last-child { border-bottom: 1px solid #e2e2e2; }

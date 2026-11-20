@@ -75,3 +75,11 @@
   .br-card:nth-child(4) { margin-left: 22%; } .br-card:nth-child(5) { margin-left: 10%; }
   .br-block > figcaption { font: 400 clamp(14px, 1.05vw, 17px)/1.4 'Vend Sans', system-ui, sans-serif; }
 }
+/* desktop (Nov 2026): the organisation as tall as the five roles beside it —
+   the two columns stretch to one height and the chart fills its column above
+   its caption; its nested boxes grow with it, the labels where they were */
+@media (min-width: 761px) {
+  .br-roles { align-items: stretch; }
+  .br-roles > .br-block:first-child { display: flex; flex-direction: column; }
+  .br-roles > .br-block:first-child .bm-org { flex: 1 1 auto; aspect-ratio: auto; }
+}
