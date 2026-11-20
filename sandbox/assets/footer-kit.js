@@ -55,7 +55,7 @@ export function clocks(host, camps = CAMPS, { seconds = true } = {}) {
   tick(); setInterval(tick, 1000);
 }
 
-export const LINE = 'Tibba — a higher place · Every climb ends around a fire · Design for founders who climb · 30+ products shipped · Now taking on new climbs for 2027';
+export const LINE = 'Tibba — a higher place · Every climb ends around a fire · Design for founders who climb · 25+ products shipped · Now taking on new climbs for 2027';
 export function ticker(host, text = LINE, seconds = 46) {
   host.innerHTML = `<div class="tk-tr" style="animation-duration:${seconds}s">${Array(4).fill(`<span>${text}</span>`).join('')}</div>`;
   return { speed(s) { host.firstElementChild.style.animationDuration = s + 's'; } };

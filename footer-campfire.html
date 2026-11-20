@@ -476,7 +476,7 @@ button, input { font: inherit; color: inherit; }
   $('#sub').addEventListener('submit', e => { e.preventDefault(); $('#sub-ok').textContent = 'Noted — see you at the next camp.'; e.target.reset(); });
 
   /* ── ticker ───────────────────────────────────────────────────────── */
-  const LINE = 'Tibba — a higher place · Every climb ends around a fire · Design for founders who climb · 30+ products shipped · Now taking on new climbs for 2027';
+  const LINE = 'Tibba — a higher place · Every climb ends around a fire · Design for founders who climb · 25+ products shipped · Now taking on new climbs for 2027';
   $('#tr').innerHTML = Array(4).fill(`<span>${LINE}</span>`).join('');
   const applyTicker = () => { $('#tr').style.animationDuration = C.ticker + 's'; };
   applyTicker();
