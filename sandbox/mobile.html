@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- Tibba Design Studio, website v5.1 — built 2026-11-20T06:22:18.894Z by tools/make-sandbox.mjs -->
+<!-- Tibba Design Studio, website v5.1 — built 2026-11-20T06:22:51.100Z by tools/make-sandbox.mjs -->
 <head>
 <!-- Google tag (gtag.js) -->
 <script>
@@ -429,8 +429,7 @@ section { scroll-margin-top: 64px; }
 @media (prefers-reduced-motion: reduce) { .index .ix-d { transition: none; } }
 /* More work, as desktop (Nov 2026): the same six, each in its own colour —
    open, the name takes the colour with its square before it, the row's
-   line fills in the colour, and the detail shows the project's own image
-   (assets/more-hover/, desktop's hover images), its line and its tags */
+   line fills in the colour, and the detail shows its line and its tags (no image on phones) */
 .index > li > b { display: inline-flex; align-items: center; transition: color .3s; }
 .index > li > b::before { content: ''; flex: none; width: 0; height: 8px; margin-right: 0; background: var(--c, #C9124B); transform: scale(0);
   transition: transform .35s cubic-bezier(.22,1,.36,1), width .35s cubic-bezier(.22,1,.36,1), margin-right .35s cubic-bezier(.22,1,.36,1); }
@@ -439,7 +438,6 @@ section { scroll-margin-top: 64px; }
 .index > li::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: var(--c, #C9124B); transform: scaleX(0); transform-origin: left; transition: transform .5s cubic-bezier(.22,1,.36,1); }
 .index > li[aria-expanded="true"]::after { transform: scaleX(1); }
 .index .ix-d > div { min-height: 0; overflow: hidden; }
-.index .ix-d .ix-img { display: block; width: 100%; height: auto; aspect-ratio: 389 / 291; margin-top: 14px; border: 1px solid rgba(233,236,242,.18); background: #121214; }
 .index .ix-d p { padding-top: 12px; font-size: 14px; line-height: 1.45; color: var(--mute); }
 .index .ix-tags { display: flex; flex-wrap: wrap; gap: 6px 10px; margin: 10px 0 2px; padding: 0; list-style: none; }
 .index .ix-tags li { display: inline; padding: 0; border: 0; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); cursor: auto; }
@@ -565,12 +563,12 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   <section id="more" class="pad" aria-labelledby="more-h">
     <h2 class="h2" id="more-h">More work</h2>
     <ol class="index">
-      <li tabindex="0" role="button" aria-expanded="false" style="--c:#3B6CFF"><b>Apnaklub</b><span>Commerce · 2022</span><div class="ix-d"><div><img class="ix-img" src="assets/more-hover/apnaklub.webp" width="389" height="291" alt="" loading="lazy" decoding="async"><p>Helped Apnaklub understand their users and market via research and designed their app to achieve product market fit</p><ul class="ix-tags"><li>App Design</li><li>Wholesale Procurement</li><li>Ecommerce</li><li>B2B</li></ul></div></div></li>
-      <li tabindex="0" role="button" aria-expanded="false" style="--c:#FF1204"><b>The Indian Express</b><span>News &amp; media · 2021</span><div class="ix-d"><div><img class="ix-img" src="assets/more-hover/indian-express.webp" width="389" height="291" alt="" loading="lazy" decoding="async"><p>Redesigned Indian Express’s flagship product to create a brand new mobile app experience and monetisation strategy for the company</p><ul class="ix-tags"><li>Website Design</li><li>App Design</li><li>News &amp; Media</li></ul></div></div></li>
-      <li tabindex="0" role="button" aria-expanded="false" style="--c:#8C7CF0"><b>Zeta’s Cipher Docs</b><span>Fintech · 2022</span><div class="ix-d"><div><img class="ix-img" src="assets/more-hover/zeta.webp" width="389" height="291" alt="" loading="lazy" decoding="async"><p>Worked on a comprehensive overhaul of Cipher’s documentation portal, starting from scratch and employing extensive user testing and research to ensure its success</p><ul class="ix-tags"><li>Documentation Portal</li><li>Fintech</li><li>Authentication</li></ul></div></div></li>
-      <li tabindex="0" role="button" aria-expanded="false" style="--c:#E8E3DC"><b>Urban Company</b><span>Services · 2016</span><div class="ix-d"><div><img class="ix-img" src="assets/more-hover/urban-company.webp" width="389" height="291" alt="" loading="lazy" decoding="async"><p>Designed the first market versions of Urban Company’s (formerly Urbanclap) apps and incorporated research in their design workflow</p><ul class="ix-tags"><li>App Design</li><li>Urban Services</li></ul></div></div></li>
-      <li tabindex="0" role="button" aria-expanded="false" style="--c:#E23744"><b>Zomato</b><span>Foodtech · 2015</span><div class="ix-d"><div><img class="ix-img" src="assets/more-hover/zomato.webp" width="389" height="291" alt="" loading="lazy" decoding="async"><p>Designed the first version of Zomato’s Food Delivery app along with working on multiple other products and services</p><ul class="ix-tags"><li>Website Design</li><li>App Design</li><li>Foodtech</li></ul></div></div></li>
-      <li tabindex="0" role="button" aria-expanded="false" style="--c:#3F6FD8"><b>HDFC’s Smart Buy</b><span>Fintech · 2019</span><div class="ix-d"><div><img class="ix-img" src="assets/more-hover/hdfc-smartbuy.webp" width="389" height="291" alt="" loading="lazy" decoding="async"><p>Helped HDFC design and experiment with layouts for their rewards platform</p><ul class="ix-tags"><li>App Design</li><li>Fintech</li><li>Ecommerce</li></ul></div></div></li>
+      <li tabindex="0" role="button" aria-expanded="false" style="--c:#3B6CFF"><b>Apnaklub</b><span>Commerce · 2022</span><div class="ix-d"><div><p>Helped Apnaklub understand their users and market via research and designed their app to achieve product market fit</p><ul class="ix-tags"><li>App Design</li><li>Wholesale Procurement</li><li>Ecommerce</li><li>B2B</li></ul></div></div></li>
+      <li tabindex="0" role="button" aria-expanded="false" style="--c:#FF1204"><b>The Indian Express</b><span>News &amp; media · 2021</span><div class="ix-d"><div><p>Redesigned Indian Express’s flagship product to create a brand new mobile app experience and monetisation strategy for the company</p><ul class="ix-tags"><li>Website Design</li><li>App Design</li><li>News &amp; Media</li></ul></div></div></li>
+      <li tabindex="0" role="button" aria-expanded="false" style="--c:#8C7CF0"><b>Zeta’s Cipher Docs</b><span>Fintech · 2022</span><div class="ix-d"><div><p>Worked on a comprehensive overhaul of Cipher’s documentation portal, starting from scratch and employing extensive user testing and research to ensure its success</p><ul class="ix-tags"><li>Documentation Portal</li><li>Fintech</li><li>Authentication</li></ul></div></div></li>
+      <li tabindex="0" role="button" aria-expanded="false" style="--c:#E8E3DC"><b>Urban Company</b><span>Services · 2016</span><div class="ix-d"><div><p>Designed the first market versions of Urban Company’s (formerly Urbanclap) apps and incorporated research in their design workflow</p><ul class="ix-tags"><li>App Design</li><li>Urban Services</li></ul></div></div></li>
+      <li tabindex="0" role="button" aria-expanded="false" style="--c:#E23744"><b>Zomato</b><span>Foodtech · 2015</span><div class="ix-d"><div><p>Designed the first version of Zomato’s Food Delivery app along with working on multiple other products and services</p><ul class="ix-tags"><li>Website Design</li><li>App Design</li><li>Foodtech</li></ul></div></div></li>
+      <li tabindex="0" role="button" aria-expanded="false" style="--c:#3F6FD8"><b>HDFC’s Smart Buy</b><span>Fintech · 2019</span><div class="ix-d"><div><p>Helped HDFC design and experiment with layouts for their rewards platform</p><ul class="ix-tags"><li>App Design</li><li>Fintech</li><li>Ecommerce</li></ul></div></div></li>
     </ol>
   </section>
 
