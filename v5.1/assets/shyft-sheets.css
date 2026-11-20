@@ -36,7 +36,8 @@
 @supports not (overflow: clip) { .sm-sheets .stage { overflow: hidden; padding-bottom: 40px; margin-bottom: -40px; } }
 @media (max-width: 760px) { .sm-sheets { margin: 0 calc(-1 * var(--over, 0px)); } }
 @media (min-width: 761px) {
-  .cf-duo.cf-duo-stack:has(.sm-sheets) { grid-template-columns: 1fr 1fr; align-items: start; gap: clamp(24px, 4vw, 72px); margin-inline: 0; }
+  /* one above the other (Nov 2026): the bottomsheets, then the empty states, each centred */
+  .cf-duo.cf-duo-stack:has(.sm-sheets) { grid-template-columns: 1fr; align-items: start; gap: clamp(56px, 7vw, 112px); margin-inline: 0; }
   .cf-duo-stack .sm-sheets { width: 100%; max-width: 420px; justify-self: center; }
   .sm-sheets .stage { margin: 0; }
   .sm-sheets figcaption { font-size: 14px; }
