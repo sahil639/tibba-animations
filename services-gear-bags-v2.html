@@ -140,6 +140,10 @@ button { font: inherit; color: inherit; }
 .cs p { grid-area: p; font-size: 13.5px; line-height: 1.5; color: var(--ink-mute); }
 .cs p em { font-style: normal; color: var(--c); }
 .cs .btn-p { grid-area: go; }
+/* the case study card is a link to its case study (Nov 2026) */
+a.cs { color: inherit; text-decoration: none; cursor: pointer; transition: border-color .25s, background-color .25s; }
+a.cs:hover { border-color: color-mix(in srgb, var(--c) 45%, rgba(233,236,242,.2)) !important; }
+a.cs:focus-visible { outline: 2px solid var(--c); outline-offset: 3px; }
 .no-next .next { display: none; }
 @media (max-width: 760px) { .list ol { grid-template-columns: 1fr; } .cs { grid-template-columns: 1fr; grid-template-areas: 'k' 'b' 'p' 'go'; } .cs .btn-p { width: 100%; margin-top: 8px; } }
 
@@ -228,9 +232,9 @@ button { font: inherit; color: inherit; }
       <p class="blurb" id="blurb"></p>
       <div class="lists" id="lists"></div>
       <div class="next" id="next">
-        <div class="cs" style="--c:#4CAF70"><small>Early-stage companies</small><b>Breathe ESG</b><p>How we helped Breathe ESG <em>accelerate sales</em>, streamline releases and elevate customer experience</p><img class="cs-ic" src="assets/m/case-icons/03.svg" width="100" height="64" alt="" aria-hidden="true"></div>
-        <div class="cs" style="--c:#E05555"><small>Mid-size companies</small><b>Firstpost</b><p>How we helped Firstpost <em>2x their traffic</em> through a strategic redesign</p><img class="cs-ic" src="assets/m/case-icons/02.svg" width="100" height="64" alt="" aria-hidden="true"></div>
-        <div class="cs" style="--c:#4DD9C0"><small>Established companies</small><b>Groww</b><p>How we helped Groww <em>boost engagement</em> on their app</p><img class="cs-ic" src="assets/m/case-icons/01.svg" width="100" height="64" alt="" aria-hidden="true"></div>
+        <a class="cs" style="--c:#4CAF70" href="case-breathe-esg-figma.html" target="_top" aria-label="Read the Breathe ESG case study"><small>Early-stage companies</small><b>Breathe ESG</b><p>How we helped Breathe ESG <em>accelerate sales</em>, streamline releases and elevate customer experience</p><img class="cs-ic" src="assets/m/case-icons/03.svg" width="100" height="64" alt="" aria-hidden="true"></a>
+        <a class="cs" style="--c:#E05555" href="case-firstpost-figma.html" target="_top" aria-label="Read the Firstpost case study"><small>Mid-size companies</small><b>Firstpost</b><p>How we helped Firstpost <em>2x their traffic</em> through a strategic redesign</p><img class="cs-ic" src="assets/m/case-icons/02.svg" width="100" height="64" alt="" aria-hidden="true"></a>
+        <a class="cs" style="--c:#4DD9C0" href="case-groww-figma.html" target="_top" aria-label="Read the Groww case study"><small>Established companies</small><b>Groww</b><p>How we helped Groww <em>boost engagement</em> on their app</p><img class="cs-ic" src="assets/m/case-icons/01.svg" width="100" height="64" alt="" aria-hidden="true"></a>
       </div>
     </section>
   </div>
