@@ -41,7 +41,7 @@ const SETTLED = /[?&]settled\b/.test(location.search);
 if (SETTLED) document.documentElement.classList.add('hero-settled');
 
 export const SITE_HERO_CONFIG = {
-  loader: { duration: 2.4, hold: 0.1, stutter: 0.3, band: 3.0, ghost: 0.1, glow: 0.7 },
+  loader: { min: 0.4, hold: 0.1, stutter: 0.3, band: 3.0, ghost: 0.1, glow: 0.7 },   // min: s, the least it takes 000 → 100 (it follows the real load, no fixed length)
   intro: { duration: 1.2 },          // s: the flight from the plan down into the hero
   lock: { from: 0.0, to: 0.55 },     // share of the scroll the turn-aside takes
   /* the boxes open as soon as the turn is under way — no empty beat between
@@ -104,17 +104,43 @@ function tellShell() {
 }
 if (phase === 'hero') { document.body.classList.add('ld-gone', 'hero-in'); scene.setFill(null); clearInterval(coordTimer); tellShell(); scene.climbHero(true, SETTLED ? 0 : 0.5, SETTLED); }
 
-/* the loader's clock starts on its first drawn frame, not when the script
-   ran: building the terrain takes a moment, and a clock started before it
-   would have spent most of the 2.4s on a blank screen */
-let clockStarted = false, ldClock = 0, ldLast = 0;
+/* Nov 2026: the loader follows the real load, not a clock. What it waits
+   for: the fonts, every image in the page, the page's own load event, and
+   the 3D terrain (its first drawn frame). Its count runs toward the share
+   of those that are in; while some are still out it creeps on toward 90%
+   so it never looks stuck, and it only reaches 100 once all of them are.
+   It never climbs faster than 000 → 100 in C.loader.min seconds, so a fast
+   connection sees a short, whole fill rather than a flash. */
+const LD = { fonts: false, load: false, scene: false, imgs: [], imgDone: 0 };
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { LD.fonts = true; }); else LD.fonts = true;
+if (document.readyState === 'complete') LD.load = true; else addEventListener('load', () => { LD.load = true; }, { once: true });
+function watchImages() {
+  LD.imgs = [...document.images]; LD.imgDone = 0;
+  LD.imgs.forEach(im => {
+    if (im.complete) { LD.imgDone++; return; }
+    const one = () => { LD.imgDone++; }; im.addEventListener('load', one, { once: true }); im.addEventListener('error', one, { once: true });
+  });
+}
+watchImages();
+const ldReal = () => {
+  const n = 3 + LD.imgs.length, d = (LD.fonts ? 1 : 0) + (LD.load ? 1 : 0) + (LD.scene ? 1 : 0) + Math.min(LD.imgDone, LD.imgs.length);
+  return { share: d / n, all: d >= n };
+};
+let clockStarted = false, ldClock = 0, ldLast = 0, ldP = 0, ldEnd = 0;
 function loaderFrame(now) {
-  if (!clockStarted) { clockStarted = true; t0 = now; ldClock = 0; ldLast = now; }
-  /* and it only counts time it was on screen for: a stalled frame (the
-     page busy elsewhere) advances it by one frame, not by the stall */
-  ldClock += Math.min(1 / 30, (now - ldLast) / 1000); ldLast = now;
-  const e = ldClock;
-  const p = surge(clamp01(e / C.loader.duration));
+  if (!clockStarted) { clockStarted = true; t0 = now; ldClock = 0; ldLast = now; ldP = 0; ldEnd = 0; }
+  LD.scene = true;                                   // the terrain is built: this frame draws it
+  const dt = Math.min(0.1, (now - ldLast) / 1000); ldLast = now; ldClock += dt;
+  const r = ldReal();
+  if (ldClock > 12) r.all = true;                    // a resource that never answers does not hold the hero shut
+  /* where the count heads: the real share, or — while something is still
+     out — at least a slow creep toward 90%, never past it */
+  const creep = 0.9 * (1 - Math.exp(-ldClock / 2.2));
+  const goal = r.all ? 1 : Math.min(0.9, Math.max(r.share * 0.9, creep));
+  const k = 1 - Math.exp(-dt * 9);
+  ldP = Math.min(ldP + dt / C.loader.min, ldP + (goal - ldP) * Math.max(k, r.all ? 1 : 0));
+  if (r.all && goal - ldP < 0.004) ldP = 1;
+  const p = surge(clamp01(ldP));
   scene.setFill(p, { band: C.loader.band, ghost: C.loader.ghost, glow: C.loader.glow });
   const pct = Math.round(p * 100);
   count.textContent = String(pct).padStart(3, '0');
@@ -122,7 +148,8 @@ function loaderFrame(now) {
   let label = STAGES[0][1]; for (const [at, l] of STAGES) if (p >= at) label = l;
   stageTx.textContent = label;
   document.body.classList.toggle('ld-done', pct >= 100);
-  if (e >= C.loader.duration + C.loader.hold) {
+  if (ldP >= 1 && !ldEnd) ldEnd = now;
+  if (ldEnd && now - ldEnd >= C.loader.hold * 1000) {
     /* 100: clear the counter, and fly down into the hero */
     phase = 'intro'; introAt = now;
     document.body.classList.add('ld-gone');
@@ -295,7 +322,7 @@ requestAnimationFrame(frame);
   const R = (id, label, min, max, step, val, unit = '') => `<div class="row"><label>${label}<i id="v-${id}">${val}${unit}</i></label><input type="range" id="s-${id}" min="${min}" max="${max}" step="${step}" value="${val}" data-unit="${unit}"></div>`;
   el.innerHTML = `<div id="tune-head"><b>Site hero</b><button id="tune-hide" title="Hide (H)">–</button></div>
     <p class="tune-sub">Loader</p>
-    ${R('ld', 'Duration', 1.5, 12, .1, C.loader.duration, 's')}
+    ${R('ld', 'Shortest fill', .2, 3, .05, C.loader.min, 's')}
     ${R('st', 'Stutter', 0, 1, .01, C.loader.stutter)}
     ${R('in', 'Flight into the hero', .6, 5, .1, C.intro.duration, 's')}
     <div class="row inline"><label>Loader<i></i></label><button class="tune-btn" id="s-rp">Replay</button></div>
@@ -305,7 +332,7 @@ requestAnimationFrame(frame);
   document.body.appendChild(el);
   const q = id => el.querySelector('#' + id);
   const bind = (id, fn) => q('s-' + id).addEventListener('input', e => { const v = +e.target.value; q('v-' + id).textContent = v + e.target.dataset.unit; fn(v); });
-  bind('ld', v => { C.loader.duration = v; }); bind('st', v => { C.loader.stutter = v; });
+  bind('ld', v => { C.loader.min = v; }); bind('st', v => { C.loader.stutter = v; });
   bind('in', v => { C.intro.duration = v; }); bind('oa', v => { C.metrics.openAt = v; C.metrics.closeBelow = Math.max(0, v - .04); });
   bind('lt', v => { C.lock.to = v; });
   q('s-rp').addEventListener('click', () => {

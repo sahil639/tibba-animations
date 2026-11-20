@@ -430,6 +430,17 @@ export function mountSite({ sections, nav = [], home = '#', announcement = TICKE
 
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   scrollTo(0, 0);
+  /* the loader plays only on a real arrival (Nov 2026): the tab's first page
+     of the site, or a reload. Every site page marks the tab as visited when
+     it is left (assets/site-nav.js), so the desktop / phone swap (assets/pair.js),
+     a link from About or a case study, and back / forward all open on the
+     hero without it. */
+  {
+    let reload = false, visited = false;
+    try { const n = performance.getEntriesByType('navigation')[0]; reload = !!n && n.type === 'reload'; } catch (e) {}
+    try { visited = sessionStorage.getItem('tibba.visited') === '1'; } catch (e) {}
+    if (visited && !reload) sections = sections.map(s => s.gate && !/noloader/.test(s.file) ? { ...s, file: s.file + (s.file.includes('?') ? '&' : '?') + 'noloader' } : s);
+  }
   /* a deep link (#summits, #services …) skips the loader and travels there */
   const deep = location.hash.slice(1);
   if (deep && sections.some(s => s.id === deep)) {

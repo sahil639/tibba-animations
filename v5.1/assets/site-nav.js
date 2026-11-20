@@ -25,6 +25,10 @@ export const SITE_NAV = [
   { label: 'Contact', href: 'index.html#footer' },
 ];
 
+/* the tab has seen the site: set as any page is left (a link, the desktop /
+   phone swap, a reload), read by the shell to play its loader only on the
+   tab's first page or a reload (assets/site-shell.js) */
+addEventListener('pagehide', () => { try { sessionStorage.setItem('tibba.visited', '1'); } catch (e) {} });
 export function mountSiteNav(header, { nav = SITE_NAV, home = 'index.html', current = null } = {}) {
   const foot = document.querySelector('[data-site-footer], #footer');
   const items = nav.map(it => it.label === 'Contact' && foot ? { ...it, href: '#contact' } : it);
