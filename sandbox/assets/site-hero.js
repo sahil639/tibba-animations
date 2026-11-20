@@ -163,7 +163,7 @@ function loaderFrame(now) {
 /* ══ 3 · the metrics boxes (as assets/metrics.js) ══════════════════════ */
 const METRICS = [
   { v: '12+', l: 'Years of experience', k: 'Since 2013' },
-  { v: '25+', l: 'Products shipped', k: 'Apps · web · SaaS' },
+  { v: '30+', l: 'Products shipped', k: 'Apps · web · SaaS' },
   { v: '08', l: 'Unicorns serviced', k: 'And counting' },
   { v: '$400M', l: 'Revenue unlocked', k: 'For our clients' },
 ];
