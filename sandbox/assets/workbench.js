@@ -356,6 +356,15 @@
       else window.scrollTo({ top: y, behavior: how });
     } };
     if (!up || up === window) return;
+    /* the window that actually scrolls: a page framed inside a framed page
+       (the bags inside Our services, inside the site) hands its wheel and
+       touch past its parent, which does not scroll itself, to the first
+       window up the chain that is not embedded (Nov 2026) */
+    try {
+      var w = up;
+      while (w !== w.parent && w.document.documentElement.classList.contains('wb-embed')) w = w.parent;
+      up = w;
+    } catch (e) {}
     window.addEventListener('wheel', function (e) {
       if (e.ctrlKey) return;
       e.preventDefault();

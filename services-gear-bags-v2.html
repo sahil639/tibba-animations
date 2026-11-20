@@ -8,6 +8,8 @@
 <link rel="stylesheet" href="assets/type.css?v=3">
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/workbench.css">
+<link rel="preconnect" href="https://unpkg.com" crossorigin>
+<link rel="modulepreload" href="https://unpkg.com/three@0.165.0/build/three.module.min.js" crossorigin>
 <script src="assets/manifest.js"></script>
 <script src="assets/whats-new.js"></script>
 <script src="assets/workbench.js" defer></script>
@@ -79,6 +81,10 @@ button { font: inherit; color: inherit; }
 .board.ready iframe { opacity: 1; }
 .board .wait { position: absolute; inset: 0; display: grid; place-items: center; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); transition: opacity .3s linear; }
 .board.ready .wait { opacity: 0; }
+/* Nov 2026: the bag is there at once — a still of it (assets/services/bag-N.webp,
+   rendered from the same model) until the 3D has drawn, then the 3D over it */
+.board .poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; transition: opacity .6s linear; }
+.board.ready .poster { opacity: 0; }
 
 /* ── the stage and its services ─────────────────────────────────────────── */
 .state .k { display: flex; align-items: center; gap: 12px; font-size: clamp(13px, .95vw, 15px); letter-spacing: .16em; text-transform: uppercase; color: #fff; }
@@ -224,7 +230,7 @@ a.cs:focus-visible { outline: 2px solid var(--c); outline-offset: 3px; }
     <section aria-label="The kit">
       <div class="tiers" role="tablist" aria-label="Company stage" id="tiers"></div>
       <div class="mat">
-        <div class="board" id="board"><span class="wait">Packing…</span><iframe id="bags" title="The bag for this stage, in 3D" loading="lazy" src="misc-bags.html?embed&amp;bag=1"></iframe></div>
+        <div class="board" id="board"><img class="poster" id="bag-still" src="assets/services/bag-1.webp" width="900" height="954" alt="" aria-hidden="true" decoding="async" fetchpriority="high"><iframe id="bags" title="The bag for this stage, in 3D" src="misc-bags.html?embed&amp;bag=1"></iframe></div>
       </div>
     </section>
     <section class="state" aria-live="polite">
@@ -293,11 +299,16 @@ a.cs:focus-visible { outline: 2px solid var(--c); outline-offset: 3px; }
   const board = document.getElementById('board'), frame = document.getElementById('bags');
   let want = C.tiers[0].bag;
   const bags = () => { try { return frame.contentWindow && frame.contentWindow.bags; } catch { return null; } };
+  const still = document.getElementById('bag-still');
+  const ready = () => { if (board.classList.contains('ready')) return; const b = bags(); if (b) b.showBag(want); board.classList.add('ready'); };
   addEventListener('message', e => {
     if (e.source !== frame.contentWindow || !e.data || e.data.type !== 'bags-ready') return;
-    const b = bags(); if (b) b.showBag(want);
-    board.classList.add('ready');
+    ready();
   });
+  /* the message can come before this listener is there (a fast device): ask
+     the frame itself, until its bags answer */
+  const poll = setInterval(() => { if (bags()) { clearInterval(poll); ready(); } }, 300);
+  setTimeout(() => clearInterval(poll), 60000);
 
   /* ── the tiers ───────────────────────────────────────────────────────── */
   const tiersEl = document.getElementById('tiers');
@@ -310,6 +321,7 @@ a.cs:focus-visible { outline: 2px solid var(--c); outline-offset: 3px; }
   function lay(i) {
     const t = C.tiers[i];
     want = t.bag;
+    if (still) still.src = `assets/services/bag-${want}.webp`;
     const b = bags(); if (b) b.showBag(want);
   }
 
