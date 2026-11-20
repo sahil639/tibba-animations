@@ -365,6 +365,11 @@ section { scroll-margin-top: 64px; }
 .hero { min-height: 100vh !important; padding-top: 104px; } @supports (height: 1svh) { .hero { min-height: 100svh !important; } }
 .hero-vid, .hero-art { position: absolute; inset: 0 !important; top: 0 !important; width: 100%; height: 100% !important; object-fit: cover; object-position: 50% 47%; background: #000; pointer-events: none; }
 .hero-art[hidden] { display: none; }
+/* the still under the video, and the video seen only while it plays (the
+   class is set on its playing event and taken off when it pauses) */
+.hero-still { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 47%; pointer-events: none; user-select: none; }
+.hero-vid { opacity: 0; transition: opacity .35s linear; }
+.hero-vid.is-playing { opacity: 1; }
 .hero::after { background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) calc(100% - 290px), rgba(0,0,0,.72) calc(100% - 150px), #000 100%); }
 .hero h1 { text-shadow: 0 1px 18px rgba(0,0,0,.9), 0 0 2px rgba(0,0,0,.6); }
 .hero-foot p { text-shadow: 0 1px 12px rgba(0,0,0,.8); }
@@ -474,8 +479,13 @@ section { scroll-margin-top: 64px; }
          at 30°, a slow seamless 10.5 s loop (assets/video/hero-mountain-30.mp4,
          its first frame the poster), the far country drawn out to the top of
          the screen. Made by tools/render-hero-mobile.html?terrain=2000. -->
-    <video class="hero-vid" id="hero-vid" muted loop playsinline autoplay preload="auto"
-      poster="assets/video/hero-mountain-30.jpg" src="assets/video/hero-mountain-30.mp4" aria-hidden="true" tabindex="-1"></video>
+    <!-- the still underneath, always there; the video over it is shown only
+         while it is actually playing, so a paused video (Low Power Mode,
+         data saver, reduced motion) — and with it the browser's play button —
+         is never on screen. No audio track, no controls. -->
+    <img class="hero-still" src="assets/video/hero-mountain-30.jpg" alt="" aria-hidden="true" decoding="async" fetchpriority="high">
+    <video class="hero-vid" id="hero-vid" muted loop playsinline autoplay preload="auto" disablepictureinpicture disableremoteplayback
+      controlslist="nodownload nofullscreen noremoteplayback noplaybackrate" src="assets/video/hero-mountain-30.mp4" aria-hidden="true" tabindex="-1"></video>
     <div class="hero-foot">
       <p>Helping ambitious teams<br>reach the next peak.</p>
       <p>We partner with founders and design leaders to turn ambitious ideas into shipped, high-impact work.</p>
@@ -663,7 +673,11 @@ section { scroll-margin-top: 64px; }
     const v = document.getElementById('hero-vid');
     if (!v) return;
     const still = matchMedia('(prefers-reduced-motion: reduce)').matches || (navigator.connection && navigator.connection.saveData);
-    if (still) { v.removeAttribute('autoplay'); v.preload = 'none'; v.pause(); return; }
+    if (still) { v.removeAttribute('autoplay'); v.preload = 'none'; v.pause(); v.classList.remove('is-playing'); return; }
+    /* seen only while it plays: a paused video never shows (nor its play button) */
+    v.controls = false;
+    v.addEventListener('playing', () => v.classList.add('is-playing'));
+    ['pause', 'ended', 'emptied', 'abort', 'error'].forEach(e => v.addEventListener(e, () => v.classList.remove('is-playing')));
     /* it plays on its own, never waiting for a tap on it: muted as a
        property too (some browsers read only that), started by script, and
        — where the browser holds autoplay back (iOS Low Power Mode) —
