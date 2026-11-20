@@ -53,3 +53,16 @@
 .cf-kpis.d-kpis { width: calc(720 / 1380 * 100%); flex-direction: row; align-items: stretch; gap: max(16px, calc(24 * var(--cu))); }
 .cf-kpis.d-kpis > .cf-metric { flex: 1 1 0; min-width: 0; gap: 14px; padding: 32px 28px; border: 1px solid #e2e2e2; justify-content: flex-start; }
 .cf-kpis.d-kpis > .cf-metric:last-child { border-bottom: 1px solid #e2e2e2; }
+
+/* 5 · …its card headers: a ticker of the topic's icons (shyft-d.js) in the
+   page's lavender circles (as .vs-icon), sliding past; the header image is
+   not shown on desktop. Only the row moves. */
+.d-over .sm-card > img { display: none; }
+.d-over .tk { position: relative; overflow: hidden; margin: 0; padding: 18px 0; border-radius: 10px; background: #f6f5ff;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent); mask: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent); }
+.d-over .tk-row { display: flex; width: max-content; will-change: transform; animation: tk-run var(--dur, 20s) linear infinite; animation-play-state: paused; }
+.d-over .tk.run .tk-row { animation-play-state: running; }
+.d-over .tk-ic { flex: none; display: inline-grid; place-items: center; width: 52px; height: 52px; margin-right: 14px; border-radius: 50%; background: #efecff; color: #6a55e0; }
+.d-over .tk-ic svg { width: 24px; height: 24px; }
+@keyframes tk-run { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-50%, 0, 0); } }
+@media (prefers-reduced-motion: reduce) { .d-over .tk-row { animation: none; } }
