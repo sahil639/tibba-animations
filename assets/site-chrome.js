@@ -185,88 +185,16 @@
       });
     }
 
-    mountPanel();
+    /* the services panel and its side tab are gone (Nov 2026) */
 
     /* chrome is injected after odometer.js has already armed the document, so
        it arms its own */
     if (global.Odometer) global.Odometer.arm(document);
   }
 
-  /* ── the services panel ────────────────────────────────────────────────
-     Built once, on every page, and filled the first time it is opened rather
-     than at mount: it is a whole services section, and most visits never open
-     it. Nothing is rendered until somebody asks. */
-  function mountPanel() {
-    if (document.querySelector('.panel-tab')) return;
-    if (matchMedia('(max-width: 760px)').matches) return;   /* phones: no services nudge (Nov 2026) */
-
-    const tab = document.createElement('button');
-    tab.type = 'button';
-    tab.className = 'panel-tab';
-    tab.setAttribute('aria-expanded', 'false');
-    tab.innerHTML = '<i></i>Our services';
-
-    const veil = document.createElement('div');
-    veil.className = 'panel-veil';
-
-    const panel = document.createElement('aside');
-    panel.className = 'panel';
-    panel.setAttribute('role', 'dialog');
-    panel.setAttribute('aria-modal', 'true');
-    panel.setAttribute('aria-label', 'Our services');
-    panel.hidden = true;
-    panel.innerHTML = `
-      <div class="panel-head">
-        <div>
-          <h2>Our services</h2>
-          <p>Select the scale at which your business operates to see how we can help you.</p>
-        </div>
-        <button class="panel-close" type="button" aria-label="Close">&#10005;</button>
-      </div>
-      <div class="panel-body"><div class="panel-services"></div></div>`;
-
-    document.body.append(tab, veil, panel);
-
-    let open = false, filled = false, lastFocus = null;
-
-    function setOpen(next) {
-      if (next === open) return;
-      open = next;
-      tab.setAttribute('aria-expanded', String(open));
-
-      if (open) {
-        lastFocus = document.activeElement;
-        panel.hidden = false;
-        if (!filled && global.mountServices) {
-          global.mountServices(panel.querySelector('.panel-services'));
-          filled = true;
-        }
-        /* the panel has to be in the document and un-hidden for a frame before
-           the transform will animate off its start value */
-        requestAnimationFrame(() => {
-          veil.classList.add('on');
-          panel.classList.add('on');
-        });
-        document.body.style.overflow = 'hidden';
-        panel.querySelector('.panel-close').focus();
-      } else {
-        veil.classList.remove('on');
-        panel.classList.remove('on');
-        document.body.style.overflow = '';
-        /* kept in the DOM until it has finished leaving, then taken out of the
-           tab order — a panel off screen is still focusable otherwise */
-        setTimeout(() => { if (!open) panel.hidden = true; }, 480);
-        if (lastFocus) lastFocus.focus();
-      }
-    }
-
-    tab.addEventListener('click', () => setOpen(true));
-    veil.addEventListener('click', () => setOpen(false));
-    panel.querySelector('.panel-close').addEventListener('click', () => setOpen(false));
-    addEventListener('keydown', e => { if (e.key === 'Escape' && open) setOpen(false); });
-
-    global.SiteChrome.togglePanel = setOpen;
-  }
+  /* the services panel (Nov 2026): removed everywhere — its side tab opened
+     an empty panel. Kept as a no-op so nothing calling it breaks. */
+  function mountPanel() {}
 
   global.SiteChrome = { mount, mountPanel, CASES, NAV };
 
