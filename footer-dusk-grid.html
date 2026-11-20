@@ -72,8 +72,9 @@ body { background: #000; }
 .dg .chips input:checked + span { background: #fff; color: #000; border-color: #fff; }
 .dg .chips input:focus-visible + span { outline: 1px solid #C9124B; outline-offset: 2px; }
 .dg .send { grid-column: 1 / -1; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
-.dg form .note { font-size: 12.5px; color: rgba(233,236,242,.6); }
-.dg form .note a { color: #fff; border-bottom: 1px solid rgba(255,255,255,.4); }
+/* the email beside the button (Nov 2026): one line everywhere — 14px, a step under the button's 15px label */
+.dg form .note { margin: 0; font-size: 14px; font-weight: 400; line-height: 1.4; color: rgba(233,236,242,.6); }
+.dg form .note a { color: #fff; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.4); }
 .dg form .sent { grid-column: 1 / -1; font-size: 13px; color: var(--ink-warm); min-height: 1.2em; }
 @media (max-width: 520px) { .dg form { grid-template-columns: 1fr; } }
 /* foot right: the fire */
@@ -129,8 +130,6 @@ body { background: #000; }
   .dg .word p .dot { display: none; } .dg .word p .br { display: inline; }
   .dg .camp-still { display: block !important; position: static; grid-column: 2; grid-row: 1; justify-self: end; align-self: end; width: 46px; margin-bottom: -2px; pointer-events: none; }
   .dg .camp-still img { display: block; width: 100%; height: auto; }
-  .dg .mail-big { display: flex !important; }
-  .dg form .note { display: none; }
   /* buttons as the home page's (Nov 2026): a deep tint, a 25% hairline, white words */
   .btn-p, .dg form button { background: color-mix(in srgb, var(--btn-bg, #C9124B) 24%, #000) !important; color: #fff !important;
     border: 1px solid color-mix(in srgb, var(--btn-bg, #C9124B) 25%, transparent) !important; font-size: 15px; font-weight: 400; letter-spacing: .02em; }
@@ -146,8 +145,7 @@ body { background: #000; }
       <label class="fld"><input type="text" name="name" placeholder="Your name" aria-label="Your name" autocomplete="name" required></label>
       <label class="fld"><input type="email" name="email" placeholder="Email" aria-label="Email" autocomplete="email" required></label>
       <label class="fld wide"><textarea name="idea" maxlength="500" placeholder="Tell us about your project" aria-label="Tell us about your project"></textarea></label>
-      <a class="mail-big" href="mailto:hello@tibba.design"><svg width="26" height="26" style="width:26px;height:26px;flex:none;margin-right:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="1.5"/><path d="m3 6 9 7 9-7"/></svg>hello@tibba.design</a>
-      <div class="send"><button type="submit" class="btn-p">Submit form<span class="btn-p-ic" aria-hidden="true"></span></button></div>
+      <div class="send"><button type="submit" class="btn-p">Submit form<span class="btn-p-ic" aria-hidden="true"></span></button><p class="note">or write to <a href="mailto:hello@tibba.design">hello@tibba.design</a></p></div>
     </form>
   </section>
   <nav class="cell pages" aria-label="Pages"><p class="k">Pages</p>

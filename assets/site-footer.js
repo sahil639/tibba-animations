@@ -43,8 +43,7 @@ export function mountSiteFooter(host, { light = false } = {}) {
       <label class="sf-fld"><input type="text" name="name" placeholder="Your name" aria-label="Your name" autocomplete="name" required></label>
       <label class="sf-fld"><input type="email" name="email" placeholder="Email" aria-label="Email" autocomplete="email" required></label>
       <label class="sf-fld"><textarea name="idea" maxlength="500" placeholder="Tell us about your project" aria-label="Tell us about your project"></textarea></label>
-      <a class="sf-mail" href="mailto:hello@tibba.design">${MAIL}hello@tibba.design</a>
-      <button type="submit" class="sf-btn">Submit form${ARROW}</button>
+      <div class="sf-send"><button type="submit" class="sf-btn">Submit form${ARROW}</button><p class="sf-note">or write to <a href="mailto:hello@tibba.design">hello@tibba.design</a></p></div>
     </form>
     <div class="sf-done" role="status" aria-live="polite" tabindex="-1"></div>
   </section>

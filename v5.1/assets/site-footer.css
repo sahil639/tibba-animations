@@ -22,6 +22,13 @@
 .sf-fld::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: #C9124B; transform: scaleX(0); transform-origin: left; transition: transform .45s cubic-bezier(.22,1,.36,1); }
 .sf-fld:focus-within::after { transform: scaleX(1); }
 .sf-mail { display: flex; align-items: center; gap: 12px; color: #E8E3DC; }
+/* the email beside the button (Nov 2026), as the desktop footer has it: to its
+   right, centred on it; below it, at the left, when the row is too narrow */
+.sf-send { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 18px; }
+.sf-note { margin: 0; font: 400 14px/1.4 'Vend Sans', system-ui, sans-serif; color: rgba(233,236,242,.6); }
+.sf-note a { color: #fff; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.4); }
+.sf-light .sf-note { color: rgba(14,17,20,.55); }
+.sf-light .sf-note a { color: #0E1114; border-bottom-color: rgba(14,17,20,.35); }
 .sf-mail svg { width: 26px; height: 26px; flex: none; }
 .sf-btn { justify-self: start; display: inline-flex; align-items: center; gap: 14px; padding: 15px 20px 15px 22px; cursor: pointer;
   border: 1px solid rgba(201,18,75,.25); border-radius: 0; background: color-mix(in srgb, #C9124B 24%, #000); color: #fff;
