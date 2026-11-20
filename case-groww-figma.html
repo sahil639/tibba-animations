@@ -129,7 +129,7 @@
     const old = document.getElementById('footer'), foot = document.createElement('footer');
     foot.id = 'footer'; foot.setAttribute('data-site-footer', ''); old.replaceWith(foot);
     document.head.insertAdjacentHTML('beforeend', '<link rel="stylesheet" href="assets/site-footer.css?v=9">');
-    import('./assets/site-footer.js?v=4').then(m => m.mountSiteFooter(foot));
+    import('./assets/site-footer.js?v=5').then(m => m.mountSiteFooter(foot));
   }
 </script>
 

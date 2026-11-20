@@ -20,7 +20,7 @@ const LOGO = `<svg class="sf-logo" viewBox="8 8 96 21" aria-hidden="true"> <path
 const MAIL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="1.5"/><path d="m3 6 9 7 9-7"/></svg>';
 const ARROW = '<svg viewBox="0 0 18 18" aria-hidden="true"><path d="M2 9h13M10 4l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
 const PAGES = [['Home', HOME, 'top'], ['Work', HOME + '#work', 'work'], ['Services', HOME + '#services', 'services'],
-  ['About', 'about.html'], ['Case studies', HOME + '#more', 'more'], ['Studio', HOME + '#studio', 'studio']];
+  ['About', 'about.html'], ['Studio', HOME + '#studio', 'studio']];
 const SOCIAL = [['Instagram', 'https://www.instagram.com/tibba.design/'], ['LinkedIn', 'https://www.linkedin.com/company/tibba-design-studio/'],
   ['Medium', 'https://medium.com/@tibbadesignstudio'], ['Email', 'mailto:hello@tibba.design']];
 export const CASES = [
@@ -51,7 +51,7 @@ export function mountSiteFooter(host, { light = false } = {}) {
   <section class="sf-word" aria-label="Tibba">
     ${LOGO}
     <p>Tibba Design Studio<br>India, and remote</p>
-    <img class="sf-flame" src="${light ? 'assets/icons/campfire-light.svg?v=1' : 'assets/icons/campfire-still-260.webp'}" width="100" height="${light ? 125 : 118}" alt="" loading="lazy" decoding="async">
+    <img class="sf-flame" src="${light ? 'assets/icons/campfire-light-anim.svg?v=1' : 'assets/icons/campfire-still-260.webp'}" width="100" height="${light ? 125 : 118}" alt="" loading="lazy" decoding="async">
   </section>
   <nav class="sf-col" aria-label="Pages"><p class="sf-k">Pages</p>
     <ul>${PAGES.map(([n, h, s]) => `<li><a href="${h}"${s ? ` data-sec="${s}"` : ''}>${n}</a></li>`).join('')}</ul></nav>
