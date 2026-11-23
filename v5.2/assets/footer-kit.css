@@ -1,0 +1,73 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Footer kit — the shared base of the reference footers (assets/footer-kit.js)
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --acc: #C9124B; --ink: #e8e3dc; --bg: #0a0a0b; --line: rgba(233,236,242,.12); --line-2: rgba(233,236,242,.22); }
+body { background: var(--bg); color: var(--ink-warm); font-family: 'Vend Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+button, input { font: inherit; color: inherit; }
+.k { font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+.k.acc { display: flex; align-items: center; gap: 10px; color: var(--acc); }
+.k.acc::before { content: ''; width: 7px; height: 7px; background: var(--acc); }
+.foot { position: relative; overflow: hidden; }
+canvas.fire { display: block; width: 100%; height: 100%; }
+
+/* window cards */
+.win { position: absolute; z-index: 5; width: clamp(220px, 17vw, 300px); background: #e8e3dc; color: #111; border-radius: 3px; box-shadow: 0 18px 40px rgba(0,0,0,.45);
+  background-image: repeating-linear-gradient(180deg, rgba(0,0,0,.035) 0 1px, transparent 1px 3px); user-select: none; touch-action: none; }
+.win .bar { height: 22px; display: flex; align-items: center; gap: 4px; padding: 0 9px; cursor: grab; }
+.win.drag .bar { cursor: grabbing; }
+.win .bar i { width: 3px; height: 3px; background: rgba(0,0,0,.3); }
+.win .in { margin: 0 8px 8px; border: 1px solid rgba(0,0,0,.14); }
+.win .hd { display: flex; justify-content: space-between; align-items: center; padding: 11px 12px; border-bottom: 1px solid rgba(0,0,0,.12); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-weight: 600; }
+.win .hd button { border: 0; background: none; cursor: pointer; font-size: 11px; color: var(--acc); }
+.win ul { list-style: none; padding: 12px; display: grid; gap: 5px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+.win ul a::before { content: '['; } .win ul a::after { content: ']'; }
+.win ul a:hover { color: var(--acc); }
+.win.shut ul { display: none; }
+.win::after { content: ''; position: absolute; right: -1px; top: -1px; width: 7px; height: 7px; background: var(--acc); }
+
+/* clocks */
+.clk b { display: block; color: #fff; font-weight: 400; font-size: 16px; letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+.clk span { display: block; margin-top: 3px; font-size: 12.5px; color: var(--ink-mute); }
+.clk small { display: block; margin-top: 3px; font-size: 9.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+
+/* ticker */
+.tk { overflow: hidden; }
+.tk-tr { display: flex; width: max-content; animation: tk-run 46s linear infinite; }
+.tk-tr span { flex: none; padding: 0 22px; display: inline-flex; align-items: center; gap: 22px; white-space: nowrap; }
+.tk-tr span::before { content: ''; width: 8px; height: 8px; background: var(--acc); }
+@keyframes tk-run { to { transform: translateX(-50%); } }
+
+@media (prefers-reduced-motion: reduce) { .tk-tr { animation: none; } }
+
+/* ── the form, once sent (formSuccess in footer-kit.js) ─────────────────
+   The form gives way to a tick that draws itself, a thank-you by name,
+   the three steps that follow, and the case studies to read meanwhile. */
+.dg .done { display: none; outline: none; color: var(--done-ink, #fff); }
+.dg .is-sent > h2, .dg .is-sent > form { display: none; }
+.dg .is-sent .done { display: block; animation: done-in .6s cubic-bezier(.16,1,.3,1) both; }
+.dg .done-tick { display: block; width: 52px; height: 52px; color: #C9124B; }
+.dg .done-tick svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.dg .done-tick circle { stroke-dasharray: 139; stroke-dashoffset: 139; animation: done-draw .7s cubic-bezier(.65,0,.35,1) .1s forwards; }
+.dg .done-tick path { stroke-dasharray: 32; stroke-dashoffset: 32; animation: done-draw .45s cubic-bezier(.65,0,.35,1) .65s forwards; }
+.dg .done-h { margin-top: 22px; color: var(--done-ink, #fff); font-weight: 400; font-size: clamp(28px, 2.6vw, 44px); line-height: 1.1; letter-spacing: -.025em; }
+.dg .done-next { list-style: none; margin: 26px 0 0; padding: 0; display: grid; gap: 0; max-width: 560px; counter-reset: s; }
+.dg .done-next li { display: grid; grid-template-columns: 26px 1fr; column-gap: 12px; padding: 12px 0; border-top: 1px solid var(--ln); counter-increment: s; }
+.dg .done-next li::before { content: '0' counter(s); grid-row: 1 / 3; font-size: 11px; letter-spacing: .1em; color: #C9124B; padding-top: 3px; }
+.dg .done-next b { font-weight: 400; font-size: 15px; color: var(--done-ink, #fff); }
+.dg .done-next span { font-size: 13.5px; line-height: 1.5; color: var(--done-mute, rgba(233,236,242,.62)); }
+.dg .done-next i { font-style: normal; color: var(--done-ink, #fff); }
+.dg .done-k { margin-top: 30px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--done-mute, rgba(233,236,242,.62)); }
+.dg .done-cases { list-style: none; margin: 12px 0 0 !important; padding: 0; display: grid !important; gap: 0 !important; max-width: 560px; font-size: inherit !important; }
+.dg .done-cases a { display: grid; grid-template-columns: 1fr auto; column-gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--ln); color: var(--done-ink, #fff); text-decoration: none; }
+.dg .done-cases li:first-child a { border-top: 1px solid var(--ln); }
+.dg .done-cases b { font-weight: 400; font-size: clamp(18px, 1.4vw, 22px); letter-spacing: -.01em; }
+.dg .done-cases span { grid-row: 2; font-size: 13px; color: var(--done-mute, rgba(233,236,242,.62)); }
+.dg .done-cases i { grid-row: 1 / 3; align-self: center; font-style: normal; font-size: 20px; transition: transform .3s cubic-bezier(.22,1,.36,1); }
+.dg .done-cases a:hover { color: #C9124B; } .dg .done-cases a:hover i { transform: translateX(4px); }
+.dg .done-again { margin-top: 22px; padding: 0; border: 0; background: none; font: inherit; font-size: 13px; color: var(--done-mute, rgba(233,236,242,.62)); border-bottom: 1px solid currentColor; cursor: pointer; }
+.dg .done-again:hover { color: var(--done-ink, #fff); }
+@keyframes done-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes done-draw { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .dg .is-sent .done, .dg .done-tick circle, .dg .done-tick path { animation: none; stroke-dashoffset: 0; } }

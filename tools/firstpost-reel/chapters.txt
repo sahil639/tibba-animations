@@ -1,0 +1,37 @@
+;FFMETADATA1
+title=Firstpost reel
+[CHAPTER]
+TIMEBASE=1/1000
+START=0
+END=2300
+title=Scene 1 — component library
+[CHAPTER]
+TIMEBASE=1/1000
+START=2300
+END=2800
+title=Wipe 1→2
+[CHAPTER]
+TIMEBASE=1/1000
+START=2800
+END=4800
+title=Scene 2 — panels
+[CHAPTER]
+TIMEBASE=1/1000
+START=4800
+END=5300
+title=Push 2→3
+[CHAPTER]
+TIMEBASE=1/1000
+START=5300
+END=7300
+title=Scene 3 — desktop + phone
+[CHAPTER]
+TIMEBASE=1/1000
+START=7300
+END=7800
+title=Zoom 3→4
+[CHAPTER]
+TIMEBASE=1/1000
+START=7800
+END=10000
+title=Scene 4 — video player

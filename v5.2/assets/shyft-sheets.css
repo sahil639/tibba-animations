@@ -1,0 +1,53 @@
+/* Shyft Design System (Nov 2026): the bottomsheet and the empty-state
+   stacks at both widths — on desktop in place of the two plates, side by
+   side, each the width a phone shows it at. Motion: assets/shyft-sheets.js. */
+.sm-sheets { display: block; position: relative; margin: 0; }
+.sm-sheets img { display: block; max-width: none; height: auto; pointer-events: none; }
+/* ── Shyft Design System: the bottomsheets, stacking (in place of the first
+   bottomsheet plate). Nine sheets slide in from the left and settle on one
+   another, each fading under a white veil as the next lands; the full sheet
+   lands on top unveiled, then the Figma panel rises under it. Once, on first
+   sight, and again from Replay (assets/shyft-m.js). ─────────────────────── */
+.sm-sheets { container-type: inline-size; text-align: center; padding-bottom: 6px; }
+.sm-sheets .stage { position: relative; height: var(--sh, 146cqw); overflow: hidden; margin: 0 -16px; }
+.sm-sheets .stage::before { content: ''; position: absolute; left: 10%; right: 10%; top: var(--gy, 62cqw); height: 46cqw; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(150, 132, 245, .38), rgba(150, 132, 245, 0)); filter: blur(6px); }
+/* each sheet and the panel carry their own left / top / width (cqw) */
+.sm-sheets .sh, .sm-sheets .sp-panel { position: absolute; will-change: transform, opacity; }
+.sm-sheets .sh img, .sm-sheets .sp-panel img { width: 100%; height: auto; }
+.sm-sheets .sh i { position: absolute; inset: 3% 3.5% 2% 3.5%; border-radius: 7%/5%; background: #fff; opacity: 0; pointer-events: none; }
+.sm-sheets:not(.done):not(.go) .sh, .sm-sheets:not(.done):not(.go) .sp-panel, .sm-sheets:not(.done):not(.go) figcaption { opacity: 0; }
+/* the full sheet and the panel stand off the faded stack */
+.sm-sheets .sh:nth-last-child(2) img { filter: drop-shadow(0 12px 22px rgba(70, 50, 160, .2)) drop-shadow(0 2px 4px rgba(70, 50, 160, .08)); }
+.sm-sheets .sp-panel img { filter: drop-shadow(0 14px 22px rgba(20, 10, 60, .3)); }
+.sm-sheets figcaption { margin: 2px auto 0; max-width: 30ch; font: 500 max(13px, 4.3cqw) / 1.45 'Vend Sans', system-ui, sans-serif;
+  letter-spacing: .01em; color: #8a7cf3; }
+.sm-sheets .replay { display: inline-flex; align-items: center; gap: 7px; margin-top: 20px; padding: 9px 16px 9px 13px; border: 1px solid #dcd6fb; border-radius: 12px;
+  background: #fff; color: #1d1b2e; font: 600 15px/1 'Vend Sans', system-ui, sans-serif; box-shadow: 0 6px 18px -10px rgba(110, 90, 230, .45);
+  cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .15s; }
+.sm-sheets .replay:active { transform: scale(.96); }
+.sm-sheets .replay svg { width: 17px; height: 17px; }
+
+/* the bottomsheet stack carries its own caption: no line above it */
+.cf-statement:has(+ .cf-duo-stack) { display: none; }
+/* the stacks: the cards still fly in from off the sides, clipped there, but
+   the stage no longer cuts the last card's and the panel's shadows below */
+.sm-sheets .stage { overflow: visible; overflow-x: clip; overflow-y: visible; }
+@supports not (overflow: clip) { .sm-sheets .stage { overflow: hidden; padding-bottom: 40px; margin-bottom: -40px; } }
+@media (max-width: 760px) { .sm-sheets { margin: 0 calc(-1 * var(--over, 0px)); } }
+@media (min-width: 761px) {
+  /* one above the other (Nov 2026): the bottomsheets, then the empty states, each centred */
+  .cf-duo.cf-duo-stack:has(.sm-sheets) { grid-template-columns: 1fr; align-items: start; gap: clamp(56px, 7vw, 112px); margin-inline: 0; }
+  .cf-duo-stack .sm-sheets { width: 100%; max-width: 600px; justify-self: center; }   /* was 420px (Nov 2026: larger) */
+  .sm-sheets .stage { margin: 0; }
+  .sm-sheets figcaption { font-size: 16px; }
+}
+
+/* desktop (Nov 2026): the sheets fade in and out at the stage's sides, so a
+   card flying in is not cut off by a hard edge. Two veils in the page's own
+   colour (a mask would also clip the shadows below the stage). */
+@media (min-width: 761px) {
+  .cf-duo-stack .sm-sheets .stage::after { content: ''; position: absolute; z-index: 5; inset: 0; pointer-events: none;
+    background: linear-gradient(90deg, var(--page, #f5f9fa) 0%, color-mix(in srgb, var(--page, #f5f9fa) 0%, transparent) 10%,
+                color-mix(in srgb, var(--page, #f5f9fa) 0%, transparent) 90%, var(--page, #f5f9fa) 100%); }
+}

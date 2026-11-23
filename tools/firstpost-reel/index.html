@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Firstpost reel — renderer</title>
+<style>
+  html, body { margin: 0; background: #111; color: #ccc; font: 12px system-ui; }
+  canvas { display: block; width: 706px; height: 510px; }
+  #log { padding: 6px 8px; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1413" height="1020"></canvas>
+<p id="log">loading…</p>
+<script>
+/* ══════════════════════════════════════════════════════════════════════════
+   Firstpost reel — a 10 s, 1413 × 1020, 60 fps editorial reel from the four
+   Firstpost frames (Figma section 2073:70642), in the order
+   firstpost01 → firstpost02 → firstpost04 → firstpost03.
+
+   Scenes 1 and 2 are the frames' own layers (tools/firstpost-reel/assets):
+   the tiles, panels and lockups are the layers' 4× exports, the vectors their
+   SVGs, the backgrounds the frames' own gradient values. Scenes 3 and 4 use
+   the two supplied pictures on their frames' own grounds: desktop.webp (the
+   monitor, phone and desk) and mobile.webp (the video player), each placed
+   whole inside the frame, never cropped or stretched; the Firstpost
+   wordmark shows in full above the monitor. Prepared from them:
+   desktop_phone.webp / desktop_base.webp (the phone lifted out, so it can
+   slide in) and mobile_plate.webp (the player with its controls, title,
+   buttons and tags lifted out, so those pieces — cut from the same picture —
+   can come in on their own and land back exactly where they were).
+
+   render(t) is a pure function of t; 3 sub-frames are averaged per frame
+   for motion blur; check() compares each settled scene with its frame.
+   ══════════════════════════════════════════════════════════════════════════ */
+const W = 1413, H = 1020, FPS = 60, TOTAL = 10.0, SUB = 3;
+const A = 'assets/';
+const RED = '#e14b39';                       // the frames' own red (firstpost04's gradient)
+const cv = document.getElementById('c'), out = cv.getContext('2d');
+const mk = (w, h) => Object.assign(document.createElement('canvas'), { width: Math.max(1, Math.round(w)), height: Math.max(1, Math.round(h)) });
+const work = mk(W, H), ctx = work.getContext('2d');
+const log = m => { document.getElementById('log').textContent = m; };
+
+/* ── easing ─────────────────────────────────────────────────────────── */
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const lin = (t, a, b) => clamp((t - a) / (b - a));
+const mix = (a, b, p) => a + (b - a) * p;
+const eio = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+const eout = p => 1 - Math.pow(1 - p, 3);
+const ein = p => p * p * p;
+function cubic(x1, y1, x2, y2) {             // CSS cubic-bezier, solved by bisection
+  const bx = t => ((1 - 3 * x2 + 3 * x1) * t + (3 * x2 - 6 * x1)) * t * t + 3 * x1 * t;
+  const by = t => ((1 - 3 * y2 + 3 * y1) * t + (3 * y2 - 6 * y1)) * t * t + 3 * y1 * t;
+  return p => {
+    if (p <= 0) return 0; if (p >= 1) return 1;
+    let lo = 0, hi = 1; for (let i = 0; i < 26; i++) { const m = (lo + hi) / 2; if (bx(m) < p) lo = m; else hi = m; }
+    return by((lo + hi) / 2);
+  };
+}
+const ease = cubic(0.16, 1, 0.3, 1);         // the brief's ease-out
+const settle = p => { const w = 8.5, t = p * 1.15; return clamp(1 - (1 + w * t) * Math.exp(-w * t)); };   // short spring, critically damped: no wobble
+const E = (t, a, d, f = ease) => f(lin(t, a, a + d));
+
+/* ── sources ────────────────────────────────────────────────────────── */
+const SRC = {};
+for (let i = 1; i <= 21; i++) SRC['t' + String(i).padStart(2, '0')] = 't' + String(i).padStart(2, '0') + '.png';
+Object.assign(SRC, {
+  flashBg: 's2_flash_bg.png', flashLogo: 's2_flash_logo.png', fastBg: 's2_fast_bg.png', fastLogo: 's2_fast_logo.png',
+  sportsBg: 's2_sports_bg.png', sportsLogo: 's2_sports_logo.png', earth: 's2_earth.png', vantageLogo: 's2_vantage_logo.png',
+  starsA: 's2_stars_a.svg', starsB: 's2_stars_b.svg', btl: 's2_btl.png',
+  wordmark: 's3_wordmark.png', ellipse: 's4_ellipse.svg', ref1: 'ref1.png', ref2: 'ref2.png',
+  desktop: 'desktop.webp', mobile: 'mobile.webp', deskBase: 'desktop_base.webp', deskPhone: 'desktop_phone.webp', mplate: 'mobile_plate.webp',
+});
+const IMG = {};
+const load = (k, f) => new Promise((res, rej) => { const i = new Image(); i.onload = () => { IMG[k] = i; res(); }; i.onerror = () => rej(f); i.src = A + f; });
+/* a 4× export brought down to k× its frame size, halving step by step */
+function pre(img, w, h) {
+  let c = img, cw = img.width, ch = img.height;
+  while (cw / 2 >= w && ch / 2 >= h) { cw = Math.round(cw / 2); ch = Math.round(ch / 2); const n = mk(cw, ch); const g = n.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(c, 0, 0, cw, ch); c = n; }
+  const o = mk(w, h); const g = o.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(c, 0, 0, o.width, o.height); return o;
+}
+
+/* ── helpers ────────────────────────────────────────────────────────── */
+function radial(g, m, stops, alpha = 1) {
+  g.save(); g.globalAlpha *= alpha; g.transform(...m);
+  const gr = g.createRadialGradient(0, 0, 0, 0, 0, 10); stops.forEach(([o, c]) => gr.addColorStop(o, c));
+  g.fillStyle = gr; g.fillRect(-1e4, -1e4, 2e4, 2e4); g.restore();
+}
+function rrect(g, x, y, w, h, r) { g.beginPath(); g.roundRect(x, y, w, h, r); }
+/* a layer: its picture at its frame position (the 4× export's own size ÷ 4) */
+const L = (k, x, y) => ({ k, x, y, w: IMG[k].width / 4, h: IMG[k].height / 4 });
+function put(g, l) { g.drawImage(IMG[l.k + 'S'] || IMG[l.k], l.x, l.y, l.w, l.h); }
+/* a group faded as one: drawn whole into a layer, then laid down at its alpha (so its own parts never show through each other) */
+const POOL = []; let DEPTH = 0;
+function group(g, alpha, fn) {
+  if (alpha >= 0.999) return fn(g);
+  if (alpha <= 0) return;
+  const c = POOL[DEPTH] || (POOL[DEPTH] = mk(W, H)), lg = c.getContext('2d');
+  lg.setTransform(1, 0, 0, 1, 0, 0); lg.globalAlpha = 1; lg.globalCompositeOperation = 'source-over'; lg.filter = 'none'; lg.clearRect(0, 0, W, H);
+  lg.setTransform(g.getTransform());
+  DEPTH++; try { lg.save(); fn(lg); lg.restore(); } finally { DEPTH--; }
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha *= alpha; g.drawImage(c, 0, 0); g.restore();
+}
+function about(g, cx, cy, sx, sy = sx) { g.translate(cx, cy); g.scale(sx, sy); g.translate(-cx, -cy); }
+
+/* ═══ Scene 1 — firstpost01: the component library ═══════════════════ */
+const BG1 = [[1.1398e-12, 101.98, -141.28, 4.4116e-12, 706.5, 0.16425], [[0.68935, '#232323'], [0.84468, '#111111'], [0.92234, '#090909'], [1, '#000000']]];
+const TILES = [   // id, x, y (the frame's own), kind
+  [1, 24, 24, 'type'], [2, 190.07354736328125, 24, 'type'], [3, 481.94757080078125, 24, 'type'], [4, 811.0302734375, 24, 'type'],
+  [5, 24, 82.64793395996094, 'card'], [6, 299.5777587890625, 82.64793395996094, 'buttons'], [7, 1068.8387451171875, 82.64793395996094, 'card'],
+  [8, 24, 326.3125915527344, 'card'], [9, 422.9971923828125, 326.3125915527344], [10, 575.7341918945312, 326.3125915527344],
+  [11, 979.3951416015625, 326.3125915527344], [12, 1186.771728515625, 326.3125915527344],
+  [13, 24, 562.4132690429688], [14, 232.37977600097656, 562.4132690429688], [15, 374.7122802734375, 562.4132690429688],
+  [16, 596.244873046875, 562.4132690429688], [17, 901.8035278320312, 562.4132690429688], [18, 1086.2249755859375, 562.4132690429688],
+  [19, 24, 767.5519409179688], [20, 367.4366149902344, 767.5519409179688], [21, 710.6075439453125, 767.5519409179688],
+].map(([id, x, y, kind]) => ({ id, k: 't' + String(id).padStart(2, '0'), x: Math.floor(x * 4) / 4, y: Math.floor(y * 4) / 4, kind: kind || 'tile' }));
+/* the cascade: top left → bottom right; the buttons (06) last */
+const tileStart = tl => tl.kind === 'buttons' ? 0.86 : 0.16 + (tl.x / W) * 0.42 + (tl.y / H) * 0.36;
+function scene1(g, t) {
+  g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+  radial(g, BG1[0], BG1[1], 0.7 * eout(lin(t, 0, 0.5)));          // the grid's ground fades in
+  for (const tl of TILES) {
+    const img = IMG[tl.k + 'S'], w = IMG[tl.k].width / 4, h = IMG[tl.k].height / 4;
+    const s0 = tileStart(tl), p = lin(t, s0, s0 + 0.62), e = ease(p);
+    if (p <= 0) continue;
+    g.save();
+    if (tl.kind === 'type') {
+      /* the type specimens: wiped in from the left as they slide */
+      g.globalAlpha = clamp(p * 3);
+      g.beginPath(); g.rect(tl.x - 2, tl.y - 2, (w + 4) * e, h + 4); g.clip();
+      g.drawImage(img, tl.x - 18 * (1 - e), tl.y, w, h);
+    } else if (tl.kind === 'card') {
+      g.globalAlpha = eout(clamp(p * 1.6));
+      about(g, tl.x + w / 2, tl.y + h / 2, mix(0.96, 1, e));
+      g.drawImage(img, tl.x, tl.y, w, h);
+    } else if (tl.kind === 'buttons') {
+      const q = settle(lin(t, s0, s0 + 0.55));
+      g.globalAlpha = eout(clamp(p * 2.2));
+      about(g, tl.x + w / 2, tl.y + h / 2, mix(0.93, 1, q));
+      g.drawImage(img, tl.x, tl.y, w, h);
+      /* one red highlight across the row */
+      const sp = lin(t, 1.42, 2.02);
+      if (sp > 0 && sp < 1) {
+        rrect(g, tl.x, tl.y, w, h, 22); g.clip();
+        const cx = mix(tl.x - 160, tl.x + w + 160, eio(sp));
+        const gr = g.createLinearGradient(cx - 150, 0, cx + 150, 0);
+        gr.addColorStop(0, 'rgba(225,75,57,0)'); gr.addColorStop(0.5, 'rgba(225,75,57,0.34)'); gr.addColorStop(1, 'rgba(225,75,57,0)');
+        g.globalCompositeOperation = 'screen'; g.globalAlpha = Math.sin(Math.PI * sp);
+        g.fillStyle = gr; g.fillRect(tl.x, tl.y, w, h);
+      }
+    } else {
+      g.globalAlpha = eout(clamp(p * 1.8));
+      g.drawImage(img, tl.x, tl.y + 16 * (1 - e), w, h);
+    }
+    g.restore();
+  }
+}
+
+/* ═══ Scene 2 — firstpost02: the panels ══════════════════════════════ */
+const PX = [0, 397.4427795410156, 794.8855590820312, 1192.328369140625, 1587.8515625].map(x => -224 + x), PY = 207;
+const PANEL_IN = [2.6, 2.7, 2.79, 2.88, 2.97], PANEL_DY = [250, 330, 280, 360, 300];
+let LOCKUPS = null;
+/* lockups whose exports came with a black ground: drawn as they are blended in the frame */
+const BLEND = { flashLogo: 'lighten', sportsLogo: 'lighten' };   // each lockup's glyph groups (for the tracking)
+function lockup(g, l, t0, t) {
+  /* fades in and tracks in: its letter groups start spread wide and close to their set spacing */
+  const p = lin(t, t0, t0 + 0.85), e = ease(p);
+  if (p <= 0) return;
+  const segs = LOCKUPS[l.k], img = IMG[l.k + 'S'], k = img.width / l.w, cx = l.x + l.w / 2;
+  g.save(); g.globalAlpha *= eout(clamp(p * 1.7));
+  const spread = 0.55 * (1 - e);
+  if (BLEND[l.k]) g.globalCompositeOperation = BLEND[l.k];
+  if (!segs) { about(g, cx, l.y + l.h / 2, 1 + spread * 0.4, 1); g.drawImage(img, l.x, l.y, l.w, l.h); g.restore(); return; }
+  for (const [a, b] of segs) {
+    const mid = l.x + (a + b) / 2, dx = (mid - cx) * spread;
+    g.drawImage(img, a * k, 0, (b - a) * k, img.height, l.x + a + dx, l.y, b - a, l.h);
+  }
+  g.restore();
+}
+function scene2(g, t) {
+  g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+  const P = SC2;
+  for (let i = 0; i < 5; i++) {
+    const p = lin(t, PANEL_IN[i], PANEL_IN[i] + 0.78), e = ease(p);
+    if (p <= 0) continue;
+    g.save(); g.translate(0, PANEL_DY[i] * (1 - e));
+    group(g, eout(clamp(p * 2.4)), g => {
+    const lt = PANEL_IN[i] + 0.28;
+    if (i === 0) { put(g, P.flashBg); lockup(g, P.flashLogo, lt, t); }
+    if (i === 1) { put(g, P.fastBg); lockup(g, P.fastLogo, lt, t); }
+    if (i === 2) { put(g, P.sportsBg); lockup(g, P.sportsLogo, lt, t); }
+    if (i === 3) {
+      const x = PX[3];
+      g.fillStyle = '#1b2432'; g.fillRect(x, PY, 326.523193359375, 602.4581909179688);
+      g.save(); g.beginPath(); g.rect(x, PY, 326.523193359375, 602.4581909179688); g.clip();
+      /* the Earth rises, slowly, all through the scene */
+      put(g, { ...P.earth, y: P.earth.y + 74 * (1 - eout(lin(t, 2.72, 4.9))) });
+      g.restore();
+      lockup(g, P.vantageLogo, lt + 0.06, t);
+      g.globalAlpha *= eout(lin(t, lt, lt + 0.7));
+      g.drawImage(IMG.starsA, x + 11.486275672912598, PY + 242.61196899414062, 315.036, 139.001);
+      g.drawImage(IMG.starsB, x + 11.486275672912598, PY + 58.66059875488281, 315.036, 139.001);
+    }
+    if (i === 4) put(g, P.btl);
+    });
+    g.restore();
+  }
+}
+
+/* ═══ Scene 3 — firstpost04: desktop and phone on red ════════════════ */
+const BG3 = [[4.0005e-13, 97.049, -135.25, 2.0481, 706.5, 0.0000045192], [[0.10103, '#e14b39'], [0.27049, '#aa3324'], [0.35521, '#8e261a'], [0.43994, '#721a10'], [0.54953, '#58160e'], [0.65912, '#3d110d'], [0.76871, '#230d0b'], [0.8783, '#08080a']]];
+/* the desk picture (supplied: monitor, phone and desk on clear ground), whole inside the frame,
+   its legs on the frame's foot; the phone is lifted out of it (desktop_phone.webp) so it can
+   come in on its own, the desk under it filled from the picture's own pixels (desktop_base.webp) */
+const DK = { s: 0.74, x: (W - 1596 * 0.74) / 2 - 52 * 0.74, y: H - 1087 * 0.74 };
+const dX = x => DK.x + x * DK.s, dY = y => DK.y + y * DK.s;
+const PH3 = { x: dX(1122), y: dY(429), w: 220 * DK.s, h: 477 * DK.s };   // the phone's screen
+function scene3(g, t, bgOnly) {
+  radial(g, BG3[0], BG3[1]);
+  if (bgOnly) return;
+  const mon = ease(lin(t, 5.02, 6.0)), monY = 330 * (1 - mon);
+  /* the wordmark, in full: behind, slower — a parallax drift */
+  g.save(); g.globalCompositeOperation = 'multiply'; g.globalAlpha = eout(lin(t, 4.95, 5.6));
+  g.drawImage(WORDMARK, 209.5 + 46 * (1 - eout(lin(t, 4.9, 7.6))), 54.5 + monY * 0.22, 994.5, 240.25);
+  g.restore();
+  const ph = ease(lin(t, 5.45, 6.25)), whole = eio(lin(t, 6.2, 6.45));
+  /* the monitor and desk rise */
+  g.save(); g.translate(0, monY);
+  group(g, eout(clamp(lin(t, 5.02, 5.4))), g => {
+    g.drawImage(IMG.deskBase, DK.x, DK.y, 1701 * DK.s, 1130 * DK.s);
+    /* once the phone is home, the picture as supplied */
+    if (whole > 0) { g.save(); g.globalAlpha = whole; g.drawImage(IMG.desktop, DK.x, DK.y, 1701 * DK.s, 1130 * DK.s); g.restore(); }
+    /* a light passes over the headline */
+    const sp = lin(t, 6.25, 7.0);
+    if (sp > 0 && sp < 1) {
+      const hx = dX(598), hy = dY(322), hw = 350 * DK.s, hh = 76 * DK.s;
+      g.save(); g.beginPath(); g.rect(hx, hy, hw, hh); g.clip();
+      const cx = mix(hx - 60, hx + hw + 60, eio(sp)), gr = g.createLinearGradient(cx - 60, 0, cx + 60, 0);
+      gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(.5, 'rgba(255,255,255,0.9)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+      g.globalCompositeOperation = 'soft-light'; g.globalAlpha = Math.sin(Math.PI * sp);
+      g.fillStyle = gr; g.fillRect(hx, hy, hw, hh); g.restore();
+    }
+  });
+  g.restore();
+  /* the phone slides in from the right, with the shadows the phone casts in the frame */
+  if (whole < 1 && !window.NOPHONE) {
+    g.save(); g.globalAlpha *= eout(clamp(lin(t, 5.45, 5.75))) * (1 - whole); g.translate(470 * (1 - ph), 0);
+    const draw = () => g.drawImage(IMG.deskPhone, dX(1105), dY(406), 255 * DK.s, 519 * DK.s);
+    g.shadowColor = 'rgba(0,0,0,0.3)'; g.shadowOffsetX = 18; g.shadowOffsetY = 8.6; g.shadowBlur = 14.4; draw();
+    g.shadowColor = 'rgba(0,0,0,0.2)'; g.shadowOffsetX = -8.7; g.shadowOffsetY = 0; g.shadowBlur = 3.9; draw();
+    g.restore();
+  }
+}
+
+/* ═══ Scene 4 — firstpost03: the video player ════════════════════════ */
+const DX = -194, DY = -93;                    // "Designing for Business" in the frame
+const BG4 = [[-3.8299e-13, 116.63, -155.51, 7.1417e-15, 803.5 + DX, 38.92 + DY], [[0.35291, '#000000'], [0.51468, '#090909'], [0.67646, '#111111'], [1, '#232323']]];
+/* the phone picture (supplied, 933 × 1078), whole and as tall as the frame, its phone where the
+   frame's phone stands; the pieces below are cut from it and land back where they were */
+const MB = { s: H / 1078, x: 898 - 417 * H / 1078, y: 0 };
+const sx = x => MB.x + x * MB.s, sy = y => MB.y + y * MB.s, sk = MB.s;
+const SCR4 = { x: sx(85), y: sy(95), w: 667 * MB.s };   // its screen
+const PIVOT = { x: 898, y: 560 };                       // the phone settles about here
+const S4K = 1.075;                                      // …from this much larger
+const CONTROLS = [[618, 216, 114, 48], [292, 352, 250, 58], [95, 520, 134, 30], [698, 506, 40, 42]];
+const LINES = [[106, 608, 620, 46, 0], [106, 654, 490, 46, 1], [106, 712, 610, 46, 2]];
+const BUTTONS = [[108, 784, 224, 78], [350, 784, 80, 78], [447, 784, 80, 78], [543, 784, 80, 78]];
+const TAGS = [[107, 885, 172, 78], [297, 885, 184, 78], [499, 885, 253, 78]];
+let WORDMARK = null;
+function piece(g, [x, y, w, h], ox = 0, oy = 0) { g.drawImage(IMG.mobile, x, y, w, h, sx(x) + ox, sy(y) + oy, w * sk, h * sk); }
+function scene4(g, t) {
+  g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+  radial(g, BG4[0], BG4[1], 0.7); radial(g, BG4[0], BG4[1], 0.7);
+  g.drawImage(IMG.ellipse, 245.23770141601562 + DX, -51.06134796142578 + DY, 1307.36, 1307.36);
+  /* the phone settles into place */
+  const st = ease(lin(t, 7.6, 8.55));
+  g.save(); about(g, PIVOT.x, PIVOT.y, mix(S4K, 1, st));
+  g.drawImage(IMG.mplate, MB.x, MB.y, 933 * MB.s, 1078 * MB.s);
+  /* the controls fade in */
+  const ca = eout(lin(t, 8.0, 8.45));
+  if (ca > 0) { g.save(); g.globalAlpha = ca; CONTROLS.forEach(c => piece(g, c)); g.restore(); }
+  /* the progress bar advances to 2:00 */
+  const head = mix(110, 269, ease(lin(t, 8.05, 9.05)));
+  g.drawImage(IMG.mobile, 85, 551, head - 85, 28, sx(85), sy(551), (head - 85) * sk, 28 * sk);
+  g.drawImage(IMG.mobile, 254, 551, 30, 28, sx(head - 15), sy(551), 30 * sk, 28 * sk);
+  /* the title and its line of metadata, line by line */
+  for (const [x, y, w, h, i] of LINES) {
+    const p = lin(t, 8.12 + i * 0.09, 8.12 + i * 0.09 + 0.5); if (p <= 0) continue;
+    g.save(); g.globalAlpha = eout(clamp(p * 1.6)); piece(g, [x, y, w, h], 0, 16 * (1 - ease(p))); g.restore();
+  }
+  /* Summarise and the buttons, then the tags — popped in, one after another */
+  const pop = (box, t0) => {
+    const p = lin(t, t0, t0 + 0.42); if (p <= 0) return;
+    const [x, y, w, h] = box, q = settle(p);
+    g.save(); g.globalAlpha = eout(clamp(p * 2.2)); about(g, sx(x + w / 2), sy(y + h / 2), mix(0.88, 1, q)); piece(g, box); g.restore();
+  };
+  BUTTONS.forEach((b, i) => pop(b, 8.42 + i * 0.06));
+  TAGS.forEach((b, i) => pop(b, 8.66 + i * 0.08));
+  g.restore();
+}
+
+/* ═══ the cut ═══════════════════════════════════════════════════════ */
+const BEATS = [['scene 1 — component library', 0], ['wipe 1 → 2', 2.3], ['scene 2 — panels', 2.8], ['push 2 → 3', 4.8], ['scene 3 — desktop + phone', 5.3], ['zoom 3 → 4', 7.3], ['scene 4 — video player', 7.8], ['hold', 9.25], ['fade out', 9.75], ['end', 10]];
+const LAYER = mk(W, H), LG = LAYER.getContext('2d');
+function render(t) {
+  const g = ctx; g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; g.filter = 'none';
+  g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+  /* 1 → 2: a red bar wipes across */
+  const lead = W * eio(lin(t, 2.3, 2.6)), trail = W * eio(lin(t, 2.47, 2.8));
+  if (t < 2.62) { g.save(); g.beginPath(); g.rect(lead, 0, W - lead, H); g.clip(); scene1(g, t); g.restore(); }
+  if (t >= 2.45 && t < 5.32) {
+    g.save();
+    if (t < 2.8) { g.beginPath(); g.rect(0, 0, trail, H); g.clip(); }
+    if (t >= 4.8) {
+      /* 2 → 3: the camera pushes in, the panels blur outward */
+      const k = ein(lin(t, 4.8, 5.3));
+      about(g, W / 2, H / 2, 1 + 0.42 * k);
+      if (k > 0.01) g.filter = `blur(${(k * 16).toFixed(2)}px)`;
+    }
+    scene2(g, t); g.restore();
+  }
+  if (t >= 2.3 && t < 2.8 && lead > trail) { g.fillStyle = RED; g.fillRect(trail, 0, lead - trail, H); }
+  /* scene 3's red floods in from the middle */
+  if (t >= 4.86 && t < 7.8) {
+    const f = eio(lin(t, 4.86, 5.3));
+    g.save();
+    if (f < 1) { g.beginPath(); g.arc(W / 2, H * 0.42, 40 + 880 * f, 0, Math.PI * 2); g.clip(); g.globalAlpha = clamp(f * 1.6); }
+    if (t >= 7.3) {
+      /* 3 → 4: into the phone's screen, matched to the next frame's phone */
+      const z = eio(lin(t, 7.3, 7.8)), K = S4K * SCR4.w / PH3.w;
+      const k = Math.exp(Math.log(K) * z);
+      const ax = mix(PH3.x, PIVOT.x + S4K * (SCR4.x - PIVOT.x), z), ay = mix(PH3.y, PIVOT.y + S4K * (SCR4.y - PIVOT.y), z);
+      g.translate(ax, ay); g.scale(k, k); g.translate(-PH3.x, -PH3.y);
+      const b = Math.sin(Math.PI * z); if (b > 0.02) g.filter = `blur(${(b * 3).toFixed(2)}px)`;
+    }
+    scene3(g, t, t < 4.95); g.restore();
+  }
+  if (t >= 7.56) {
+    group(g, eio(lin(t, 7.56, 7.78)), g => scene4(g, t));
+  }
+  /* the end: a short hold, then to black */
+  const f = eio(lin(t, 9.75, 10.0));
+  if (f > 0) { g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = f; g.fillStyle = '#000'; g.fillRect(0, 0, W, H); g.globalAlpha = 1; }
+}
+function frame(n) {
+  out.globalCompositeOperation = 'source-over';
+  for (let s = 0; s < SUB; s++) { render((n + (s / SUB) * .5) / FPS); out.globalAlpha = 1 / (s + 1); out.drawImage(work, 0, 0); }
+  out.globalAlpha = 1;
+}
+
+/* ── setup ──────────────────────────────────────────────────────────── */
+let SC2;
+function segments(img, k) {
+  /* glyph groups: runs of columns with ink, split where a column is empty (clear, or the lockup's own ground) */
+  const c = mk(img.width, img.height), g = c.getContext('2d'); g.drawImage(img, 0, 0);
+  const d = g.getImageData(0, 0, c.width, c.height).data, w = c.width, h = c.height;
+  const bg = [d[0], d[1], d[2], d[3]];
+  const ink = x => { for (let y = 0; y < h; y++) { const i = (y * w + x) * 4; if (d[i + 3] > 24 && (bg[3] < 24 || Math.abs(d[i] - bg[0]) + Math.abs(d[i + 1] - bg[1]) + Math.abs(d[i + 2] - bg[2]) > 60)) return true; } return false; };
+  const runs = []; let a = -1;
+  for (let x = 0; x <= w; x++) { const on = x < w && ink(x); if (on && a < 0) a = x; if (!on && a >= 0) { runs.push([a, x]); a = -1; } }
+  if (runs.length < 3) return null;
+  /* cut between the groups, at the middle of each gap */
+  const cuts = [0]; for (let i = 1; i < runs.length; i++) cuts.push(Math.round((runs[i - 1][1] + runs[i][0]) / 2)); cuts.push(w);
+  return cuts.slice(1).map((b, i) => [cuts[i] / k, b / k]);
+}
+async function setup() {
+  await Promise.all(Object.entries(SRC).map(([k, f]) => load(k, f)));
+  for (const tl of TILES) IMG[tl.k + 'S'] = pre(IMG[tl.k], IMG[tl.k].width / 2, IMG[tl.k].height / 2);
+  SC2 = {
+    flashBg: L('flashBg', 0, PY), flashLogo: L('flashLogo', 0, 486.75), fastBg: L('fastBg', 173.25, PY), fastLogo: L('fastLogo', 191.75, 473),
+    sportsBg: L('sportsBg', 570.75, PY), sportsLogo: L('sportsLogo', 625.25, 453.25), earth: L('earth', 968.25, 612.75),
+    vantageLogo: L('vantageLogo', 980, 383), btl: L('btl', 1363.75, PY),
+  };
+  for (const l of Object.values(SC2)) IMG[l.k + 'S'] = pre(IMG[l.k], l.w * 2, l.h * 2);
+  LOCKUPS = {};
+  for (const k of ['flashLogo', 'fastLogo', 'sportsLogo', 'vantageLogo']) LOCKUPS[k] = segments(IMG[k + 'S'], 2);
+  /* the wordmark: its export carries the red under it (it is blended soft-light), so it is kept as
+     what it does to that red — export ÷ ground — and multiplied back over the ground wherever it drifts */
+  {
+    const e = pre(IMG.wordmark, 1989, 480.5), b = mk(1989, 480.5), bg = b.getContext('2d');
+    bg.setTransform(2, 0, 0, 2, -209.5 * 2, -54.5 * 2); radial(bg, BG3[0], BG3[1]);
+    const ed = e.getContext('2d').getImageData(0, 0, e.width, e.height), bd = bg.getImageData(0, 0, b.width, b.height);
+    for (let i = 0; i < ed.data.length; i += 4) for (let c = 0; c < 3; c++) ed.data[i + c] = Math.min(255, 255 * ed.data[i + c] / Math.max(1, bd.data[i + c]));
+    e.getContext('2d').putImageData(ed, 0, 0); WORDMARK = e;
+  }
+  log('ready'); window.__ready = true;
+}
+
+
+/* ── the case-card thumbnails (Firstpost 03 and 04, desktop and phones) ───
+   Each frame's own ground — its gradient values, the ellipse, the
+   Firstpost wordmark in full — with the two supplied pictures placed
+   whole inside it: the desk's legs on the frame's foot, the phone
+   picture as tall as the frame (desktop) or as wide (phones). */
+function thumbFrame(g, which) {
+  const fitBottom = (img, s, x, footY) => g.drawImage(img, x, footY, img.width * s, img.height * s);
+  if (which === 'd-firstpost-4') {            // 1413 × 1020: firstpost04
+    radial(g, BG3[0], BG3[1]);
+    g.save(); g.globalCompositeOperation = 'multiply'; g.drawImage(WORDMARK, 209.5, 54.5, 994.5, 240.25); g.restore();
+    const s = 0.74, x = (W - 1596 * s) / 2 - 52 * s; fitBottom(IMG.desktop, s, x, H - 1087 * s);
+  }
+  if (which === 'd-firstpost-3') {            // 1413 × 1020: firstpost03
+    g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+    radial(g, BG4[0], BG4[1], 0.7); radial(g, BG4[0], BG4[1], 0.7);
+    g.drawImage(IMG.ellipse, 245.23770141601562 + DX, -51.06134796142578 + DY, 1307.36, 1307.36);
+    const s = H / IMG.mobile.height; fitBottom(IMG.mobile, s, 898 - 417 * s, 0);
+  }
+  if (which === 'm-firstpost-3') {            // 360 × 447: firspost03 - mobile
+    g.save(); g.translate(-132.35, -45);
+    radial(g, [1.7686e-13, 51.094, -59.797, 1.0783, 312.35, 0.0000023792], BG3[1]);
+    g.globalCompositeOperation = 'multiply';
+    g.drawImage(WORDMARK, 624.698 * 0.2382, 537 * 0.2235, 624.698 * (1 - 0.2349 - 0.2382), 537 * (1 - 0.2235 - 0.6285));
+    g.restore();
+    const s = 352 / 1701, x = (360 - 1701 * s) / 2; fitBottom(IMG.desktop, s, x, 447 - 1087 * s);
+  }
+  if (which === 'm-firstpost-4') {            // 360 × 447: firspost04 - mobile
+    g.fillStyle = '#000'; g.fillRect(0, 0, 360, 447);
+    g.save(); g.translate(-194, 0);
+    const m = [-1.4204e-13, 43.257, -57.675, 2.6487e-15, 298, 14.434];
+    radial(g, m, BG4[1], 0.7); radial(g, m, BG4[1], 0.7);
+    g.drawImage(IMG.ellipse, 90.95, -18.94, 484.871, 484.871);
+    g.restore();
+    const s = 360 / IMG.mobile.width; fitBottom(IMG.mobile, s, 0, 447 - IMG.mobile.height * s);
+  }
+}
+window.thumbs = async () => {
+  for (const [name, w, h, k] of [['d-firstpost-3', W, H, 2], ['d-firstpost-4', W, H, 2], ['m-firstpost-3', 360, 447, 3], ['m-firstpost-4', 360, 447, 3]]) {
+    const c = mk(w * k, h * k), g = c.getContext('2d'); g.imageSmoothingQuality = 'high'; g.scale(k, k); thumbFrame(g, name);
+    await new Promise(r => c.toBlob(b => fetch('/__save/thumb-' + name + '.png', { method: 'POST', body: b }).then(r), 'image/png'));
+  }
+  return 'ok';
+};
+/* ── checks and output ─────────────────────────────────────────────── */
+window.check = () => {
+  const r = {};
+  for (const [ref, t] of [['ref1', 2.25], ['ref2', 4.75]]) {
+    render(t);
+    const a = ctx.getImageData(0, 0, W, H).data;
+    const rc = mk(W, H).getContext('2d'); rc.drawImage(IMG[ref], 0, 0);
+    const b = rc.getImageData(0, 0, W, H).data;
+    let d = 0, n = 0; for (let i = 0; i < a.length; i += 16) { d += Math.abs(a[i] - b[i]) + Math.abs(a[i + 1] - b[i + 1]) + Math.abs(a[i + 2] - b[i + 2]); n += 3; }
+    r[ref] = +(d / n).toFixed(2);
+    work.toBlob(bl => fetch('/__save/fp-check-' + ref + '.png', { method: 'POST', body: bl }));
+  }
+  return r;
+};
+window.still = async (t, name) => { frame(Math.round(t * FPS)); await new Promise(r => cv.toBlob(b => fetch('/__save/' + name, { method: 'POST', body: b }).then(r), 'image/png')); return name; };
+window.renderAll = async (from = 0, to = Math.round(TOTAL * FPS)) => {
+  for (let n = from; n < to; n++) {
+    frame(n);
+    const b = await new Promise(r => cv.toBlob(r, 'image/png'));
+    await fetch('/__save/fp-' + String(n).padStart(5, '0') + '.png', { method: 'POST', body: b });
+    if (n % 30 === 0) log(`frame ${n} / ${to}`);
+  }
+  log('done'); return to - from;
+};
+window.BEATS = BEATS;
+setup().then(async () => {
+  const q = new URLSearchParams(location.search);
+  if (q.has('auto')) { const n = await renderAll(+(q.get('from') || 0), +(q.get('to') || Math.round(TOTAL * FPS))); document.title = 'DONE ' + n; document.body.insertAdjacentHTML('beforeend', '<p id="done">DONE ' + n + '</p>'); }
+  if (q.has('thumbs')) { await thumbs(); document.body.insertAdjacentHTML('beforeend', '<p id="done">THUMBS</p>'); }
+  if (q.has('check')) { const r = check(); document.body.insertAdjacentHTML('beforeend', '<p id="done">CHECK ' + JSON.stringify(r) + '</p>'); await new Promise(r => setTimeout(r, 1500)); }
+  if (q.has('stills')) { for (const s of q.get('stills').split(',')) await still(+s, 'fp-still-' + s.replace('.', '_') + '.png'); document.body.insertAdjacentHTML('beforeend', '<p id="done">STILLS</p>'); }
+}).catch(e => { log('failed: ' + e); document.body.insertAdjacentHTML('beforeend', '<p id="done">FAILED ' + e + '</p>'); });
+</script>
+</body>
+</html>

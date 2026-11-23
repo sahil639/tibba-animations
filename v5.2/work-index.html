@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>More work — Tibba Design Studio</title>
+<meta name="description" content="More work, a section of the Tibba Design Studio website.">
+<meta name="robots" content="noindex, indexifembedded">
+<link rel="stylesheet" href="assets/type.css?v=3">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<link rel="stylesheet" href="assets/work.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<script src="assets/odometer.js" defer></script>
+<script src="assets/work.js"></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   More work — the index
+   ─────────────────────────────────────────────────────────────────────────
+   Website v3's second look at the work: every project that isn't one of the
+   four summits, as an index — a row each, year, client, what we did, the
+   sector — over a contour line. On a desktop, hovering a row turns it
+   the project's colour (no image follows the pointer since Nov 2026). On
+   touch screens there is no hover, so each row carries its cover inline,
+   as a strip above the words.
+
+   Images: assets/work/<project>/cover (see assets/work.js).
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #000; color: var(--ink-warm); font-family: 'Vend Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+.wi { padding: clamp(84px, 12vh, 130px) var(--side) clamp(72px, 11vh, 120px); }
+.wi-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; padding-bottom: clamp(22px, 3.6vh, 40px); }
+.wi-head h2 { color: #fff; font-weight: 300; font-size: clamp(40px, 4.4vw, 84px); line-height: .95; letter-spacing: -.04em; }
+
+.cols, .row { display: grid; grid-template-columns: 90px minmax(0, 1.1fr) minmax(0, 1.6fr) 150px; gap: clamp(14px, 2vw, 32px); align-items: center; }
+.cols { padding: 0 0 12px; border-bottom: 1px solid rgba(233,236,242,.22); font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: rgba(233,236,242,.58); }
+.list { list-style: none; }
+.row { --c: #fff; position: relative; padding: clamp(18px, 2.6vh, 26px) 0; border-bottom: 1px solid rgba(233,236,242,.12); color: #fff; text-decoration: none; cursor: default; }
+.row::before { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: var(--c); transform: scaleX(0); transform-origin: left; transition: transform .5s cubic-bezier(.22,1,.36,1); }
+.row .yr { font-size: 12px; letter-spacing: .14em; color: rgba(233,236,242,.5); font-variant-numeric: tabular-nums; }
+.row .nm { display: flex; align-items: center; gap: 12px; font-size: clamp(22px, 2.2vw, 36px); font-weight: 300; letter-spacing: -.025em; line-height: 1.05; transition: transform .45s cubic-bezier(.22,1,.36,1), color .3s linear; }
+.row .nm::before { content: ''; flex: none; width: 9px; height: 9px; background: var(--c); transform: scale(0); transition: transform .35s cubic-bezier(.22,1,.36,1); }
+.row .ln { font-size: 14px; line-height: 1.5; color: rgba(233,236,242,.62); transition: color .3s linear; }
+.row .sc { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: rgba(233,236,242,.5); }
+/* Nov 2026: no arrow at the end of a row */
+.row .ar { display: none; justify-self: end; width: 26px; height: 1px; background: rgba(233,236,242,.5); position: relative; transition: width .35s cubic-bezier(.22,1,.36,1), background .3s linear; }
+.row .ar::after { content: ''; position: absolute; right: 0; top: -3px; width: 7px; height: 7px; border: solid currentColor; border-width: 1px 1px 0 0; transform: rotate(45deg); color: rgba(233,236,242,.5); }
+.row .strip { display: none; }
+.list:hover .row:not(:hover) .nm, .list:hover .row:not(:hover) .ln { color: rgba(233,236,242,.35); }
+.row:hover::before { transform: scaleX(1); }
+.row:hover .nm { transform: translateX(4px); color: var(--c); }
+.row:hover .nm::before { transform: scale(1); }
+.row:hover .ln { color: #fff; }
+.row:hover .ar { width: 40px; background: var(--c); } .row:hover .ar::after { color: var(--c); }
+
+
+@media (max-width: 900px), (hover: none) {
+  .cols { display: none; }
+  .row { grid-template-columns: 1fr auto; gap: 8px 14px; padding: 18px 0 22px; }
+  .row .strip { display: block; grid-column: 1 / -1; margin-bottom: 8px; }
+  .row .strip .wk-img { aspect-ratio: 16 / 7; }
+  .row .yr { grid-column: 1; grid-row: 2; }
+  .row .sc { grid-column: 2; grid-row: 2; justify-self: end; }
+  .row .nm { grid-column: 1 / -1; }
+  .row .ln { grid-column: 1 / -1; }
+  .row .ar { display: none; }
+  .row .nm::before { display: none; }
+}
+
+/* Tablets and touch screens (Nov 2026): the phone's More work — an index of
+   names with their sector and year, a tap opening one line under the row,
+   one row open at a time, the open one in the accent. Desktop's hover list
+   is untouched (the script builds whichever fits). */
+.ix { list-style: none; border-top: 1px solid rgba(233,236,242,.22); }
+.ix li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 12px; padding: clamp(16px, 2vw, 22px) 0;
+  border-bottom: 1px solid rgba(233,236,242,.12); cursor: pointer; -webkit-tap-highlight-color: transparent; transition: border-color .3s; }
+.ix b { font-weight: 300; font-size: clamp(20px, 2.6vw, 28px); letter-spacing: -.02em; color: #fff; transition: color .3s; }
+.ix span { font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: rgba(233,236,242,.58); white-space: nowrap; }
+.ix .ix-d { flex-basis: 100%; display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .32s cubic-bezier(.4,0,.2,1), opacity .24s cubic-bezier(.4,0,.2,1); }
+.ix .ix-d > p { min-height: 0; overflow: hidden; padding-top: 10px; max-width: 60ch; font-size: 15px; line-height: 1.5; color: rgba(233,236,242,.62); }
+.ix li[aria-expanded="true"] .ix-d { grid-template-rows: 1fr; opacity: 1; }
+.ix li[aria-expanded="true"] b { color: #C9124B; }
+.ix li[aria-expanded="true"] { border-bottom-color: rgba(201,18,75,.5); }
+.ix li:focus-visible { outline: 1px solid #C9124B; outline-offset: 4px; }
+.wi.as-index .cols, .wi.as-index #list { display: none; }
+@media (prefers-reduced-motion: reduce) { .ix .ix-d { transition: none; } }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+<style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
+html[data-wb-dock] body { padding-right: 0 !important; }</style>
+<script>window.WB_RELEASE = true;</script>
+<style>
+/* ══ one card type scale for the home page, the same on desktop and on
+   phones (Nov 2026): card headline 28 (Our Work) / 24 (lists, services),
+   item title 16, body 15, label 12, metric 44 / 13. mobile.html carries the
+   same numbers. `body` in front so these win over every earlier rule. */
+body .row .nm { font-size: 24px; font-weight: 300; }
+body .row .ln { font-size: 15px; }
+body .row .sc, body .row .yr { font-size: 12px; }
+</style>
+</head>
+<body>
+<section class="wi" aria-labelledby="wi-h">
+  <header class="wi-head">
+    <div><h2 id="wi-h">More work</h2></div>
+  </header>
+  <div class="cols" aria-hidden="true"><span>Year</span><span>Client</span><span>What we did</span><span>Sector</span></div>
+  <ol class="list" id="list"></ol>
+  <ol class="ix" id="ix" hidden></ol>
+</section>
+
+<script>
+(function () {
+  const W = window.TibbaWork, esc = W.esc;
+  const list = document.getElementById('list');
+  list.innerHTML = W.MORE.map((m, i) => `<li class="row" style="--c:${m.colour}" data-i="${i}">
+      <div class="strip">${W.img(m.folder, 'cover', m.client, '16 / 7')}</div>
+      <span class="yr">${esc(m.year)}</span><span class="nm">${esc(m.client)}</span>
+      <span class="ln">${esc(m.line)}</span><span class="sc">${esc(m.sector)}</span></li>`).join('');
+  /* no hover image on desktop (Nov 2026): the rows alone */
+  list.querySelectorAll('.wk-img').forEach((el, k) => el.style.setProperty('--c', W.MORE[k].colour));
+})();
+</script>
+<script>
+/* tablets and touch screens: the phone's index (see the style above) */
+(function () {
+  const W = window.TibbaWork, esc = W.esc, sec = document.querySelector('.wi'), ix = document.getElementById('ix');
+  const want = matchMedia('(max-width: 1100px), (hover: none)');
+  ix.innerHTML = W.MORE.map(m => `<li tabindex="0" role="button" aria-expanded="false"><b>${esc(m.client)}</b><span>${esc(m.sector)} · ${esc(m.year)}</span><div class="ix-d"><p>${esc(m.line)}</p></div></li>`).join('');
+  const rows = [...ix.children];
+  rows.forEach(li => {
+    const t = () => { const open = li.getAttribute('aria-expanded') !== 'true'; rows.forEach(r => r.setAttribute('aria-expanded', String(open && r === li))); };
+    li.addEventListener('click', t);
+    li.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); t(); } });
+  });
+  const pick = () => { const on = want.matches; sec.classList.toggle('as-index', on); ix.hidden = !on; };
+  pick();
+  want.addEventListener ? want.addEventListener('change', pick) : want.addListener(pick);
+})();
+</script>
+<!-- primary / secondary typography control (assets/type-control.js) -->
+<script type="module" src="assets/type-control.js"></script>
+</body>
+</html>

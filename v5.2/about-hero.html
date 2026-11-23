@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — hero — Tibba Design Studio</title>
+<meta name="description" content="About — hero, a section of the Tibba Design Studio website.">
+<meta name="robots" content="noindex, indexifembedded">
+<link rel="stylesheet" href="assets/type.css?v=3">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+
+<!-- The header sets in Geist Mono, which is the face the design uses. It is
+     not this site's Vend Sans, and it is not meant to be: the ask was for
+     the navbar exactly as it is. -->
+<link rel="stylesheet" href="assets/ca-nav.css">
+<link rel="stylesheet" href="assets/site-shell.css?v=8">
+
+<!-- the shared control-panel design; last in the head so it wins over
+     whatever styling this page declared for its own panel -->
+<link rel="stylesheet" href="assets/tune.css">
+
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   About us — hero: the ascent
+   ─────────────────────────────────────────────────────────────────────────
+   Two things only: the title, and one camera move up a very large
+   mountain (assets/about-ascent.js). The mountain is the Firstpost summit
+   from the home page's Our Summits section, inked and lit as Base Camp
+   lights its summit in focus, with rocks and smaller landforms round it.
+   The camera starts low at the foot among the rocks, glides forward, tilts
+   up the face, climbs it past the cliffs, and comes out over the summit,
+   where it holds — 1200ms by default, one continuous move.
+
+   The title sits on a soft floor of black on the left so it reads over the
+   terrain at every moment of the move, and comes up as the camera arrives.
+   ═════════════════════════════════════════════════════════════════════════ */
+html, body { margin: 0; background: #000; }
+body { color: var(--ink-warm); font-family: 'Vend Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+.hero { position: relative; overflow: hidden; height: 100vh; height: 100svh; min-height: 560px; background: #000; color: #f1eee7; isolation: isolate; }
+.mt img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; display: block;
+  opacity: 0; animation: mt-in 1.2s linear .1s forwards; }
+@keyframes mt-in { to { opacity: 1; } }
+.asc-dot.on { opacity: 1; }
+/* phones: not a full screen — the next section shows at the foot */
+@media (max-width: 760px) { .hero { height: 85vh; height: 85svh; min-height: 480px; } }
+/* the floor the title stands on: black from the left and the foot, so the
+   line work never runs through the letters */
+.hero::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(90deg, rgba(0,0,0,.86) 0%, rgba(0,0,0,.62) 30%, rgba(0,0,0,0) 56%),
+              linear-gradient(0deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,0) 34%); }
+.statement { position: absolute; z-index: 2; left: var(--side); top: 50%; transform: translateY(-46%); margin: 0; pointer-events: none;
+  color: #fff; font-weight: 300; text-transform: uppercase; font-size: clamp(52px, 8.2vw, 168px); line-height: .9; letter-spacing: -.05em;
+  text-shadow: 0 2px 30px rgba(0,0,0,.6); }
+.statement .ln { display: flex; gap: .25em; overflow: hidden; }
+.statement .ln > span { display: block; transform: translateY(105%); transition: transform 1s cubic-bezier(.22,1,.36,1); }
+.statement .ln:nth-child(2) > span { transition-delay: .08s; }
+.statement .ln:nth-child(3) > span { transition-delay: .16s; }
+.statement em { font-style: normal; color: var(--accent); }
+.hero.in .statement .ln > span { transform: none; }
+/* the summit's dot (assets/about-ascent.js places it): a white core in a
+   soft glow, two rings pulsing out — Base Camp's live mark */
+.asc-dot { position: absolute; left: 0; top: 0; z-index: 1; width: 0; height: 0; pointer-events: none; opacity: 0; transition: opacity .3s linear; }
+.asc-dot::before { content: ''; position: absolute; left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%; background: #C9124B;
+  box-shadow: 0 0 0 4px rgba(201,18,75,.22), 0 0 22px 6px rgba(201,18,75,.45); }
+.asc-dot::after { content: ''; position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; border-radius: 50%; border: 1px solid #C9124B;
+  animation: asc-ping 1.8s cubic-bezier(.16,.62,.36,1) infinite; }
+@keyframes asc-ping { from { transform: scale(1); opacity: .9; } to { transform: scale(4.4); opacity: 0; } }
+@media (max-width: 760px) {
+  .hero::after { background: linear-gradient(0deg, rgba(0,0,0,.88) 0%, rgba(0,0,0,.55) 38%, rgba(0,0,0,0) 62%); }
+  .statement { top: auto; bottom: 10%; right: var(--gut); transform: none; font-size: clamp(44px, 14vw, 72px); }
+  .statement .ln { display: block; } .statement .ln > span { display: inline-block; } .statement .ln > span:first-child { margin-right: .24em; }
+}
+@media (max-width: 760px) {
+  /* phones: one sequence, once — the words, then the mountain, then the peak */
+  .statement .ln > span { transition: none; transform: none; }
+  .statement { opacity: 0; animation: mt-in .6s linear .1s forwards; }
+  .mt img { animation: mt-in 1s linear .8s forwards; }
+  .asc-dot.on { opacity: 0; animation: mt-in .4s linear 1.9s forwards; }
+}
+/* desktop (Nov 2026): the words at the foot, the mountain centred above
+   them — a floor of black from the bottom edge only */
+@media (min-width: 761px) {
+  .hero::after { background: linear-gradient(0deg, rgba(0,0,0,.9) 0%, rgba(0,0,0,.6) 22%, rgba(0,0,0,0) 46%); }
+  .statement { top: auto; bottom: 7%; transform: none; right: var(--side); font-size: clamp(48px, 6.4vw, 128px); }
+  .statement .ln { display: inline-flex; margin-right: .25em; }
+}
+@media (prefers-reduced-motion: reduce) { .statement .ln > span { transition: none; transform: none; } .asc-dot::after { animation: none; } }
+/* desktop: the home page's contour scene, with its own summit */
+#peak-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; opacity: 0; transition: opacity .2s linear; }
+.hero.live #peak-canvas { opacity: 1; }
+@media (min-width: 761px) { .mt { display: none; } }   /* desktop: the 3D render only, no still before it */
+@media (max-width: 760px) { #peak-canvas { display: none; } }
+</style>
+<style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
+html[data-wb-dock] body { padding-right: 0 !important; }</style>
+<script>window.WB_RELEASE = true;</script>
+</head>
+<body>
+<!-- ─────────────────────────────────────────────────────────────────────────
+     About us — hero
+     The title, and the ascent: one camera move from the foot of the
+     Firstpost summit (as on the home page) to its top (assets/about-ascent.js).
+     ───────────────────────────────────────────────────────────────────── -->
+<header id="ca-header"></header>
+<main class="hero" id="hero" aria-labelledby="about-h">
+  <picture class="mt"><source media="(max-width: 760px)" srcset="assets/about/hero-mountain-phone.webp"><img id="mt" src="assets/about/hero-mountain.webp" alt="" fetchpriority="high" decoding="async"></picture>
+  <canvas id="peak-canvas"></canvas>
+  <i class="asc-dot on" id="dot" aria-hidden="true"></i>
+  <h1 class="statement" id="about-h"><span class="ln"><span>Tibba means</span></span><span class="ln"><span>a higher</span></span><span class="ln"><span>place<em>.</em></span></span></h1>
+</main>
+<script type="module">
+  /* Website v3's navbar, the same as the home page's (assets/site-nav.js) */
+  import { mountSiteNav } from './assets/site-nav.js';
+  mountSiteNav(document.getElementById('ca-header'), { current: 'About' });
+</script>
+<script>
+  /* Nov 2026: the ascent is a still now — the same summit, rendered once
+     (assets/about/hero-mountain[-phone].webp), light to load and with
+     nothing running while the page scrolls. The dot pulses on the peak:
+     where it stands in each render, carried through object-fit: cover. */
+  const hero = document.getElementById('hero'), img = document.getElementById('mt'), dot = document.getElementById('dot');
+  const PEAK = () => matchMedia("(max-width: 760px)").matches ? [0.496, 0.132] : [0.662, 0.221];
+  function place() {
+    if (!img.naturalWidth) return;
+    const cw = hero.clientWidth, ch = hero.clientHeight, iw = img.naturalWidth, ih = img.naturalHeight, k = Math.max(cw / iw, ch / ih), [px, py] = PEAK();
+    dot.style.transform = `translate(${(cw - iw * k) / 2 + px * iw * k}px, ${(ch - ih * k) / 2 + py * ih * k}px)`;
+  }
+  const still = () => !hero.classList.contains('live');
+  img.complete ? still() && place() : img.addEventListener('load', () => still() && place());
+  new ResizeObserver(() => still() && place()).observe(hero);
+  requestAnimationFrame(() => hero.classList.add('in'));
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.min.js"}}</script>
+<script type="module">
+  /* desktop (Nov 2026): the home hero's own mountain (assets/range-scene.js,
+     the same massif and country), seen from 12° — low, slightly turned,
+     still facing you. Its motion leaves every line where it is: a soft band
+     of light keeps climbing the contours from the valley floor to the
+     summit, the accent route draws itself up once, and the view swings a
+     few degrees either side, slowly. Still, for reduced motion. */
+  if (!matchMedia('(max-width: 760px)').matches) {
+    const { createRangeScene } = await import('./assets/range-scene.js?v=4');
+    const hero = document.getElementById('hero'), dot = document.getElementById('dot');
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const scene = createRangeScene({ canvas: document.getElementById('peak-canvas'), mode: 'hero', ink: false, palette: 'peak', backdrop: 'behind',
+      hover: true, preserve: /[?&]capture\b/.test(location.search) });
+    scene.setAccent('#C9124B'); scene.setDepth(0.22); scene.setHover(false); scene.setFill(null);
+    if (!still) scene.setRidgeIn(0);                          // nothing yet: the ridges arrive one by one
+    scene.setInk({ offPeak: 0.2, depthOp: 0.26 });            // the country round it quieter, the summit in focus
+    scene.setRouteStyle({ heroFade: 1 });                     // the route graded from its summit, as there
+    const CAM = { elev: 12, azim: 8, dist: 118, tgtX: -4, tgtY: 34 };   // closer, centred over the words
+    window.tibba = { scene, CAM };
+    hero.classList.add('live');
+    setTimeout(() => scene.climbHero(true, 0), still ? 0 : 1300);
+    if (still) scene.setHover(true);
+    const SWEEP = 7.5, SWING = 4.5, SWING_T = 26;           // s per climb of the light; ° and s of the swing
+    const t0 = performance.now(), LOAD = 1.2;               // s: every ridge in, each at its own random moment
+    /* hover, as on the home hero: the rings under the cursor, and the route
+       glowing while the pointer is on it */
+    let routeHot = false;
+    addEventListener('pointermove', e => {
+      if (e.pointerType === 'touch') return;
+      const hot = scene.nearHeroRoute(e.clientX, e.clientY, 18);
+      if (hot !== routeHot) { routeHot = hot; scene.setRouteHot(hot); }
+    });
+    document.documentElement.addEventListener('pointerleave', () => { if (routeHot) { routeHot = false; scene.setRouteHot(false); } });
+    let loaded = still;
+    (function frame(now) {
+      requestAnimationFrame(frame);
+      const t = (now - t0) / 1000;
+      if (!loaded) {
+        scene.setRidgeIn(Math.min(1, t / LOAD) * 1.07);
+        if (t >= LOAD) { loaded = true; scene.setRidgeIn(null); scene.setHover(true); }
+      }
+      scene.setHeroCam(still ? CAM : { ...CAM, azim: CAM.azim + Math.sin(t / SWING_T * Math.PI * 2) * SWING });
+      /* the light: up from below the floor to past the summit, then again;
+         ghost 1 keeps every line at full strength, only the band glows */
+      if (!still) scene.setFill(((t % SWEEP) / SWEEP) * 1.08, { band: 3.2, ghost: 1, glow: 0.55 });
+      const s = scene.summitScreen();
+      if (!s.behind) dot.style.transform = `translate(${s.x}px, ${s.y + 6}px)`;
+    })(t0);
+  }
+</script>
+<!-- primary / secondary typography control (assets/type-control.js) -->
+<script type="module" src="assets/type-control.js"></script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "outputDirectory": "v5.1",
+  "outputDirectory": "v5.2",
   "cleanUrls": true,
   "redirects": [
     {
@@ -12,6 +12,16 @@
     {
       "source": "/website-v3-mobile",
       "destination": "/mobile",
+      "permanent": false
+    },
+    {
+      "source": "/v5.2",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/v5.2/:path*",
+      "destination": "/:path*",
       "permanent": false
     },
     {

@@ -1,0 +1,25 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   An iPhone whose screens take turns (phones only; Nov 2026). Shared by the
+   Shyft onboarding and the Firstpost "Mobile First Approach". Markup:
+
+     <figure class="m-phone" style="--ar: W / H"><div class="body"><div class="screen">
+       <img class="on" …><img …><img …></div><i class="island"></i></div></figure>
+
+   --ar is the screens' own shape, so each fills the display exactly; add
+   .no-island when the screens have the island drawn in. assets/m-phone.js
+   crossfades them in turn while the phone is on screen.
+   ══════════════════════════════════════════════════════════════════════════ */
+.m-phone { display: grid; place-items: center; margin: 0; padding: 8px 0; }
+/* a real iPhone (assets/mockups/iphone.png, 978 × 2000, the screen opening
+   transparent at x52 y50, 874 × 1900): the screens sit under the frame in
+   that opening, as in the before / after devices (assets/prototype.js) */
+.m-phone .body { position: relative; width: min(66%, 260px); aspect-ratio: 978 / 2000; filter: drop-shadow(0 26px 34px rgba(0, 0, 0, .45)); }
+.m-phone .body::after { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background: url('mockups/iphone.png') 0 0 / 100% 100% no-repeat; }
+.m-phone .screen { position: absolute; left: 5.317%; top: 2.5%; width: 89.366%; height: 95%; overflow: hidden;
+  border-radius: 14.87% / 6.84%; background: #000; transform: translateZ(0); }
+.m-phone .screen img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; opacity: 0; transition: opacity .9s cubic-bezier(.4, 0, .2, 1); }
+.m-phone .screen img.on { opacity: 1; }
+/* the frame has its own Dynamic Island */
+.m-phone .island { display: none; }
+@media (prefers-reduced-motion: reduce) { .m-phone .screen img { transition: none; } }

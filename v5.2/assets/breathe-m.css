@@ -1,0 +1,67 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Breathe ESG on phones (Nov 2026) — loaded only under 760px
+   (breathe-esg-casestudy.html). Each piece stands where a desktop plate
+   stands; the plate (.bm-desk) is hidden. Motion: assets/breathe-m.js.
+   Sizes are in cqw of their own frame, so each piece keeps its drawing at
+   any phone width.
+   ══════════════════════════════════════════════════════════════════════════ */
+.bm-desk { display: none !important; }
+.bm-m { display: block; position: relative; margin: 0 calc(-1 * var(--over, 0px)); container-type: inline-size; }
+.bm-m img { display: block; max-width: none; height: auto; pointer-events: none; }
+
+/* ── Structuring our design sprints: Day 1 → Day 5 ─────────────────────── */
+.bm-days { background: #f3f7f6; border-radius: 10px; overflow: hidden; }
+.bm-days svg { display: block; width: 100%; height: auto; }
+.bm-days .lane { stroke: #dde7e4; stroke-width: 1; }
+.bm-days .card { fill: #fff; filter: url(#d-shadow); }
+.bm-days text { font-family: inherit; }
+.bm-days .day { font-size: 10.5px; fill: #6d7d78; }
+.bm-days .lbl { font-size: 12.5px; font-weight: 500; fill: #18241f; }
+.bm-days .dot { fill: #c5d4cf; animation: d-dot 7.5s linear infinite; animation-delay: calc(var(--k) * 1.5s); transform-box: fill-box; transform-origin: center; }
+@keyframes d-dot { 0% { fill: #c5d4cf; transform: scale(1); } 3% { fill: #00b876; transform: scale(1.9); } 12% { fill: #4caf70; transform: scale(1); } 96% { fill: #4caf70; } 100% { fill: #c5d4cf; } }
+.bm-days .link { fill: none; stroke: #9bb9ae; stroke-width: 1.1; stroke-dasharray: 3 4; animation: d-flow 1s linear infinite; }
+@keyframes d-flow { to { stroke-dashoffset: -7; } }
+.bm-days .head { fill: none; stroke: #9bb9ae; stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ── the sprint cards (image 3) ─────────────────────────────────────────── */
+.cf-stack-card .sp { display: flex; flex-direction: column; min-height: 155cqw; padding: 9cqw 7.7cqw 0; container-type: normal;
+  background: linear-gradient(180deg, #fff 0%, #fff 26%, var(--c) 100%); color: #1c1c1c; text-align: left; }
+.cf-stack-card .sp h3 { margin: 0; font-size: 6.2cqw; line-height: 1.22; font-weight: 700; letter-spacing: -.01em; }
+.cf-stack-card .sp b { display: block; margin: 3.4cqw 0 6cqw; font-size: 4.6cqw; font-weight: 400; letter-spacing: .02em; }
+.cf-stack-card .sp p { margin: 0; font-size: 4.3cqw; line-height: 1.5; color: #222; }
+.cf-stack-card .sp img { width: 100%; min-height: 0 !important; margin: auto 0 6cqw; padding-top: 8cqw; object-fit: initial; }
+.cf-stack-card:has(.sp) { container-type: inline-size; }
+
+/* ── Design system from day 1: the pieces, colours drifting right and icons left ── */
+.bm-ds { aspect-ratio: 553 / 2000; overflow: hidden; border-radius: 10px; background: url('work/breathe-esg-figma/m/ds-bg.webp') 0 0 / 100% 100% no-repeat; }
+.bm-ds > img, .bm-ds > .usd { position: absolute; }
+.ds-login-body { left: 7.65cqw; top: 79.54cqw; width: 84.70cqw; }
+.ds-empty-state { left: 7.50cqw; top: 157.79cqw; width: 86.40cqw; }
+.ds-need-help { left: .77cqw; top: 241.83cqw; width: 51.40cqw; }
+.ds-business-group-card { left: 47.21cqw; top: 242.79cqw; width: 52.72cqw; }
+.ds-upload-file { left: 47.21cqw; top: 277.15cqw; width: 52.59cqw; }
+.ds-banner { left: .75cqw; top: 312.56cqw; width: 98.32cqw; }
+.bm-ds .usd { left: 4.9cqw; top: 291.5cqw; width: 43cqw; height: 14.5cqw; box-sizing: border-box; padding: 2.6cqw 2.8cqw; border-radius: 1.1cqw;
+  background: #fff; box-shadow: 0 .6cqw 2cqw rgba(30, 70, 55, .12); color: #1d1d1d; font-family: 'Vend Sans', system-ui, sans-serif; }
+.bm-ds .usd b { display: flex; align-items: center; gap: 1.8cqw; font-size: 3.9cqw; line-height: 1; font-weight: 500; }
+.bm-ds .usd svg { width: 5cqw; height: auto; border-radius: .3cqw; }
+.bm-ds .usd span { display: block; margin-top: 1.3cqw; font-size: 2.6cqw; color: #9a9a9a; }
+.bm-ds .row { position: absolute; left: 0; display: flex; width: max-content; will-change: transform; }
+.bm-ds .colours { top: 11.75cqw; animation: ds-right 70s linear infinite; }
+.bm-ds .colours img { width: 1209.6cqw; }
+.bm-ds .icons { top: 333.5cqw; animation: ds-left 30s linear infinite; }
+.bm-ds .icons img { width: 21.1cqw; margin-right: -2.65cqw; }
+@keyframes ds-left { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-50%, 0, 0); } }
+@keyframes ds-right { from { transform: translate3d(-50%, 0, 0); } to { transform: translate3d(0, 0, 0); } }
+.bm-ds:not(.run) .row { animation-play-state: paused; }
+
+/* the org chart and the role cards: assets/breathe-roles.css (both widths) */
+
+@media (prefers-reduced-motion: reduce) {
+  .bm-ds .row, .bm-days .link, .bm-days .dot { animation: none; }
+  .bm-days .dot { fill: #4caf70; }
+}
+
+/* type (Nov 2026): body 15px, headings a tenth smaller */
+.cf-stack-card .sp h3 { font-size: calc(6.2cqw * .9); }
+.cf-stack-card .sp p { font-size: 15px; line-height: 1.5; }

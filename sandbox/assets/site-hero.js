@@ -41,7 +41,7 @@ const SETTLED = /[?&]settled\b/.test(location.search);
 if (SETTLED) document.documentElement.classList.add('hero-settled');
 
 export const SITE_HERO_CONFIG = {
-  loader: { min: 0.4, hold: 0.1, stutter: 0.3, band: 3.0, ghost: 0.1, glow: 0.7 },   // min: s, the least it takes 000 → 100 (it follows the real load, no fixed length)
+  loader: { min: 0.4, giveUp: 45, hold: 0.1, stutter: 0.3, band: 3.0, ghost: 0.1, glow: 0.7 },   // min: s, the least it takes 000 → 100 (it follows the real load, no fixed length); giveUp: s, a stalled resource is let go
   intro: { duration: 1.2 },          // s: the flight from the plan down into the hero
   lock: { from: 0.0, to: 0.55 },     // share of the scroll the turn-aside takes
   /* the boxes open as soon as the turn is under way — no empty beat between
@@ -106,11 +106,11 @@ if (phase === 'hero') { document.body.classList.add('ld-gone', 'hero-in'); scene
 
 /* Nov 2026: the loader follows the real load, not a clock. What it waits
    for: the fonts, every image in the page, the page's own load event, and
-   the 3D terrain (its first drawn frame). Its count runs toward the share
-   of those that are in; while some are still out it creeps on toward 90%
-   so it never looks stuck, and it only reaches 100 once all of them are.
-   It never climbs faster than 000 → 100 in C.loader.min seconds, so a fast
-   connection sees a short, whole fill rather than a flash. */
+   the 3D terrain (its first drawn frame). Its count is the share of those
+   that are in, and nothing else: no timer moves it, so on a slow connection
+   it waits where the load is, and it reaches 100 the moment the last one is.
+   The one floor is C.loader.min: it never climbs 000 → 100 faster than
+   that, so a fast connection sees a short, whole fill rather than a flash. */
 const LD = { fonts: false, load: false, scene: false, imgs: [], imgDone: 0 };
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { LD.fonts = true; }); else LD.fonts = true;
 if (document.readyState === 'complete') LD.load = true; else addEventListener('load', () => { LD.load = true; }, { once: true });
@@ -132,11 +132,10 @@ function loaderFrame(now) {
   LD.scene = true;                                   // the terrain is built: this frame draws it
   const dt = Math.min(0.1, (now - ldLast) / 1000); ldLast = now; ldClock += dt;
   const r = ldReal();
-  if (ldClock > 12) r.all = true;                    // a resource that never answers does not hold the hero shut
-  /* where the count heads: the real share, or — while something is still
-     out — at least a slow creep toward 90%, never past it */
-  const creep = 0.9 * (1 - Math.exp(-ldClock / 2.2));
-  const goal = r.all ? 1 : Math.min(0.9, Math.max(r.share * 0.9, creep));
+  if (ldClock > C.loader.giveUp) r.all = true;       // only a resource that never answers at all: it does not hold the hero shut for good
+  /* where the count heads: the real share of what is in (held under 100
+     until the last piece is) */
+  const goal = r.all ? 1 : Math.min(0.99, r.share);
   const k = 1 - Math.exp(-dt * 9);
   ldP = Math.min(ldP + dt / C.loader.min, ldP + (goal - ldP) * Math.max(k, r.all ? 1 : 0));
   if (r.all && goal - ldP < 0.004) ldP = 1;

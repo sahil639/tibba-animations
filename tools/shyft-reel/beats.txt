@@ -1,0 +1,13 @@
+Shyft reel — 19.0 s, 1920x1080, 60 fps. Beat points for a music edit (seconds):
+
+ 0.00  Scene 1 starts — darkness, glow fades in, the PRO card rises
+ 3.40  BEAT — transition 1 → 2: push into the card
+ 4.10  Scene 2 — the Mindhouse wall slides in (columns 1/3 up, 2/4 down)
+ 5.15  the two bands wipe in
+ 8.00  BEAT — transition 2 → 3: the wall runs on and blurs, phones slide in from the right
+ 8.75  Scene 3 — the phones settle, left to right
+12.60  BEAT — transition 3 → 4: the centre phone grows into the main iPhone
+13.30  Scene 4 — curve draws on, ring sweeps, stat cards, floating cards
+16.60  final hold
+18.10  BEAT — fade out
+19.00  end

@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Shyft reel — renderer</title>
+<style>
+  html, body { margin: 0; background: #111; color: #ccc; font: 12px system-ui; }
+  canvas { display: block; width: 960px; height: 540px; }
+  #log { padding: 6px 8px; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<p id="log">loading…</p>
+<script>
+/* ══════════════════════════════════════════════════════════════════════════
+   Shyft reel — a 19 s, 1920×1080, 60 fps product reel from four Figma
+   frames (Sahil's workspace, section 2070:70640: shyft01 → shyft04).
+
+   Every picture is a real layer from the frame (tools/shyft-reel/assets):
+   the frames' own gradients are drawn from their Figma values, the vectors
+   from their SVGs, the screens and cards from their source images, placed
+   by the frames' own geometry. Each scene lands exactly on its Figma layout
+   (check() compares each settled scene with the frame's own export).
+
+   The frame (1413 × 1020) is fitted to the height; its background gradients
+   run on past its sides to fill 16:9. Rendered on a virtual clock — render(t)
+   is a pure function of t — with 3 sub-frames averaged per frame for motion
+   blur, then saved frame by frame (renderAll) and encoded with ffmpeg.
+   ══════════════════════════════════════════════════════════════════════════ */
+const W = 1920, H = 1080, FW = 1413, FH = 1020, S = H / FH, X0 = (W - FW * S) / 2;
+const FPS = 60, TOTAL = 19.0, SUB = 3;
+const A = 'assets/';
+const cv = document.getElementById('c'), out = cv.getContext('2d');
+const work = Object.assign(document.createElement('canvas'), { width: W, height: H }), ctx = work.getContext('2d');
+const log = m => { document.getElementById('log').textContent = m; };
+
+/* ── easing ─────────────────────────────────────────────────────────── */
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const lin = (t, a, b) => clamp((t - a) / (b - a));
+const eio = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;      // ease-in-out cubic
+const eout = p => 1 - Math.pow(1 - p, 3);                                          // ease-out cubic
+const eout4 = p => 1 - Math.pow(1 - p, 4);
+const ein = p => p * p * p;
+const spring = p => { const w = 9, t = p * 1.1; return clamp(1 - (1 + w * t) * Math.exp(-w * t)); };   // critically damped: no overshoot
+const mix = (a, b, p) => a + (b - a) * p;
+
+/* ── assets ─────────────────────────────────────────────────────────── */
+const SRC = {
+  card: 's1-card-raw.png', ell2609: 's1-ell2609.svg', ell2610: 's1-ell2610.svg',
+  landing: 's2-raw-landing.png', slot: 's2-raw-slot.png', listing: 's2-raw-listing.png', confirm: 's2-raw-confirm.png',
+  profile: 's2-raw-profile.png', resched: 's2-raw-resched.png', filters: 's2-raw-filters.png', appt: 's2-raw-appt.png',
+  p662: 's3-phone662.png', p663: 's3-phone663.png', scr661: 's3-screen661.png', scr664: 's3-screen664.png',
+  glassShadow: 's3-glass-shadow.png', glassScreen: 's3-glass-screen.png',
+  vec: 's4-vector2163.svg', i215: 's4-img215.png', i216: 's4-img216.png', i217: 's4-img217.png', i218: 's4-img218.png', iphone: 's4-iphone.png',
+  ref1: 'ref1.png', ref2: 'ref2.png', ref3: 'ref3.png', ref4: 'ref4.png',
+};
+const IMG = {};
+const load = (k, f) => new Promise((res, rej) => { const i = new Image(); i.onload = () => { IMG[k] = i; res(); }; i.onerror = () => rej(f); i.src = A + f; });
+
+/* the mask of a phone's screen (the Mockup's "Mask", notch and all) */
+let MASK_D = '';
+
+/* ── the full phones: 661 and 664 hang past the frame's edges, so their own
+   exports come clipped. The four bodies are the same model, so each is
+   rebuilt on 662's whole body (export 2113 × 3948 = 4× of 528.25 × 987)
+   with its own screen, under the same glass (the Shadow and Screen layers,
+   multiplied and screened), inside the Mask — the stack the Mockup has. */
+function buildPhone(screen, change) {
+  const k = 4, c = Object.assign(document.createElement('canvas'), { width: IMG.p662.width, height: IMG.p662.height }), g = c.getContext('2d');
+  g.drawImage(IMG.p662, 0, 0);
+  const s = Object.assign(document.createElement('canvas'), { width: c.width, height: c.height }), q = s.getContext('2d');
+  q.drawImage(screen, change.x * k, change.y * k, 403.07157 * k, 873.52967 * k);
+  q.globalCompositeOperation = 'multiply'; q.drawImage(IMG.glassShadow, 0, 0, 455.34653 * k, 922.15949 * k);
+  q.globalCompositeOperation = 'screen'; q.drawImage(IMG.glassScreen, 0, 0, 455.34653 * k, 922.15949 * k);
+  /* inside the mask, kept 1.4 units off its edge so 662's own border stays */
+  q.globalCompositeOperation = 'destination-in';
+  q.setTransform(k, 0, 0, k, 27.03 * k, 24.96 * k);
+  const p = new Path2D(MASK_D); q.fillStyle = '#000'; q.fill(p);
+  q.globalCompositeOperation = 'destination-out'; q.lineWidth = 2.8; q.strokeStyle = '#000'; q.stroke(p);
+  q.setTransform(1, 0, 0, 1, 0, 0);
+  g.drawImage(s, 0, 0);
+  return c;
+}
+/* a copy of an image at a given scale (big sources drawn small every frame are slow) */
+function scaled(img, w, h) {
+  const c = Object.assign(document.createElement('canvas'), { width: Math.round(w), height: Math.round(h) }); const g = c.getContext('2d');
+  g.imageSmoothingQuality = 'high'; g.drawImage(img, 0, 0, c.width, c.height); return c;
+}
+function raster(img, w, h) { return scaled(img, w, h); }
+
+/* ── geometry, from the frames (frame units) ────────────────────────── */
+const COLS = [   // shyft02 — the four columns, each two screens (x, y of the column; items' x, y, w, h)
+  { x: 59.7734, y: -68.3438, dir: -1, items: [['landing', 0, 0, 310.4393, 580.4339], ['slot', 0, 602.2958, 310.4393, 582.6202]] },
+  { x: 381.1328, y: -110.957, dir: 1, items: [['listing', 0, 0, 310.4317, 580.3657], ['confirm', 0, 602.2276, 310.4317, 582.0547]] },
+  { x: 702.5, y: -68.3438, dir: -1, items: [['profile', 0, 0, 310.4393, 580.4339], ['resched', 0, 602.2958, 310.4393, 582.6202]] },
+  { x: 1023.8906, y: -105.4961, dir: 1, items: [['filters', 12.5725, 0, 304.9662, 570.1463], ['appt', 9.8398, 592.0082, 310.4317, 582.3582]] },
+];
+const PHONES = [ // shyft03 — bottom to top, as the frame stacks them
+  { key: 'f664', x: 1011.3594, y: 246.7383 }, { key: 'f663', x: 646.5781, y: 69.8711 },
+  { key: 'f662', x: 274.0859, y: -0.582 }, { key: 'f661', x: -101.8828, y: -120.5664 },
+];
+const PW = 528.25, PH = 987.0;                        // the Phone node, whole
+const IPH = { x: 418, y: 70, w: 602, h: 1244.8534 };  // shyft04's phone
+const IK = 602 / 1282;                                 // its source pixels → frame units
+const RING = { cx: 1015.5, cy: 429.5, r0: 80, r1: 131 };   // in the phone image's pixels
+const STATS = [[126, 620, 614, 968], [666, 620, 1154, 968], [126, 1020, 614, 1369], [665, 1019, 1155, 1370]];
+const FLOAT = [   // shyft04's cards: box, radius, shadow (y, blur, alpha), source crop as the frame has it
+  { k: 'i215', x: 80, y: -24, w: 388.4585, h: 331.1023, r: 22.369, sy: 3.134, sb: 10.97, crop: null },
+  { k: 'i217', x: 1020, y: 70, w: 286.3001, h: 363.9008, r: 0, sy: 5.199, sb: 18.195, crop: { w: 1.1394, h: 1, x: 0, y: 0 } },
+  { k: 'i218', x: 124, y: 510, w: 335.5275, h: 426.4711, r: 0, sy: 6.092, sb: 21.324, crop: { w: 1.1409, h: 1.0786, x: 0, y: -0.0786 } },
+  { k: 'i216', x: 957, y: 797, w: 371.825, h: 139, r: 24.802, sy: 3.475, sb: 12.163, crop: null },
+];
+
+/* ── the frames' backgrounds, run on past the frame to fill 16:9 ────── */
+const BIG = [-3000, -3000, 9000, 9000];
+function radial(g, m, stops) {
+  g.save(); g.transform(...m);
+  const gr = g.createRadialGradient(0, 0, 0, 0, 0, 10); stops.forEach(([o, c]) => gr.addColorStop(o, c));
+  g.fillStyle = gr; g.fillRect(-1e4, -1e4, 2e4, 2e4); g.restore();
+}
+function bg1(g) { radial(g, [136.33, 102, -52.976, 102, 12.287, 0], [[0, '#1a1036'], [.39997, '#1a1036'], [.54998, '#261850'], [.69999, '#331f69'], [1, '#4b2e9c']]); }
+function bg2(g) { g.fillStyle = '#6e55d3'; g.fillRect(...BIG); }
+function bg3(g) { radial(g, [35.4, 102, -141.41, 51.489, 706.5, 0], [[0, '#f5f9fa'], [.009967, '#f5f9fa'], [.28501, '#cfcaef'], [.56006, '#a99be5'], [.78003, '#8c78dc'], [1, '#6e55d3']]); }
+function bg4(g) { radial(g, [0, 51, -70.65, 0, 706.5, 510], [[0, '#f5f9fa'], [.43742, '#edeffa'], [.71871, '#c7c8fd'], [1, '#a2a2ff']]); }
+
+/* ── drawing helpers ────────────────────────────────────────────────── */
+function frameT(g, cam) {   // frame units → pixels, with a camera (scale about a point, then pan)
+  g.setTransform(S, 0, 0, S, X0, 0);
+  if (cam) { g.translate(cam.ox || 0, cam.oy || 0); g.translate(cam.px, cam.py); g.scale(cam.k, cam.k); g.translate(-cam.px, -cam.py); }
+}
+function rrect(g, x, y, w, h, r) { g.beginPath(); if (g.roundRect) g.roundRect(x, y, w, h, r); else g.rect(x, y, w, h); }
+
+/* ═══ Scene 1 — shyft01: the PRO card ═════════════════════════════════ */
+let CARD = null;   // the card, at 2× its drawn size, pre-drawn
+function drawEllipse(g, img, cx, cy, rot, flipY, w, h) {
+  g.save(); g.translate(cx, cy); g.rotate(rot * Math.PI / 180); if (flipY) g.scale(1, -1);
+  g.drawImage(img, -w / 2, -h / 2, w, h); g.restore();
+}
+function scene1(g, t, cam) {
+  frameT(g, cam);
+  /* from darkness: the frame's gradient comes up first */
+  g.fillStyle = '#05030c'; g.fillRect(...BIG);
+  g.globalAlpha = eio(lin(t, 0, 1.1)); bg1(g); g.globalAlpha = 1;
+  /* the two glows, plus-lighter, drifting slowly */
+  const ga = eio(lin(t, .25, 1.7)), dr = t * .55;
+  g.globalCompositeOperation = 'lighter'; g.globalAlpha = ga;
+  drawEllipse(g, IMG.e2609, 941.285 + 16 * Math.sin(dr), 264.197 + 10 * Math.cos(dr * .8), 61.75, false, 1449.77, 1138.29);
+  drawEllipse(g, IMG.e2610, 431.32 - 12 * Math.sin(dr * .9), 666.81 + 9 * Math.sin(dr * .7), 90.73, true, 1260.18, 1170.49);
+  g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
+  /* the card: rises with a little 3D tilt (a foreshortened plane), then floats */
+  const p = eout(lin(t, .45, 2.1)), settle = eio(lin(t, 1.9, 2.6));
+  const tilt = (1 - p) * .22;
+  const float = settle * 5 * Math.sin((t - 1.9) * 1.25);
+  g.save();
+  g.globalAlpha = Math.pow(p, .6);
+  g.translate(674.78, 529.54 + (1 - p) * 150 + float);
+  g.transform(1, 0, -tilt * .35, 1 - tilt, 0, 0);       // the plane leaning back as it comes up
+  g.rotate(10.51 * Math.PI / 180); g.scale(1, .97); g.transform(1, 0, Math.tan(-15 * Math.PI / 180), 1, 0, 0);
+  g.drawImage(CARD.canvas, -486.44, -306.09, 985.37, 652.63);
+  /* the light: a soft band once across the card's own pixels */
+  const sw = lin(t, 1.55, 2.75);
+  if (sw > 0 && sw < 1) {
+    const lc = CARD.light, lg = lc.getContext('2d');
+    lg.globalCompositeOperation = 'copy'; lg.drawImage(CARD.canvas, 0, 0);
+    lg.globalCompositeOperation = 'source-atop';
+    const bx = mix(-.35, 1.35, eio(sw)) * lc.width;
+    const gr = lg.createLinearGradient(bx - lc.width * .18, 0, bx + lc.width * .18, lc.height * .25);
+    gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(.5, 'rgba(255,255,255,.26)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+    lg.fillStyle = gr; lg.fillRect(0, 0, lc.width, lc.height);
+    lg.globalCompositeOperation = 'destination-in'; lg.drawImage(CARD.solid, 0, 0);
+    g.globalCompositeOperation = 'lighter'; g.globalAlpha = .55 * Math.sin(Math.PI * sw);
+    g.drawImage(lc, -486.44, -306.09, 985.37, 652.63);
+  }
+  g.restore(); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
+}
+
+/* ═══ Scene 2 — shyft02: the Mindhouse wall ═══════════════════════════ */
+function band(g, y, h, flip, m, a) {
+  g.save(); g.translate(0, y); if (flip) { g.translate(0, h); g.scale(1, -1); }
+  g.globalAlpha = a;
+  g.beginPath(); g.rect(-400, 0, FW + 800, h); g.clip();
+  radial(g, m, [[0, 'rgba(110,85,210,0)'], [.5592, 'rgba(110,85,210,0)'], [1, 'rgba(110,85,210,1)']]);
+  g.restore();
+}
+function scene2(g, u, cam, extra) {
+  frameT(g, cam);
+  bg2(g);
+  COLS.forEach((c, i) => {
+    /* in: 1 and 3 scroll up into place, 2 and 4 down; staggered, no overshoot */
+    const p = eout4(lin(u, .05 + i * .11, 1.45 + i * .11));
+    const drift = 9 * Math.sin(u * .7 + i * 1.3) * eio(lin(u, 1.2, 2.2));
+    const away = extra ? extra * c.dir * -1 : 0;     // the way out keeps them going the way they came
+    const off = (1 - p) * 760 * (c.dir === -1 ? 1 : -1) + drift + away;
+    g.save(); g.globalAlpha *= (window.__colsA ?? 1); g.beginPath(); g.rect(c.x - 20, -2000, 352, 5000); g.clip();
+    c.items.forEach(([k, x, y, w, h]) => g.drawImage(IMG[k + 'S'], c.x + x, c.y + y + off, w, h));
+    g.restore();
+  });
+  /* the two bands wipe in last: from the middle outward */
+  const bp = eio(lin(u, 1.35, 2.15));
+  if (bp > 0) {
+    g.save(); const half = (FW / 2 + 500) * bp;
+    g.beginPath(); g.rect(FW / 2 - half, -10, half * 2, FH + 20); g.clip();
+    band(g, 708, 312, false, [1.3643e-12, 32.546, -148.29, .68685, 735, -.000020408], bp);
+    band(g, 0, 297, true, [1.3643e-12, 30.981, -148.29, .65383, 735, -.000019427], bp);
+    g.restore();
+  }
+}
+
+/* ═══ Scene 3 — shyft03: the three phones ═════════════════════════════ */
+function scene3(g, v, cam, morph) {
+  frameT(g, cam);
+  bg3(g);
+  /* left to right: 661, 662, 663, 664; from the right, on one path */
+  const ORDER = { f661: 0, f662: 1, f663: 2, f664: 3 };
+  PHONES.forEach(ph => {
+    const i = ORDER[ph.key];
+    const p = eout(lin(v, .18 + i * .14, 1.3 + i * .14));
+    if (p <= 0) return;
+    const par = (i - 1.5) * 7 * Math.sin(v * .45);          // a little parallax between them
+    let x = ph.x + (1 - p) * 640 + par, y = ph.y, a = Math.min(1, p * 3.2), k = 1;   /* solid almost at once: phones over phones never read as ghosts */
+    if (morph && ph.key === 'f663') { a = 1 - morph.fade; }
+    else if (morph) { a *= 1 - eio(morph.out); x += (i < 2 ? -1 : 1) * 90 * eio(morph.out); }
+    if (a <= 0) return;
+    g.save(); g.globalAlpha = a;
+    if (morph && ph.key === 'f663') {
+      /* toward shyft04's phone: the device's box onto the mockup's */
+      const q = morph.move, sc = mix(1, IPH.w / 455.35, q);
+      g.translate(mix(ph.x, IPH.x, q), mix(ph.y, IPH.y, q)); g.scale(sc, sc);
+      g.drawImage(IMG.f663S, 0, 0, PW, PH * IMG.f663S.height / IMG.f663S.width / (PH / PW));
+    } else {
+      /* the soft shadow settling under it as it lands */
+      g.shadowColor = `rgba(40,20,110,${.18 * eio(lin(p, .6, 1))})`; g.shadowBlur = 50 * S; g.shadowOffsetY = 18 * S;
+      const img = IMG[ph.key + 'S'];
+      g.drawImage(img, x, y, PW, PW * img.height / img.width);
+    }
+    g.restore();
+  });
+}
+
+/* ═══ Scene 4 — shyft04: the health overview ══════════════════════════ */
+let EMPTY_RING = null, PHONE_BG = 'rgb(244,245,247)';
+function phone4(g, w4) {
+  /* the phone with its ring filling and its stat cards arriving */
+  const ip = IMG.iphone, k = IK;
+  g.save(); g.translate(IPH.x, IPH.y); g.scale(k, k);
+  g.shadowColor = '#a2a2ff'; g.shadowBlur = 127.346 * S / k * k; g.shadowOffsetY = -17.365;
+  g.drawImage(ip, 0, 0); g.shadowColor = 'transparent';
+  /* the cards: their places held in the screen's own grey, then each comes in */
+  STATS.forEach(([x0, y0, x1, y1], i) => {
+    const p = eout(lin(w4, 1.05 + i * .13, 1.75 + i * .13));
+    if (p >= 1) return;
+    g.fillStyle = PHONE_BG; rrect(g, x0 - 4, y0 - 4, x1 - x0 + 8, y1 - y0 + 8, 44); g.fill();
+    if (p <= 0) return;
+    g.save(); g.globalAlpha = p; const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, s = mix(.94, 1, p);
+    g.translate(cx, cy + (1 - p) * 26); g.scale(s, s); g.translate(-cx, -cy);
+    g.drawImage(ip, x0 - 4, y0 - 4, x1 - x0 + 8, y1 - y0 + 8, x0 - 4, y0 - 4, x1 - x0 + 8, y1 - y0 + 8);
+    g.restore();
+  });
+  /* the ring: an empty track of its own pixels, then the real ring swept in */
+  const rp = eio(lin(w4, .75, 1.9));
+  if (rp < 1) {
+    const { cx, cy, r0, r1 } = RING;
+    g.save(); g.beginPath(); g.arc(cx, cy, r1, 0, Math.PI * 2); g.arc(cx, cy, r0, 0, Math.PI * 2, true); g.clip();
+    g.drawImage(EMPTY_RING, cx - r1 - 4, cy - r1 - 4);
+    if (rp > 0) {
+      g.beginPath(); g.moveTo(cx, cy); g.arc(cx, cy, r1 + 6, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * rp); g.closePath(); g.clip();
+      g.drawImage(ip, cx - r1 - 6, cy - r1 - 6, 2 * r1 + 12, 2 * r1 + 12, cx - r1 - 6, cy - r1 - 6, 2 * r1 + 12, 2 * r1 + 12);
+    }
+    g.restore();
+    /* the figure inside comes up with it */
+    const ta = eio(lin(w4, .9, 1.6));
+    g.save(); g.globalAlpha = 1 - ta; g.fillStyle = PHONE_BG; g.beginPath(); g.arc(cx, cy, r0 - 1, 0, Math.PI * 2); g.fill(); g.restore();
+  }
+  g.restore();
+}
+function scene4(g, w4, cam, phoneIn) {
+  frameT(g, cam);
+  bg4(g);
+  /* the curve draws on, left to right */
+  const vp = eio(lin(w4, .15, 1.35));
+  if (vp > 0) {
+    g.save(); g.beginPath(); g.rect(-400, 300, (FW + 800) * vp, 900); g.clip();
+    g.drawImage(IMG.vec, -39, 326, 1546, 799); g.restore();
+  }
+  /* the floating cards behind the phone: 215 and 217 */
+  const card = (c, i, front) => {
+    const p = spring(lin(w4, 1.55 + i * .14, 2.75 + i * .14));
+    if (p <= 0) return;
+    const fl = 4 * Math.sin((w4 - 2.6) * 1.05 + i * 1.7) * eio(lin(w4, 2.4, 3.2));
+    g.save(); g.globalAlpha = clamp(p * 1.3);
+    const cx = c.x + c.w / 2, cy = c.y + c.h / 2, s = mix(.86, 1, p);
+    g.translate(cx, cy + (1 - p) * 28 + fl); g.scale(s, s); g.translate(-cx, -cy);
+    g.shadowColor = 'rgba(110,85,211,.12)'; g.shadowBlur = c.sb * S * 2; g.shadowOffsetY = c.sy;
+    rrect(g, c.x, c.y, c.w, c.h, c.r); g.fillStyle = 'rgba(255,255,255,0.001)'; g.fill();
+    g.shadowColor = 'transparent';
+    g.save(); rrect(g, c.x, c.y, c.w, c.h, c.r); g.clip();
+    const im = IMG[c.k];
+    if (c.crop) g.drawImage(im, c.x + c.crop.x * c.w, c.y + c.crop.y * c.h, c.w * c.crop.w, c.h * c.crop.h);
+    else { const s2 = Math.max(c.w / im.width, c.h / im.height), dw = im.width * s2, dh = im.height * s2; g.drawImage(im, c.x + (c.w - dw) / 2, c.y + (c.h - dh) / 2, dw, dh); }
+    g.restore(); g.restore();
+  };
+  card(FLOAT[0], 0); card(FLOAT[1], 1);
+  /* the phone: settles from the morph (phoneIn 0 → 1) */
+  if (phoneIn > 0) {
+    g.save(); g.globalAlpha = phoneIn;
+    const s = mix(1.012, 1, eio(lin(w4, .3, 1.2))); g.translate(IPH.x + IPH.w / 2, IPH.y + 500); g.scale(s, s); g.translate(-IPH.x - IPH.w / 2, -IPH.y - 500);
+    phone4(g, w4); g.restore();
+  }
+  /* the band of lavender over the phone's foot: Rectangle 34648600 */
+  const rp = eio(lin(w4, 2.05, 2.75));
+  if (rp > 0) {
+    g.save(); g.globalAlpha = rp; g.translate(274.65, 620.42);
+    g.beginPath(); g.rect(0, 0, 834.96, 397.39); g.clip(); g.translate(834.96, 0); g.scale(-1, 1);
+    radial(g, [-.0000033863, 38.734, -133.56, -.000011676, 434.32, .00003797], [[0, 'rgba(165,166,254,0)'], [.42123, 'rgba(165,166,254,0)'], [1, 'rgba(165,166,254,1)']]);
+    g.restore();
+  }
+  card(FLOAT[3], 2); card(FLOAT[2], 3);
+}
+
+/* ═══ the timeline ════════════════════════════════════════════════════ */
+const BEATS = [
+  ['scene 1 — PRO card', 0.0], ['transition 1 → 2 (push in)', 3.4], ['scene 2 — Mindhouse wall', 4.1],
+  ['transition 2 → 3', 8.0], ['scene 3 — three phones', 8.75], ['transition 3 → 4 (phone morph)', 12.6],
+  ['scene 4 — health overview', 13.3], ['final hold', 16.6], ['fade out', 18.1], ['end', 19.0],
+];
+function render(t) {
+  const g = ctx; g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; g.filter = 'none';
+  g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+  /* 1 → 2: the camera pushes into the card; the purple carries over */
+  if (t < 4.15) {
+    const k = ein(lin(t, 3.4, 4.1));
+    const cam = { px: 674.78, py: 529.54, k: 1 + 1.6 * k };
+    g.save(); if (k > .05) g.filter = `blur(${(k * 10).toFixed(2)}px)`; scene1(g, t, cam); g.restore();
+  }
+  if (t >= 3.72 && t < 8.85) {
+    const a = eio(lin(t, 3.72, 4.12));
+    const out = ein(lin(t, 8.0, 8.75));
+    const cols = lin(t, 3.95, 4.15);   /* the wall's screens wait for the card to clear: the purple carries over first */
+    g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = a * (1 - eio(lin(t, 8.3, 8.75)));
+    if (out > .02) g.filter = `blur(${(out * 14).toFixed(2)}px)`;
+    window.__colsA = cols; scene2(g, t - 3.8, null, out * 900); window.__colsA = 1; g.restore();
+  }
+  /* 2 → 3: the phones come in from the right while the wall runs on */
+  if (t >= 8.0 && t < 13.45) {
+    const a = eio(lin(t, 8.05, 8.6));
+    const m = t >= 12.6 ? { move: eio(lin(t, 12.6, 13.3)), out: lin(t, 12.6, 13.0), fade: eio(lin(t, 13.05, 13.3)) } : null;
+    g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = a * (m ? 1 - eio(lin(t, 12.85, 13.3)) * 0 : 1);
+    const drift = { px: FW / 2, py: FH, k: 1 + .02 * eio(lin(t, 8.6, 12.6)), ox: -10 * eio(lin(t, 8.6, 12.6)), oy: 0 };
+    if (m) {
+      /* the stage under the phones crossfades to shyft04's while the centre phone grows into its place */
+      scene3(g, t - 8.0, drift, m);
+    } else scene3(g, t - 8.0, drift, null);
+    g.restore();
+  }
+  if (t >= 12.85) {
+    const a = eio(lin(t, 12.85, 13.3));
+    g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = a;
+    scene4(g, t - 12.9, null, eio(lin(t, 13.05, 13.3)));
+    g.restore();
+    /* the morphing phone stays on top until the mockup has taken over */
+    if (t < 13.32) {
+      const m = { move: eio(lin(t, 12.6, 13.3)), out: 1, fade: eio(lin(t, 13.05, 13.3)) };
+      g.save(); g.setTransform(1, 0, 0, 1, 0, 0);
+      frameT(g, null); g.globalAlpha = 1 - m.fade;
+      const q = m.move, sc = mix(1, IPH.w / 455.35, q);
+      g.translate(mix(646.5781, IPH.x, q), mix(69.8711, IPH.y, q)); g.scale(sc, sc);
+      g.drawImage(IMG.f663S, 0, 0, PW, PW * IMG.f663S.height / IMG.f663S.width);
+      g.restore();
+    }
+  }
+  /* the end: hold, then fade to black */
+  const f = eio(lin(t, 18.1, 18.9));
+  if (f > 0) { g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = f; g.fillStyle = '#000'; g.fillRect(0, 0, W, H); g.globalAlpha = 1; }
+}
+function frame(n) {
+  /* 3 sub-frames over half a frame (a 180° shutter), averaged */
+  out.globalCompositeOperation = 'source-over';
+  for (let s = 0; s < SUB; s++) {
+    render((n + (s / SUB) * .5) / FPS);
+    out.globalAlpha = 1 / (s + 1); out.drawImage(work, 0, 0);
+  }
+  out.globalAlpha = 1;
+}
+
+/* ── setup ──────────────────────────────────────────────────────────── */
+async function setup() {
+  await Promise.all(Object.entries(SRC).map(([k, f]) => load(k, f)));
+  const m = await (await fetch(A + 'mask.svg')).text(); MASK_D = m.match(/ d="([^"]+)"/)[1];
+  /* the glows rasterised once, the full phones built, the big sources scaled to what is drawn (×2.4 for the push) */
+  IMG.e2609 = raster(IMG.ell2609, 1449.77, 1138.29); IMG.e2610 = raster(IMG.ell2610, 1260.18, 1170.49);
+  const solid = scaled(IMG.card, 985.37 * 2.6, 652.63 * 2.6), light = scaled(IMG.card, 985.37 * 2.6, 652.63 * 2.6);
+  const sg = solid.getContext('2d'); const id = sg.getImageData(0, 0, solid.width, solid.height);
+  for (let i = 3; i < id.data.length; i += 4) id.data[i] = id.data[i] > 235 ? 255 : 0;   // the card's own plate, not its glow
+  sg.putImageData(id, 0, 0);
+  CARD = { canvas: scaled(IMG.card, 985.37 * 2.6, 652.63 * 2.6), light, solid };
+  for (const c of COLS) for (const [k, , , w, h] of c.items) IMG[k + 'S'] = scaled(IMG[k], w * S * 1.5, h * S * 1.5);
+  IMG.f661 = buildPhone(IMG.scr661, { x: 26.664, y: 23.988 });
+  IMG.f664 = buildPhone(IMG.scr664, { x: 26.703, y: 24.004 });
+  IMG.f662 = IMG.p662; IMG.f663 = IMG.p663;
+  for (const k of ['f661', 'f662', 'f663', 'f664']) IMG[k + 'S'] = scaled(IMG[k], IMG[k].width / 4 * S * 1.9, IMG[k].height / 4 * S * 1.9);
+  /* the ring's empty track: its own unfilled quarter (top left), turned four times */
+  const { cx, cy, r1 } = RING, sz = Math.ceil(2 * r1 + 8);
+  EMPTY_RING = Object.assign(document.createElement('canvas'), { width: sz, height: sz });
+  const eg = EMPTY_RING.getContext('2d');
+  for (let q = 0; q < 4; q++) {
+    eg.save(); eg.translate(sz / 2, sz / 2); eg.rotate(q * Math.PI / 2);
+    eg.beginPath(); eg.moveTo(0, 0); eg.arc(0, 0, sz, Math.PI, Math.PI * 1.5); eg.closePath(); eg.clip();
+    eg.drawImage(IMG.iphone, cx - sz / 2, cy - sz / 2, sz, sz, -sz / 2, -sz / 2, sz, sz);
+    eg.restore();
+  }
+  log('ready'); window.__ready = true;
+}
+
+/* ── checks and output ─────────────────────────────────────────────── */
+/* how far each settled scene is from its Figma frame (mean |Δ| per channel, 0–255) */
+window.check = () => {
+  const c = Object.assign(document.createElement('canvas'), { width: FW, height: FH }), g = c.getContext('2d');
+  const r = {};
+  const at = [['ref1', g => scene1(g, 3.2, null)], ['ref2', g => scene2(g, 4.0, null, 0)], ['ref3', g => scene3(g, 4.4, null, null)], ['ref4', g => { scene4(g, 3.6, null, 1); }]];
+  for (const [ref, fn] of at) {
+    g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, FW, FH);
+    g.save(); fnFrame(g, fn); g.restore();   /* in plain frame units for the comparison */
+    const a = g.getImageData(0, 0, FW, FH).data;
+    const rc = Object.assign(document.createElement('canvas'), { width: FW, height: FH }).getContext('2d'); rc.drawImage(IMG[ref], 0, 0);
+    const b = rc.getImageData(0, 0, FW, FH).data;
+    let d = 0, n = 0; for (let i = 0; i < a.length; i += 16) { d += Math.abs(a[i] - b[i]) + Math.abs(a[i + 1] - b[i + 1]) + Math.abs(a[i + 2] - b[i + 2]); n += 3; }
+    r[ref] = +(d / n).toFixed(2);
+    c.toBlob(bl => fetch('/__save/shyft-check-' + ref + '.png', { method: 'POST', body: bl }));
+  }
+  return r;
+};
+/* frame units with no fit: swap the fit for identity while fn draws */
+function fnFrame(g, fn) { _fit = false; try { fn(g); } finally { _fit = true; } }
+let _fit = true;
+const _frameT = frameT;
+frameT = function (g, cam) {
+  if (_fit) return _frameT(g, cam);
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  if (cam) { g.translate(cam.ox || 0, cam.oy || 0); g.translate(cam.px, cam.py); g.scale(cam.k, cam.k); g.translate(-cam.px, -cam.py); }
+};
+
+window.still = async (t, name) => { frame(Math.round(t * FPS)); await new Promise(r => cv.toBlob(b => fetch('/__save/' + name, { method: 'POST', body: b }).then(r), 'image/jpeg', .92)); return name; };
+window.renderAll = async (from = 0, to = Math.round(TOTAL * FPS)) => {
+  for (let n = from; n < to; n++) {
+    frame(n);
+    const b = await new Promise(r => cv.toBlob(r, 'image/jpeg', .95));
+    await fetch('/__save/shyft-' + String(n).padStart(5, '0') + '.jpg', { method: 'POST', body: b });
+    if (n % 30 === 0) log(`frame ${n} / ${to}`);
+  }
+  log('done'); return to - from;
+};
+window.BEATS = BEATS;
+setup().then(async () => {
+  /* ?auto&from=N&to=M: render that stretch on its own (headless Chrome), then say so in the title */
+  const q = new URLSearchParams(location.search);
+  if (q.has('auto')) { const n = await renderAll(+(q.get('from') || 0), +(q.get('to') || Math.round(TOTAL * FPS))); document.title = 'DONE ' + n; document.body.insertAdjacentHTML('beforeend', '<p id="done">DONE ' + n + '</p>'); }
+}).catch(e => log('failed: ' + e));
+</script>
+</body>
+</html>

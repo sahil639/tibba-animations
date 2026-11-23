@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" data-wb="nav">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="assets/page-transition.css?v=1">
+<script src="assets/page-transition.js?v=1"></script>
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- the desktop and phone versions of this page, tied together (assets/pair.js) -->
+<script src="assets/pair.js?v=2" data-side="desktop" data-pair="about-mobile.html"></script>
+<title>About — Tibba Design Studio</title>
+<meta name="description" content="Tibba is a lean product design studio based in India. Founded in 2023 by a team with over a decade of experience, we have shipped over 30 products for start-ups and market leaders.">
+<meta name="theme-color" content="#000000">
+<link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="canonical" href="__SITE_URL__/about">
+<link rel="alternate" media="only screen and (max-width: 760px)" href="__SITE_URL__/about-mobile">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Tibba Design Studio">
+<meta property="og:title" content="About — Tibba Design Studio">
+<meta property="og:description" content="Tibba is a lean product design studio based in India. Founded in 2023 by a team with over a decade of experience, we have shipped over 30 products for start-ups and market leaders.">
+<meta property="og:image" content="__SITE_URL__/assets/og/card-home.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="About — Tibba Design Studio">
+<meta property="og:url" content="__SITE_URL__/about">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="About — Tibba Design Studio">
+<meta name="twitter:description" content="Tibba is a lean product design studio based in India. Founded in 2023 by a team with over a decade of experience, we have shipped over 30 products for start-ups and market leaders.">
+<meta name="twitter:image" content="__SITE_URL__/assets/og/card-home.png">
+<link rel="stylesheet" href="assets/type.css?v=3">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/ca-nav.css">
+<link rel="stylesheet" href="assets/site-shell.css?v=8">
+<!-- the dropdown index (assets/workbench.js), as on every page; no dock here -->
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<!-- ─────────────────────────────────────────────────────────────────────────
+     About us — the one About page, stitched the same way as Website v2
+     (the old single-page About us and the About landing, merged)
+
+       About us — hero          about-hero.html
+       About us — description   about-description.html
+       About us — team          about-team.html
+       About us — foundations   about-foundations.html
+       (the numbers, about-numbers.html, are off: the home page has them)
+       Footer                   footer.html
+
+     Same shell, same navbar, same seams and timing as the home landing:
+     assets/site-shell.js and assets/site-sections.js.
+     ───────────────────────────────────────────────────────────────────── -->
+<style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
+html[data-wb-dock] body { padding-right: 0 !important; }</style>
+<script>window.WB_RELEASE = true;</script>
+<style>.visually-hidden{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}</style>
+</head>
+<body>
+<h1 class="visually-hidden">About Tibba Design Studio</h1>
+<header id="ca-header"></header>
+<main id="stack"></main>
+
+<script type="module">
+  import { mountSite } from './assets/site-shell.js?v=9';
+  import { ABOUT_SECTIONS, ABOUT_LINKS, V3_SECTIONS, V3_LAYOUT_KEY, loadLayout, resolveLayout, sectionsFor } from './assets/site-sections.js?v=6';
+  /* the same footer as Website v3: whichever one it is set to show (by file,
+     since v3 and the About page list their footers differently) */
+  const v3 = loadLayout(V3_SECTIONS, V3_LAYOUT_KEY).find(e => e.id === 'footer');
+  const v3Footer = V3_SECTIONS.find(s => s.id === 'footer').variants[v3 ? v3.variant : 0].file;
+  const fIx = ABOUT_SECTIONS.find(s => s.id === 'footer').variants.findIndex(v => v.file === v3Footer);
+  const layout = resolveLayout(null, ABOUT_SECTIONS).map(e => e.id === 'footer' && fIx >= 0 ? { ...e, variant: fIx } : e);
+  window.tibba = mountSite({
+    sections: sectionsFor(layout, ABOUT_SECTIONS),
+    home: 'index.html',
+    links: ABOUT_LINKS,
+  });
+</script>
+<!-- primary / secondary typography control (assets/type-control.js) -->
+<script type="module" src="assets/type-control.js"></script>
+</body>
+</html>

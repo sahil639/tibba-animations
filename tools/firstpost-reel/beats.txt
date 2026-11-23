@@ -1,0 +1,11 @@
+Firstpost reel — 10.0 s, 1413×1020, 60 fps
+0.00  scene 1 — firstpost01, component library (cascade in; buttons last with the red sweep)
+2.30  BEAT — red bar wipe 1 → 2
+2.80  scene 2 — firstpost02, panels (slide up, lockups track in, Earth rises)
+4.80  BEAT — push in, panels blur outward, red floods in
+5.30  scene 3 — firstpost04, desktop + phone on red (wordmark drift, monitor rises, phone in, headline light)
+7.30  BEAT — zoom into the phone screen, match-cut
+7.80  scene 4 — firstpost03, video player (phone settles, controls, progress, title, buttons, tags)
+9.25  hold
+9.75  fade to black
+10.00 end

@@ -1,0 +1,29 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Vend Sans — the studio face (Google Fonts, OFL)
+   ─────────────────────────────────────────────────────────────────────────
+   One family across the whole site: every page links this file and every
+   font stack in the repo asks for 'Vend Sans'. One variable file covers the
+   weights (100–900 requested, 300–700 drawn: the real wght axis, Google
+   Fonts' latin cut, Nov 2026; the files before were a single Light), one
+   more the italics. The
+   generic fallbacks behind it only show for the moment before it loads.
+   ═════════════════════════════════════════════════════════════════════════ */
+@font-face {
+  font-family: 'Vend Sans';
+  src: url('fonts/VendSans-Variable.woff2?v=2') format('woff2');
+  font-weight: 100 900; font-style: normal; font-display: swap;
+}
+
+:root {
+  --font: 'Vend Sans', system-ui, -apple-system, sans-serif;
+  /* The control panels used to be set in the system monospace, which bought
+     them one thing worth keeping: a readout that does not jump a pixel every
+     time a digit changes under a slider. The face carries tabular figures, so
+     the panels ask for those rather than for a different family. */
+  --font-ui: 'Vend Sans', system-ui, sans-serif;
+}
+@font-face {
+  font-family: 'Vend Sans';
+  src: url('fonts/VendSans-Italic-Variable.woff2?v=2') format('woff2');
+  font-weight: 100 900; font-style: italic; font-display: swap;
+}

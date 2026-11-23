@@ -197,6 +197,7 @@ export function mountLogoMorph(host, cfg = LOGO_MORPH) {
   }
 
   function to(i) {
+    if (!Number.isFinite(i)) return;   // a frame with no height yet: scroll / 0
     i = ((i % 5) + 5) % 5;
     if (busy) { queued = i; return; }
     if (i !== form) run(i);

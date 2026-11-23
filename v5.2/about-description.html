@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — who we are — Tibba Design Studio</title>
+<meta name="description" content="About — who we are, a section of the Tibba Design Studio website.">
+<meta name="robots" content="noindex, indexifembedded">
+<link rel="stylesheet" href="assets/type.css?v=3">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   About us — description, the fade-in (Nov 2026)
+   ─────────────────────────────────────────────────────────────────────────
+   The studio in prose (the same three paragraphs as about.html), set large
+   in the page's own flow — nothing held. Every word starts dim (16%) and
+   comes up to full, one after another in reading order, as the passage
+   rises through the screen: the "fade-in" preset of the text-scroll-reveal
+   component, done without React. The progress runs from the passage's top
+   at 82% of the screen to its foot at 42%; each word takes its own share
+   of it, smoothed as a spring would. Scrolling back dims them again.
+   The motion itself: assets/text-fade.js (shared with about-mobile.html).
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #000; color: var(--ink-warm); font-family: 'Vend Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+
+.lead { min-height: 60vh; display: flex; align-items: flex-end; padding: 0 var(--side) 8vh; }
+.lead p { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint); }
+
+#reveal-stage { padding: clamp(72px, 11vh, 120px) var(--side) clamp(72px, 12vh, 140px); }   /* the home page's 1440px column */
+.side { padding-bottom: clamp(18px, 3vh, 32px); }
+.side h2 { color: #fff; font-weight: 400; font-size: clamp(18px, 1.5vw, 24px); line-height: 1.15; letter-spacing: -.02em; }
+#copy { padding-top: 4vh; }
+#copy p { color: #fff; font-size: clamp(28px, 3.9vw, 68px); line-height: 1.12; letter-spacing: -.03em; font-weight: 500; }
+#copy p + p { margin-top: .75em; }
+#copy .tf-w { display: inline-block; white-space: nowrap; }   /* a word of the fade-in (assets/text-fade.js) */
+#copy .hl { color: var(--accent); }
+.after { height: 60vh; }
+@media (max-width: 640px) { #copy p { line-height: 1.16; } }
+@media (max-width: 760px) { #reveal-stage { padding-bottom: clamp(56px, 10vh, 120px); } #copy { padding-top: 2vh; } #copy p { font-size: clamp(28px, 7vw, 40px); } .after { display: none; } }
+</style>
+<style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
+html[data-wb-dock] body { padding-right: 0 !important; }</style>
+<script>window.WB_RELEASE = true;</script>
+</head>
+<body>
+
+<div class="lead"><p>About us — description · scroll to fade in</p></div>
+
+<section id="reveal-scope" aria-label="Who we are">
+  <div id="reveal-stage">
+    <div id="copy">
+      <p>We are Tibba, a lean design team based out of India. Tibba is a young studio
+         founded in 2023, but it comes with over a decade of experience. Our team has
+         shipped <span class="hl">over 30 products</span> and generated <span class="hl">over $400 million</span> in revenue, for
+         start-ups and established businesses alike.</p>
+      <p>Design, for us, is the ability to solve real problems. We enjoy working closely
+         with stakeholders to understand and execute their vision. We love using research
+         to better understand our clients' audiences and to impact their bottom line.</p>
+      <p>Our approach to every client we work with is unique. We believe in actively
+         listening to a client's needs and modifying our processes accordingly — rather
+         than arriving with a process and fitting the client into it.</p>
+    </div>
+  </div>
+</section>
+<div class="after"></div>
+
+<script src="assets/text-fade.js?v=1"></script>
+<script>
+  /* the fade-in (assets/text-fade.js, shared with the phone page); phones
+     never load this section, about-mobile.html has its own copy */
+  tibbaTextFade(document.getElementById('copy'), { dim: 0.16, start: 0.82, end: 0.42 });
+</script>
+<!-- primary / secondary typography control (assets/type-control.js) -->
+<script type="module" src="assets/type-control.js"></script>
+</body>
+</html>

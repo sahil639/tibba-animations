@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" data-wb="nav">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="assets/page-transition.css?v=1">
+<script src="assets/page-transition.js?v=1"></script>
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- the desktop and phone versions of this page, tied together (assets/pair.js) -->
+<script src="assets/pair.js?v=2" data-side="desktop" data-pair="mobile.html"></script>
+<!-- the hero's three.js and GSAP come from these: open the connections early -->
+<link rel="preconnect" href="https://unpkg.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<title>Tibba Design Studio — product design for ambitious teams</title>
+<meta name="description" content="Tibba Design Studio partners with founders and product leaders to turn ideas into shipped, high-impact work — product strategy, UX and UI, design systems and growth design.">
+<meta name="theme-color" content="#000000">
+<link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="canonical" href="__SITE_URL__/">
+<link rel="alternate" media="only screen and (max-width: 760px)" href="__SITE_URL__/mobile">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Tibba Design Studio">
+<meta property="og:title" content="Tibba Design Studio — product design for ambitious teams">
+<meta property="og:description" content="Tibba Design Studio partners with founders and product leaders to turn ideas into shipped, high-impact work — product strategy, UX and UI, design systems and growth design.">
+<meta property="og:image" content="__SITE_URL__/assets/og/card-home.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tibba Design Studio — product design for ambitious teams">
+<meta property="og:url" content="__SITE_URL__/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tibba Design Studio — product design for ambitious teams">
+<meta name="twitter:description" content="Tibba Design Studio partners with founders and product leaders to turn ideas into shipped, high-impact work — product strategy, UX and UI, design systems and growth design.">
+<meta name="twitter:image" content="__SITE_URL__/assets/og/card-home.png">
+<link rel="stylesheet" href="assets/type.css?v=3">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/ca-nav.css">
+<link rel="stylesheet" href="assets/site-shell.css?v=8">
+<!-- the dropdown index (assets/workbench.js), as on every page; no dock here -->
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<!-- ─────────────────────────────────────────────────────────────────────────
+     Website v3 — the work, first
+
+       Loader → Hero (Active Peak) → Metrics   site-hero.html, as v2
+       Our summits                             summits-basecamp-layered.html —
+                                               Base Camp, the layered range
+       More work                               work-index.html — the index,
+                                               covers following the pointer
+       Our services                            services-gear-bags-v2.html
+       Testimonials                            testimonials-topo.html
+       Our studio                              studio-team.html
+       Footer                                  footer-dusk-grid.html
+
+     Case studies: case-*-v2.html (assets/case-editorial.js / .css; spec in docs/case-study-template.md).
+     The work's images: assets/work/<client>/ — see assets/work.js.
+     Shell and sections: assets/site-shell.js, assets/site-sections.js.
+     ───────────────────────────────────────────────────────────────────── -->
+<style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
+html[data-wb-dock] body { padding-right: 0 !important; }</style>
+<script>window.WB_RELEASE = true;</script>
+<style>.visually-hidden{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}</style>
+</head>
+<body>
+<h1 class="visually-hidden">Tibba Design Studio — product design for ambitious teams</h1>
+<header id="ca-header"></header>
+<main id="stack"></main>
+
+<script type="module">
+  import { mountSite } from './assets/site-shell.js?v=9';
+  import { V3_SECTIONS, V3_LINKS, V3_LAYOUT_KEY, loadLayout, resolveLayout, sectionsFor } from './assets/site-sections.js?v=6';
+  /* the arrangement made in the Modular hub, if any (?default ignores it) */
+  const layout = /[?&]default\b/.test(location.search) ? resolveLayout(null, V3_SECTIONS) : loadLayout(V3_SECTIONS, V3_LAYOUT_KEY);
+  window.tibba = mountSite({
+    sections: sectionsFor(layout, V3_SECTIONS),
+    home: '#',
+    links: V3_LINKS,
+  });
+</script>
+<!-- primary / secondary typography control (assets/type-control.js) -->
+<script type="module" src="assets/type-control.js"></script>
+</body>
+</html>

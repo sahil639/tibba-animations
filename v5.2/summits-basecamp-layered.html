@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our work — Tibba Design Studio</title>
+<meta name="description" content="Our work, a section of the Tibba Design Studio website.">
+<meta name="robots" content="noindex, indexifembedded">
+<link rel="stylesheet" href="assets/type.css?v=3">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<link rel="stylesheet" href="assets/work.css">
+<link rel="stylesheet" href="assets/summits-layouts.css?v=2">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<script src="assets/work.js"></script>
+<script src="assets/cases.js"></script>
+<script src="assets/summits-data.js?v=2"></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Our summits — 1 · Base Camp
+   ─────────────────────────────────────────────────────────────────────────
+   Website v3's stacking cards over the range, one summit in focus at a
+   time. The summit in focus stands forward and low in the frame, right on
+   the progress bar: lit, inked in its own pen, full height, a glowing dot
+   pulsing at its top. The rest of the range recedes — dimmer, thinner,
+   cooler, sparser, lower — with no dot and no trail. Each card plays its
+   project's Rive thumbnail (assets/rive/<client>.riv) while it is the one
+   in focus or under the pointer, tinted toward the summit's colour. No
+   summit/sector line, altitude caption or numbers on the cards.
+
+   Scene, state machine, panel: assets/basecamp.js (BASECAMP_CONFIG).
+   Phones: the range and the progress bar docked in the bottom third; above
+   them the cards scroll — a primary card (title, subtitle, the way in),
+   the Rive slideshow — one project after another.
+   ═════════════════════════════════════════════════════════════════════════ */
+:root { --dock: 46vh; --ac: #4DD9C0; --pulse-s: 1.8s; --pulse-k: 1; --rv-tint: 0; --bg: #000; }
+html, body { background: var(--bg); }
+.bc-head { padding: clamp(96px, 14vh, 150px) var(--side) clamp(30px, 5vh, 60px); }
+/* "Our work", set as the stats' numbers are, so the hierarchy holds */
+.bc-head h2 { color: #fff; font-weight: 300; font-size: clamp(40px, 4.4vw, 84px); line-height: .95; letter-spacing: -.04em; }
+
+#bc { position: relative; }
+
+/* ── the scene, docked under the cards ─────────────────────────────────── */
+.bc-dock { position: sticky; top: calc(100vh - var(--dock)); height: var(--dock); margin-bottom: calc(-1 * var(--dock)); z-index: 20; pointer-events: none; }
+.bc-dock::before { content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to top, var(--bg) 0%, rgba(0,0,0,.55) 12%, rgba(0,0,0,0) 26%); z-index: 1; }
+#range { position: absolute; inset: 0;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent), linear-gradient(transparent, #000 22%);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent), linear-gradient(transparent, #000 22%);
+  -webkit-mask-composite: source-in; mask-composite: intersect; }
+#range .fs-layer { z-index: 3; }
+.bc-bar { position: absolute; z-index: 4; left: 50%; bottom: clamp(16px, 3vh, 30px); transform: translateX(-50%); width: min(52vw, 820px); pointer-events: auto; }
+.bc-bar .lbl { display: flex; justify-content: center; gap: 10px; width: max-content; margin: 0 auto 12px; padding: 5px 10px; background: rgba(0,0,0,.82); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: rgba(233,236,242,.55); }
+.bc-bar .sl-tabs button { color: rgba(233,236,242,.42); font-size: clamp(10.5px, .85vw, 13px); }
+.bc-bar .sl-tabs button:hover { color: rgba(233,236,242,.75); }
+.bc-bar .sl-tabs button.on { color: color-mix(in srgb, var(--c) 70%, rgba(233,236,242,.6)); }
+.bc-bar .sl-tabs button::before { background-color: rgba(233,236,242,.16); height: 2px; }
+.bc-bar .lbl b { color: var(--ac); font-weight: 400; transition: color .4s linear; }
+.bc-bar .lbl span { color: rgba(233,236,242,.35); }
+
+/* the one live mark: the focused summit's dot, glowing and pulsing */
+.fs-peak.bc-mark { opacity: 1; transition: opacity .5s ease; }
+.fs-peak.bc-mark:not(.on) { display: none; }
+.fs-peak.bc-mark.arriving { opacity: .35; }
+/* a small solid dot in the summit's colour, the rings pulsing out of it */
+.fs-peak.bc-mark i { left: -3px; top: -3px; width: 6px; height: 6px; background: var(--c); box-shadow: none; }
+.fs-peak.bc-mark.on i { left: -3px; top: -3px; width: 6px; height: 6px; }
+.fs-peak.bc-mark::before, .fs-peak.bc-mark::after { left: -3px; top: -3px; width: 6px; height: 6px; border-width: 1px;
+  animation: bcPulse var(--pulse-s) cubic-bezier(.16,.62,.36,1) infinite; }
+.fs-peak.bc-mark::after { animation-delay: calc(var(--pulse-s) / 2); }
+.fs-peak.bc-mark.on::before, .fs-peak.bc-mark.on::after { animation-duration: var(--pulse-s); }
+@keyframes bcPulse { 0% { transform: scale(1); opacity: .75; } 70% { opacity: .1; } 100% { transform: scale(calc(1 + 5 * var(--pulse-k))); opacity: 0; } }
+.bc-nodot .fs-peak.bc-mark { display: none; }
+.bc-still .fs-peak.bc-mark::before, .bc-still .fs-peak.bc-mark::after { animation: none; opacity: 0; }
+
+/* ── the cards ─────────────────────────────────────────────────────────── */
+.pn { --c: #fff; position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; background: var(--bg); }
+.pn .in { position: absolute; inset: 0; display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); gap: clamp(28px, 5vw, 96px); align-items: center;
+  padding: clamp(84px, 11vh, 120px) var(--side) calc(var(--dock) * .82); transform-origin: 50% 0;
+  transform: scale(calc(1 - var(--sink, 0) * .06)) translateY(calc(var(--sink, 0) * -3vh)); filter: brightness(calc(1 - var(--sink, 0) * .55)); }
+.pn .txt { display: flex; flex-direction: column; gap: clamp(12px, 2vh, 22px); align-items: flex-start; }
+.pn .txt .sl-title { font-size: clamp(26px, 2.7vw, 48px); }
+.pn .media { display: flex; flex-direction: column; gap: clamp(10px, 1.6vh, 16px); min-height: 0; }
+
+/* the Rive thumbnail: plays while active or hovered; tinted toward the summit.
+   No border change, glow or corner marks on hover. */
+.rv { position: relative; display: block; aspect-ratio: 3 / 2; max-height: calc(100vh - var(--dock) * .82 - 130px); overflow: hidden; background: #141210;
+  border: 0; transition: filter .5s ease; }   /* no border round the case thumbnails (Nov 2026) */
+.rv .wk-img { position: absolute; inset: 0; height: 100%; aspect-ratio: auto; }
+.rv .rv-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; opacity: 0; transition: opacity .5s linear; }
+.rv.rv-live .rv-canvas { opacity: 1; }
+.rv .tint { position: absolute; inset: 0; z-index: 3; background: var(--c); mix-blend-mode: color; opacity: var(--rv-tint); pointer-events: none; }
+.pn:not(.active):not(.hovered) .rv { filter: grayscale(.7) brightness(.62); }
+
+/* ── phones: the cards scroll in the top two-thirds; the range and the
+   progress bar are docked in the bottom third the whole way through ─── */
+:root.bc-phone { --mdock: 33vh; }
+@supports (height: 1svh) { :root.bc-phone { --mdock: 33svh; } }
+.bc-phone .bc-dock { top: calc(100vh - var(--mdock)); top: calc(100svh - var(--mdock)); height: var(--mdock); margin-bottom: calc(-1 * var(--mdock));
+  pointer-events: none; background: none; }
+/* no wash: the cards read straight through behind the peaks */
+.bc-phone .bc-dock::before { display: none; }
+.bc-phone #range { inset: 0 0 var(--barh, 40px) 0; -webkit-mask-image: none; mask-image: none; pointer-events: auto; }
+.bc-phone .bc-bar { pointer-events: auto; left: 0; right: 0; transform: none; width: auto; bottom: 0; padding: 0 var(--side) 12px; background: var(--bg); }   /* a plain strip, no fade, its progress line right under the range */
+.bc-phone .sl-tabs button { font-size: 9.5px; letter-spacing: .02em; } .bc-phone .sl-tabs button::before { margin-bottom: 8px; }
+.bc-phone #bc-panel { display: none; }
+.bc-phone .bc-head { padding: 92px var(--side) 18px; }
+.bc-phone #stack { display: flex; flex-direction: column; gap: 48px; padding: 6px var(--side) calc(var(--mdock) + 40px); }
+.bc-phone .pn { position: relative; height: auto; overflow: visible; background: none; box-shadow: none; }
+.bc-phone .pn + .pn { box-shadow: none; }
+.bc-phone .pn .in { position: relative; inset: auto; display: flex; flex-direction: column; gap: 12px; padding: 0; transform: none; filter: none; }
+/* the primary card: title, subtitle, the way in */
+.bc-phone .pn .txt { gap: 12px; padding: 20px 18px 22px; background: #151413; border: 1px solid rgba(233,236,242,.1); border-top: 2px solid var(--c); }
+.bc-phone .pn .txt .sl-title { font-size: clamp(22px, 6.2vw, 30px); }
+.bc-phone .pn .sl-tags { display: none; }
+.bc-phone .pn .sl-body { font-size: 13.5px; }
+.bc-phone .pn .btn-p { padding: 12px 16px; font-size: 11px; }
+
+.bc-phone .pn .media { gap: 12px; }
+.bc-phone .rv { max-height: none; }
+@media (prefers-reduced-motion: reduce) { .fs-peak.bc-mark::before, .fs-peak.bc-mark::after { animation: none; opacity: 0; } }
+
+/* ── Nov 2026: the range as a small box, docked top-right ─────────────────
+   The big mountain under the cards is gone; the same live range sits in a
+   small framed box at the top right of the section while its cards pass,
+   still flying summit to summit. The cards keep their places. The box is
+   sized in px with its own aspect, so the range is never stretched. */
+.bc-dock { top: 84px; width: clamp(220px, 22vw, 320px); height: clamp(140px, 14vw, 200px); margin: 0 var(--side) calc(-1 * clamp(140px, 14vw, 200px)) auto;
+  z-index: 30; border: 1px solid rgba(233,236,242,.14); background: #000; pointer-events: none; }
+.bc-dock::before { display: none; }
+#range { -webkit-mask-image: none; mask-image: none; }
+.bc-bar, #bc-panel { display: none !important; }
+.pn .in { padding-bottom: clamp(56px, 8vh, 96px); }
+.rv { max-height: calc(100vh - 230px); }
+.bc-phone .bc-dock { top: 66px; width: 44vw; height: calc(44vw * .62); margin: 0 var(--side) calc(-1 * 44vw * .62) auto; }
+.bc-phone #range { inset: 0; }
+.bc-phone #stack { padding-bottom: 48px; }
+/* Nov 2026 (2): the box on the left, over the copy; the copy and its button
+   standing at the foot of the card. Phones: each card its own small mountain */
+.bc-dock { margin: 0 auto calc(-1 * clamp(140px, 14vw, 200px)) var(--side); }
+.pn .txt { align-self: end; }
+.bc-phone .bc-dock { display: none; }
+.pn .mpk-box { display: none !important; } .bc-phone .pn .mpk-box { height: 140px; margin-bottom: 4px; border: 1px solid rgba(233,236,242,.12); background: #000; overflow: hidden; }
+/* Nov 2026 (3), desktop, as the reference: the small mountain with no frame;
+   the case's image on the right, its top level with the mountain's; the copy
+   at the foot of the left column, its button level with the image's foot;
+   the title a little larger */
+@media (min-width: 761px) {
+  .bc-dock { top: var(--dk-top, 0px); border: 0; background: none; margin-left: max(0px, calc((100vw - 1440px) / 2)) !important;   /* wide screens (Nov 2026): over the copy's column, not the screen's far edge; 1440 and below: the corner, as before */
+    /* sized by the script below so it always stops short of the highest title */
+    width: var(--dk-w, clamp(220px, 22vw, 320px)); height: var(--dk-h, clamp(140px, 14vw, 200px)); margin-bottom: calc(-1 * var(--dk-h, clamp(140px, 14vw, 200px))); }
+  .bc-dock.dk-off { visibility: hidden; }
+  .pn .in { grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: clamp(40px, 5.5vw, 120px); align-items: stretch;
+    padding: 19vh var(--side) 0; align-content: start; }
+  .pn .media { align-self: start; }
+  .pn .txt { align-self: end; padding-bottom: 0; }
+  .pn .txt .sl-title { font-size: clamp(30px, 3.05vw, 60px); line-height: 1.08; }
+  .pn .txt .sl-body { max-width: 34em; }
+  .rv { max-height: none; }
+}
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+<style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
+html[data-wb-dock] body { padding-right: 0 !important; }</style>
+<script>window.WB_RELEASE = true;</script>
+<style>
+/* ══ one card type scale for the home page, the same on desktop and on
+   phones (Nov 2026): card headline 28 (Our Work) / 24 (lists, services),
+   item title 16, body 15, label 12, metric 44 / 13. mobile.html carries the
+   same numbers. `body` in front so these win over every earlier rule. */
+body .pn .txt .sl-title { font-size: 28px; line-height: 1.15; }
+/* desktop (Nov 2026): the title larger; the mountain box above it shrinks to
+   keep its gap (the fit script below), so both stand in the card */
+@media (min-width: 761px) { body .pn .txt .sl-title { font-size: clamp(34px, 2.8vw, 48px); line-height: 1.1; } }
+body .pn .sl-body { font-size: 15px; line-height: 1.55; }
+body .pn .sl-tags li { font-size: 12px; }
+</style>
+</head>
+<body>
+<header class="bc-head"><h2>Our work</h2></header>
+<section id="bc" aria-label="Our summits">
+  <div class="bc-dock" id="dock">
+    <div id="range"></div>
+    <div id="bc-panel"></div>
+    <div class="bc-bar"><nav class="sl-tabs" id="tabs" aria-label="Projects"></nav></div>
+  </div>
+  <div id="stack"></div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.min.js"}}</script>
+<script>
+  /* Base Camp with the ridges shaded in layers and the raised view (desktop);
+     phones keep their locked settings. Its own bake. (A classic script: a
+     module's imports would run before these were set.) */
+  /* bgScale = fgScale: a summit leaving focus keeps its height — the camera's
+     move slides it off and the dim fades it, with no collapse first.
+     dim / fill: the country behind recedes further and carries less colour,
+     so the angled view's grey shelf stays as depth, not as a band. */
+  window.BASECAMP_PRESET = { contours: { levels: 29 },   /* Nov 2026: 35% fewer ridges than the default 44 */
+    depth: { view: 'raised', raisedElev: 15, bgScale: 1.18, desk: { frontFill: 0.39, frontBase: 0.23 } },   // 0.39: the summit at 80%
+    style: { contrast: 0.75, dim: 0.8, fill: '#151A27' }, layers: { on: true, lift: 0 } };
+  window.BASECAMP_KEY = 'tibba.bake.basecamp-layered';
+</script>
+<script type="module">
+  import { mountBasecamp } from './assets/basecamp.js?v=3';
+  window.tibba = mountBasecamp();
+</script>
+<script>
+  /* desktop (Nov 2026): the mountain box never reaches the copy. Each card is
+     pinned to the top of the screen, so a title's place on screen is its
+     place in its card: the box takes the room between its own top and the
+     highest title less a gap, at its own shape, no larger than before; with
+     too little room it steps out of the way. The copy does not move. */
+  (() => {
+    const dock = document.getElementById('dock'), wide = matchMedia('(min-width: 761px)');
+    const AR = 320 / 200, GAP = 28;
+    let raf = 0;
+    function fit() {
+      raf = 0;
+      if (!wide.matches) { dock.style.removeProperty('--dk-h'); dock.style.removeProperty('--dk-w'); dock.classList.remove('dk-off'); return; }
+      const titles = [...document.querySelectorAll('.pn .sl-title')];
+      if (!titles.length) return;
+      const highest = Math.min(...titles.map(t => t.getBoundingClientRect().top - t.closest('.pn').getBoundingClientRect().top));
+      /* Nov 2026: bigger, and docked into the page's top-left corner */
+      /* Nov 2026 (2): a fifth smaller again, in proportion with the larger titles */
+      const maxH = Math.min(240, Math.max(144, innerWidth * .16)), maxW = Math.min(384, Math.max(232, innerWidth * .256));
+      const want = Math.min(maxH, maxW / AR), top = 0;
+      let h = Math.min(want, highest - top - GAP);
+      dock.style.setProperty('--dk-top', top.toFixed(1) + 'px');
+      dock.classList.toggle('dk-off', h < 72);
+      h = Math.max(72, h);
+      dock.style.setProperty('--dk-h', h.toFixed(1) + 'px');
+      dock.style.setProperty('--dk-w', (h * AR).toFixed(1) + 'px');
+    }
+    const ask = () => { if (!raf) raf = requestAnimationFrame(fit); };
+    addEventListener('resize', ask);
+    wide.addEventListener('change', ask);
+    /* the cards are written by the module: fit once they are there, and
+       whenever their copy reflows (fonts arriving, a title rewrapping) */
+    const stack = document.getElementById('stack');
+    new MutationObserver(ask).observe(stack, { childList: true });
+    new ResizeObserver(ask).observe(stack);
+    if (document.fonts) document.fonts.ready.then(ask);
+    ask();
+  })();
+</script>
+<!-- primary / secondary typography control (assets/type-control.js) -->
+<script type="module" src="assets/type-control.js"></script>
+</body>
+</html>
