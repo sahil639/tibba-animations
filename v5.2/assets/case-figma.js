@@ -97,7 +97,10 @@
     const W = window.TibbaWork, box = document.getElementById('cf-cards');
     if (!W || !box) return;
     const here = document.body.dataset.case;
-    box.innerHTML = W.SUMMITS.filter(s => s.key !== here).map(s => { const c = window.TIBBA_CASES[s.key];
+    /* a page can name the cases it shows (data-only, e.g. a service page);
+       a case study shows the other three */
+    const only = (box.dataset.only || '').split(',').map(k => k.trim()).filter(Boolean);
+    box.innerHTML = W.SUMMITS.filter(s => only.length ? only.includes(s.key) : s.key !== here).map(s => { const c = window.TIBBA_CASES[s.key];
       /* the thumbnail itself, not TibbaWork.img(): that one remembers a
          missing file for the session, and would keep a card empty after its
          thumbnail arrived */

@@ -1,0 +1,90 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Service pages — what is theirs alone (Nov 2026)
+   ─────────────────────────────────────────────────────────────────────────
+   The service pages (services.html, mvp-design.html, design-systems.html,
+   growth-design.html, fintech-design.html) are built on the case-study
+   template: assets/case-figma.css carries the hero, the metrics, the facts
+   and the section heads. This adds the few parts a case study does not
+   have: the steps, the questions, the links onward and the call to action.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+/* the hero: the About page's mountain, the summit to the right of the title */
+.sv-hero { background-position: 62% 40%; background-color: #000; }
+
+/* the facts' lists can link (services, related pages) */
+.cf-facts dd a, .sv-list a, .sv-related a { color: inherit; text-decoration: underline; text-decoration-color: rgba(233,236,242,.35); text-underline-offset: 4px; transition: text-decoration-color .2s linear, color .2s linear; }
+.cf-facts dd a:hover, .sv-list a:hover, .sv-related a:hover { color: #F0507D; text-decoration-color: currentColor; }
+
+/* the steps / In depth, after the design (Nov 2026): two to a row, each a
+   picture above its title and line, a rule under every row. Until a step has
+   its picture (an <img class="sv-pic"> first in the li), a grey box holds
+   its place. */
+.sv-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; }
+.sv-steps li { display: flex; flex-direction: column; padding: max(22px, calc(32 * var(--cu))) max(14px, calc(21 * var(--cu))) max(24px, calc(34 * var(--cu))); border-bottom: 1px solid rgba(233,236,242,.16); }
+.sv-steps li::before, .sv-steps .sv-pic { content: ''; display: block; width: 100%; aspect-ratio: 478 / 280; margin-bottom: max(16px, calc(24 * var(--cu))); background: #191919; object-fit: cover; }
+.sv-steps li:has(.sv-pic)::before { display: none; }
+.sv-steps h3 { margin: 0 0 max(8px, calc(12 * var(--cu))); font-weight: 500; font-size: clamp(18px, calc(32 * var(--cu)), 26px); line-height: 1.25; }
+.sv-steps p { margin: 0; font-weight: 300; font-size: clamp(15px, calc(24 * var(--cu)), 19px); line-height: 1.45; color: #b4b1ad; }
+@media (max-width: 560px) {
+  .sv-steps { grid-template-columns: 1fr; }
+  .sv-steps li { padding-inline: 0; }
+}
+
+/* the questions: open, as plain text — every answer readable without a click */
+.sv-faq { display: grid; gap: 0; }
+.sv-faq > div { display: grid; grid-template-columns: 1fr 1.4fr; gap: 4%; padding: 28px 0; border-bottom: 1px solid rgba(233,236,242,.18); }
+.sv-faq > div:last-child { border-bottom: 0; }
+.sv-faq h3 { margin: 0; font-weight: 500; font-size: clamp(18px, calc(24 * var(--cu)), 28px); line-height: 1.25; }
+.sv-faq p { margin: 0; font-weight: 300; font-size: clamp(16px, calc(20 * var(--cu)), 22px); line-height: 1.4; color: #c9c6c2; }
+
+/* the services by stage (services.html), after the design (Nov 2026): one
+   ruled block per stage. The panel (stage, line, bag) takes the left 44% and
+   all three rows; beside it the four services in a 2 x 2 grid, then what you
+   get and how long. Every other block puts the panel on the right. A service
+   with a page of its own is lit. */
+.sv-stages { display: grid; gap: max(10px, calc(16 * var(--cu))); --sv-line: #2b2b2d; }
+.sv-stage { display: grid; grid-template-columns: 44fr 56fr; grid-template-rows: auto auto; border: 1px solid var(--sv-line); background: #000; }
+.sv-panel { grid-row: 1 / span 2; grid-column: 1; display: flex; overflow: hidden; flex-direction: column; padding: max(24px, calc(28 * var(--cu))); background: #0b0b0b; border-right: 1px solid var(--sv-line); }
+.sv-stage.flip .sv-panel { grid-column: 2; border-right: 0; border-left: 1px solid var(--sv-line); }
+.sv-stage.flip .sv-list, .sv-stage.flip dl { grid-column: 1; }
+.sv-stage.flip .sv-list { grid-row: 1; }
+.sv-panel small { font-weight: 500; font-size: clamp(13px, calc(19 * var(--cu)), 19px); letter-spacing: .1em; text-transform: uppercase; color: #F0507D; }
+.sv-panel h3 { margin: max(18px, calc(26 * var(--cu))) 0 0; max-width: 15ch; font-weight: 500; font-size: clamp(24px, calc(36 * var(--cu)), 40px); line-height: 1.17; letter-spacing: -.01em; }
+.sv-bag { display: block; width: min(64%, 340px); height: auto; margin: auto auto 0; transform: scale(var(--s, 1)); transform-origin: 50% 62%; pointer-events: none; }  /* the renders sit small in their square; --s (inline, per bag) brings each to the same presence */
+
+.sv-list { grid-column: 2; grid-row: 1; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; }
+.sv-list li { min-height: max(180px, calc(250 * var(--cu))); box-sizing: border-box; padding: max(22px, calc(28 * var(--cu))) max(20px, calc(28 * var(--cu))); border-bottom: 1px solid var(--sv-line); }
+.sv-list li:nth-child(odd) { border-right: 1px solid var(--sv-line); }
+.sv-list li.on { background: #131314; }
+.sv-list b { display: block; font-weight: 500; font-size: clamp(18px, calc(28 * var(--cu)), 30px); line-height: 1.2; }
+.sv-list span { display: block; margin-top: max(12px, calc(20 * var(--cu))); font-weight: 300; font-size: clamp(15px, calc(21 * var(--cu)), 22px); line-height: 1.4; color: #b4b1ad; }
+.sv-stage dl { grid-column: 2; grid-row: 2; margin: 0; display: grid; grid-template-columns: 1fr 1fr; }
+.sv-stage dl > div { padding: max(20px, calc(26 * var(--cu))) max(20px, calc(28 * var(--cu))) max(24px, calc(32 * var(--cu))); }
+.sv-stage dt { font-weight: 300; font-size: clamp(14px, calc(20 * var(--cu)), 21px); line-height: 1.3; color: #b4b1ad; }
+.sv-stage dd { margin: max(10px, calc(14 * var(--cu))) 0 0; font-weight: 500; font-size: clamp(16px, calc(24 * var(--cu)), 26px); line-height: 1.5; }
+
+/* tablets and phones: the panel on top, the services beneath */
+@media (max-width: 900px) {
+  .sv-stage, .sv-stage.flip { grid-template-columns: 1fr; }
+  .sv-panel, .sv-stage.flip .sv-panel { grid-row: auto; grid-column: 1; border: 0; border-bottom: 1px solid var(--sv-line); }
+  .sv-stage.flip .sv-list, .sv-stage.flip dl, .sv-list, .sv-stage dl { grid-column: 1; grid-row: auto; }
+  .sv-bag { width: min(52%, 260px); margin-block: 8% 4%; }
+}
+@media (max-width: 560px) {
+  .sv-list { grid-template-columns: 1fr; }
+  .sv-list li { min-height: 0; border-right: 0 !important; }
+  .sv-list span { margin-top: 8px; }
+}
+
+/* the links onward: related services and case studies */
+.sv-related { display: flex; flex-wrap: wrap; gap: 12px 32px; font-size: clamp(17px, calc(22 * var(--cu)), 26px); line-height: 1.3; }
+
+/* the call to action */
+.sv-cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; padding: 40px 32px; border: 1px solid #323234; background: #0c0c0e; }
+.sv-cta p { margin: 0; font-weight: 500; font-size: clamp(22px, calc(36 * var(--cu)), 44px); line-height: 1.15; max-width: 22ch; }
+.sv-cta a { display: inline-flex; align-items: center; gap: 10px; padding: 16px 24px; background: #E9ECF2; color: #0A0A0A; font-weight: 500; font-size: 15px; letter-spacing: .04em; text-transform: uppercase; text-decoration: none; transition: background .2s linear, color .2s linear; }
+.sv-cta a:hover { background: #C9124B; color: #fff; }
+
+@media (max-width: 900px) {
+  .sv-faq > div { grid-template-columns: 1fr; gap: 10px; }
+}

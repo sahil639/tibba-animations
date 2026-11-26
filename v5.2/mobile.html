@@ -189,6 +189,7 @@ section { scroll-margin-top: 64px; }
 .svc svg { width: 30px; height: 30px; }
 .svc .n { padding-top: 3px; font-size: 11px; letter-spacing: .1em; color: var(--faint); }
 .svc b { display: block; font-weight: 400; font-size: 16px; color: #fff; }
+.svc b a { color: inherit; text-decoration: underline; text-decoration-color: rgba(255,255,255,.3); text-underline-offset: 4px; }
 .svc span { display: block; margin-top: 4px; font-size: 13px; line-height: 1.45; color: var(--mute); }
 .eng { margin-top: 22px; padding: 18px 16px; background: var(--card); border: 1px solid var(--line); }
 .eng small { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--faint); }
@@ -662,7 +663,7 @@ body .team-m figcaption b { font-size: 16px; }
 <!-- the site footer, the same on every phone page (assets/site-footer.js) -->
 <footer id="footer" data-site-footer></footer>
 <script type="module">
-  import { mountSiteFooter } from './assets/site-footer.js?v=6';
+  import { mountSiteFooter } from './assets/site-footer.js?v=7';
   mountSiteFooter(document.getElementById('footer'));
 </script>
 
@@ -677,11 +678,11 @@ body .team-m figcaption b { font-size: 16px; }
   addEventListener('DOMContentLoaded', () => {
     const S = [
       { label: 'Early-stage startup', outcome: 'From idea to a product people want.',
-        services: [['Product strategy', 'product-strategy', 'Decide what to build first, and why.'], ['MVP design', 'product-design', 'A launch-ready first version in weeks.'],
+        services: [['Product strategy', 'product-strategy', 'Decide what to build first, and why.'], ['MVP design', 'product-design', 'A launch-ready first version in weeks.', 'mvp-design.html'],
                    ['Research & testing', 'usability-testing', 'Real users, real answers, before you build.'], ['Brand & launch', 'marketing-growth', 'An identity and a site that earn trust on day one.']],
         cs: ['#4CAF70', 'Early-stage companies', 'Breathe ESG', 'How we helped Breathe ESG <em>accelerate sales</em>, streamline releases and elevate customer experience', 'breathe-esg-casestudy.html'] },
       { label: 'Mid-stage startup', outcome: 'Turn traction into growth.',
-        services: [['Growth design', 'optimisation', 'Onboarding, pricing and funnels that convert.'], ['Design system', 'design-systems', 'One kit, so every team ships faster.'],
+        services: [['Growth design', 'optimisation', 'Onboarding, pricing and funnels that convert.', 'growth-design.html'], ['Design system', 'design-systems', 'One kit, so every team ships faster.', 'design-systems.html'],
                    ['Design to code', 'dev-support', 'Production-ready UI your developers can ship.'], ['Product analytics', 'market-research', 'See what users do, fix what slows them down.']],
         cs: ['#E05555', 'Mid-size companies', 'Firstpost', 'How we helped Firstpost <em>2x their traffic</em> through a strategic redesign', 'firstpost-casestudy.html'] },
       { label: 'Established company', outcome: 'Stay ahead while you scale.',
@@ -697,7 +698,8 @@ body .team-m figcaption b { font-size: 16px; }
       tabs.forEach((b, k) => b.setAttribute('aria-selected', String(k === i)));
       panel.innerHTML = `<p class="out">${st.outcome}</p>
         <a class="cs-row" href="${st.cs[4]}"><span>Read our ${st.cs[2]} case study</span><svg class="cs-arr" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 9h13M10 4l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
-        <ol class="svc">${st.services.map(([n, k, l], j) => `<li><span aria-hidden="true">${ic(k)}</span><span><b>${esc(n)}</b><span>${esc(l)}</span></span></li>`).join('')}</ol>`;
+        <ol class="svc">${st.services.map(([n, k, l, h], j) => `<li><span aria-hidden="true">${ic(k)}</span><span><b>${h ? `<a href="${h}">${esc(n)}</a>` : esc(n)}</b><span>${esc(l)}</span></span></li>`).join('')}</ol>
+        <a class="cs-row" href="services.html"><span>All our services</span><svg class="cs-arr" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 9h13M10 4l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>`;
     }
     tabs.forEach((b, i) => b.addEventListener('click', () => pick(i)));
     pick(0);

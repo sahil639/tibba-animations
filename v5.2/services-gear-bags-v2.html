@@ -150,6 +150,8 @@ button { font: inherit; color: inherit; }
 .cs .btn-p { grid-area: go; }
 /* the case study card is a link to its case study (Nov 2026) */
 a.cs { color: inherit; text-decoration: none; cursor: pointer; transition: border-color .25s, background-color .25s; }
+li.sv .nm a { color: inherit; text-decoration: underline; text-decoration-color: rgba(233,236,242,.3); text-underline-offset: 4px; }
+li.sv .nm a:hover { text-decoration-color: currentColor; }
 a.cs:hover { border-color: color-mix(in srgb, var(--c) 45%, rgba(233,236,242,.2)) !important; }
 a.cs:focus-visible { outline: 2px solid var(--c); outline-offset: 3px; }
 .no-next .next { display: none; }
@@ -301,15 +303,15 @@ body .sv .ds > span { font-size: 15px; }
     { label: 'Early-stage startup', outcome: 'From idea to a product people want.', line: 'Pack light, move fast',
       services: [
         { name: 'Product strategy',   icon: 'product-strategy',  line: 'Decide what to build first, and why.' },
-        { name: 'MVP design',         icon: 'product-design',    line: 'A launch-ready first version in weeks.' },
+        { name: 'MVP design',         icon: 'product-design',    href: 'mvp-design.html', line: 'A launch-ready first version in weeks.' },
         { name: 'Research & testing', icon: 'usability-testing', line: 'Real users, real answers, before you build.' },
         { name: 'Brand & launch',     icon: 'marketing-growth',  line: 'An identity and a site that earn trust on day one.' },
       ],
       engagement: '4–8 weeks', get: 'A tested MVP, ready for users and investors', cta: 'Start your MVP' },
     { label: 'Mid-stage startup', outcome: 'Turn traction into growth.', line: 'More ground, more kit',
       services: [
-        { name: 'Growth design',      icon: 'optimisation',      line: 'Onboarding, pricing and funnels that convert.' },
-        { name: 'Design system',      icon: 'design-systems',    line: 'One kit, so every team ships faster.' },
+        { name: 'Growth design',      icon: 'optimisation',      href: 'growth-design.html', line: 'Onboarding, pricing and funnels that convert.' },
+        { name: 'Design system',      icon: 'design-systems',    href: 'design-systems.html', line: 'One kit, so every team ships faster.' },
         { name: 'Design to code',     icon: 'dev-support',       line: 'Production-ready UI your developers can ship.' },
         { name: 'Product analytics',  icon: 'market-research',   line: 'See what users do, fix what slows them down.' },
       ],
@@ -360,7 +362,7 @@ body .sv .ds > span { font-size: 15px; }
     $('st-n').textContent = pad(i + 1); $('st-l').textContent = STAGE_LABEL[i];
     $('blurb').textContent = st.outcome;
     const ic = s => window.TibbaServiceIcon ? TibbaServiceIcon(s.icon) : '';
-    const rows = st.services.map((s, k) => `<li class="sv" tabindex="0" style="--k:${k}"><span class="ix">${pad(k + 1)}</span><span class="ic" aria-hidden="true">${ic(s)}</span><span class="nm">${s.name}</span><span class="ds"><span>${s.line}</span></span></li>`).join('');
+    const rows = st.services.map((s, k) => `<li class="sv" tabindex="0" style="--k:${k}"><span class="ix">${pad(k + 1)}</span><span class="ic" aria-hidden="true">${ic(s)}</span><span class="nm">${s.href ? `<a href="${s.href}" target="_top">${s.name}</a>` : s.name}</span><span class="ds"><span>${s.line}</span></span></li>`).join('');
     $('lists').innerHTML = `<div class="list"><ol>${rows}</ol></div>`;
     const lists = $('lists'); lists.classList.remove('swap'); void lists.offsetWidth; lists.classList.add('swap');
     [...$('next').children].forEach((c, k) => c.classList.toggle('on', k === i));

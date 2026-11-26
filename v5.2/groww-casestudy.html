@@ -31,6 +31,7 @@
 <link rel="stylesheet" href="assets/site-shell.css?v=8">
 <link rel="stylesheet" href="assets/work.css">
 <link rel="stylesheet" href="assets/case-figma.css?v=19">
+<link rel="stylesheet" href="assets/service-page.css?v=5">
 <link rel="stylesheet" href="assets/workbench.css">
 <script src="assets/manifest.js"></script>
 <script src="assets/whats-new.js"></script>
@@ -38,7 +39,7 @@
 <script src="assets/site-chrome.js?v=4" defer></script>
 <script src="assets/work.js" defer></script>
 <script src="assets/cases.js" defer></script>
-<script src="assets/case-figma.js?v=3" defer></script>
+<script src="assets/case-figma.js?v=4" defer></script>
 <link rel="stylesheet" href="assets/tune.css">
 <style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
 html[data-wb-dock] body { padding-right: 0 !important; }</style>
@@ -87,6 +88,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
           <div><dt>Duration</dt><dd>2 years</dd></div>
           <div><dt>Year</dt><dd>2024 – present</dd></div>
           <div><dt>Project scope</dt><dd><ul><li>Growth design</li><li>UI design</li><li>Research</li><li>Product strategy</li><li>Design system</li></ul></dd></div>
+          <div><dt>Services</dt><dd><ul><li><a href="fintech-design.html">Fintech design</a></li><li><a href="growth-design.html">Growth design</a></li></ul></dd></div>
         </dl>
       </div>
     </div>
@@ -152,7 +154,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
 </main>
 
 <div id="contact"></div>
-<iframe class="cf-foot" id="footer" src="footer-dusk-grid.html?embed=1&v=3" title="Contact" loading="lazy"></iframe>
+<iframe class="cf-foot" id="footer" src="footer-dusk-grid.html?embed=1&v=4" title="Contact" loading="lazy"></iframe>
 <script>
   /* phones: the site footer, the same on every page (assets/site-footer.js),
      in place of the framed one — swapped before the frame ever loads */
@@ -160,7 +162,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
     const old = document.getElementById('footer'), foot = document.createElement('footer');
     foot.id = 'footer'; foot.setAttribute('data-site-footer', ''); old.replaceWith(foot);
     document.head.insertAdjacentHTML('beforeend', '<link rel="stylesheet" href="assets/site-footer.css?v=11">');
-    import('./assets/site-footer.js?v=6').then(m => m.mountSiteFooter(foot));
+    import('./assets/site-footer.js?v=7').then(m => m.mountSiteFooter(foot));
   }
 </script>
 

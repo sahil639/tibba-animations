@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="assets/page-transition.css?v=1">
+<script src="assets/page-transition.js?v=1"></script>
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How we made the Tibba mountain — Tibba Design Studio</title>
+<meta name="description" content="A landform generator, contour lines from marching squares, a trail that walks its switchbacks: how we built the moving mountain at the top of tibba.design.">
+<!-- a draft: kept out of search and the sitemap until the blog launches -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0e0e0f">
+<link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Tibba Design Studio">
+<meta property="og:title" content="How we made the Tibba mountain">
+<meta property="og:description" content="A landform generator, contour lines from marching squares, a trail that walks its switchbacks: how we built the moving mountain at the top of tibba.design.">
+<meta property="og:image" content="__SITE_URL__/assets/og/card-home.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How we made the Tibba mountain">
+<meta name="twitter:image" content="__SITE_URL__/assets/og/card-home.png">
+<link rel="stylesheet" href="assets/type.css?v=3">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/ca-nav.css">
+<link rel="stylesheet" href="assets/site-shell.css?v=8">
+<link rel="stylesheet" href="assets/blog.css?v=3">
+<!-- the reader's light / dark choice, set before the first paint (assets/blog.js keeps it) -->
+<script>try { const m = localStorage.getItem('tibba.blog.mode'); if (m === 'light' || m === 'dark') document.documentElement.dataset.mode = m; } catch (e) {}</script>
+<script src="assets/blog.js?v=2" defer></script>
+</head>
+
+<!-- Blog post (draft, Nov 2026): "How we made the Tibba mountain".
+     Layout after an editorial blog template: a ruled frame, the title beside
+     the hero picture, a sticky rail (share, contents, light / dark) beside the
+     article. Styles: assets/blog.css; the rail's contents, progress, share and
+     mode: assets/blog.js. Navbar and footer are the site's own. -->
+<body class="bl">
+
+<header id="ca-header"></header>
+
+<main class="bl-page">
+  <div class="bl-frame">
+
+    <nav class="bl-crumb" aria-label="Breadcrumb">
+      <a href="#">Blog</a><span aria-hidden="true">/</span>
+      <a href="#">Behind the work</a><span aria-hidden="true">/</span>
+      <span aria-current="page">How we made the Tibba mountain</span>
+    </nav>
+
+    <header class="bl-head">
+      <div class="bl-head-text">
+        <h1 class="bl-title">How we made the Tibba&nbsp;mountain</h1>
+        <div class="bl-byline">
+          <a class="bl-author" href="about.html">
+            <span class="bl-avatar" aria-hidden="true"><img src="assets/brand/favicon.svg" alt="" width="20" height="20"></span>
+            <span>Tibba Studio</span>
+          </a>
+          <span class="bl-meta"><span>8 min read</span><time datetime="2026-11-26">Nov 26, 2026</time></span>
+        </div>
+      </div>
+      <figure class="bl-head-img">
+        <img src="assets/blog/hero-mountain.jpg?v=2" width="1600" height="1000" alt="The Tibba mountain drawn in contour lines, with a red trail climbing to the summit" fetchpriority="high" decoding="async">
+      </figure>
+    </header>
+
+    <div class="bl-body">
+      <aside class="bl-rail">
+        <div class="bl-rail-in">
+          <div class="bl-share" aria-label="Share this post">
+            <a class="bl-share-btn" data-share="linkedin" href="#" target="_blank" rel="noopener" aria-label="Share on LinkedIn">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9.75h4V21H3V9.75Zm6.5 0h3.8v1.6h.06c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.77 2.6 4.77 6V21h-4v-5c0-1.2-.02-2.73-1.66-2.73-1.67 0-1.93 1.3-1.93 2.64V21h-4V9.75Z"/></svg>
+            </a>
+            <a class="bl-share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="Share on X">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.75 3h3.07l-6.7 7.65L22 21h-6.17l-4.83-6.3L5.47 21H2.4l7.17-8.18L2 3h6.33l4.36 5.77L17.75 3Zm-1.08 16.17h1.7L7.4 4.73H5.57l11.1 14.44Z"/></svg>
+            </a>
+            <a class="bl-share-btn" data-share="mail" href="#" aria-label="Share by email">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" d="M3.5 5.5h17v13h-17zM3.5 6l8.5 7 8.5-7"/></svg>
+            </a>
+            <button class="bl-share-btn" data-share="copy" type="button" aria-label="Copy link">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" d="M8.5 8.5V4.5h11v11h-4M4.5 8.5h11v11h-11z"/></svg>
+              <span class="bl-copied" role="status"></span>
+            </button>
+          </div>
+
+          <nav class="bl-toc" aria-label="On this page">
+            <span class="bl-toc-rail" aria-hidden="true"><span class="bl-toc-fill"></span></span>
+            <ol></ol>
+          </nav>
+
+          <div class="bl-mode">
+            <span>Mode:</span>
+            <div class="bl-mode-sw" role="group" aria-label="Colour mode">
+              <button type="button" data-mode="dark" aria-pressed="true">Dark</button>
+              <button type="button" data-mode="light" aria-pressed="false">Light</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <article class="bl-article">
+        <p class="bl-lede">The first thing anyone sees on tibba.design is a mountain. It counts up from the valley floor, the camera drops into it, and a thin orange line climbs to the summit. This is the story of how it got there: a year of sketches, one stubborn generator, and a lot of contour lines.</p>
+
+        <h2 id="why-a-mountain">Why a mountain</h2>
+        <p>Tibba means a small hill. We have always described our work as climbing with a client: base camp, the ascent, the summit, and then the next peak. A mountain was the obvious symbol, which is exactly why it was hard. Obvious symbols go generic fast.</p>
+        <p>So we set ourselves one rule: no stock peaks, no low-poly triangles, no snowy photograph. The mountain had to be ours, drawn in the same language as the rest of the studio, and it had to move like it was being surveyed rather than rendered.</p>
+        <blockquote class="bl-quote">
+          <p>“We didn’t want a picture of a mountain. We wanted a map of one, that you could walk.”</p>
+        </blockquote>
+        <p>Maps gave us the language. Topographic contour lines are honest: each one is a single height, and the spacing between them tells you how steep the ground is. Put enough of them together and a flat screen suddenly has a slope.</p>
+
+        <h2 id="building-the-landform">Building the landform</h2>
+        <p>Every mountain on the site, from the hero’s massif to the four client summits, comes from one generator we call the landform. A landform isn’t a model. It’s a recipe: a handful of parts summed together, each with a height, a spread and a sharpness.</p>
+        <p>One part on its own is a smooth cone, and nobody believes a cone. The character comes from what we cut into it:</p>
+        <ul>
+          <li><strong>Domain warp</strong> pushes the ground sideways before it’s measured, so ridgelines bend instead of running straight.</li>
+          <li><strong>Spurs</strong> are long ridges that run down from the summit, like the fingers of a hand.</li>
+          <li><strong>Flutes</strong> are the narrow gullies between them, where rain would run off.</li>
+        </ul>
+        <figure class="bl-fig bl-fig-2">
+          <div><img src="assets/blog/peak-firstpost.svg" width="1200" height="900" alt="A single peak drawn in contour lines" loading="lazy"></div>
+          <div><img src="assets/blog/terrain-firstpost.svg" width="1200" height="900" alt="The same peak with spurs, flutes and the surrounding terrain" loading="lazy"></div>
+          <figcaption>Left: one part, warped. Right: the same peak with spurs, flutes and the valley around it.</figcaption>
+        </figure>
+        <p>We tuned all of it in a small internal tool, the Mountains lab, with brushes for adding height, erosion passes, and a button that sends a preset straight into the hero. Most of the work was saying no: a ridge that looked dramatic in the lab often looked busy behind a headline.</p>
+
+        <h2 id="contour-lines">From heightfield to contour lines</h2>
+        <p>The landform gives us a height at any point. To draw it, we sample those heights on a grid and run marching squares over it: for every cell, we check which corners are above a given height and draw the short segment where the line must cross. Stitch the segments together and you get one contour. Repeat for every height and you get the mountain.</p>
+        <pre class="bl-code"><code><span class="c">// one contour at height h, over a grid of samples</span>
+<span class="k">for</span> (<span class="k">let</span> y = <span class="n">0</span>; y &lt; rows; y++) <span class="k">for</span> (<span class="k">let</span> x = <span class="n">0</span>; x &lt; cols; x++) {
+  <span class="k">const</span> c = (z[y][x] &gt; h) | (z[y][x+<span class="n">1</span>] &gt; h) &lt;&lt; <span class="n">1</span>
+          | (z[y+<span class="n">1</span>][x+<span class="n">1</span>] &gt; h) &lt;&lt; <span class="n">2</span> | (z[y+<span class="n">1</span>][x] &gt; h) &lt;&lt; <span class="n">3</span>;
+  <span class="k">if</span> (c &amp;&amp; c !== <span class="n">15</span>) segments.push(...edge(c, x, y, h));
+}</code></pre>
+        <p>On screen the lines aren’t lines at all. Each one is a thin ribbon, a strip of triangles drawn by a shader, which lets us vary its width with the slope and fade it with distance without ever leaving the GPU.</p>
+
+        <h2 id="ink-light-and-air">Ink, light and air</h2>
+        <p>The mountain lives in two states. In the loader it’s lit: the ribbons catch a soft light from above, the way a relief map does. As you scroll, it morphs to ink, flat lines on black, so it can sit behind text without fighting it.</p>
+        <figure class="bl-fig">
+          <video class="bl-video" src="assets/video/summits.mp4" poster="assets/video/summit-0.jpg" width="696" height="428" muted loop playsinline preload="none" aria-label="The client summits drawn as lit contour ribbons, turning"></video>
+          <figcaption>The lit state: each ribbon catches light from above, like a relief map.</figcaption>
+        </figure>
+        <p>Two small effects do most of the work of making it feel real. Aerial fade dims the lines as they get further away, the way distant hills go pale. And a little pointer parallax moves the camera a few pixels with your cursor, which is enough to make the ground feel like it has depth.</p>
+
+        <h2 id="the-switchbacks">Walking the switchbacks</h2>
+        <p>The orange trail was the last piece, and the one we redrew the most. Our first version ran straight up the slope. It looked like a crack, not a path. Real trails on steep ground zig-zag: long traverses across the face, a tight turn, and back.</p>
+        <p>So the route is written around the summit. The distance from the top shrinks steadily as you climb, while the angle swings back and forth across the face. The swing is a triangle wave with rounded corners rather than a sine: a sine spends as long turning as walking and reads as a squiggle, while a rounded triangle gives straight legs and hairpin turns.</p>
+        <blockquote class="bl-quote">
+          <p>“A path that repeats perfectly reads as drawn, not walked.”</p>
+        </blockquote>
+        <p>That’s why the last trick is a little low-frequency wobble in both distance and angle, so no two legs of the trail are the same length. The trail draws on as you arrive and finishes on the studio’s mark at the summit.</p>
+
+        <h2 id="four-more-summits">Four more summits</h2>
+        <p>The client summits are part of the same heightfield as the hero, which is why the home page’s mountain and the Our Work section look like one range seen from two places. Each summit is coloured for its client, and when you reach it, its own trail climbs from the trailhead to the top.</p>
+        <figure class="bl-fig bl-fig-4">
+          <div style="--tag:#03FFDC"><img src="assets/blog/terrain-groww.svg" width="1200" height="900" alt="Groww summit in contour lines" loading="lazy"><span>Groww</span></div>
+          <div style="--tag:#EF4E37"><img src="assets/blog/terrain-firstpost.svg" width="1200" height="900" alt="Firstpost summit in contour lines" loading="lazy"><span>Firstpost</span></div>
+          <div style="--tag:#00B876"><img src="assets/blog/terrain-breathe-esg.svg" width="1200" height="900" alt="Breathe ESG summit in contour lines" loading="lazy"><span>Breathe ESG</span></div>
+          <div style="--tag:#9999FF"><img src="assets/blog/terrain-shyft.svg" width="1200" height="900" alt="Shyft and Mindhouse summit in contour lines" loading="lazy"><span>Shyft &amp; Mindhouse</span></div>
+          <figcaption>The four client summits, exported as clean SVG for the case-study thumbnails.</figcaption>
+        </figure>
+        <p>The same summits also leave the browser. For thumbnails and print, we project the heightfield from the hero’s camera, remove the lines hidden behind the slopes, and fit smooth curves through what’s left. Every illustration is the real mountain, not a trace of it.</p>
+
+        <h2 id="light-on-phones">Making it light on phones</h2>
+        <p>A live WebGL scene is a lot to ask of a phone on a train. On small screens we play a short, pre-rendered film of the same mountain instead, made from the scene itself. It looks identical, loads in a fraction of the time and leaves the battery alone.</p>
+        <figure class="bl-fig bl-fig-phone">
+          <div class="bl-phone">
+            <video class="bl-video" src="assets/video/hero-mountain-30.mp4" poster="assets/video/hero-mountain-30.jpg" width="720" height="1560" muted loop playsinline preload="none" aria-label="The phone version of the hero mountain"></video>
+          </div>
+          <figcaption>The phone hero: the same scene, recorded once and played as a film.</figcaption>
+        </figure>
+        <p>And if you’ve asked your device for reduced motion, the mountain stays still. The contours tell the story without the camera moving at all.</p>
+
+        <h2 id="what-we-learned">What we learned</h2>
+        <p>Build the system, not the picture. Because every mountain comes from one generator, a change to the landform shows up everywhere at once: the hero, the summits, the thumbnails and the share card. The hours we spent on the generator paid for every illustration we didn’t have to draw.</p>
+        <p>And restraint is a feature. Most of our best decisions were removals: fewer contours, a single accent colour, one trail instead of five. A mountain only needs one path to the top.</p>
+        <p class="bl-sign">— The Tibba team</p>
+
+        <section class="bl-more" aria-labelledby="bl-more-h">
+          <h2 id="bl-more-h" class="bl-more-h">See the mountain at work</h2>
+          <div class="bl-more-grid">
+            <a class="bl-card" href="groww-casestudy.html">
+              <img src="assets/og/card-groww.png" width="1200" height="630" alt="" loading="lazy">
+              <span class="bl-card-k">Case study</span>
+              <span class="bl-card-t">Groww</span>
+            </a>
+            <a class="bl-card" href="firstpost-casestudy.html">
+              <img src="assets/og/card-firstpost.png" width="1200" height="630" alt="" loading="lazy">
+              <span class="bl-card-k">Case study</span>
+              <span class="bl-card-t">Firstpost</span>
+            </a>
+          </div>
+        </section>
+      </article>
+    </div>
+  </div>
+</main>
+
+<div id="contact"></div>
+<iframe class="bl-foot" id="footer" src="footer-dusk-grid.html?embed=1&v=4" title="Contact" loading="lazy"></iframe>
+<script>
+  /* phones: the site footer, the same on every page (assets/site-footer.js),
+     in place of the framed one — swapped before the frame ever loads */
+  if (matchMedia('(max-width: 760px)').matches) {
+    const old = document.getElementById('footer'), foot = document.createElement('footer');
+    foot.id = 'footer'; foot.setAttribute('data-site-footer', ''); old.replaceWith(foot);
+    document.head.insertAdjacentHTML('beforeend', '<link rel="stylesheet" href="assets/site-footer.css?v=11">');
+    import('./assets/site-footer.js?v=7').then(m => m.mountSiteFooter(foot));
+  }
+</script>
+<script type="module">
+  import { mountSiteNav } from './assets/site-nav.js?v=13';
+  mountSiteNav(document.getElementById('ca-header'));
+</script>
+</body>
+</html>
