@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our services — the tools in 3D — Tibba Design Studio</title>
+<meta name="description" content="Our services — the tools in 3D, a section of the Tibba Design Studio website.">
+<meta name="robots" content="noindex, indexifembedded">
+<link rel="stylesheet" href="assets/type.css?v=3">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/workbench.css">
+<script src="assets/manifest.js"></script>
+<script src="assets/whats-new.js"></script>
+<script src="assets/workbench.js" defer></script>
+<style>
+/* ══════════════════════════════════════════════════════════════════════════
+   Tools — the climbing kit as topographic wireframes, in 3D (Nov 2026)
+   ─────────────────────────────────────────────────────────────────────────
+   The bags' system (misc-bags.html), unchanged, for the gear that stands for
+   each service: the same contour shader (rings round each part's centre,
+   warped by drifting noise, flowing outward), the same inverted-hull
+   outlines, the same orange accent, the same flat near-black fill.
+
+     01 Hatchet   a forged head — the flared blade with its long beard, the
+                  eye, a squared poll — on a curved, oval handle that swells
+                  to a hooked knob; an orange collar under the head with its
+                  keeper loop; a cord lanyard through the knob
+     02 Ascender  a hand ascender: the long frame with its hand opening and
+                  clip-in holes, the finger-grip handle, the raised housing and
+                  rope channel, the spring and the cam, drawn in orange
+
+   ?embed (and &tool=N) makes it a clear block for another page, as the bags.
+   Drag to turn it; Reset returns to the reference angle.
+   ═════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: #0b0b0c; overflow: hidden; }
+body { color: #E9ECF2; font-family: 'Vend Sans', system-ui, sans-serif; }
+#c { position: fixed; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
+#c:active { cursor: grabbing; }
+.switch { position: fixed; left: 18px; bottom: 18px; z-index: 5; display: flex; gap: 2px; padding: 4px; background: rgba(20,20,22,.82); border: 1px solid rgba(233,236,242,.12); }
+.switch button { appearance: none; border: 0; background: none; cursor: pointer; display: flex; align-items: baseline; gap: 8px; padding: 10px 14px 11px; color: rgba(233,236,242,.55);
+  font: 400 12px/1 'Vend Sans', system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; position: relative; transition: color .25s linear, background-color .25s linear; }
+.switch button b { font-weight: 400; font-size: 10px; color: rgba(233,236,242,.35); transition: color .25s linear; }
+.switch button::after { content: ''; position: absolute; left: 14px; right: 14px; bottom: 4px; height: 1px; background: var(--accent, #C9124B); transform: scaleX(0); transform-origin: left; transition: transform .45s cubic-bezier(.22,1,.36,1); }
+.switch button:hover { color: #fff; }
+.switch button[aria-pressed="true"] { color: #fff; background: rgba(255,255,255,.05); }
+.switch button[aria-pressed="true"] b { color: var(--accent, #C9124B); }
+.switch button[aria-pressed="true"]::after { transform: scaleX(1); }
+@media (max-width: 640px) { .switch { left: 12px; right: 12px; bottom: 12px; } .switch button { flex: 1; justify-content: center; padding: 10px 6px 11px; font-size: 10.5px; } .hint { display: none; } }
+.hint { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase;
+  color: rgba(233,236,242,.4); pointer-events: none; }
+/* ?embed — a block inside another page (Services — Gear bags): no switcher,
+   no hint, no panel, a clear background; the host page picks the bag */
+.bags-embed, .bags-embed body { background: transparent; }
+.bags-embed .hint, .bags-embed .switch, .bags-embed #tune { display: none !important; }
+</style>
+<link rel="stylesheet" href="assets/tune.css">
+<style data-sandbox>#wb-nav, #wb-dock, .wb-new, .wb-new-dot { display: none !important; }
+html[data-wb-dock] body { padding-right: 0 !important; }</style>
+<script>window.WB_RELEASE = true;</script>
+</head>
+<body>
+<canvas id="c" aria-label="Climbing tools drawn in topographic contour lines, in 3D"></canvas>
+<p class="hint">Drag to turn · scroll to zoom</p>
+<nav class="switch" id="switch" aria-label="Tools"></nav>
+
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.165.0/build/three.module.min.js","three/addons/":"https://unpkg.com/three@0.165.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
+import { applyBaked, bakeControls } from './assets/bake.js';
+
+/* ── every tunable ──────────────────────────────────────────────────────── */
+const CONFIG = {
+  anim: { play: true, speed: 0.35, morph: 0.25 },
+  /* fewer, quieter rings than before (11.5 / 0.95), no dashed guides, the site's accent */
+  lines: { density: 7.5, width: 0.6, warp: 0.22, opacity: 0.6, colour: '#F2F3F6' },   /* flat (Nov 2026): a finer, quieter ring, as the reference */
+  model: { fill: '#0E0E10', shade: 0, rim: 0,   /* flat (Nov 2026): no side shading, no rim light — plain colours, as the reference */
+           outline: 1.6, accent: '#E3582C', logo: true, guides: false },   /* the straps orange, as the reference (Nov 2026) */
+  view: { autoRotate: false, rotateSpeed: 0.6, bag: 0 },
+};
+const KEY = 'tibba.bake.misc-tools';
+applyBaked(KEY, CONFIG);
+const C = CONFIG;
+const EMBED = /[?&]embed\b/.test(location.search);
+if (EMBED) {
+  document.documentElement.classList.add('bags-embed');
+  const b = /[?&](?:tool|bag)=(\d)/.exec(location.search); if (b) C.view.bag = +b[1];
+  if (/[?&]kit=mvp\b/.test(location.search)) C.view.bag = 2;
+}
+const LITE = matchMedia('(max-width: 760px), (pointer: coarse)').matches;
+
+/* ── renderer, camera, controls ─────────────────────────────────────────── */
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: EMBED, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, LITE ? 1.5 : 2));
+renderer.setClearColor(0x0b0b0c, EMBED ? 0 : 1);
+const scene = new THREE.Scene();
+let VIEW_H = 10;                                     // world units across the frame's height at zoom 1 (more on tall screens, so the pack fits the width)
+const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 200);
+/* the reference angle: front-left, from above — the front pocket faces
+   right, the harness and hip belt show on the left */
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.dampingFactor = 0.08;
+controls.enablePan = false; controls.minZoom = 0.5; controls.maxZoom = 4;
+/* embedded, the wheel scrolls the host page; on touch screens so does a drag */
+if (EMBED) { controls.enableZoom = false; if (LITE) { controls.enableRotate = false; canvas.style.touchAction = 'pan-y'; canvas.style.cursor = 'default'; } }
+controls.update();
+
+function resize() {
+  const w = innerWidth, h = innerHeight, a = w / h;
+  VIEW_H = Math.max(10, 7.4 / a);
+  renderer.setSize(w, h, false);
+  camera.left = -VIEW_H * a / 2; camera.right = VIEW_H * a / 2; camera.top = VIEW_H / 2; camera.bottom = -VIEW_H / 2;
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize); resize();
+
+/* ── shared uniforms ────────────────────────────────────────────────────── */
+const G = {
+  uPhase: { value: 0 }, uMorphT: { value: 0 },
+  uDensity: { value: C.lines.density }, uWidth: { value: C.lines.width }, uWarp: { value: C.lines.warp },
+  uLineOp: { value: C.lines.opacity }, uLineCol: { value: new THREE.Color(C.lines.colour) },
+  uFill: { value: new THREE.Color(C.model.fill) }, uShade: { value: C.model.shade }, uRim: { value: C.model.rim },
+  uOutline: { value: 0.02 }, uOutlineCol: { value: new THREE.Color(C.lines.colour) },
+};
+
+const VS = `
+  attribute vec3 aLocal;
+  varying vec3 vLocal, vN, vV;
+  void main(){
+    vLocal = aLocal;
+    vec4 mv = modelViewMatrix * vec4(position, 1.0);
+    vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz);
+    gl_Position = projectionMatrix * mv;
+  }`;
+const FS = `
+  precision highp float;
+  uniform float uPhase, uMorphT, uDensity, uWidth, uWarp, uLineOp, uShade, uRim, uLines, uSeed, uSolid;
+  uniform vec3 uLineCol, uFill, uBase, uK, uC;
+  varying vec3 vLocal, vN, vV;
+  float hash(vec3 p){ p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
+  float noise(vec3 x){
+    vec3 i = floor(x), f = fract(x); f = f * f * (3.0 - 2.0 * f);
+    return mix(mix(mix(hash(i), hash(i + vec3(1,0,0)), f.x), mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x), f.y),
+               mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x), mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y), f.z);
+  }
+  void main(){
+    vec3 N = normalize(vN), V = normalize(vV);
+    float facing = clamp(dot(N, V), 0.0, 1.0);
+    float ndl = dot(N, normalize(vec3(-0.35, 0.75, 0.55)));
+    vec3 base = mix(uFill, uBase, uSolid);
+    vec3 col = base * (1.0 - uShade + uShade * (0.55 + 0.45 * ndl));
+    /* the contour field: rings round the panel's centre, in world-scaled
+       local space, warped by drifting noise so they wrap the form */
+    vec3 q = vLocal * uK - uC;
+    vec3 w = vLocal * 0.55 + vec3(uSeed, uSeed * 0.7, uMorphT * 0.5);
+    float f = length(q) + uWarp * (noise(w) * 1.6 + noise(w * 2.1 + 7.3) * 0.6 - 1.1);
+    float x = f * uDensity - uPhase;
+    float fw = max(fwidth(x), 1e-4);
+    float dd = min(fract(x), 1.0 - fract(x));
+    float line = 1.0 - smoothstep(uWidth * fw * 0.5, uWidth * fw * 0.5 + fw * 0.8, dd);
+    line *= 1.0 - smoothstep(0.2, 0.42, fw);            // no moire where the rings crowd
+    line *= uLines * uLineOp;   /* flat (Nov 2026): the rings no longer fade toward the edges */
+    col = mix(col, uLineCol, line);
+    col += uLineCol * pow(1.0 - facing, 3.0) * uRim * (1.0 - uSolid);
+    gl_FragColor = vec4(col, 1.0);
+    #include <colorspace_fragment>
+  }`;
+const HULL_VS = `uniform float uOutline; void main(){ gl_Position = projectionMatrix * modelViewMatrix * vec4(position + normal * uOutline, 1.0); }`;
+const HULL_FS = `uniform vec3 uOutlineCol;
+void main(){
+  gl_FragColor = vec4(uOutlineCol, 1.0);
+  #include <colorspace_fragment>
+}`;
+const hullMat = new THREE.ShaderMaterial({ uniforms: { uOutline: G.uOutline, uOutlineCol: G.uOutlineCol }, vertexShader: HULL_VS, fragmentShader: HULL_FS, side: THREE.BackSide });
+/* an orange outline, for a part drawn as an orange line (the hatchet's collar) */
+const accentHull = () => new THREE.ShaderMaterial({ uniforms: { uOutline: G.uOutline, uOutlineCol: accent }, vertexShader: HULL_VS, fragmentShader: HULL_FS, side: THREE.BackSide });
+
+const accent = { value: new THREE.Color(C.model.accent) };
+/* a bag can have its own body tone (BAG_FILL, set while it is built) */
+let BAG_FILL = null;
+function surface({ k = [1, 1, 1], c = [0, 0, 0], lines = 1, seed = 0, solid = 0, base = null } = {}) {
+  return new THREE.ShaderMaterial({
+    uniforms: { ...G, ...(BAG_FILL ? { uFill: { value: new THREE.Color(BAG_FILL) } } : {}), uK: { value: new THREE.Vector3(...k) }, uC: { value: new THREE.Vector3(...c) }, uLines: { value: lines },
+      uSeed: { value: seed }, uSolid: { value: solid }, uBase: base || { value: new THREE.Color(0x141416) } },
+    vertexShader: VS, fragmentShader: FS,
+  });
+}
+
+/* ── geometry ───────────────────────────────────────────────────────────── */
+/* a rounded block, its corners turned to radius r; aLocal is the point's
+   place in the unrounded block, scaled to world units, for the contour field */
+function block(w, h, d, r, seg = [16, 24, 12], { taper = 0, deform = null } = {}) {
+  let g = new THREE.BoxGeometry(w, h, d, ...seg);
+  g.deleteAttribute('normal'); g.deleteAttribute('uv');
+  g = mergeVertices(g);
+  const P = g.attributes.position, L = new Float32Array(P.count * 3);
+  const hx = w / 2, hy = h / 2, hz = d / 2, v = new THREE.Vector3(), inner = new THREE.Vector3();
+  for (let i = 0; i < P.count; i++) {
+    v.fromBufferAttribute(P, i);
+    L[i * 3] = v.x; L[i * 3 + 1] = v.y; L[i * 3 + 2] = v.z;
+    inner.set(THREE.MathUtils.clamp(v.x, -hx + r, hx - r), THREE.MathUtils.clamp(v.y, -hy + r, hy - r), THREE.MathUtils.clamp(v.z, -hz + r, hz - r));
+    const dir = v.clone().sub(inner), len = dir.length();
+    if (len > 1e-6) v.copy(inner).addScaledVector(dir, r / len);
+    if (taper) { const s = 1 - taper * (v.y / hy); v.x *= s; v.z *= 1 - taper * 0.4 * (v.y / hy); }
+    if (deform) deform(v, L[i * 3] / hx, L[i * 3 + 1] / hy, L[i * 3 + 2] / hz);
+    P.setXYZ(i, v.x, v.y, v.z);
+  }
+  g.setAttribute('aLocal', new THREE.BufferAttribute(L, 3));
+  g.computeVertexNormals();
+  return g;
+}
+/* a block bent along a curve: its length follows the curve, its width
+   along `side`, its thickness along the curve's normal */
+function strap(points, width, thick, side, { r = 0.03, seg = 48, closed = false } = {}) {
+  const curve = new THREE.CatmullRomCurve3(points.map(p => new THREE.Vector3(...p)), closed, 'centripetal');
+  const len = curve.getLength();
+  let g = new THREE.BoxGeometry(width, len, thick, 2, seg, 1);
+  g.deleteAttribute('normal'); g.deleteAttribute('uv');
+  g = mergeVertices(g);
+  const P = g.attributes.position, L = new Float32Array(P.count * 3);
+  const b0 = new THREE.Vector3(...side).normalize(), v = new THREE.Vector3(), inner = new THREE.Vector3();
+  const hx = width / 2, hy = len / 2, hz = thick / 2;
+  for (let i = 0; i < P.count; i++) {
+    v.fromBufferAttribute(P, i);
+    L[i * 3] = v.x; L[i * 3 + 1] = v.y; L[i * 3 + 2] = v.z;
+    inner.set(THREE.MathUtils.clamp(v.x, -hx + r, hx - r), v.y, THREE.MathUtils.clamp(v.z, -hz + r, hz - r));
+    const dir = v.clone().sub(inner), dl = dir.length();
+    if (dl > 1e-6) v.copy(inner).addScaledVector(dir, Math.min(r, hz) / dl);
+    const u = THREE.MathUtils.clamp(v.y / len + 0.5, 0, 1);
+    const p = curve.getPointAt(u), t = curve.getTangentAt(u);
+    const n = new THREE.Vector3().crossVectors(b0, t).normalize(), b = new THREE.Vector3().crossVectors(t, n).normalize();   // right-handed, so the faces wind outward
+    P.setXYZ(i, p.x + b.x * v.x + n.x * v.z, p.y + b.y * v.x + n.y * v.z, p.z + b.z * v.x + n.z * v.z);
+  }
+  g.setAttribute('aLocal', new THREE.BufferAttribute(L, 3));
+  g.computeVertexNormals();
+  return { g, curve, len };
+}
+
+/* ── the bags ────────────────────────────────────────────────────────────
+   Three, each built into its own group: its parts (surface + outline hull),
+   the Tibba mark centred on its front panel and its dimension guides. Each
+   sits in a pivot at its own centre, so the switch can scale it in place. */
+let bag = null;                                     // the group parts are being added to
+const hulls = [];
+/* a part: its surface and its outline hull, in one group to place */
+function add(geo, mat, name, outline = true, hull = hullMat) {
+  const g = new THREE.Group(); g.name = name; bag.add(g);
+  g.add(new THREE.Mesh(geo, mat));
+  if (outline) { const h = new THREE.Mesh(geo, hull); g.add(h); hulls.push(h); }
+  return g;
+}
+const solidAccent = () => surface({ lines: 0, solid: 1, base: accent });
+const solidDark = () => surface({ lines: 0, solid: 1, base: { value: new THREE.Color(0x111113) } });
+const pillow = (amt) => (v, x, y, z) => { const k = (1 - x * x) * (1 - y * y * 0.6); v.z += Math.sign(z) * Math.max(0, Math.abs(z) - 0.6) * amt * k; };
+/* a small part laid along a curve at u: its length along the tangent */
+function along(curve, u, geo, mat, name, lift = 0, up = [0, 1, 0]) {
+  const p = curve.getPointAt(u), t = curve.getTangentAt(u);
+  const side = new THREE.Vector3().crossVectors(t, new THREE.Vector3(...up)).normalize(), n = new THREE.Vector3().crossVectors(side, t).normalize();
+  const m = add(geo, mat, name);
+  m.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(side, t, n));
+  m.position.copy(p).addScaledVector(n, lift);
+  return m;
+}
+
+/* the Tibba mark — the mountain icon only, white, from the logo's own path
+   (x 8–39, y 8–28): Nov 2026, the bags carry the icon, not the wordmark */
+const LOGO_W = 31.04, LOGO_H = 20;
+const markTex = (() => {
+  const cv = document.createElement('canvas'); cv.width = 776; cv.height = 500;
+  const g = cv.getContext('2d'); g.scale(cv.width / LOGO_W, cv.height / LOGO_H); g.translate(-8, -8);
+  g.fillStyle = '#fff';
+  ['M39.0383 28H8L28.2219 8L39.0383 28ZM15.0685 24.6037L26.2673 20.151L34.3324 24.5768L27.5681 12.0807L15.0685 24.6037Z'].forEach(d => g.fill(new Path2D(d), 'evenodd'));
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+})();
+const markMat = new THREE.MeshBasicMaterial({ map: markTex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
+const marks = [];
+function mark(pos, w, rotY = 0) {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, w * LOGO_H / LOGO_W), markMat);
+  m.position.set(...pos); m.rotation.y = rotY; bag.add(m); marks.push(m); return m;
+}
+
+/* dashed dimension guides round a bag's bounds, as in the drawings */
+function guidesFor(box) {
+  const gr = new THREE.Group();
+  const m = new THREE.LineDashedMaterial({ color: 0x5c5e66, dashSize: 0.14, gapSize: 0.1, transparent: true, opacity: 0.85 });
+  const solid = new THREE.LineBasicMaterial({ color: 0x7b7d86 });
+  const seg = (a, b) => { const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...a), new THREE.Vector3(...b)]); const l = new THREE.Line(g, m); l.computeLineDistances(); gr.add(l); };
+  const tick = (p, d) => { const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...p).addScaledVector(new THREE.Vector3(...d), -0.18), new THREE.Vector3(...p).addScaledVector(new THREE.Vector3(...d), 0.18)]); gr.add(new THREE.Line(g, solid)); };
+  const X0 = box.min.x - 0.4, X1 = box.max.x + 0.4, Z0 = box.min.z - 0.3, Z1 = box.max.z + 0.3, Y0 = box.min.y - 0.05, Y1 = box.max.y + 0.15, YM = (Y0 + Y1) / 2;
+  seg([X0, Y0, Z1], [X1, Y0, Z1]); seg([X1, Y0, Z1], [X1, Y0, Z0]); seg([X0, Y0, Z1], [X0, Y0, Z0]);
+  seg([X1 + 0.5, Y0, Z1], [X1 + 0.5, Y1, Z1]); tick([X1 + 0.5, Y0, Z1], [1, 0, 0]); tick([X1 + 0.5, Y1, Z1], [1, 0, 0]); tick([X1 + 0.5, YM, Z1], [1, 0, 0]);
+  seg([X0 - 0.4, Y0, Z0], [X0 - 0.4, Y1 - 0.4, Z0]); tick([X0 - 0.4, Y1 - 0.4, Z0], [1, 0, 0]);
+  seg([X0, Y1, Z0], [X1, Y1, Z0]); tick([X0, Y1, Z0], [0, 1, 0]); tick([X1, Y1, Z0], [0, 1, 0]);
+  seg([X0, Y0 - 0.02, Z1 + 0.5], [X1, Y0 - 0.02, Z1 + 0.5]); tick([X0, Y0, Z1 + 0.5], [0, 0, 1]); tick([X1, Y0, Z1 + 0.5], [0, 0, 1]);
+  return gr;
+}
+
+/* builds one bag into a pivot; home is its reference view */
+const BAGS = [];
+function makeBag(name, build, home) {
+  const pivot = new THREE.Group(), inner = new THREE.Group();
+  pivot.add(inner); scene.add(pivot); bag = inner;
+  build();
+  const box = new THREE.Box3().setFromObject(inner), c = box.getCenter(new THREE.Vector3());
+  const g = guidesFor(box); inner.add(g);
+  inner.position.copy(c).negate(); pivot.position.copy(c);
+  BAGS.push({ name, pivot, guides: g, home: { dir: new THREE.Vector3(...home.dir).normalize(), target: c.clone().add(new THREE.Vector3(...(home.shift || [0, 0, 0]))), zoom: home.zoom } });
+  pivot.visible = false;
+}
+
+/* a tube swept along a curve, its cross-section an ellipse that can change
+   along the way: rx(u) across (along `side`), rz(u) through. aLocal is the
+   point on the straightened tube, in world units, for the contour field */
+function sweep(points, rx, rz, side, { seg = 96, radial = 28 } = {}) {
+  const curve = new THREE.CatmullRomCurve3(points.map(p => new THREE.Vector3(...p)), false, 'centripetal');
+  const len = curve.getLength();
+  let g = new THREE.CylinderGeometry(1, 1, len, radial, seg, false);
+  g.deleteAttribute('normal'); g.deleteAttribute('uv');
+  g = mergeVertices(g);
+  const P = g.attributes.position, L = new Float32Array(P.count * 3);
+  const b0 = new THREE.Vector3(...side).normalize(), v = new THREE.Vector3();
+  for (let i = 0; i < P.count; i++) {
+    v.fromBufferAttribute(P, i);
+    const u = THREE.MathUtils.clamp(v.y / len + 0.5, 0, 1);
+    const ax = rx(u), az = rz(u);
+    L[i * 3] = v.x * ax; L[i * 3 + 1] = v.y; L[i * 3 + 2] = v.z * az;
+    const p = curve.getPointAt(u), tg = curve.getTangentAt(u);
+    const n = new THREE.Vector3().crossVectors(b0, tg).normalize(), b = new THREE.Vector3().crossVectors(tg, n).normalize();
+    P.setXYZ(i, p.x + b.x * v.x * ax + n.x * v.z * az, p.y + b.y * v.x * ax + n.y * v.z * az, p.z + b.z * v.x * ax + n.z * v.z * az);
+  }
+  g.setAttribute('aLocal', new THREE.BufferAttribute(L, 3));
+  g.computeVertexNormals();
+  return { g, curve, len };
+}
+const smooth = (a, b, x) => { const t = THREE.MathUtils.clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+/* round off a tube's end: the radius falls to nothing over the last `k` of its length */
+const dome = (u, k = 0.025) => u > 1 - k ? Math.sqrt(Math.max(0.0001, 1 - Math.pow((u - (1 - k)) / k, 2))) : 1;
+
+/* ── 1 · the hatchet (Nov 2026, after the reference drawing) ────────────
+   Built lying flat: the handle runs along +x from the head, curving a
+   little toward −y as it nears the knob; the blade reaches toward +y, the
+   poll toward −y; the blade's faces look along ±z. */
+function buildHatchet() {
+  bag.rotation.x = -Math.PI / 2;                  // lying on the ground, faces up: seen in isometric, the handle runs down to the right, the blade to the left
+  /* the handle: oval, slimmer through the neck under the head, swelling
+     to the grip and a hooked knob at the end */
+  const hx = u => 0.27 + 0.05 * smooth(0.15, 0.55, u) + 0.07 * smooth(0.8, 0.96, u);
+  const handle = sweep([[-0.4, 0, 0], [1.6, -0.02, 0], [3.6, -0.17, 0], [5.4, -0.45, 0], [6.5, -0.78, 0], [7.0, -1.02, 0]],
+    u => (hx(u) + 0.1 * smooth(0.9, 0.99, u)) * dome(u), u => (hx(u) * 0.8) * dome(u), [0, 1, 0], { seg: 140 });
+  add(handle.g, surface({ k: [2.4, 0.62, 2.4], c: [0.55, 0.2, 0.35], seed: 2.4 }), 'handle');
+
+  /* the head, forged in one: the blade reaching toward −y (the side the
+     handle bends to), the eye round the handle's top, the poll toward +y.
+     Each is made pointing +y and turned half round x, so its faces keep
+     their winding. */
+  const flip = g => g.rotateX(Math.PI);
+  const BL = 3.1, BY = 0.62 + BL / 2;              // the blade's length and where its middle sits
+  const flare = (v, x, t) => { v.x = v.x * (1 + 1.25 * Math.pow(t, 1.5)) + 0.45 * Math.pow(t, 1.7); };
+  add(flip(block(1.45, BL, 0.56, 0.06, [28, 34, 6], { deform: (v, x, y, z) => {
+      const t = (y + 1) / 2;                                     // 0 at the eye, 1 at the edge
+      flare(v, x, t);
+      v.z *= Math.max(0.14, 1 - 0.84 * Math.pow(t, 1.1));
+      v.y += 0.3 * (1 - x * x) * Math.pow(Math.max(0, y), 6);     // the edge, convex
+    } }).translate(0.05, BY, 0)),
+    surface({ k: [0.95, 0.85, 0.6], c: [0.55, 0.0, 0.2], seed: 1.7 }), 'blade');
+  /* the bevel: a band along the edge, its lines running with the edge */
+  add(flip(block(1.45, 0.42, 0.12, 0.02, [28, 4, 2], { deform: (v, x, y, z) => {
+      const t = 1 - 0.135 * (1 - y) / 2;
+      flare(v, x, t);
+      v.y += 0.3 * (1 - x * x) * (y > 0 ? 1 : 0.55);
+      v.z *= 1.1 - 0.7 * (y + 1) / 2;
+    } }).translate(0.05, BY + BL / 2 - 0.2, 0)),
+    surface({ k: [0.06, 2.6, 0.06], c: [0, 0.3, 0], seed: 3.3 }), 'bevel');
+  add(block(1.25, 1.25, 0.82, 0.26, [12, 12, 8], { deform: (v, x, y, z) => { v.z *= 1 - 0.16 * (1 - y * y); } }).translate(0.05, 0, 0),
+    surface({ k: [1.3, 1.3, 0.9], c: [0.15, 0.1, 0.35], seed: 5.2 }), 'eye');
+  add(block(1.05, 1.0, 0.86, 0.3, [12, 12, 8], { deform: (v, x, y, z) => { if (y > 0) { v.x *= 1 + 0.07 * y; v.z *= 1 + 0.06 * y; } else { v.x *= 1 + 0.12 * y; v.z *= 1 + 0.1 * y; } } }).translate(0.05, 1.05, 0),
+    surface({ k: [1.2, 1.2, 1.2], c: [0, 0.25, 0.4], seed: 8.1 }), 'poll');
+
+  /* the collar under the head, drawn in orange, and its keeper loop */
+  const ring = [];
+  for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; ring.push([1.08, Math.cos(a) * 0.38, Math.sin(a) * 0.31]); }
+  add(strap(ring, 0.34, 0.06, [1, 0, 0], { closed: true, seg: 72, r: 0.02 }).g, solidDark(), 'collar', true, accentHull());
+  add(strap([[1.08, 0.3, 0.24], [1.12, 0.6, 0.52], [1.12, 0.9, 0.44], [1.1, 0.76, 0.12]], 0.22, 0.05, [1, 0, 0], { seg: 30, r: 0.02 }).g, solidDark(), 'keeper', true, accentHull());
+
+  /* the lanyard: through the knob, a loop lying on the ground beside it */
+  const cord = sweep([[6.85, -0.97, 0.12], [7.15, -1.27, 0.05], [7.05, -1.87, -0.1], [6.25, -2.42, -0.2], [5.05, -2.47, -0.2], [4.5, -2.12, -0.15],
+                      [4.9, -1.85, -0.1], [6.0, -1.79, -0.05], [6.77, -1.52, 0.0], [7.0, -1.22, 0.06]],
+    () => 0.045, () => 0.045, [0, 0, 1], { seg: 140, radial: 10 });
+  add(cord.g, solidDark(), 'lanyard');
+}
+makeBag('Hatchet', buildHatchet, { dir: [1, 0.95, 1], zoom: 1.05 });
+
+/* a flat part cut from a shape (holes and all) and given thickness, its
+   edges rounded; aLocal is its own position, for the contour field */
+function plate(shape, depth, bevel = 0.08, { curve = 10 } = {}) {
+  /* the extrusion's own normals: flat across the faces and the sides, turning
+     through the bevel — merged and averaged instead, the long flat sides'
+     normals tip toward the faces and the outline hull pokes through */
+  const g = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: true, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 4, curveSegments: curve, steps: 1 });
+  g.deleteAttribute('uv');
+  g.translate(0, 0, -depth / 2);
+  g.setAttribute('aLocal', g.attributes.position.clone());
+  return g;
+}
+/* a hole, drawn the way the drawing draws one: a rim and a shadowed bore */
+function hole(x, y, z, r, mat = solidDark()) {
+  const g = new THREE.CylinderGeometry(r, r, 0.04, 36, 1).rotateX(Math.PI / 2);
+  g.deleteAttribute('uv'); g.setAttribute('aLocal', g.attributes.position.clone());
+  add(g, mat, 'hole').position.set(x, y, z);
+}
+
+/* ── 2 · the hand ascender (Nov 2026, after the reference drawing) ──────
+   Lying flat like the hatchet, so the same isometric view reads it: the
+   frame runs along +x from the cam housing (top left) to its rounded foot
+   (bottom right); the handle along the +y edge, finger grips facing the
+   big opening; the rope channel and the spring-loaded cam, in orange, in
+   the housing; the clip-in holes at both ends. */
+function buildAscender() {
+  bag.rotation.x = -Math.PI / 2;
+  const T = 0.32;                                  // the frame's thickness
+  /* the frame: a long plate, squared at the housing end, round at the foot,
+     with the big opening for the hand */
+  const s = new THREE.Shape();
+  s.moveTo(0, -1.25); s.lineTo(5.6, -1.25);
+  s.absarc(5.6, 0.05, 1.3, -Math.PI / 2, Math.PI / 2, false);
+  s.lineTo(0.4, 1.35); s.quadraticCurveTo(0, 1.35, 0, 0.95); s.lineTo(0, -0.85); s.quadraticCurveTo(0, -1.25, 0.4, -1.25);
+  const op = new THREE.Path();
+  op.moveTo(2.75, -0.7); op.lineTo(4.95, -0.7); op.absarc(4.95, -0.04, 0.66, -Math.PI / 2, Math.PI / 2, false);
+  op.lineTo(2.75, 0.62); op.absarc(2.75, -0.04, 0.66, Math.PI / 2, Math.PI * 1.5, false);
+  s.holes.push(op);
+  for (const [hx, hy, hr] of [[0.62, -0.62, 0.3], [6.05, -0.72, 0.3], [6.55, -0.1, 0.22]]) { const h = new THREE.Path(); h.absarc(hx, hy, hr, 0, Math.PI * 2, true); s.holes.push(h); }
+  add(plate(s, T, 0.07, { curve: 16 }), surface({ k: [0.55, 0.8, 1], c: [1.6, -0.7, 0], seed: 4.4 }), 'frame');
+  /* the holes' rims, drawn as the drawing draws them: a white ring at the top of each bore */
+  for (const [hx, hy, hr] of [[0.62, -0.62, 0.3], [6.05, -0.72, 0.3], [6.55, -0.1, 0.22]]) {
+    const r = new THREE.TorusGeometry(hr + 0.015, 0.018, 6, 48); r.deleteAttribute('uv'); r.setAttribute('aLocal', r.attributes.position.clone());
+    add(r, solidDark(), 'rim').position.set(hx, hy, T / 2 + 0.07);
+  }
+  /* the slot down the long edge */
+  add(block(2.2, 0.12, 0.05, 0.05, [8, 1, 1]).translate(3.85, -0.98, T / 2 + 0.07), solidDark(), 'slot');
+
+  /* the handle: a thick grip along the +y edge, bumps for four fingers on
+     its inner face, rolling down into the foot */
+  const bump = u => 1 + 0.16 * Math.max(0, Math.sin((u - 0.12) / 0.6 * Math.PI * 4)) * smooth(0.08, 0.16, u) * (1 - smooth(0.66, 0.74, u));
+  const grip = sweep([[2.45, 1.0, 0.16], [3.4, 1.04, 0.36], [4.6, 1.05, 0.4], [5.6, 0.96, 0.34], [6.3, 0.62, 0.22], [6.5, 0.3, 0.14]],
+    u => 0.29 * bump(u) * (1 - 0.3 * smooth(0.8, 1, u)), u => 0.36 * (1 - 0.4 * smooth(0.78, 1, u)), [0, 0, 1], { seg: 120 });
+  add(grip.g, surface({ k: [1.6, 0.9, 1.6], c: [0.3, 0.6, 0.4], seed: 6.1 }), 'handle');
+  add(block(1.5, 0.09, 0.05, 0.045, [6, 1, 1]).rotateZ(-0.04).translate(4.3, 1.08, 0.77), solidDark(), 'handle-slot');
+
+  /* the housing: two walls over the top end with the rope channel between,
+     open above so the cam and its spring show; the outer wall's top dips
+     between two shoulders */
+  add(block(2.35, 0.55, 1.05, 0.18, [16, 6, 8], { deform: (v, x, y, z) => { if (z > 0) v.z -= 0.24 * Math.exp(-Math.pow((x - 0.1) * 2.2, 2)); } }).translate(1.2, 0.98, 0.62),
+    surface({ k: [0.9, 0.9, 0.7], c: [0.3, 0.35, 0.5], seed: 2.9 }), 'housing');
+  add(block(1.4, 0.42, 0.62, 0.15, [10, 4, 6]).translate(1.72, -0.9, 0.42), surface({ k: [0.7, 0.9, 0.8], c: [0.2, 0, 0.2], seed: 7.4 }), 'lip');
+  hole(1.45, 0.98, 1.14, 0.15);
+
+  /* the spring that loads the cam: a coil along x */
+  const coil = []; for (let i = 0; i <= 120; i++) { const a = i / 120 * Math.PI * 2 * 5; coil.push([0.75 + i / 120 * 0.8, 0.12 + Math.cos(a) * 0.14, 0.5 + Math.sin(a) * 0.14]); }
+  add(sweep(coil, () => 0.028, () => 0.028, [0, 0, 1], { seg: 300, radial: 8 }).g, solidDark(), 'spring');
+  /* the cam, in orange: a toothed wedge and its thumb catch */
+  const cam = new THREE.Shape();
+  cam.moveTo(0, 0); cam.quadraticCurveTo(0.35, 0.55, 0.15, 0.95); cam.quadraticCurveTo(0.45, 1.05, 0.62, 0.7); cam.quadraticCurveTo(0.7, 0.2, 0.32, -0.15); cam.quadraticCurveTo(0.1, -0.2, 0, 0);
+  const camG = plate(cam, 0.22, 0.03, { curve: 12 });
+  const camM = add(camG, solidDark(), 'cam', true, accentHull());
+  camM.rotation.set(Math.PI / 2, 0, 0.3); camM.position.set(1.62, 0.18, 0.2);
+  add(block(0.34, 0.22, 0.12, 0.04, [3, 2, 1]).translate(1.95, 0.18, 1.18), solidDark(), 'cam-catch', true, accentHull());
+}
+makeBag('Ascender', buildAscender, { dir: [1, 0.95, 1], zoom: 1.15 });
+
+/* a coiled rope lying on the ground (in the lying frame: z up), its loops
+   bound by two orange wraps, its end trailing out */
+function buildRope() {
+  const pts = [], TURNS = 6.2, N = 520;
+  for (let i = 0; i <= N; i++) {
+    const s = i / N, a = s * TURNS * Math.PI * 2, k = s * TURNS;
+    const R = 1.0 + 0.09 * Math.sin(a * 0.5 + 1.0) + 0.03 * k;
+    pts.push([Math.cos(a) * R * 1.45 + 0.16 * k, Math.sin(a) * R * (1 + 0.04 * k) + 0.1 * k, 0.17 + 0.24 * (0.5 + 0.5 * Math.sin(a + k * 1.9)) + 0.04 * k]);
+  }
+  /* the end, leaving the coil and lying out across the ground */
+  const e = pts[pts.length - 1];
+  pts.push([e[0] - 0.35, e[1] - 0.6, 0.15], [e[0] - 0.9, e[1] - 1.5, 0.13], [e[0] - 1.25, e[1] - 2.3, 0.13]);
+  const rope = sweep(pts, () => 0.15, () => 0.15, [0, 0, 1], { seg: 1100, radial: 12 });
+  add(rope.g, surface({ k: [0.2, 1.0, 0.2], c: [0, 0, 0], seed: 9.9 }), 'rope');
+  /* the binding: two orange wraps round the bundle where its loops gather */
+  for (const dy of [-0.22, 0.22]) {
+    const ring = [];
+    for (let i = 0; i < 14; i++) { const a = i / 14 * Math.PI * 2; ring.push([1.95 + Math.cos(a) * 0.5, 0.35 + dy, 0.42 + Math.sin(a) * 0.4]); }
+    add(strap(ring, 0.18, 0.04, [0, 1, 0], { closed: true, seg: 70, r: 0.015 }).g, solidDark(), 'wrap', true, accentHull());
+  }
+}
+/* a coin with the Tibba mark, lying flat, an orange ring round the mark */
+function buildCoin(x, y) {
+  const g = new THREE.CylinderGeometry(0.62, 0.62, 0.16, 48, 1).rotateX(Math.PI / 2);
+  g.deleteAttribute('uv'); g.setAttribute('aLocal', g.attributes.position.clone());
+  add(g, surface({ k: [1.4, 1.4, 1], c: [0, 0, 0], seed: x }), 'coin').position.set(x, y, 0.08);
+  const r = new THREE.TorusGeometry(0.44, 0.03, 6, 48); r.deleteAttribute('uv'); r.setAttribute('aLocal', r.attributes.position.clone());
+  add(r, solidDark(), 'coin-ring', true, accentHull()).position.set(x, y, 0.17);
+  const face = new THREE.CylinderGeometry(0.41, 0.41, 0.02, 48, 1).rotateX(Math.PI / 2); face.deleteAttribute('uv'); face.setAttribute('aLocal', face.attributes.position.clone());
+  add(face, solidDark(), 'coin-face', false).position.set(x, y, 0.17);
+  mark([x, y, 0.19], 0.5).rotation.set(0, 0, -Math.PI / 4);
+}
+
+/* ── the MVP kit: the hatchet, the ascender, the rope and three coins laid
+   out together on the ground, as the MVP design page's header shows them
+   (?embed&kit=mvp) ─────────────────────────────────────────────────────── */
+makeBag('MVP kit', () => {
+  const root = bag;
+  root.rotation.x = -Math.PI / 2;
+  const part = (fn, x, y, s = 1, rz = 0) => {
+    const g = new THREE.Group(); root.add(g); bag = g; fn(); g.rotation.x = 0;   // the kit is already lying down
+    g.position.set(x, y, 0); g.scale.setScalar(s); g.rotation.z = rz; bag = root; return g;
+  };
+  part(buildHatchet, 0, 0, 1, 0.05);
+  part(buildAscender, 0.7, 2.9, 0.66, 0.05);
+  part(buildRope, 6.4, 3.0, 1.15, 0.1);
+  for (const [cx, cy] of [[2.7, -2.55], [3.95, -3.15], [2.45, -3.85]]) part(() => buildCoin(0, 0), cx, cy, 1, 0);
+}, { dir: [1, 0.95, 1], zoom: 1.0, shift: [0.6, 0, 0.4] });
+
+/* ── applying the config ─────────────────────────────────────────────────── */
+let cur = Math.min(BAGS.length - 1, Math.max(0, C.view.bag | 0));
+BAGS[cur].pivot.visible = true;
+let HOME = BAGS[cur].home;
+camera.position.copy(HOME.target).addScaledVector(HOME.dir, 40); camera.zoom = HOME.zoom; camera.updateProjectionMatrix();
+controls.target.copy(HOME.target); controls.update();
+function apply() {
+  G.uDensity.value = C.lines.density; G.uWidth.value = C.lines.width; G.uWarp.value = C.lines.warp; G.uLineOp.value = C.lines.opacity;
+  G.uLineCol.value.set(C.lines.colour); G.uOutlineCol.value.set(C.lines.colour);
+  G.uFill.value.set(C.model.fill); G.uShade.value = C.model.shade; G.uRim.value = C.model.rim;
+  accent.value.set(C.model.accent);
+  marks.forEach(m => { m.visible = C.model.logo; });
+  BAGS.forEach(b => { b.guides.visible = C.model.guides; });
+  controls.autoRotate = C.view.autoRotate; controls.autoRotateSpeed = C.view.rotateSpeed;
+}
+apply();
+
+/* ── reset to the reference angle ──────────────────────────────────────── */
+let tween = null;
+function resetView(dur = 900) {
+  const from = { p: camera.position.clone(), t: controls.target.clone(), z: camera.zoom };
+  const to = { p: HOME.target.clone().addScaledVector(HOME.dir, 40), t: HOME.target.clone(), z: HOME.zoom };
+  tween = { from, to, t0: performance.now(), dur };
+}
+
+/* ── the switch: out goes the bag, shrinking and easing away; in comes the
+   next, growing with a small overshoot before it settles ─────────────────── */
+const easeIn = t => t * t * t;
+const easeOutBack = (t, s = 1.25) => 1 + (s + 1) * Math.pow(t - 1, 3) + s * Math.pow(t - 1, 2);
+const easeOut = t => 1 - Math.pow(1 - t, 3);
+const OUT = 360, GAP = 150, IN = 820;
+let swap = null, queued = -1;
+function showBag(i) {
+  if (swap) { queued = i; return; }            // a switch asked for mid-swap runs when this one lands
+  if (i === cur) return;
+  const from = BAGS[cur], to = BAGS[i];
+  to.pivot.visible = true; to.pivot.scale.setScalar(0.001);
+  swap = { from, to, t0: performance.now() };
+  cur = i; C.view.bag = i; HOME = to.home;
+  resetView(OUT + GAP + IN * 0.8);
+  syncSwitch();
+}
+
+/* ── the loop: pauses with the tab ─────────────────────────────────────── */
+let last = performance.now();
+function frame(now) {
+  requestAnimationFrame(frame);
+  if (document.hidden) { last = now; return; }
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if (C.anim.play) { G.uPhase.value += dt * C.anim.speed * 2.2; G.uMorphT.value += dt * C.anim.morph; }
+  if (swap) {
+    const t = now - swap.t0;
+    const ko = Math.min(1, t / OUT), ki = Math.min(1, Math.max(0, (t - OUT - GAP) / IN));
+    swap.from.pivot.scale.setScalar(Math.max(0.001, 1 - easeIn(ko)));
+    swap.from.pivot.rotation.y = 0.35 * easeIn(ko);
+    swap.to.pivot.scale.setScalar(Math.max(0.001, ki > 0 ? easeOutBack(ki) : 0.001));
+    swap.to.pivot.rotation.y = -0.4 * (1 - easeOut(ki));
+    if (ko >= 1) swap.from.pivot.visible = false;
+    if (ki >= 1) { swap.from.pivot.scale.setScalar(1); swap.from.pivot.rotation.y = 0; swap.to.pivot.scale.setScalar(1); swap.to.pivot.rotation.y = 0; swap = null; if (queued >= 0) { const q = queued; queued = -1; showBag(q); } }
+  }
+  if (tween) {
+    const k = Math.min(1, (now - tween.t0) / tween.dur), e = 1 - Math.pow(1 - k, 3);
+    camera.position.lerpVectors(tween.from.p, tween.to.p, e); controls.target.lerpVectors(tween.from.t, tween.to.t, e);
+    camera.zoom = tween.from.z + (tween.to.z - tween.from.z) * e; camera.updateProjectionMatrix();
+    if (k >= 1) tween = null;
+  }
+  controls.update();
+  /* outlines a constant width on screen, whatever the zoom */
+  G.uOutline.value = C.model.outline * (VIEW_H / camera.zoom) / renderer.domElement.clientHeight;
+  /* fewer rings when the pack is drawn small, so they stay lines, not haze */
+  const pxPerUnit = renderer.domElement.clientHeight * camera.zoom / VIEW_H;
+  G.uDensity.value = C.lines.density * Math.min(1, Math.max(0.5, pxPerUnit / 90));
+  renderer.render(scene, camera);
+}
+requestAnimationFrame(frame);
+
+/* ── the switcher, bottom left ─────────────────────────────────────────── */
+const sw = document.getElementById('switch');
+sw.innerHTML = BAGS.map((b, i) => `<button type="button" data-i="${i}"><b>0${i + 1}</b><span>${b.name}</span></button>`).join('');
+const swBtns = [...sw.children];
+function syncSwitch() { swBtns.forEach((b, i) => { b.setAttribute('aria-pressed', String(i === cur)); }); }
+swBtns.forEach((b, i) => b.addEventListener('click', () => showBag(i)));
+addEventListener('keydown', e => {
+  if (EMBED) return;
+  if (e.target.closest && e.target.closest('input, textarea, select')) return;
+  if (/^[1-9]$/.test(e.key) && +e.key <= BAGS.length) showBag(+e.key - 1);
+  if (e.key === 'ArrowRight') showBag((cur + 1) % BAGS.length);
+  if (e.key === 'ArrowLeft') showBag((cur + BAGS.length - 1) % BAGS.length);
+});
+if (BAGS.length < 2) sw.style.display = 'none';
+syncSwitch();
+
+/* ── the panel ─────────────────────────────────────────────────────────── */
+const SCHEMA = [
+  ['Animation'],
+  ['anim.play', 'Play', 'check'],
+  ['anim.speed', 'Flow speed', 0, 2, 0.01],
+  ['anim.morph', 'Morph (the rings drifting)', 0, 1.5, 0.01],
+  ['Contour lines'],
+  ['lines.density', 'Density (rings per unit)', 3, 18, 0.1],
+  ['lines.width', 'Line width', 0.4, 3, 0.05, 'px'],
+  ['lines.warp', 'Warp — how far the rings wander', 0, 1.5, 0.01],
+  ['lines.opacity', 'Intensity', 0, 1, 0.01],
+  ['lines.colour', 'Line colour', 'color'],
+  ['Model'],
+  ['model.fill', 'Fill', 'color'],
+  ['model.shade', 'Shading', 0, 1, 0.01],
+  ['model.rim', 'Rim light', 0, 1, 0.01],
+  ['model.outline', 'Outline', 0, 4, 0.1, 'px'],
+  ['model.accent', 'Accent (strap, keeper, buckle)', 'color'],
+  ['model.logo', 'Tibba mark on the front', 'check'],
+  ['model.guides', 'Dimension guides', 'check'],
+  ['View'],
+  ['view.autoRotate', 'Turn slowly', 'check'],
+  ['view.rotateSpeed', 'Turn speed', 0.1, 4, 0.1],
+];
+const get = p => p.split('.').reduce((o, k) => o[k], C);
+const set = (p, v) => { const ks = p.split('.'), l = ks.pop(); ks.reduce((o, k) => o[k], C)[l] = v; };
+const el = document.createElement('div'); el.id = 'tune';
+el.innerHTML = `<div id="tune-head"><b>Tools</b><button id="tune-hide" title="Hide (H)">–</button></div>` + SCHEMA.map(([p, label, a, b, step, unit = '']) => {
+  if (label == null) return `<p class="tune-sub">${p}</p>`;
+  const id = 'b-' + p.replace('.', '-'), v = get(p);
+  if (a === 'check') return `<div class="row inline"><label for="${id}">${label}<i></i></label><input type="checkbox" id="${id}"${v ? ' checked' : ''}></div>`;
+  if (a === 'color') return `<div class="row"><label>${label}<i></i></label><input type="color" id="${id}" value="${v}"></div>`;
+  return `<div class="row"><label>${label}<i id="v-${id}">${v}${unit}</i></label><input type="range" id="${id}" min="${a}" max="${b}" step="${step}" value="${v}" data-unit="${unit}"></div>`;
+}).join('') + `<div class="tune-acts"><button class="tune-btn" id="b-reset">Reset view</button></div>` + bakeControls.html;
+document.body.appendChild(el);
+SCHEMA.forEach(([p, label, a]) => {
+  if (label == null) return;
+  const inp = el.querySelector('#b-' + p.replace('.', '-'));
+  if (a === 'check') inp.addEventListener('change', () => { set(p, inp.checked); apply(); });
+  else if (a === 'color') inp.addEventListener('input', () => { set(p, inp.value); apply(); });
+  else inp.addEventListener('input', () => { el.querySelector('#v-b-' + p.replace('.', '-')).textContent = inp.value + inp.dataset.unit; set(p, +inp.value); apply(); });
+});
+el.querySelector('#b-reset').addEventListener('click', () => resetView());
+el.querySelector('#tune-hide').addEventListener('click', () => el.classList.toggle('hidden'));
+bakeControls.bind(el, KEY, C, 'BAGS_CONFIG');
+if (window.wb && window.wb.adopt) window.wb.adopt();
+window.tools = { scene, camera, controls, BAGS, showBag, resetView, CONFIG };
+if (EMBED && window.parent !== window) window.parent.postMessage({ type: 'tools-ready' }, location.origin);
+</script>
+</body>
+</html>

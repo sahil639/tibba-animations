@@ -31,7 +31,7 @@
 <link rel="stylesheet" href="assets/site-shell.css?v=8">
 <link rel="stylesheet" href="assets/work.css">
 <link rel="stylesheet" href="assets/case-figma.css?v=19">
-<link rel="stylesheet" href="assets/service-page.css?v=5">
+<link rel="stylesheet" href="assets/service-page.css?v=10">
 <link rel="stylesheet" href="assets/workbench.css">
 <script src="assets/manifest.js"></script>
 <script src="assets/whats-new.js"></script>
@@ -57,22 +57,21 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
 <header id="ca-header"></header>
 
 <main class="cf">
-  <section class="cf-hero cover sv-hero" style="background-image:url('assets/about/hero-mountain.webp')" aria-labelledby="cf-title">
-    <div class="cf-hero-in">
-      <h1 id="cf-title" class="fit" style="--hs:248">MVP design</h1>
-      <p>From idea to a product people want</p>
+  <!-- the header (Nov 2026, after the design): the name and its line top left, the MVP kit laid out on the
+       ground beneath them (misc-tools.html?embed&kit=mvp: the hatchet, the ascender, the rope and three coins,
+       in 3D, as the home page's bags); the facts down the right, the two results at its foot -->
+  <section class="sv-mhead" aria-labelledby="cf-title">
+    <div class="sv-mhead-l">
+      <h1 id="cf-title">MVP design</h1>
+      <p class="sv-mhead-sub">From idea to a product people want</p>
     </div>
-  </section>
-
-  <section class="cf-work" aria-label="The service">
-    <div class="cf-top row" style="--n:2">
-      <div class="cf-metrics" aria-label="Results">
-        <div class="cf-metric on">
-            <p class="v">8 weeks</p><p class="l">Breathe ESG’s platform, from MVP to v1, redesigned in design sprints</p><i></i><i></i><i></i><i></i></div>
-        <div class="cf-metric on light">
-            <p class="v">50%</p><p class="l">Faster shipping at Breathe ESG, enabled by a design system built from day one</p><i></i><i></i><i></i><i></i></div>
-      </div>
-      <div class="cf-facts">
+    <div class="sv-mhead-kit" aria-hidden="true">
+      <span class="rule"></span><span class="tick"></span>
+      <svg class="lines" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M100 46V100M100 58L62 100M100 70L76 100" fill="none" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke"/></svg>
+      <iframe src="misc-tools.html?embed&amp;kit=mvp&amp;v=2" title="The MVP kit: a hatchet, an ascender, a rope and three coins, in 3D" loading="lazy" tabindex="-1"></iframe>
+    </div>
+    <div class="sv-mhead-r">
+        <div class="cf-facts">
         <dl>
           <div><dt>For</dt><dd>Founders with an idea, a prototype or a first version that needs to grow up</dd></div>
           <div><dt>Engagement</dt><dd>4–8 weeks</dd></div>
@@ -81,8 +80,16 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
           <div><dt>Case studies</dt><dd><ul><li><a href="breathe-esg-casestudy.html">Breathe ESG</a></li><li><a href="shyft-and-mindhouse-casestudy.html">Shyft &amp; Mindhouse</a></li></ul></dd></div>
         </dl>
       </div>
+      <div class="cf-metrics" aria-label="Results">
+        <div class="cf-metric on">
+            <p class="v">8 weeks</p><p class="l">Breathe ESG’s platform, from MVP to v1, redesigned in design sprints</p><i></i><i></i><i></i><i></i></div>
+        <div class="cf-metric on light">
+            <p class="v">50%</p><p class="l">Faster shipping at Breathe ESG, enabled by a design system built from day one</p><i></i><i></i><i></i><i></i></div>
+      </div>
     </div>
+  </section>
 
+  <section class="cf-work" aria-label="The service">
     <div class="cf-body">
       <div class="cf-head"><div><h2>What we do</h2></div><hr></div>
       <div class="cf-text">
@@ -91,13 +98,19 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
       </div>
 
       <div class="cf-head"><div><h2>How an MVP engagement runs</h2></div><hr></div>
-      <ol class="sv-steps">
-        <li><div><h3>Frame the bet</h3><p>Product strategy with the founders: the user, the problem, the one thing the first version must do well, and what it can leave out.</p></div></li>
-        <li><div><h3>Talk to real users</h3><p>Short, focused research before anything is drawn, so the first version answers questions people actually have.</p></div></li>
-        <li><div><h3>Design in sprints</h3><p>Flows, UX and UI designed in weekly sprints, each ending in something you can click through and react to.</p></div></li>
-        <li><div><h3>Foundations from day one</h3><p>A lean design system under the MVP, so version two does not mean starting again.</p></div></li>
-        <li><div><h3>Test and hand over</h3><p>Usability tests on the prototype, fixes, and production-ready designs your developers can ship — plus the brand and launch site if you need them.</p></div></li>
-      </ol>
+      <!-- the steps, one open at a time (assets/service-acc.js): the open step's title, number and line on the left,
+           the rest as a list beneath; its picture on the right (a grey box until the pictures arrive), a line
+           sweeping down it while the steps play on by themselves -->
+      <div class="sv-acc" data-acc>
+        <ol class="sv-acc-list">
+          <li class="on"><h3><button type="button" id="acc-mvp-design-01" aria-expanded="true" aria-controls="acc-mvp-design-01-b"><span>Frame the bet</span><b>01</b></button></h3><div class="sv-acc-b" id="acc-mvp-design-01-b" role="region" aria-labelledby="acc-mvp-design-01"><p>Product strategy with the founders: the user, the problem, the one thing the first version must do well, and what it can leave out.</p></div></li>
+          <li><h3><button type="button" id="acc-mvp-design-02" aria-expanded="false" aria-controls="acc-mvp-design-02-b"><span>Talk to real users</span><b>02</b></button></h3><div class="sv-acc-b" id="acc-mvp-design-02-b" role="region" aria-labelledby="acc-mvp-design-02"><p>Short, focused research before anything is drawn, so the first version answers questions people actually have.</p></div></li>
+          <li><h3><button type="button" id="acc-mvp-design-03" aria-expanded="false" aria-controls="acc-mvp-design-03-b"><span>Design in sprints</span><b>03</b></button></h3><div class="sv-acc-b" id="acc-mvp-design-03-b" role="region" aria-labelledby="acc-mvp-design-03"><p>Flows, UX and UI designed in weekly sprints, each ending in something you can click through and react to.</p></div></li>
+          <li><h3><button type="button" id="acc-mvp-design-04" aria-expanded="false" aria-controls="acc-mvp-design-04-b"><span>Foundations from day one</span><b>04</b></button></h3><div class="sv-acc-b" id="acc-mvp-design-04-b" role="region" aria-labelledby="acc-mvp-design-04"><p>A lean design system under the MVP, so version two does not mean starting again.</p></div></li>
+          <li><h3><button type="button" id="acc-mvp-design-05" aria-expanded="false" aria-controls="acc-mvp-design-05-b"><span>Test and hand over</span><b>05</b></button></h3><div class="sv-acc-b" id="acc-mvp-design-05-b" role="region" aria-labelledby="acc-mvp-design-05"><p>Usability tests on the prototype, fixes, and production-ready designs your developers can ship — plus the brand and launch site if you need them.</p></div></li>
+        </ol>
+        <div class="sv-acc-vis" aria-hidden="true"><div class="sv-acc-pic on"></div><div class="sv-acc-pic"></div><div class="sv-acc-pic"></div><div class="sv-acc-pic"></div><div class="sv-acc-pic"></div><span class="sv-acc-scan"></span></div>
+      </div>
 
       <div class="cf-head"><div><h2>MVP to v1 in eight weeks</h2></div><hr></div>
       <div class="cf-text">
@@ -145,6 +158,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   mountSiteNav(document.getElementById('ca-header'), { current: 'Services' });
 </script>
 <!-- primary / secondary typography control (assets/type-control.js) -->
+<script src="assets/service-acc.js?v=1" defer></script>
 <script type="module" src="assets/type-control.js"></script>
 </body>
 </html>

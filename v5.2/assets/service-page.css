@@ -30,12 +30,21 @@
   .sv-steps li { padding-inline: 0; }
 }
 
-/* the questions: open, as plain text — every answer readable without a click */
-.sv-faq { display: grid; gap: 0; }
-.sv-faq > div { display: grid; grid-template-columns: 1fr 1.4fr; gap: 4%; padding: 28px 0; border-bottom: 1px solid rgba(233,236,242,.18); }
-.sv-faq > div:last-child { border-bottom: 0; }
-.sv-faq h3 { margin: 0; font-weight: 500; font-size: clamp(18px, calc(24 * var(--cu)), 28px); line-height: 1.25; }
-.sv-faq p { margin: 0; font-weight: 300; font-size: clamp(16px, calc(20 * var(--cu)), 22px); line-height: 1.4; color: #c9c6c2; }
+/* the questions, set like a printed timetable (Nov 2026, after the reference):
+   a firm rule over each question; its number large on the left, the question
+   and its answer in two ruled columns beside it, every line underscored */
+.sv-faq { display: grid; counter-reset: q; border-bottom: 1px solid rgba(233,236,242,.4); }
+.sv-faq > div { display: grid; grid-template-columns: minmax(64px, 18%) minmax(0, 36%) minmax(0, 1fr); column-gap: max(16px, calc(28 * var(--cu))); align-items: start;
+  padding: 10px 0 max(26px, calc(40 * var(--cu))); border-top: 1px solid rgba(233,236,242,.4); counter-increment: q; }
+.sv-faq > div::before { content: counter(q, decimal-leading-zero); font-weight: 400; font-size: clamp(40px, calc(72 * var(--cu)), 64px); line-height: .9; letter-spacing: -.03em; color: #e9ecf2; }
+.sv-faq h3, .sv-faq p { margin: 0; padding: 2px 0 6px; border-bottom: 1px solid rgba(233,236,242,.22); font-size: clamp(15px, calc(20 * var(--cu)), 18px); line-height: 1.35; }
+.sv-faq h3 { font-weight: 500; color: #e9ecf2; }
+.sv-faq p { font-weight: 300; color: #c9c6c2; }
+@media (max-width: 760px) {
+  .sv-faq > div { grid-template-columns: 52px minmax(0, 1fr); row-gap: 10px; }
+  .sv-faq > div::before { grid-row: 1 / span 2; font-size: 36px; }
+  .sv-faq h3, .sv-faq p { grid-column: 2; }
+}
 
 /* the services by stage (services.html), after the design (Nov 2026): one
    ruled block per stage. The panel (stage, line, bag) takes the left 44% and
@@ -85,6 +94,87 @@
 .sv-cta a { display: inline-flex; align-items: center; gap: 10px; padding: 16px 24px; background: #E9ECF2; color: #0A0A0A; font-weight: 500; font-size: 15px; letter-spacing: .04em; text-transform: uppercase; text-decoration: none; transition: background .2s linear, color .2s linear; }
 .sv-cta a:hover { background: #C9124B; color: #fff; }
 
-@media (max-width: 900px) {
-  .sv-faq > div { grid-template-columns: 1fr; gap: 10px; }
+
+
+/* the steps on a service page, one open at a time (Nov 2026, after the design):
+   a ruled box split down the middle — the list on the left (the open step's
+   title large, its number in a small grey tag, its line beneath; the others
+   a row each), the picture on the right, a thin line sweeping down it while
+   the steps play on by themselves (assets/service-acc.js) */
+.sv-acc { display: grid; grid-template-columns: 1fr 1fr; border-block: 1px solid rgba(233,236,242,.16); --acc-t: 6s; }
+.sv-acc-list { list-style: none; margin: 0; padding: max(20px, calc(28 * var(--cu))) max(20px, calc(34 * var(--cu))) max(20px, calc(28 * var(--cu))) max(16px, calc(26 * var(--cu))); display: flex; flex-direction: column; border-right: 1px solid rgba(233,236,242,.16); }
+.sv-acc-list li { border-top: 1px solid rgba(233,236,242,.12); }
+.sv-acc-list li:first-child, .sv-acc-list li.on, .sv-acc-list li.on + li { border-top-color: transparent; }
+.sv-acc-list li.on { flex: 1; }
+.sv-acc-list h3 { margin: 0; font: inherit; }
+.sv-acc-list button { all: unset; box-sizing: border-box; width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: max(10px, calc(14 * var(--cu))) 0; cursor: pointer;
+  font-weight: 400; font-size: clamp(15px, calc(22 * var(--cu)), 18px); line-height: 1.3; color: #e9ecf2; transition: color .25s linear; }
+.sv-acc-list button:hover { color: #fff; }
+.sv-acc-list button:focus-visible { outline: 2px solid #F0507D; outline-offset: 4px; }
+.sv-acc-list button b { flex: none; min-width: 24px; padding: 4px 5px; font-weight: 400; font-size: 12px; line-height: 1; text-align: center; color: rgba(233,236,242,.55); background: #1c1c1d; }
+.sv-acc-list li.on button { align-items: flex-start; padding-top: max(6px, calc(10 * var(--cu))); font-weight: 500; font-size: clamp(22px, calc(40 * var(--cu)), 30px); line-height: 1.2; }
+.sv-acc-list li.on button b { margin-top: 4px; }
+.sv-acc-b { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s cubic-bezier(.22,1,.36,1); }
+.sv-acc-b > p { overflow: hidden; margin: 0; padding-right: 15%; font-weight: 300; font-size: clamp(15px, calc(21 * var(--cu)), 17px); line-height: 1.4; color: #b4b1ad; }
+.sv-acc-list li.on .sv-acc-b { grid-template-rows: 1fr; }
+.sv-acc-list li.on .sv-acc-b > p { padding-bottom: max(56px, calc(90 * var(--cu))); }
+
+.sv-acc-vis { position: relative; overflow: hidden; min-height: max(300px, calc(560 * var(--cu))); }
+.sv-acc-pic { position: absolute; left: 18%; right: 18%; top: 13%; bottom: 0; background: #1c1c1d; opacity: 0; transition: opacity .5s linear; }
+.sv-acc-pic.on { opacity: 1; }
+.sv-acc-scan { position: absolute; left: 8%; right: 8%; top: 13%; height: 2px; background: rgba(233,236,242,.32); }
+.sv-acc.play .sv-acc-scan { animation: sv-scan var(--acc-t) linear infinite; }
+@keyframes sv-scan { from { top: 13%; } to { top: 100%; } }
+.sv-acc:not(.play) .sv-acc-scan { top: 54%; }
+
+@media (max-width: 760px) {
+  .sv-acc { grid-template-columns: 1fr; }
+  .sv-acc-list { border-right: 0; padding-inline: 0; }
+  .sv-acc-vis { min-height: 0; aspect-ratio: 4 / 3; border-top: 1px solid rgba(233,236,242,.16); }
 }
+@media (prefers-reduced-motion: reduce) {
+  .sv-acc.play .sv-acc-scan { animation: none; top: 54%; }
+  .sv-acc-b, .sv-acc-pic { transition: none; }
+}
+
+/* the MVP design header (Nov 2026, after the design): the name huge and its
+   line top left; beneath them, from the page's left edge, the kit on the
+   ground in 3D (misc-tools.html?embed&kit=mvp) under a thin rule with a
+   corner tick and a few receding lines; the facts down the right, the two
+   results at its foot */
+.sv-mhead { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 34%); grid-template-rows: auto minmax(0, 1fr);
+  column-gap: clamp(32px, 6vw, 120px); min-height: max(720px, 100svh); padding: clamp(96px, 9vh, 120px) clamp(20px, 2.4vw, 48px) clamp(32px, 4vh, 56px) clamp(24px, 4vw, 80px); box-sizing: border-box; }
+.sv-mhead-l { grid-column: 1; grid-row: 1; }
+.sv-mhead h1 { margin: 0; font-weight: 500; font-size: clamp(64px, 8.6vw, 176px); line-height: .92; letter-spacing: -.01em; text-transform: uppercase; }
+.sv-mhead-sub { margin: clamp(28px, 4.4vh, 60px) 0 0; font-weight: 300; font-size: clamp(18px, 1.6vw, 28px); letter-spacing: .01em; text-transform: uppercase; color: #d4d2ce; }
+.sv-mhead-kit { grid-column: 1; grid-row: 2; position: relative; margin: clamp(28px, 5vh, 72px) 0 calc(-1 * clamp(32px, 4vh, 56px)) calc(-1 * clamp(24px, 4vw, 80px)); min-height: 380px; color: rgba(233,236,242,.22); }
+.sv-mhead-kit iframe { position: absolute; inset: 4% 0 0 0; width: 100%; height: 96%; border: 0; background: transparent; }
+.sv-mhead-kit .rule { position: absolute; left: 0; top: 0; width: 72%; height: 1px; background: currentColor; }
+.sv-mhead-kit .rule::after { content: ''; position: absolute; left: calc(100% + 5%); width: 8%; top: 0; height: 1px; background: currentColor; }
+.sv-mhead-kit .tick { position: absolute; right: 0; top: 0; width: 12px; height: 12px; border-top: 1px solid rgba(233,236,242,.7); border-right: 1px solid rgba(233,236,242,.7); }
+.sv-mhead-kit .lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.sv-mhead-r { grid-column: 2; grid-row: 1 / span 2; display: flex; flex-direction: column; justify-content: space-between; gap: 48px; }
+.sv-mhead .cf-facts dl > div { padding: 22px 0 24px; border-bottom-color: rgba(233,236,242,.2); }
+.sv-mhead .cf-facts dl > div:last-child { border-bottom: 0; }
+.sv-mhead .cf-facts dt { font-size: 12px; }
+.sv-mhead .cf-facts dd { max-width: 440px; font-size: clamp(15px, 1.1vw, 19px); line-height: 1.4; }
+.sv-mhead .cf-facts dd ul { font-size: clamp(15px, 1.1vw, 19px); gap: 8px; }
+.sv-mhead .cf-metric { padding: clamp(24px, 2.2vw, 36px) clamp(18px, 1.6vw, 26px); background: #0c0c0d; }
+.sv-mhead .cf-metric .v { font-size: clamp(34px, 3vw, 60px); white-space: nowrap; }
+.sv-mhead .cf-metric .l { font-size: 14px; }
+
+@media (max-width: 900px) {
+  .sv-mhead { grid-template-columns: 1fr; grid-template-rows: auto; min-height: 0; padding: 96px 16px 40px; row-gap: 36px; }
+  .sv-mhead-l, .sv-mhead-kit, .sv-mhead-r { grid-column: 1; grid-row: auto; }
+  .sv-mhead-kit { order: 3; margin: 0 -16px; min-height: 0; aspect-ratio: 4 / 3; }
+  .sv-mhead-sub { margin-top: 20px; }
+}
+
+/* the bags on the services page: the home page's 3D bags (misc-bags.html?embed&bag=N),
+   the same contour lines and animation; the still shows until the bag is drawing */
+.sv-bag3d { position: relative; flex: 1; min-height: max(240px, calc(330 * var(--cu))); margin: max(8px, calc(12 * var(--cu))) calc(-1 * max(24px, calc(28 * var(--cu)))) calc(-1 * max(24px, calc(28 * var(--cu)))); }
+.sv-bag3d iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: transparent; opacity: 0; transition: opacity .5s linear; }
+.sv-bag3d .sv-bag { position: absolute; left: 50%; bottom: 8%; width: min(46%, 240px); margin: 0; translate: -50% 0; transition: opacity .5s linear; }
+.sv-bag3d.live iframe { opacity: 1; }
+.sv-bag3d.live .sv-bag { opacity: 0; }
+@media (max-width: 900px) { .sv-bag3d { flex: none; height: 300px; margin-bottom: -24px; } }

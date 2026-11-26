@@ -31,7 +31,7 @@
 <link rel="stylesheet" href="assets/site-shell.css?v=8">
 <link rel="stylesheet" href="assets/work.css">
 <link rel="stylesheet" href="assets/case-figma.css?v=19">
-<link rel="stylesheet" href="assets/service-page.css?v=5">
+<link rel="stylesheet" href="assets/service-page.css?v=10">
 <link rel="stylesheet" href="assets/workbench.css">
 <script src="assets/manifest.js"></script>
 <script src="assets/whats-new.js"></script>
@@ -79,7 +79,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
           <div class="sv-panel">
             <small>01 · Early-stage start-ups</small>
             <h3>From idea to a product people want.</h3>
-            <img class="sv-bag" style="--s:1.75" src="assets/services/bag-1.webp?v=3" width="900" height="954" alt="" loading="lazy" decoding="async">
+            <div class="sv-bag3d" style="--s:1.75"><img class="sv-bag" src="assets/services/bag-1.webp?v=3" width="900" height="954" alt="" decoding="async"><iframe src="misc-bags.html?embed&amp;bag=1" title="The bag for this stage, in 3D" loading="lazy" tabindex="-1"></iframe></div>
           </div>
           <ul class="sv-list"><li><b>Product strategy</b><span>Decide what to build first, and why.</span></li><li class="on"><b><a href="mvp-design.html">MVP design</a></b><span>A launch-ready first version in weeks.</span></li><li><b>Research &amp; testing</b><span>Real users, real answers, before you build.</span></li><li><b>Brand &amp; launch</b><span>An identity and a site that earn trust on day one.</span></li></ul>
           <dl><div><dt>You get</dt><dd>A tested MVP, ready for users and investors</dd></div><div><dt>Engagement</dt><dd>4–8 weeks</dd></div></dl>
@@ -88,7 +88,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
           <div class="sv-panel">
             <small>02 · Mid-stage start-ups</small>
             <h3>Turn traction into growth.</h3>
-            <img class="sv-bag" style="--s:1.55" src="assets/services/bag-2.webp?v=3" width="900" height="954" alt="" loading="lazy" decoding="async">
+            <div class="sv-bag3d" style="--s:1.55"><img class="sv-bag" src="assets/services/bag-2.webp?v=3" width="900" height="954" alt="" decoding="async"><iframe src="misc-bags.html?embed&amp;bag=2" title="The bag for this stage, in 3D" loading="lazy" tabindex="-1"></iframe></div>
           </div>
           <ul class="sv-list"><li class="on"><b><a href="growth-design.html">Growth design</a></b><span>Onboarding, pricing and funnels that convert.</span></li><li class="on"><b><a href="design-systems.html">Design system</a></b><span>One kit, so every team ships faster.</span></li><li><b>Design to code</b><span>Production-ready UI your developers can ship.</span></li><li><b>Product analytics</b><span>See what users do, fix what slows them down.</span></li></ul>
           <dl><div><dt>You get</dt><dd>A faster product and a system your team can grow on</dd></div><div><dt>Engagement</dt><dd>8–12 weeks</dd></div></dl>
@@ -97,7 +97,7 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
           <div class="sv-panel">
             <small>03 · Established companies</small>
             <h3>Stay ahead while you scale.</h3>
-            <img class="sv-bag" style="--s:1.2" src="assets/services/bag-0.webp?v=3" width="900" height="954" alt="" loading="lazy" decoding="async">
+            <div class="sv-bag3d" style="--s:1.2"><img class="sv-bag" src="assets/services/bag-0.webp?v=3" width="900" height="954" alt="" decoding="async"><iframe src="misc-bags.html?embed&amp;bag=0" title="The bag for this stage, in 3D" loading="lazy" tabindex="-1"></iframe></div>
           </div>
           <ul class="sv-list"><li><b>Product innovation</b><span>Prototype and test new bets in weeks.</span></li><li><b>Experience audit</b><span>Find what is costing you users, and fix it.</span></li><li><b>Embedded design team</b><span>Senior designers inside your team, on your cadence.</span></li><li><b>AI features</b><span>Useful AI in your product, designed for trust.</span></li></ul>
           <dl><div><dt>You get</dt><dd>A design partner for your roadmap</dd></div><div><dt>Engagement</dt><dd>Ongoing, from 3 months</dd></div></dl>
@@ -140,6 +140,13 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   mountSiteNav(document.getElementById('ca-header'), { current: 'Services' });
 </script>
 <!-- primary / secondary typography control (assets/type-control.js) -->
+<script>
+  /* the bags: each still stays until its 3D bag (misc-bags.html) says it is drawing */
+  addEventListener('message', e => {
+    if (e.origin !== location.origin || !e.data || e.data.type !== 'bags-ready') return;
+    document.querySelectorAll('.sv-bag3d iframe').forEach(f => { if (f.contentWindow === e.source) f.parentNode.classList.add('live'); });
+  });
+</script>
 <script type="module" src="assets/type-control.js"></script>
 </body>
 </html>
