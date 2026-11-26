@@ -1,0 +1,196 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="assets/page-transition.css?v=1"><script src="assets/page-transition.js?v=1"></script>
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<title>V2 Paper · How we made the Tibba mountain</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/type.css?v=3"><link rel="stylesheet" href="assets/site.css"><link rel="stylesheet" href="assets/ca-nav.css"><link rel="stylesheet" href="assets/site-shell.css?v=8">
+<link rel="stylesheet" href="assets/blog-v.css?v=1">
+<style>
+/* V2 · Paper: a minimal editorial announcement. Date over a bold headline
+   and a one-line dek; the essay in a narrow column with a side column of
+   supporting lists; attributed pull quotes between sections; each section
+   closes with a "To this end" list; a signed sign-off. */
+.v2 { max-width: 1120px; margin: 0 auto; padding: clamp(48px, 7vw, 112px) var(--gut) clamp(72px, 8vw, 128px); }
+.v2-head { max-width: 760px; }
+.v2-date { font-size: 14px; color: var(--ink-faint); }
+.v2-title { margin: 14px 0 16px; font-weight: 600; font-size: clamp(40px, 5.6vw, 76px); line-height: 1; letter-spacing: -.035em; color: var(--ink); text-wrap: balance; }
+.v2-dek { margin: 0; font-size: clamp(18px, 1.6vw, 22px); line-height: 1.45; color: var(--ink-mute); max-width: 36ch; }
+
+.v2-grid { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: clamp(40px, 6vw, 96px); margin-top: clamp(48px, 6vw, 88px); align-items: start; }
+
+.v2-body, .v2-side, .v2-side > div { min-width: 0; }
+.v2-body p, .v2-body li { font-size: 18px; line-height: 1.65; color: var(--ink-mute); }
+.v2-body p { margin: 0 0 1.15em; }
+.v2-body strong { color: var(--ink); font-weight: 500; }
+.v2-body h2 { margin: 2.6em 0 .7em; font-weight: 600; font-size: 22px; line-height: 1.25; letter-spacing: -.01em; color: var(--ink); }
+.v2-body h2:first-child { margin-top: 0; }
+.v2-lead { color: var(--ink-warm) !important; }
+
+/* "To this end": the closing list of each section */
+.v2-end { margin: 1.6em 0 0; }
+.v2-end > p { margin: 0 0 .5em !important; color: var(--ink) !important; font-weight: 500; }
+.v2-end ul { margin: 0; padding: 0; list-style: none; }
+.v2-end li { position: relative; padding-left: 22px; margin-bottom: .35em; }
+.v2-end li::before { content: ''; position: absolute; left: 2px; top: .78em; width: 10px; height: 1.5px; background: var(--accent); }
+
+/* pull quotes, attributed, between sections */
+.v2-quote { margin: clamp(48px, 5vw, 72px) 0; padding: 0; }
+.v2-quote p { margin: 0 0 18px !important; font-size: clamp(24px, 2.6vw, 34px) !important; line-height: 1.2 !important; font-weight: 500; letter-spacing: -.02em; color: var(--ink) !important; text-wrap: balance; }
+.v2-quote footer { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--ink-faint); }
+.v2-quote footer b { display: block; color: var(--ink-warm); font-weight: 500; }
+.v2-av { flex: none; width: 36px; height: 36px; border-radius: 50%; background: #000; border: 1px solid var(--line); display: grid; place-items: center; }
+.v2-av img { width: 18px; height: 18px; }
+
+.v2-fig { margin: 2em 0; }
+.v2-fig img, .v2-fig video { display: block; width: 100%; height: auto; border-radius: 10px; background: #000; border: 1px solid var(--line); }
+.v2-fig figcaption { margin-top: 10px; font-size: 13px; color: var(--ink-faint); }
+.v2-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.v2-code { margin: 1.4em 0; padding: 18px 20px; overflow-x: auto; background: var(--bg-raise); border-radius: 10px; font: 13px/1.65 var(--mono); color: var(--ink-warm); }
+.v2-code .c { color: var(--ink-faint); } .v2-code .k { color: var(--accent); }
+
+/* the side column: supporting lists, sticky on wide screens */
+.v2-side { position: sticky; top: calc(var(--nav-h) + 32px); display: grid; gap: 36px; }
+.v2-side h3 { margin: 0 0 12px; font-size: 13px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-faint); }
+.v2-side ul { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.v2-side li { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 14px; color: var(--ink-warm); }
+.v2-side li span { color: var(--ink-faint); text-align: right; }
+.v2-side li i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; background: var(--tag); vertical-align: 1px; }
+
+/* sign-off */
+.v2-sign { margin-top: clamp(48px, 5vw, 72px); padding-top: 28px; border-top: 1px solid var(--line); }
+.v2-sign p { color: var(--ink-warm) !important; }
+.v2-sigs { display: flex; align-items: center; gap: 14px; margin-top: 20px; }
+.v2-sigs b { display: block; color: var(--ink); font-weight: 500; font-size: 16px; }
+.v2-sigs span { font-size: 14px; color: var(--ink-faint); }
+
+@media (max-width: 900px) {
+  .v2-grid { grid-template-columns: 1fr; }
+  .v2-side { position: static; order: -1; grid-template-columns: 1fr 1fr; gap: 28px; }
+}
+@media (max-width: 760px) {
+  .v2-body p, .v2-body li { font-size: 16px; }
+  .v2-side { grid-template-columns: 1fr; }
+  .v2-pair { grid-template-columns: 1fr; }
+}
+</style>
+</head><body class="bv" data-v="2">
+<header id="ca-header"></header>
+<main class="bv-main"><nav id="bv-switch"></nav>
+<article class="v2">
+  <header class="v2-head">
+    <time class="v2-date" datetime="2026-11-26">November 26, 2026</time>
+    <h1 class="v2-title">How we made the Tibba mountain</h1>
+    <p class="v2-dek">A map you can walk: one generator, a lot of contour lines, and a trail to the summit.</p>
+  </header>
+
+  <div class="v2-grid">
+    <div class="v2-body">
+      <h2>Why a mountain</h2>
+      <p class="v2-lead">The first thing anyone sees on tibba.design is a mountain. It counts up from the valley floor, the camera drops into it, and a thin line climbs to the summit.</p>
+      <p>Tibba means a small hill. We have always described our work as climbing with a client: base camp, the ascent, the summit, and then the next peak. A mountain was the obvious symbol, which is exactly why it was hard. Obvious symbols go generic fast.</p>
+      <p>So we set one rule: no stock peaks, no low-poly triangles, no snowy photograph. Maps gave us the language. Contour lines are honest: each one is a single height, and the spacing between them tells you how steep the ground is.</p>
+      <div class="v2-end"><p>To this end, we set out to build:</p><ul>
+        <li>A mountain drawn in the studio's own language</li>
+        <li>Motion that feels surveyed rather than rendered</li>
+        <li>Contours that give a flat screen a slope</li>
+      </ul></div>
+
+      <blockquote class="v2-quote">
+        <p>“We didn’t want a picture of a mountain. We wanted a map of one, that you could walk.”</p>
+        <footer><span class="v2-av"><img src="assets/brand/favicon.svg" alt=""></span><span><b>Tibba Studio</b>Design lead</span></footer>
+      </blockquote>
+
+      <h2>Building the landform</h2>
+      <p>Every mountain on the site, from the hero’s massif to the four client summits, comes from one generator we call the landform. It isn’t a model. It’s a recipe: a handful of parts summed together, each with a height, a spread and a sharpness.</p>
+      <p>One part on its own is a smooth cone, and nobody believes a cone. The character comes from what we cut into it: <strong>domain warp</strong> bends the ridgelines, <strong>spurs</strong> run down from the summit like fingers, and <strong>flutes</strong> are the gullies between them.</p>
+      <figure class="v2-fig">
+        <div class="v2-pair">
+          <img src="assets/blog/peak-firstpost.svg" width="1200" height="900" alt="A single peak drawn in contour lines" loading="lazy">
+          <img src="assets/blog/terrain-firstpost.svg" width="1200" height="900" alt="The same peak with spurs, flutes and terrain" loading="lazy">
+        </div>
+        <figcaption>One part, warped; then the same peak with spurs, flutes and the valley around it.</figcaption>
+      </figure>
+      <p>We tuned it in an internal tool, the Mountains lab. Most of the work was saying no: a ridge that looked dramatic in the lab often looked busy behind a headline.</p>
+      <div class="v2-end"><p>To this end, we built:</p><ul>
+        <li>One landform generator behind every peak</li>
+        <li>Brushes for height, erosion passes, and one-click presets to the hero</li>
+      </ul></div>
+
+      <h2>From heights to lines</h2>
+      <p>The landform gives us a height at any point. We sample those heights on a grid and run marching squares: for every cell, we check which corners sit above a height and draw the segment where the line must cross. Stitch the segments and you have one contour.</p>
+      <pre class="v2-code"><code><span class="c">// one contour at height h, over a grid of samples</span>
+<span class="k">for</span> (<span class="k">let</span> y = 0; y &lt; rows; y++) <span class="k">for</span> (<span class="k">let</span> x = 0; x &lt; cols; x++) {
+  <span class="k">const</span> c = (z[y][x] &gt; h) | (z[y][x+1] &gt; h) &lt;&lt; 1
+          | (z[y+1][x+1] &gt; h) &lt;&lt; 2 | (z[y+1][x] &gt; h) &lt;&lt; 3;
+  <span class="k">if</span> (c &amp;&amp; c !== 15) segments.push(...edge(c, x, y, h));
+}</code></pre>
+      <p>On screen each line is a thin ribbon drawn by a shader, so we can vary its width with the slope and fade it with distance without leaving the GPU. In the loader the ribbons are lit like a relief map; as you scroll they morph to flat ink so the mountain can sit behind text. Aerial fade and a little pointer parallax do the rest.</p>
+      <figure class="v2-fig">
+        <video data-autoplay src="assets/video/summits.mp4" poster="assets/video/summit-0.jpg" width="696" height="428" muted loop playsinline preload="none" aria-label="The client summits drawn as lit contour ribbons, turning"></video>
+        <figcaption>The lit state: each ribbon catches light from above.</figcaption>
+      </figure>
+      <div class="v2-end"><p>To this end, we're building:</p><ul>
+        <li>Lines as shader ribbons, not strokes</li>
+        <li>Two states, lit and ink, that morph on scroll</li>
+        <li>Aerial fade and parallax for depth</li>
+      </ul></div>
+
+      <blockquote class="v2-quote">
+        <p>“A path that repeats perfectly reads as drawn, not walked.”</p>
+        <footer><span class="v2-av"><img src="assets/brand/favicon.svg" alt=""></span><span><b>Tibba Studio</b>Creative technologist</span></footer>
+      </blockquote>
+
+      <h2>Walking the switchbacks</h2>
+      <p>The trail was the last piece and the one we redrew most. Our first version ran straight up the slope and looked like a crack. Real trails on steep ground zig-zag: long traverses, a tight turn, and back.</p>
+      <p>So the route is written around the summit. The distance from the top shrinks as you climb while the angle swings across the face, as a triangle wave with rounded corners rather than a sine. A slow wobble in both means no two legs are the same length. The trail draws on as you arrive and finishes on our mark.</p>
+      <div class="v2-end"><p>To this end, the trail has:</p><ul>
+        <li>Straight legs and hairpin turns</li>
+        <li>No two legs alike</li>
+        <li>A finish on the studio's mark</li>
+      </ul></div>
+
+      <h2>Four more summits, and phones</h2>
+      <p>The client summits share the hero's heightfield, so the home page's mountain and Our Work look like one range seen from two places. Each is coloured for its client. For thumbnails and print, we project the heightfield from the hero's camera, remove hidden lines and fit smooth curves: every illustration is the real mountain.</p>
+      <p>On phones we play a short film of the same scene instead of live WebGL. It looks identical, loads faster and leaves the battery alone. With reduced motion on, the mountain stays still.</p>
+      <div class="v2-end"><p>To this end, we're building:</p><ul>
+        <li>One range for the hero and every case study</li>
+        <li>Clean SVG exports from the live scene</li>
+        <li>A light path for phones and for reduced motion</li>
+      </ul></div>
+
+      <section class="v2-sign" aria-label="Sign-off">
+        <p>Build the system, not the picture. Because every mountain comes from one generator, a change to the landform shows up everywhere at once. And most of our best decisions were removals: fewer contours, one accent colour, one trail instead of five.</p>
+        <p>Thanks for climbing this far with us. A mountain only needs one path to the top — we're glad you took it.</p>
+        <div class="v2-sigs"><span class="v2-av"><img src="assets/brand/favicon.svg" alt=""></span><span><b>The Tibba team</b>Design and engineering</span></div>
+      </section>
+    </div>
+
+    <aside class="v2-side" aria-label="Supporting lists">
+      <div><h3>Peaks</h3><ul>
+        <li><span style="color:var(--ink-warm)"><i style="--tag:var(--accent)"></i>Hero massif</span><span>Home</span></li>
+        <li><span style="color:var(--ink-warm)"><i style="--tag:var(--c-groww)"></i>Groww</span><span>Summit</span></li>
+        <li><span style="color:var(--ink-warm)"><i style="--tag:var(--c-firstpost)"></i>Firstpost</span><span>Summit</span></li>
+        <li><span style="color:var(--ink-warm)"><i style="--tag:var(--c-breathe)"></i>Breathe ESG</span><span>Summit</span></li>
+        <li><span style="color:var(--ink-warm)"><i style="--tag:var(--c-shyft)"></i>Shyft &amp; Mindhouse</span><span>Summit</span></li>
+      </ul></div>
+      <div><h3>The route</h3><ul>
+        <li>Landform<span>Recipe</span></li>
+        <li>Marching squares<span>Contours</span></li>
+        <li>Shader ribbons<span>Lines</span></li>
+        <li>Switchbacks<span>Trail</span></li>
+        <li>Pre-rendered film<span>Phones</span></li>
+      </ul></div>
+      <div><h3>Expedition team</h3><ul>
+        <li>Design lead<span>Tibba Studio</span></li>
+        <li>Creative technologist<span>Tibba Studio</span></li>
+      </ul></div>
+    </aside>
+  </div>
+</article>
+</main>
+<aside class="bv-note" aria-label="About this version"><h2>Version 2<b>V2 · Paper</b></h2><div><p><strong>Borrowed:</strong> Paper's editorial announcement shape: date over a bold headline and a one-line dek, a narrow essay with a side column of supporting lists (peaks, the route, the team), attributed pull quotes between sections, a "To this end…" list closing each section, and a warm sign-off signed by the authors.</p><p><strong>Our brand:</strong> Vend Sans at heavier weights for the headline, the site's dark ground and warm ink, the Tibba mark as every avatar, client colours only as dots beside their summits, and crimson (#C9124B) as the one accent on the closing lists.</p></div></aside>
+<div id="bv-foot"></div>
+<script type="module" src="assets/blog-v.js?v=1"></script>
+</body></html>

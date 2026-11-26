@@ -31,7 +31,7 @@
 <link rel="stylesheet" href="assets/site-shell.css?v=8">
 <link rel="stylesheet" href="assets/work.css">
 <link rel="stylesheet" href="assets/case-figma.css?v=19">
-<link rel="stylesheet" href="assets/service-page.css?v=10">
+<link rel="stylesheet" href="assets/service-page.css?v=12">
 <link rel="stylesheet" href="assets/workbench.css">
 <script src="assets/manifest.js"></script>
 <script src="assets/whats-new.js"></script>
@@ -91,18 +91,14 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
       </div>
 
       <div class="cf-head"><div><h2>How growth design works</h2></div><hr></div>
-      <!-- the steps, one open at a time (assets/service-acc.js): the open step's title, number and line on the left,
-           the rest as a list beneath; its picture on the right (a grey box until the pictures arrive), a line
-           sweeping down it while the steps play on by themselves -->
-      <div class="sv-acc" data-acc>
-        <ol class="sv-acc-list">
-          <li class="on"><h3><button type="button" id="acc-growth-design-01" aria-expanded="true" aria-controls="acc-growth-design-01-b"><span>Find the leaks</span><b>01</b></button></h3><div class="sv-acc-b" id="acc-growth-design-01-b" role="region" aria-labelledby="acc-growth-design-01"><p>Your analytics and an experience audit together show where people drop off, and what it costs you.</p></div></li>
-          <li><h3><button type="button" id="acc-growth-design-02" aria-expanded="false" aria-controls="acc-growth-design-02-b"><span>Pick the bets</span><b>02</b></button></h3><div class="sv-acc-b" id="acc-growth-design-02-b" role="region" aria-labelledby="acc-growth-design-02"><p>The changes most likely to move the number, ranked by impact and effort.</p></div></li>
-          <li><h3><button type="button" id="acc-growth-design-03" aria-expanded="false" aria-controls="acc-growth-design-03-b"><span>Redesign the moments</span><b>03</b></button></h3><div class="sv-acc-b" id="acc-growth-design-03-b" role="region" aria-labelledby="acc-growth-design-03"><p>Landing pages, onboarding, pricing, checkout — designed for the user’s next step, not the whole product at once.</p></div></li>
-          <li><h3><button type="button" id="acc-growth-design-04" aria-expanded="false" aria-controls="acc-growth-design-04-b"><span>Measure and repeat</span><b>04</b></button></h3><div class="sv-acc-b" id="acc-growth-design-04-b" role="region" aria-labelledby="acc-growth-design-04"><p>Each change shipped and measured, the next bet chosen from what we learned.</p></div></li>
-        </ol>
-        <div class="sv-acc-vis" aria-hidden="true"><div class="sv-acc-pic on"></div><div class="sv-acc-pic"></div><div class="sv-acc-pic"></div><div class="sv-acc-pic"></div><span class="sv-acc-scan"></span></div>
-      </div>
+      <!-- the steps, each a row of its own (Nov 2026, after the design): its name, number and line in a card,
+           its picture beside it (a grey panel until the pictures arrive), the two swapping sides row by row -->
+      <ol class="sv-zz">
+        <li class="sv-zz-row"><div class="sv-zz-text"><h3>Find the leaks</h3><b>01</b><p>Your analytics and an experience audit together show where people drop off, and what it costs you.</p></div><div class="sv-zz-pic" aria-hidden="true"><span class="sv-zz-ph"></span><span class="sv-zz-scan"></span></div></li>
+        <li class="sv-zz-row flip"><div class="sv-zz-text"><h3>Pick the bets</h3><b>02</b><p>The changes most likely to move the number, ranked by impact and effort.</p></div><div class="sv-zz-pic" aria-hidden="true"></div></li>
+        <li class="sv-zz-row"><div class="sv-zz-text"><h3>Redesign the moments</h3><b>03</b><p>Landing pages, onboarding, pricing, checkout — designed for the user’s next step, not the whole product at once.</p></div><div class="sv-zz-pic" aria-hidden="true"></div></li>
+        <li class="sv-zz-row flip"><div class="sv-zz-text"><h3>Measure and repeat</h3><b>04</b><p>Each change shipped and measured, the next bet chosen from what we learned.</p></div><div class="sv-zz-pic" aria-hidden="true"></div></li>
+      </ol>
 
       <div class="cf-head"><div><h2>Results our clients measured</h2></div><hr></div>
       <div class="cf-text">
@@ -149,7 +145,6 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   mountSiteNav(document.getElementById('ca-header'), { current: 'Services' });
 </script>
 <!-- primary / secondary typography control (assets/type-control.js) -->
-<script src="assets/service-acc.js?v=1" defer></script>
 <script type="module" src="assets/type-control.js"></script>
 </body>
 </html>

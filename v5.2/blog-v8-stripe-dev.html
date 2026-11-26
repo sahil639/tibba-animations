@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="assets/page-transition.css?v=1">
+<script src="assets/page-transition.js?v=1"></script>
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<title>V8 Stripe Dev · How we made the Tibba mountain</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/type.css?v=3">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/ca-nav.css">
+<link rel="stylesheet" href="assets/site-shell.css?v=8">
+<link rel="stylesheet" href="assets/blog-v.css?v=1">
+<style>
+/* V8 · research-paper / lab-report layout */
+.v8 { max-width: 1280px; margin: 0 auto; padding: 0 var(--gut) 96px; }
+.v8-sec { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 0 48px; border-top: 1px solid var(--line); padding: 28px 0 40px; }
+.v8-mark { font: 12px/1.4 var(--mono); color: var(--accent); letter-spacing: .02em; position: sticky; top: calc(var(--nav-h) + 20px); align-self: start; }
+.v8-mark span { display: block; margin-top: 4px; color: var(--ink-faint); }
+
+.v8-title { padding: 56px 0 36px; }
+.v8-title .k { font: 12px/1 var(--mono); color: var(--ink-faint); text-transform: uppercase; letter-spacing: .08em; }
+.v8-title h1 { margin: 18px 0 0; max-width: 18ch; font-weight: 350; font-size: clamp(38px, 5.6vw, 76px); line-height: 1.02; letter-spacing: -.03em; color: var(--ink); text-wrap: balance; }
+.v8-title p { margin: 22px 0 0; max-width: 640px; font-size: clamp(17px, 1.4vw, 20px); line-height: 1.5; color: var(--ink-mute); }
+
+.v8-meta { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); }
+.v8-meta > div { padding: 14px 16px 16px; min-width: 0; }
+.v8-meta > div + div { border-left: 1px solid var(--line); }
+.v8-meta dt { font: 11px/1 var(--mono); color: var(--ink-faint); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
+.v8-meta dd { margin: 0; font-size: 15px; line-height: 1.45; color: var(--ink); }
+.v8-meta dd small { display: block; color: var(--ink-faint); font-size: 13px; }
+.v8-date { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.v8-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.v8-tags span { padding: 3px 8px; border: 1px solid var(--line); font: 12px/1.4 var(--mono); color: var(--ink-mute); }
+.v8-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.v8-btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--line); background: none; color: var(--ink-warm); font: 12px/1 var(--mono); text-decoration: none; cursor: pointer; }
+.v8-btn:hover { border-color: var(--ink-faint); color: var(--ink); }
+.v8-btn svg { width: 14px; height: 14px; }
+
+.v8-art { max-width: 760px; min-width: 0; }
+.v8-art p, .v8-art li { font-size: 17px; line-height: 1.65; color: var(--ink-warm); }
+.v8-art p { margin: 0 0 1.1em; }
+.v8-art strong { color: var(--ink); font-weight: 500; }
+.v8-art h2 { margin: 2.4em 0 .7em; font-weight: 400; font-size: clamp(24px, 2.2vw, 30px); letter-spacing: -.015em; color: var(--ink); scroll-margin-top: calc(var(--nav-h) + 20px); }
+.v8-art h2:first-child { margin-top: 0; }
+.v8-art h2 .n { font: 13px/1 var(--mono); color: var(--ink-faint); margin-right: 10px; vertical-align: .3em; }
+.v8-art ul, .v8-art ol { margin: 0 0 1.3em; padding-left: 1.2em; }
+.v8-art li { margin-bottom: .45em; }
+.v8-art li::marker { color: var(--accent); font-family: var(--mono); }
+.v8-art sup a { color: var(--accent); text-decoration: none; font-family: var(--mono); font-size: .75em; }
+
+.v8-find { list-style: none; padding: 0 !important; counter-reset: f; border-top: 1px solid var(--line); }
+.v8-find li { counter-increment: f; display: grid; grid-template-columns: 44px minmax(0, 1fr); padding: 14px 0; margin: 0 !important; border-bottom: 1px solid var(--line); }
+.v8-find li::before { content: counter(f, decimal-leading-zero); font: 13px/1.9 var(--mono); color: var(--accent); }
+
+.v8-tbl { margin: 2em 0 2.2em; }
+.v8-tbl-label { display: flex; justify-content: space-between; gap: 16px; font: 12px/1.4 var(--mono); color: var(--ink-faint); padding-bottom: 8px; }
+.v8-tbl-label b { color: var(--ink); font-weight: 500; }
+.v8-scroll { overflow-x: auto; border: 1px solid var(--line); -webkit-overflow-scrolling: touch; }
+.v8-tbl table { width: 100%; border-collapse: collapse; min-width: 560px; }
+.v8-tbl th, .v8-tbl td { text-align: left; vertical-align: top; padding: 11px 14px; border-bottom: 1px solid var(--line); font-size: 14px; line-height: 1.5; }
+.v8-tbl tr:last-child td { border-bottom: 0; }
+.v8-tbl th { font: 11px/1.3 var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--ink-faint); background: var(--bg-raise); font-weight: 400; }
+.v8-tbl td { color: var(--ink-mute); }
+.v8-tbl td:first-child { color: var(--ink); white-space: nowrap; }
+.v8-tbl code, .v8-art code { font: 12.5px var(--mono); color: var(--ink); }
+.v8-sw { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 8px; vertical-align: 0; }
+.v8-tbl figcaption { padding-top: 10px; font-size: 13px; line-height: 1.5; color: var(--ink-faint); }
+.v8-tbl figcaption sup { font-family: var(--mono); color: var(--accent); }
+
+.v8-fig { margin: 2em 0; border: 1px solid var(--line); background: #000; }
+.v8-fig img, .v8-fig video { display: block; width: 100%; height: auto; }
+.v8-fig figcaption { padding: 10px 14px; font-size: 13px; color: var(--ink-faint); background: var(--bg); border-top: 1px solid var(--line); }
+.v8-fig figcaption b { font-family: var(--mono); font-weight: 400; color: var(--ink); margin-right: 6px; }
+.v8-fig-2 { display: grid; grid-template-columns: 1fr 1fr; }
+.v8-fig-2 > div + div { border-left: 1px solid var(--line); }
+.v8-fig-2 figcaption { grid-column: 1 / -1; }
+
+.v8-code { margin: 1.6em 0; padding: 18px 20px; overflow-x: auto; background: var(--bg-raise); border: 1px solid var(--line); font: 13px/1.65 var(--mono); color: var(--ink); }
+.v8-code .c { color: var(--ink-faint); } .v8-code .k { color: var(--accent); } .v8-code .n { color: var(--c-shyft); }
+
+.v8-notes { margin-top: 2.4em; padding-top: 16px; border-top: 1px solid var(--line); }
+.v8-notes ol { padding-left: 1.4em; }
+.v8-notes li { font-size: 13px !important; color: var(--ink-faint) !important; }
+
+.v8-authors { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; border: 1px solid var(--line); }
+.v8-author { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 14px; padding: 18px; }
+.v8-author + .v8-author { border-left: 1px solid var(--line); }
+.v8-av { width: 44px; height: 44px; border-radius: 50%; background: #000; border: 1px solid var(--line); display: grid; place-items: center; }
+.v8-av img { width: 20px; height: 20px; }
+.v8-author b { display: block; font-weight: 500; color: var(--ink); font-size: 15px; }
+.v8-author small { display: block; font: 12px/1.4 var(--mono); color: var(--accent); margin: 2px 0 8px; }
+.v8-author p { margin: 0; font-size: 14px; line-height: 1.55; color: var(--ink-mute); }
+
+.v8-rel { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); }
+.v8-rel a { display: flex; flex-direction: column; text-decoration: none; padding: 14px 14px 18px; gap: 10px; transition: background-color .2s ease; }
+.v8-rel a + a { border-left: 1px solid var(--line); }
+.v8-rel a:hover { background: var(--bg-raise); }
+.v8-rel .fig { font: 11px/1 var(--mono); color: var(--ink-faint); text-transform: uppercase; letter-spacing: .08em; }
+.v8-rel img { width: 100%; height: auto; display: block; border: 1px solid var(--line); }
+.v8-rel .t { font-size: 16px; line-height: 1.35; color: var(--ink); }
+.v8-rel .d { font: 12px/1 var(--mono); color: var(--ink-faint); }
+
+@media (max-width: 960px) {
+  .v8-meta { grid-template-columns: 1fr 1fr; }
+  .v8-meta > div:nth-child(3) { border-left: 0; }
+  .v8-meta > div:nth-child(n+3) { border-top: 1px solid var(--line); }
+}
+@media (max-width: 760px) {
+  .v8-sec { grid-template-columns: 1fr; padding: 22px 0 32px; }
+  .v8-mark { position: static; margin-bottom: 18px; }
+  .v8-mark span { display: inline; margin: 0 0 0 8px; }
+  .v8-title { padding: 36px 0 24px; }
+  .v8-meta { grid-template-columns: 1fr; }
+  .v8-meta > div + div { border-left: 0; border-top: 1px solid var(--line); }
+  .v8-art p, .v8-art li { font-size: 16px; }
+  .v8-authors, .v8-rel { grid-template-columns: 1fr; }
+  .v8-author + .v8-author, .v8-rel a + a { border-left: 0; border-top: 1px solid var(--line); }
+}
+</style>
+</head>
+<body class="bv" data-v="8">
+<header id="ca-header"></header>
+
+<main class="bv-main">
+  <nav id="bv-switch"></nav>
+
+  <div class="v8">
+    <header class="v8-title">
+      <span class="k">Tibba Lab · Field report</span>
+      <h1>How we made the Tibba mountain</h1>
+      <p>A landform generator, contour lines from marching squares, and a trail that walks its switchbacks: a report on the moving mountain at the top of tibba.design.</p>
+    </header>
+
+    <section class="v8-sec" aria-labelledby="v8-m">
+      <div class="v8-mark" id="v8-m">/Metadata</div>
+      <div>
+        <dl class="v8-meta">
+          <div><dt>Published</dt><dd class="v8-date"><time datetime="2026-11-26">2026.11.26</time></dd></div>
+          <div><dt>Authors</dt><dd>Tibba Studio<small>Design · Engineering</small></dd></div>
+          <div><dt>Reading time</dt><dd>8 min</dd></div>
+          <div><dt>Categories</dt><dd class="v8-tags"><span>Behind the work</span><span>WebGL</span><span>Generative</span></dd></div>
+        </dl>
+        <div class="v8-actions">
+          <button class="v8-btn" type="button" id="v8-md"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12v8H2zM4 10V6l2 2 2-2v4M11 6v4M9.5 8.5 11 10l1.5-1.5" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>View as Markdown</button>
+          <button class="v8-btn" type="button" data-copy>Copy link</button>
+          <a class="v8-btn" href="https://www.linkedin.com/sharing/share-offsite/?url=https://tibba.design/blog-how-we-made-the-mountain" target="_blank" rel="noopener">LinkedIn</a>
+          <a class="v8-btn" href="https://x.com/intent/post?url=https://tibba.design/blog-how-we-made-the-mountain" target="_blank" rel="noopener">X</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="v8-sec" aria-labelledby="v8-a">
+      <div class="v8-mark" id="v8-a">/Article<span>§1–§7</span></div>
+      <article class="v8-art" id="v8-article">
+        <h2 id="findings"><span class="n">§1</span>Headline findings</h2>
+        <ol class="v8-find">
+          <li><span><strong>One generator draws every mountain.</strong> The hero’s massif and the four client summits come from a single landform recipe, so a change shows up everywhere at once.</span></li>
+          <li><span><strong>Contours beat renders for this job.</strong> Each line is a single height, and their spacing reads as slope, which gives a flat screen a believable form.</span></li>
+          <li><span><strong>A rounded triangle wave walks; a sine wave squiggles.</strong> Adding a low-frequency wobble stops the trail reading as drawn.</span></li>
+          <li><span><strong>Phones get a film of the same scene.</strong> It looks identical, loads in a fraction of the time and leaves the battery alone.</span></li>
+          <li><span><strong>Most good decisions were removals:</strong> fewer contours, a single accent colour, one trail instead of five.</span></li>
+        </ol>
+
+        <figure class="v8-fig">
+          <img src="assets/blog/hero-mountain.jpg?v=2" width="1600" height="1000" alt="The Tibba mountain drawn in contour lines, with a trail climbing to the summit" fetchpriority="high">
+          <figcaption><b>Plate 1.</b> The hero mountain in its ink state, with the trail at the summit.</figcaption>
+        </figure>
+
+        <h2 id="background"><span class="n">§2</span>Background</h2>
+        <p>Tibba means a small hill. We have always described our work as climbing with a client: base camp, the ascent, the summit, and then the next peak. A mountain was the obvious symbol, which is exactly why it was hard. Obvious symbols go generic fast.</p>
+        <p>We set one constraint: no stock peaks, no low-poly triangles, no snowy photograph. The mountain had to be drawn in the studio’s language, and move as if it were being surveyed rather than rendered. In short, a map of a mountain, that you could walk.</p>
+
+        <h2 id="method"><span class="n">§3</span>Methodology</h2>
+        <p><strong>3.1 Landform.</strong> A landform is a recipe, not a model: a handful of parts summed together, each with a height, a spread and a sharpness. One part alone is a smooth cone; the character comes from what is cut into it (Table 1).</p>
+
+        <figure class="v8-tbl">
+          <div class="v8-tbl-label"><b>Table 1</b><span>Landform parts</span></div>
+          <div class="v8-scroll"><table>
+            <thead><tr><th>Part</th><th>What it does</th><th>Effect on the mountain</th></tr></thead>
+            <tbody>
+              <tr><td>Base part</td><td>A cone with a height, spread and sharpness</td><td>The mass; on its own, unconvincing<sup>a</sup></td></tr>
+              <tr><td>Domain warp</td><td>Pushes the ground sideways before it’s measured</td><td>Ridgelines bend instead of running straight</td></tr>
+              <tr><td>Spurs</td><td>Long ridges running down from the summit</td><td>Reads like the fingers of a hand</td></tr>
+              <tr><td>Flutes</td><td>Narrow gullies between the spurs</td><td>Where rain would run off</td></tr>
+            </tbody>
+          </table></div>
+          <figcaption><sup>a</sup> “Nobody believes a cone.” Parts were tuned in the internal Mountains lab, with height brushes, erosion passes and a send-to-hero button.</figcaption>
+        </figure>
+
+        <figure class="v8-fig v8-fig-2">
+          <div><img src="assets/blog/peak-firstpost.svg" width="1200" height="900" alt="A single peak drawn in contour lines" loading="lazy"></div>
+          <div><img src="assets/blog/terrain-firstpost.svg" width="1200" height="900" alt="The same peak with spurs, flutes and the surrounding terrain" loading="lazy"></div>
+          <figcaption><b>Plate 2.</b> Left: one part, warped. Right: the same peak with spurs, flutes and the valley around it.</figcaption>
+        </figure>
+
+        <p><strong>3.2 Contours.</strong> Heights are sampled on a grid and passed through marching squares: for each cell, the corners above a given height decide which short segment crosses it. Stitched together, the segments form one contour; repeated per height, they form the mountain.</p>
+        <pre class="v8-code"><code><span class="c">// one contour at height h, over a grid of samples</span>
+<span class="k">for</span> (<span class="k">let</span> y = <span class="n">0</span>; y &lt; rows; y++) <span class="k">for</span> (<span class="k">let</span> x = <span class="n">0</span>; x &lt; cols; x++) {
+  <span class="k">const</span> c = (z[y][x] &gt; h) | (z[y][x+<span class="n">1</span>] &gt; h) &lt;&lt; <span class="n">1</span>
+          | (z[y+<span class="n">1</span>][x+<span class="n">1</span>] &gt; h) &lt;&lt; <span class="n">2</span> | (z[y+<span class="n">1</span>][x] &gt; h) &lt;&lt; <span class="n">3</span>;
+  <span class="k">if</span> (c &amp;&amp; c !== <span class="n">15</span>) segments.push(...edge(c, x, y, h));
+}</code></pre>
+        <p><strong>3.3 Rendering.</strong> On screen each line is a thin ribbon of triangles drawn by a shader, so its width can follow the slope and fade with distance on the GPU. The scene has two states: <em>lit</em> in the loader, like a relief map, and <em>ink</em> as you scroll, flat lines on black that sit behind text. Aerial fade pales distant lines; a few pixels of pointer parallax give depth.<sup><a href="#n1">1</a></sup></p>
+
+        <figure class="v8-fig">
+          <video src="assets/video/summits.mp4" poster="assets/video/summit-0.jpg" width="696" height="428" muted loop playsinline preload="none" data-autoplay aria-label="The client summits drawn as lit contour ribbons, turning"></video>
+          <figcaption><b>Plate 3.</b> The lit state: each ribbon catches light from above.</figcaption>
+        </figure>
+
+        <p><strong>3.4 Trail.</strong> The route is written around the summit: distance from the top shrinks steadily while the angle swings across the face. Three swing curves were compared (Table 2).</p>
+
+        <figure class="v8-tbl">
+          <div class="v8-tbl-label"><b>Table 2</b><span>Switchback curves</span></div>
+          <div class="v8-scroll"><table>
+            <thead><tr><th>Curve</th><th>Shape of each leg</th><th>Reads as</th><th>Kept</th></tr></thead>
+            <tbody>
+              <tr><td>Straight up</td><td>No swing</td><td>A crack, not a path</td><td>No</td></tr>
+              <tr><td>Sine wave</td><td>As long turning as walking</td><td>A squiggle</td><td>No</td></tr>
+              <tr><td>Rounded triangle</td><td>Straight legs, hairpin turns</td><td>Switchbacks, but too regular<sup>b</sup></td><td>Base</td></tr>
+              <tr><td>+ low-frequency wobble</td><td>Legs of different lengths</td><td>Walked, not drawn</td><td>Yes</td></tr>
+            </tbody>
+          </table></div>
+          <figcaption><sup>b</sup> “A path that repeats perfectly reads as drawn, not walked.” The wobble is applied to both distance and angle.</figcaption>
+        </figure>
+
+        <p><strong>3.5 Summits.</strong> The four client summits are part of the hero’s heightfield, so the home mountain and the Our Work section read as one range from two places (Table 3).</p>
+
+        <figure class="v8-tbl">
+          <div class="v8-tbl-label"><b>Table 3</b><span>Client summits</span></div>
+          <div class="v8-scroll"><table>
+            <thead><tr><th>Summit</th><th>Route colour</th><th>Where it appears</th></tr></thead>
+            <tbody>
+              <tr><td>Groww</td><td><span class="v8-sw" style="background:var(--c-groww)"></span><code>#4DD9C0</code></td><td>Our Work range, case-study thumbnail</td></tr>
+              <tr><td>Firstpost</td><td><span class="v8-sw" style="background:var(--c-firstpost)"></span><code>#E05555</code></td><td>Our Work range, case-study thumbnail</td></tr>
+              <tr><td>Breathe ESG</td><td><span class="v8-sw" style="background:var(--c-breathe)"></span><code>#4CAF70</code></td><td>Our Work range, case-study thumbnail</td></tr>
+              <tr><td>Shyft &amp; Mindhouse</td><td><span class="v8-sw" style="background:var(--c-shyft)"></span><code>#7B8FF5</code></td><td>Our Work range, case-study thumbnail</td></tr>
+            </tbody>
+          </table></div>
+          <figcaption>Colours are the site’s client tokens. Thumbnails are projected from the hero camera, with hidden lines removed and smooth curves fitted: the real mountain, not a trace of it.</figcaption>
+        </figure>
+
+        <p><strong>3.6 Devices.</strong> A live WebGL scene is a lot to ask of a phone on a train, so delivery differs by device (Table 4).</p>
+
+        <figure class="v8-tbl">
+          <div class="v8-tbl-label"><b>Table 4</b><span>Rendering by device</span></div>
+          <div class="v8-scroll"><table>
+            <thead><tr><th>Context</th><th>What plays</th><th>Motion</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td>Desktop</td><td>Live WebGL scene</td><td>Camera drop, lit → ink morph, trail draw, pointer parallax</td><td>Full scene where there is power for it</td></tr>
+              <tr><td>Phone</td><td>Pre-rendered film of the same scene</td><td>Plays as a short film</td><td>Looks identical, loads faster, spares the battery</td></tr>
+              <tr><td>Reduced motion</td><td>A still mountain</td><td>None</td><td>The contours tell the story on their own</td></tr>
+            </tbody>
+          </table></div>
+          <figcaption>The phone film is recorded once from the scene itself (Plate 4).</figcaption>
+        </figure>
+
+        <figure class="v8-fig" style="display:grid;place-items:center;padding:32px 0;background:#000">
+          <video src="assets/video/hero-mountain-30.mp4" poster="assets/video/hero-mountain-30.jpg" width="720" height="1560" muted loop playsinline preload="none" data-autoplay aria-label="The phone version of the hero mountain" style="width:min(240px,60%);border-radius:24px;border:1px solid var(--line)"></video>
+          <figcaption style="width:100%;box-sizing:border-box;margin-top:32px"><b>Plate 4.</b> The phone hero: the same scene, recorded once and played as a film.</figcaption>
+        </figure>
+
+        <h2 id="limits"><span class="n">§4</span>What this doesn’t cover</h2>
+        <ul>
+          <li>The internals of the Mountains lab tool, beyond what it’s used for.</li>
+          <li>Shader source for the contour ribbons, aerial fade and the lit state.</li>
+          <li>Performance numbers: we report how each device is served, not timings.</li>
+          <li>The hidden-line removal and curve fitting used for SVG export, in detail.</li>
+          <li>Mountains outside tibba.design; everything here is specific to our site.</li>
+        </ul>
+
+        <h2 id="conclusion"><span class="n">§5</span>Conclusion</h2>
+        <p>Build the system, not the picture. Because every mountain comes from one generator, a change to the landform shows up in the hero, the summits, the thumbnails and the share card at once. The hours spent on the generator paid for every illustration we didn’t have to draw.</p>
+        <p>And restraint is a feature. A mountain only needs one path to the top.</p>
+
+        <div class="v8-notes">
+          <ol>
+            <li id="n1">If your device asks for reduced motion, the camera and parallax are off and the mountain stays still.</li>
+          </ol>
+        </div>
+      </article>
+    </section>
+
+    <section class="v8-sec" aria-labelledby="v8-au">
+      <div class="v8-mark" id="v8-au">/About the authors</div>
+      <div class="v8-authors">
+        <div class="v8-author"><span class="v8-av" aria-hidden="true"><img src="assets/brand/favicon.svg" alt="" width="20" height="20"></span><div><b>Tibba Studio</b><small>Design</small><p>Drew the mountain’s language: the contour style, the single accent, the lit and ink states, and the trail’s switchbacks.</p></div></div>
+        <div class="v8-author"><span class="v8-av" aria-hidden="true"><img src="assets/brand/favicon.svg" alt="" width="20" height="20"></span><div><b>Tibba Studio</b><small>Engineering</small><p>Built the landform generator, the marching-squares contours, the shader ribbons, the SVG export and the phone film.</p></div></div>
+      </div>
+    </section>
+
+    <section class="v8-sec" aria-labelledby="v8-r">
+      <div class="v8-mark" id="v8-r">/Related Articles</div>
+      <div class="v8-rel">
+        <a href="groww-casestudy.html"><span class="fig">Fig. 1</span><img src="assets/og/card-groww.png" width="1200" height="630" alt="" loading="lazy"><span class="t">Groww: boosting engagement on the app</span><span class="d">Case study</span></a>
+        <a href="firstpost-casestudy.html"><span class="fig">Fig. 2</span><img src="assets/og/card-firstpost.png" width="1200" height="630" alt="" loading="lazy"><span class="t">Firstpost: 2x traffic through a strategic redesign</span><span class="d">Case study</span></a>
+        <a href="breathe-esg-casestudy.html"><span class="fig">Fig. 3</span><img src="assets/og/card-breathe-esg.png" width="1200" height="630" alt="" loading="lazy"><span class="t">Breathe ESG: faster sales, smoother releases</span><span class="d">Case study</span></a>
+      </div>
+    </section>
+  </div>
+</main>
+
+<aside class="bv-note" aria-label="About this version">
+  <h2>Version 8<b>V8 · Stripe Dev</b></h2>
+  <div>
+    <p><strong>Borrowed:</strong> the lab-report frame: slash-labelled section markers (/Metadata, /Article, /About the authors, /Related Articles), a metadata block with a YYYY.MM.DD date, tags, reading time, View as Markdown and share links, headline findings first, numbered tables with footnote captions, a methodology section, a “What this doesn’t cover” list, and related cards labelled Fig. 1–3.</p>
+    <p><strong>Our brand:</strong> it runs on the site’s dark tokens and Vend Sans, with a monospace kept only for labels and code, and #C9124B for the markers and footnotes. The tables hold facts from the post (landform parts, switchback curves, client route colours, devices) rather than made-up measurements.</p>
+  </div>
+</aside>
+
+<div id="bv-foot"></div>
+<script type="module" src="assets/blog-v.js?v=1"></script>
+<script>
+  /* View as Markdown: the article as plain Markdown, opened in a new tab */
+  document.getElementById('v8-md').addEventListener('click', () => {
+    const art = document.getElementById('v8-article'), out = ['# How we made the Tibba mountain', '', '2026.11.26 · Tibba Studio · 8 min', ''];
+    const inline = el => el.innerText.replace(/\s+/g, ' ').trim();
+    art.querySelectorAll(':scope > h2, :scope > p, :scope > ol > li, :scope > ul > li, :scope > figure.v8-tbl, :scope > pre').forEach(el => {
+      if (el.tagName === 'H2') out.push('## ' + inline(el), '');
+      else if (el.tagName === 'P') out.push(inline(el), '');
+      else if (el.tagName === 'LI') out.push((el.parentElement.tagName === 'OL' ? '1. ' : '- ') + inline(el));
+      else if (el.tagName === 'PRE') out.push('```js', el.innerText, '```', '');
+      else {
+        out.push('', '**' + inline(el.querySelector('.v8-tbl-label')) + '**', '');
+        el.querySelectorAll('tr').forEach((tr, i) => {
+          const cells = [...tr.children].map(inline);
+          out.push('| ' + cells.join(' | ') + ' |');
+          if (i === 0) out.push('|' + cells.map(() => ' --- ').join('|') + '|');
+        });
+        const cap = el.querySelector('figcaption'); if (cap) out.push('', '_' + inline(cap) + '_');
+        out.push('');
+      }
+    });
+    const url = URL.createObjectURL(new Blob([out.join('\n')], { type: 'text/markdown;charset=utf-8' }));
+    window.open(url, '_blank');
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  });
+</script>
+</body>
+</html>

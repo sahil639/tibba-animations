@@ -1,0 +1,325 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="assets/page-transition.css?v=1"><script src="assets/page-transition.js?v=1"></script>
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<title>V6 Modash · How we made the Tibba mountain</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/type.css?v=3"><link rel="stylesheet" href="assets/site.css"><link rel="stylesheet" href="assets/ca-nav.css"><link rel="stylesheet" href="assets/site-shell.css?v=8">
+<link rel="stylesheet" href="assets/blog-v.css?v=1">
+<!-- V6 · after Modash's SEO how-to guides: a numbered-list headline,
+     contributor credits, a sticky contents column with a CTA card beside the
+     article, numbered steps with tips, inline CTA banners and a checklist. -->
+<style>
+.v6 { padding: 0 var(--gut) 112px; }
+.v6-in { max-width: 1240px; margin: 0 auto; }
+
+/* head */
+.v6-head { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(28px, 4vw, 64px); align-items: center; padding: clamp(36px, 5vw, 72px) 0 clamp(36px, 4vw, 56px); border-bottom: 1px solid var(--line); }
+.v6-crumb { display: flex; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--ink-faint); margin-bottom: 20px; }
+.v6-crumb a { text-decoration: none; } .v6-crumb a:hover { color: var(--ink); }
+.v6-title { margin: 0 0 18px; font-weight: 400; font-size: clamp(34px, 4vw, 56px); line-height: 1.06; letter-spacing: -.022em; color: var(--ink); text-wrap: balance; }
+.v6-title em { font-style: normal; color: var(--accent); }
+.v6-dek { margin: 0 0 28px; font-size: 18px; line-height: 1.5; color: var(--ink-mute); max-width: 52ch; }
+.v6-people { display: flex; flex-wrap: wrap; gap: 14px 22px; }
+.v6-person { display: flex; align-items: center; gap: 10px; font-size: 13px; line-height: 1.3; }
+.v6-person .av { width: 34px; height: 34px; flex: none; border-radius: 50%; background: #000; border: 1px solid var(--line); display: grid; place-items: center; }
+.v6-person .av img { width: 16px; height: 16px; }
+.v6-person small { display: block; color: var(--ink-faint); font-size: 12px; }
+.v6-person b { color: var(--ink); font-weight: 500; }
+.v6-dates { margin-top: 20px; font-size: 13px; color: var(--ink-faint); display: flex; gap: 16px; flex-wrap: wrap; }
+.v6-hero { margin: 0; border-radius: 16px; overflow: hidden; border: 1px solid var(--line); background: #000; }
+.v6-hero img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; }
+
+/* body: sticky contents + CTA card, then the article */
+.v6-body { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: clamp(32px, 5vw, 80px); padding-top: 48px; }
+.v6-side { position: sticky; top: calc(var(--nav-h) + 24px); align-self: start; display: grid; gap: 20px; max-height: calc(100vh - var(--nav-h) - 48px); overflow: auto; scrollbar-width: none; }
+.v6-toc h2 { margin: 0 0 12px; font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); }
+.v6-toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; border-left: 1px solid var(--line); }
+.v6-toc a { display: block; padding: 6px 0 6px 14px; margin-left: -1px; border-left: 2px solid transparent; font-size: 14px; line-height: 1.35; color: var(--ink-faint); text-decoration: none; }
+.v6-toc a:hover { color: var(--ink-mute); }
+.v6-toc a.on { color: var(--ink); border-left-color: var(--accent); }
+.v6-card { padding: 20px; border-radius: 14px; background: var(--bg-raise); border: 1px solid var(--line); }
+.v6-card .mk { width: 36px; height: 36px; border-radius: 10px; background: #000; display: grid; place-items: center; margin-bottom: 14px; border: 1px solid var(--line); }
+.v6-card .mk img { width: 18px; }
+.v6-card h3 { margin: 0 0 6px; font-size: 18px; font-weight: 500; color: var(--ink); letter-spacing: -.01em; }
+.v6-card p { margin: 0 0 16px; font-size: 14px; line-height: 1.5; color: var(--ink-mute); }
+.v6-cta { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 11px 16px; border-radius: 999px; background: var(--accent); color: #fff !important; text-decoration: none; font-size: 15px; font-weight: 500; }
+.v6-cta:hover { filter: brightness(1.1); }
+.v6-card small { display: block; margin-top: 12px; text-align: center; font-size: 12px; color: var(--ink-faint); }
+.v6-mtoc { display: none; }
+
+/* article */
+.v6-art { max-width: 740px; min-width: 0; }
+.v6-art p, .v6-art li { font-size: 17px; line-height: 1.65; color: var(--ink-warm); }
+.v6-art p { margin: 0 0 1.1em; }
+.v6-art strong { color: var(--ink); font-weight: 500; }
+.v6-intro p:first-child { font-size: 19px; color: var(--ink); }
+.v6-tldr { margin: 28px 0 8px; padding: 20px 22px; border-radius: 14px; border: 1px solid var(--line); background: var(--bg-deep); }
+.v6-tldr b { display: block; margin-bottom: 10px; font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.v6-tldr ol { margin: 0; padding-left: 1.3em; columns: 2; column-gap: 32px; }
+.v6-tldr li { font-size: 15px; line-height: 1.45; margin-bottom: 6px; break-inside: avoid; }
+.v6-tldr a { text-decoration: none; } .v6-tldr a:hover { color: var(--ink); text-decoration: underline; }
+.v6-art h2 { margin: 72px 0 16px; font-size: clamp(26px, 2.4vw, 34px); font-weight: 400; letter-spacing: -.018em; line-height: 1.15; color: var(--ink); scroll-margin-top: calc(var(--nav-h) + 24px); display: flex; gap: 14px; align-items: baseline; }
+.v6-art h2 .n { flex: none; display: inline-grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; background: var(--accent-dim); border: 1px solid var(--accent); font-size: 17px; font-weight: 500; color: var(--ink); transform: translateY(-4px); }
+.v6-art h3 { margin: 32px 0 10px; font-size: 20px; font-weight: 500; color: var(--ink); }
+.v6-art ul { padding-left: 1.2em; margin: 0 0 1.3em; }
+.v6-art li { margin-bottom: .45em; }
+.v6-art li::marker { color: var(--accent); }
+.v6-tip { margin: 24px 0; padding: 16px 18px 16px 52px; position: relative; border-radius: 12px; background: var(--bg-raise); border: 1px solid var(--line); font-size: 15px !important; line-height: 1.55 !important; color: var(--ink-mute) !important; }
+.v6-tip::before { content: 'Tip'; position: absolute; left: 14px; top: 16px; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+.v6-tip b { color: var(--ink); font-weight: 500; }
+.v6-quote { margin: 28px 0; padding-left: 20px; border-left: 2px solid var(--accent); font-size: 23px; line-height: 1.32; font-weight: 350; color: var(--ink); }
+.v6-shot { margin: 28px 0 32px; }
+.v6-shot > div { border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: #000; }
+.v6-shot img, .v6-shot video { display: block; width: 100%; height: auto; }
+.v6-shot figcaption { margin-top: 10px; font-size: 14px; color: var(--ink-faint); }
+.v6-shot figcaption b { color: var(--ink-mute); font-weight: 500; }
+.v6-two { display: grid !important; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line) !important; }
+.v6-two img { background: #000; }
+.v6-four { display: grid !important; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line) !important; }
+.v6-four div { position: relative; background: #000; }
+.v6-four span { position: absolute; left: 12px; bottom: 10px; display: inline-flex; gap: 7px; align-items: center; font-size: 12px; color: var(--ink); }
+.v6-four span::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--tag); }
+.v6-phone { display: grid !important; place-items: center; padding: 28px; background: var(--bg-deep) !important; }
+.v6-phone video { width: min(230px, 66%); border-radius: 24px; }
+.v6-code { margin: 20px 0 24px; padding: 18px 20px; overflow-x: auto; background: var(--bg-deep); border: 1px solid var(--line); border-radius: 12px; font: 13px/1.65 var(--mono); color: var(--ink-warm); }
+.v6-code .c { color: var(--ink-faint); } .v6-code .k { color: var(--accent); } .v6-code .n { color: var(--c-shyft); }
+
+/* inline CTA banners */
+.v6-banner { margin: 48px 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px; align-items: center; padding: 24px 26px; border-radius: 16px; border: 1px solid var(--accent); background: linear-gradient(120deg, var(--accent-dim), transparent 70%), var(--bg-raise); }
+.v6-banner b { display: block; font-size: 21px; font-weight: 500; color: var(--ink); letter-spacing: -.01em; margin-bottom: 4px; }
+.v6-banner span { font-size: 15px; color: var(--ink-mute); }
+.v6-banner .v6-cta { white-space: nowrap; }
+
+/* checklist */
+.v6-check { list-style: none; padding: 0 !important; margin: 20px 0 12px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.v6-check li { margin: 0; }
+.v6-check li + li { border-top: 1px solid var(--line); }
+.v6-check label { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 14px; padding: 14px 18px; cursor: pointer; font-size: 16px; line-height: 1.5; }
+.v6-check label:hover { background: var(--bg-raise); }
+.v6-check input { appearance: none; margin: 2px 0 0; width: 20px; height: 20px; border-radius: 6px; border: 1.5px solid var(--ink-faint); display: grid; place-items: center; cursor: pointer; }
+.v6-check input:checked { background: var(--accent); border-color: var(--accent); }
+.v6-check input:checked::after { content: ''; width: 9px; height: 5px; border: 2px solid #fff; border-top: 0; border-right: 0; transform: rotate(-45deg) translate(1px, -1px); }
+.v6-check input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.v6-check b { color: var(--ink); font-weight: 500; }
+.v6-check input:checked + span { color: var(--ink-mute); }
+.v6-score { font-size: 14px; color: var(--ink-faint); }
+.v6-score b { color: var(--ink); font-weight: 500; }
+
+.v6-faq details { border-top: 1px solid var(--line); }
+.v6-faq details:last-child { border-bottom: 1px solid var(--line); }
+.v6-faq summary { cursor: pointer; list-style: none; padding: 18px 0; display: flex; justify-content: space-between; gap: 16px; font-size: 17px; color: var(--ink); }
+.v6-faq summary::-webkit-details-marker { display: none; }
+.v6-faq summary::after { content: '+'; color: var(--accent); font-size: 22px; line-height: 1; }
+.v6-faq details[open] summary::after { content: '–'; }
+.v6-faq details p { margin-top: -4px; }
+.v6-sign { margin-top: 2em !important; color: var(--ink) !important; }
+
+@media (max-width: 1000px) { .v6-body { grid-template-columns: 230px minmax(0, 1fr); } }
+@media (max-width: 860px) {
+  .v6-head { grid-template-columns: 1fr; }
+  .v6-hero { order: -1; }
+  .v6-body { grid-template-columns: 1fr; padding-top: 24px; }
+  .v6-side { position: static; max-height: none; order: 2; }
+  .v6-side .v6-toc { display: none; }
+  .v6-mtoc { display: block; margin-bottom: 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg-raise); }
+  .v6-mtoc summary { cursor: pointer; padding: 14px 16px; font-size: 14px; color: var(--ink); list-style: none; display: flex; justify-content: space-between; }
+  .v6-mtoc summary::-webkit-details-marker { display: none; }
+  .v6-mtoc summary::after { content: '▾'; color: var(--ink-faint); }
+  .v6-mtoc ol { margin: 0; padding: 0 16px 14px 34px; }
+  .v6-mtoc li { font-size: 14px; line-height: 1.4; margin-bottom: 6px; color: var(--ink-mute); }
+  .v6-mtoc a { text-decoration: none; }
+}
+@media (max-width: 760px) {
+  .v6-art p, .v6-art li { font-size: 16px; }
+  .v6-tldr ol { columns: 1; }
+  .v6-banner { grid-template-columns: 1fr; padding: 20px; }
+  .v6-art h2 { margin-top: 56px; }
+}
+</style>
+</head><body class="bv" data-v="6">
+<header id="ca-header"></header>
+<main class="bv-main"><nav id="bv-switch"></nav>
+<div class="v6"><div class="v6-in">
+
+  <header class="v6-head">
+    <div>
+      <nav class="v6-crumb" aria-label="Breadcrumb"><a href="blog-versions.html">Blog</a><span aria-hidden="true">›</span><a href="#">Guides</a><span aria-hidden="true">›</span><span>Illustration</span></nav>
+      <h1 class="v6-title"><em>8 steps</em> to draw a mountain in contour lines (how we built the Tibba mountain)</h1>
+      <p class="v6-dek">The landform generator, marching squares and switchback trail behind the moving mountain at the top of tibba.design, written up as steps you can follow.</p>
+      <div class="v6-people">
+        <div class="v6-person"><span class="av"><img src="assets/brand/favicon.svg" alt=""></span><span><small>Written by</small><b>Tibba Studio</b> · Design team</span></div>
+        <div class="v6-person"><span class="av"><img src="assets/brand/favicon.svg" alt=""></span><span><small>Technical review</small><b>Tibba Studio</b> · Engineering</span></div>
+      </div>
+      <div class="v6-dates"><span>Published <time datetime="2026-11-26">Nov 26, 2026</time></span><span>8 min read</span></div>
+    </div>
+    <figure class="v6-hero"><img src="assets/blog/hero-mountain.jpg?v=2" width="1600" height="1000" alt="The Tibba mountain drawn in contour lines, with a trail climbing to the summit" fetchpriority="high"></figure>
+  </header>
+
+  <div class="v6-body">
+    <aside class="v6-side">
+      <nav class="v6-toc" aria-label="Table of contents"><h2>Table of contents</h2><ol data-toc></ol></nav>
+      <div class="v6-card">
+        <div class="mk"><img src="assets/brand/favicon.svg" alt=""></div>
+        <h3>Want a mountain of your own?</h3>
+        <p>We design products, brands and the systems that draw them, from first sketch to launch.</p>
+        <a class="v6-cta" href="index.html#footer">Start a project →</a>
+        <small>Trusted by Groww, Firstpost, Breathe ESG</small>
+      </div>
+    </aside>
+
+    <article class="v6-art">
+      <details class="v6-mtoc"><summary>Table of contents</summary><ol data-toc-m></ol></details>
+
+      <section class="v6-intro">
+        <p>The first thing anyone sees on tibba.design is a mountain. It counts up from the valley floor, the camera drops into it, and a thin line climbs to the summit.</p>
+        <p>People ask us how it was made, so here’s the honest answer: a year of sketches, one stubborn generator, and a lot of contour lines. We’ve written it up as the eight steps we actually took. You don’t need our code to follow them, just a way to sample heights and draw lines.</p>
+        <div class="v6-tldr"><b>The 8 steps at a glance</b><ol data-tldr></ol></div>
+      </section>
+
+      <h2 id="s1"><span class="n">1</span>Pick a symbol you can own</h2>
+      <p>Tibba means a small hill. We have always described our work as climbing with a client: base camp, the ascent, the summit, and then the next peak. A mountain was the obvious symbol, which is exactly why it was hard. Obvious symbols go generic fast.</p>
+      <p>So we set ourselves one rule: <strong>no stock peaks, no low-poly triangles, no snowy photograph.</strong> The mountain had to be ours, drawn in the same language as the rest of the studio, and it had to move like it was being surveyed rather than rendered.</p>
+      <blockquote class="v6-quote">“We didn’t want a picture of a mountain. We wanted a map of one, that you could walk.”</blockquote>
+      <p class="v6-tip"><b>Use contour lines.</b> Each one is a single height, and the spacing between them tells you how steep the ground is. Put enough of them together and a flat screen suddenly has a slope.</p>
+
+      <h2 id="s2"><span class="n">2</span>Build a generator, not a model</h2>
+      <p>Every mountain on the site, from the hero’s massif to the four client summits, comes from one generator we call <strong>the landform</strong>. A landform isn’t a model. It’s a recipe: a handful of parts summed together, each with a height, a spread and a sharpness.</p>
+      <p>We tuned it in a small internal tool, the Mountains lab, with brushes for adding height, erosion passes, and a button that sends a preset straight into the hero.</p>
+      <p class="v6-tip"><b>Most of the work is saying no.</b> A ridge that looks dramatic in the lab often looks busy behind a headline. Judge every preset where it will actually sit.</p>
+
+      <h2 id="s3"><span class="n">3</span>Cut character into the cone</h2>
+      <p>One part on its own is a smooth cone, and nobody believes a cone. The character comes from what you cut into it:</p>
+      <ul>
+        <li><strong>Domain warp</strong> pushes the ground sideways before it’s measured, so ridgelines bend instead of running straight.</li>
+        <li><strong>Spurs</strong> are long ridges that run down from the summit, like the fingers of a hand.</li>
+        <li><strong>Flutes</strong> are the narrow gullies between them, where rain would run off.</li>
+      </ul>
+      <figure class="v6-shot">
+        <div class="v6-two"><img src="assets/blog/peak-firstpost.svg" width="1200" height="900" alt="A single peak drawn in contour lines" loading="lazy"><img src="assets/blog/terrain-firstpost.svg" width="1200" height="900" alt="The same peak with spurs, flutes and the surrounding terrain" loading="lazy"></div>
+        <figcaption><b>Screenshot:</b> left, one part, warped. Right, the same peak with spurs, flutes and the valley around it.</figcaption>
+      </figure>
+
+      <aside class="v6-banner">
+        <div><b>Building something people should remember?</b><span>We make the brand, the product and the details in between.</span></div>
+        <a class="v6-cta" href="index.html#footer">Start a project →</a>
+      </aside>
+
+      <h2 id="s4"><span class="n">4</span>Turn heights into contour lines</h2>
+      <p>The landform gives you a height at any point. To draw it, sample those heights on a grid and run <strong>marching squares</strong> over it:</p>
+      <ul>
+        <li>For every cell, check which corners are above a given height.</li>
+        <li>Draw the short segment where the line must cross.</li>
+        <li>Stitch the segments together and you get one contour. Repeat for every height and you get the mountain.</li>
+      </ul>
+      <pre class="v6-code"><code><span class="c">// one contour at height h, over a grid of samples</span>
+<span class="k">for</span> (<span class="k">let</span> y = <span class="n">0</span>; y &lt; rows; y++) <span class="k">for</span> (<span class="k">let</span> x = <span class="n">0</span>; x &lt; cols; x++) {
+  <span class="k">const</span> c = (z[y][x] &gt; h) | (z[y][x+<span class="n">1</span>] &gt; h) &lt;&lt; <span class="n">1</span>
+          | (z[y+<span class="n">1</span>][x+<span class="n">1</span>] &gt; h) &lt;&lt; <span class="n">2</span> | (z[y+<span class="n">1</span>][x] &gt; h) &lt;&lt; <span class="n">3</span>;
+  <span class="k">if</span> (c &amp;&amp; c !== <span class="n">15</span>) segments.push(...edge(c, x, y, h));
+}</code></pre>
+      <p class="v6-tip"><b>Draw ribbons, not lines.</b> On our screen each contour is a thin strip of triangles drawn by a shader, which lets us vary its width with the slope and fade it with distance without ever leaving the GPU.</p>
+
+      <h2 id="s5"><span class="n">5</span>Light it, then ink it</h2>
+      <p>Our mountain lives in two states. In the loader it’s <strong>lit</strong>: the ribbons catch a soft light from above, the way a relief map does. As you scroll, it morphs to <strong>ink</strong>, flat lines on black, so it can sit behind text without fighting it.</p>
+      <figure class="v6-shot">
+        <div><video src="assets/video/summits.mp4" poster="assets/video/summit-0.jpg" width="696" height="428" muted loop playsinline preload="none" data-autoplay aria-label="The client summits drawn as lit contour ribbons, turning"></video></div>
+        <figcaption><b>Screenshot:</b> the lit state. Each ribbon catches light from above, like a relief map.</figcaption>
+      </figure>
+      <p>Two small effects do most of the work of making it feel real:</p>
+      <ul>
+        <li><strong>Aerial fade</strong> dims the lines as they get further away, the way distant hills go pale.</li>
+        <li><strong>Pointer parallax</strong> moves the camera a few pixels with your cursor, which is enough to make the ground feel like it has depth.</li>
+      </ul>
+
+      <h2 id="s6"><span class="n">6</span>Draw a trail that walks switchbacks</h2>
+      <p>The trail was the last piece, and the one we redrew the most. Our first version ran straight up the slope. It looked like a crack, not a path. Real trails on steep ground zig-zag: long traverses across the face, a tight turn, and back.</p>
+      <h3>How to write the route</h3>
+      <ul>
+        <li>Write it around the summit: the distance from the top shrinks steadily as you climb.</li>
+        <li>Swing the angle back and forth across the face.</li>
+        <li>Use a <strong>triangle wave with rounded corners</strong>, not a sine. A sine spends as long turning as walking and reads as a squiggle; a rounded triangle gives straight legs and hairpin turns.</li>
+      </ul>
+      <blockquote class="v6-quote">“A path that repeats perfectly reads as drawn, not walked.”</blockquote>
+      <p class="v6-tip"><b>Add a little wobble.</b> A low-frequency wobble in both distance and angle means no two legs of the trail are the same length. Ours draws on as you arrive and finishes on the studio’s mark at the summit.</p>
+
+      <h2 id="s7"><span class="n">7</span>Reuse the range for every summit</h2>
+      <p>Our client summits are part of the same heightfield as the hero, which is why the home page’s mountain and the Our Work section look like one range seen from two places. Each summit is coloured for its client, and when you reach it, its own trail climbs from the trailhead to the top.</p>
+      <figure class="v6-shot">
+        <div class="v6-four">
+          <div style="--tag:var(--c-groww)"><img src="assets/blog/terrain-groww.svg" width="1200" height="900" alt="Groww summit in contour lines" loading="lazy"><span>Groww</span></div>
+          <div style="--tag:var(--c-firstpost)"><img src="assets/blog/terrain-firstpost.svg" width="1200" height="900" alt="Firstpost summit in contour lines" loading="lazy"><span>Firstpost</span></div>
+          <div style="--tag:var(--c-breathe)"><img src="assets/blog/terrain-breathe-esg.svg" width="1200" height="900" alt="Breathe ESG summit in contour lines" loading="lazy"><span>Breathe ESG</span></div>
+          <div style="--tag:var(--c-shyft)"><img src="assets/blog/terrain-shyft.svg" width="1200" height="900" alt="Shyft and Mindhouse summit in contour lines" loading="lazy"><span>Shyft &amp; Mindhouse</span></div>
+        </div>
+        <figcaption><b>Screenshot:</b> the four client summits, exported as clean SVG for the case-study thumbnails.</figcaption>
+      </figure>
+      <p>The same summits also leave the browser. For thumbnails and print, we project the heightfield from the hero’s camera, remove the lines hidden behind the slopes, and fit smooth curves through what’s left. Every illustration is the real mountain, not a trace of it.</p>
+
+      <aside class="v6-banner">
+        <div><b>See the mountain at work</b><span>Every case study opens on its own summit, cut from the same range.</span></div>
+        <a class="v6-cta" href="groww-casestudy.html">Read the Groww story →</a>
+      </aside>
+
+      <h2 id="s8"><span class="n">8</span>Ship a film to phones</h2>
+      <p>A live WebGL scene is a lot to ask of a phone on a train. On small screens we play a short, pre-rendered film of the same mountain instead, made from the scene itself. It looks identical, loads in a fraction of the time and leaves the battery alone.</p>
+      <figure class="v6-shot">
+        <div class="v6-phone"><video src="assets/video/hero-mountain-30.mp4" poster="assets/video/hero-mountain-30.jpg" width="720" height="1560" muted loop playsinline preload="none" data-autoplay aria-label="The phone version of the hero mountain"></video></div>
+        <figcaption><b>Screenshot:</b> the phone hero, the same scene recorded once and played as a film.</figcaption>
+      </figure>
+      <p class="v6-tip"><b>Respect reduced motion.</b> If someone has asked their device for less motion, keep the mountain still. The contours tell the story without the camera moving at all.</p>
+
+      <h2 id="vet"><span class="n">✓</span>How to vet your mountain: a checklist</h2>
+      <p>Before a mountain goes live, we run it past these questions. Tick them off as you go.</p>
+      <ul class="v6-check" data-check>
+        <li><label><input type="checkbox"><span><b>It’s yours.</b> No stock peak, no low-poly triangles, no photograph.</span></label></li>
+        <li><label><input type="checkbox"><span><b>It comes from one generator,</b> so a change shows up everywhere at once.</span></label></li>
+        <li><label><input type="checkbox"><span><b>The ridges bend.</b> Warp, spurs and flutes, not a smooth cone.</span></label></li>
+        <li><label><input type="checkbox"><span><b>It sits quietly behind a headline.</b> Checked in place, not only in the lab.</span></label></li>
+        <li><label><input type="checkbox"><span><b>Distance reads.</b> Lines further away fade.</span></label></li>
+        <li><label><input type="checkbox"><span><b>The trail switchbacks,</b> with straight legs, hairpin turns and no perfect repeat.</span></label></li>
+        <li><label><input type="checkbox"><span><b>Phones get a film,</b> not the live scene.</span></label></li>
+        <li><label><input type="checkbox"><span><b>Reduced motion keeps it still.</b></span></label></li>
+      </ul>
+      <p class="v6-score" data-score aria-live="polite"><b>0 / 8</b> checked</p>
+
+      <h2 id="faq">FAQ</h2>
+      <div class="v6-faq">
+        <details><summary>Is the mountain a 3D model?</summary><p>No. It’s a landform: a recipe of parts summed into a height at any point, drawn as contour lines.</p></details>
+        <details><summary>Are the case-study illustrations drawn by hand?</summary><p>No. They’re projected from the same heightfield as the hero, with hidden lines removed and smooth curves fitted through what’s left.</p></details>
+        <details><summary>Why does the phone version look the same?</summary><p>Because it is the same scene, recorded once and played as a film, so phones don’t have to run WebGL.</p></details>
+      </div>
+
+      <h2 id="learned">What we learned</h2>
+      <p>Build the system, not the picture. Because every mountain comes from one generator, a change to the landform shows up everywhere at once: the hero, the summits, the thumbnails and the share card. The hours we spent on the generator paid for every illustration we didn’t have to draw.</p>
+      <p>And restraint is a feature. Most of our best decisions were removals: fewer contours, a single accent colour, one trail instead of five. A mountain only needs one path to the top.</p>
+      <p class="v6-sign">— The Tibba team</p>
+    </article>
+  </div>
+</div></div>
+</main>
+<aside class="bv-note" aria-label="About this version"><h2>Version 6<b>V6 · Modash</b></h2><div>
+  <p><strong>Borrowed:</strong> Modash’s SEO how-to format: a numbered-list headline, contributor credits with roles and a published date, a sticky table of contents with a CTA card and trust line beside it, numbered H2 steps with tips and screenshots, CTA banners between sections, and a “how to vet” checklist with an FAQ.</p>
+  <p><strong>Our brand:</strong> the post is retold as 8 steps without changing any facts. The credits are the studio’s own teams, not invented names. The CTA is “Start a project”, the trust line names our clients, and it’s all Vend Sans on the site’s near-black, with #C9124B for the numbers, the ticks and the buttons.</p>
+</div></aside>
+<div id="bv-foot"></div>
+<script type="module" src="assets/blog-v.js?v=1"></script>
+<script>
+(() => {
+  const hs = [...document.querySelectorAll('.v6-art h2[id]')];
+  const label = h => h.textContent.replace(/^\s*(\d+|✓)/, (m, n) => /\d/.test(n) ? n + '. ' : '');
+  const fill = (ol, list) => { ol.innerHTML = list.map(h => `<li><a href="#${h.id}">${label(h).trim()}</a></li>`).join(''); };
+  fill(document.querySelector('[data-toc]'), hs);
+  fill(document.querySelector('[data-toc-m]'), hs);
+  document.querySelector('[data-tldr]').innerHTML = hs.filter(h => /^s\d/.test(h.id)).map(h => `<li><a href="#${h.id}">${h.textContent.replace(/^\s*\d+/, '').trim()}</a></li>`).join('');
+  const links = [...document.querySelectorAll('[data-toc] a')];
+  const mark = () => { let cur = hs[0]; for (const h of hs) if (h.getBoundingClientRect().top < innerHeight * .3) cur = h;
+    links.forEach(a => a.classList.toggle('on', a.hash === '#' + cur.id)); };
+  addEventListener('scroll', () => requestAnimationFrame(mark), { passive: true }); mark();
+  document.querySelector('.v6-mtoc').addEventListener('click', e => { if (e.target.closest('a')) e.currentTarget.open = false; });
+  const boxes = [...document.querySelectorAll('[data-check] input')], score = document.querySelector('[data-score]');
+  const upd = () => { const n = boxes.filter(b => b.checked).length; score.innerHTML = n === boxes.length ? '<b>8 / 8</b> checked: ready for the summit.' : `<b>${n} / ${boxes.length}</b> checked`; };
+  boxes.forEach(b => b.addEventListener('change', upd));
+})();
+</script>
+</body></html>

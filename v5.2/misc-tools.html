@@ -71,14 +71,15 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 import { applyBaked, bakeControls } from './assets/bake.js';
+import { SITE_PEAKS, clonePeak, prepareLandform, coneAt, fbm } from './assets/landform.js';
 
 /* ── every tunable ──────────────────────────────────────────────────────── */
 const CONFIG = {
   anim: { play: true, speed: 0.35, morph: 0.25 },
   /* fewer, quieter rings than before (11.5 / 0.95), no dashed guides, the site's accent */
-  lines: { density: 7.5, width: 0.6, warp: 0.22, opacity: 0.6, colour: '#F2F3F6' },   /* flat (Nov 2026): a finer, quieter ring, as the reference */
+  lines: { density: 12, width: 0.7, warp: 0.2, opacity: 1, colour: '#4A4C52' },   /* the tools' drawings: fine, close rings in dark grey inside a white outline (Nov 2026) */
   model: { fill: '#0E0E10', shade: 0, rim: 0,   /* flat (Nov 2026): no side shading, no rim light — plain colours, as the reference */
-           outline: 1.6, accent: '#E3582C', logo: true, guides: false },   /* the straps orange, as the reference (Nov 2026) */
+           outline: 2.4, outlineColour: '#F2F3F6', accent: '#E3582C', logo: true, guides: false },   /* the straps orange, as the reference (Nov 2026) */
   view: { autoRotate: false, rotateSpeed: 0.6, bag: 0 },
 };
 const KEY = 'tibba.bake.misc-tools';
@@ -88,7 +89,8 @@ const EMBED = /[?&]embed\b/.test(location.search);
 if (EMBED) {
   document.documentElement.classList.add('bags-embed');
   const b = /[?&](?:tool|bag)=(\d)/.exec(location.search); if (b) C.view.bag = +b[1];
-  if (/[?&]kit=mvp\b/.test(location.search)) C.view.bag = 2;
+  if (/[?&]kit=mvp\b(?!-)/.test(location.search)) C.view.bag = 2;
+  if (/[?&]kit=mvp-mountain\b/.test(location.search)) C.view.bag = 3;
 }
 const LITE = matchMedia('(max-width: 760px), (pointer: coarse)').matches;
 
@@ -124,14 +126,16 @@ const G = {
   uDensity: { value: C.lines.density }, uWidth: { value: C.lines.width }, uWarp: { value: C.lines.warp },
   uLineOp: { value: C.lines.opacity }, uLineCol: { value: new THREE.Color(C.lines.colour) },
   uFill: { value: new THREE.Color(C.model.fill) }, uShade: { value: C.model.shade }, uRim: { value: C.model.rim },
-  uOutline: { value: 0.02 }, uOutlineCol: { value: new THREE.Color(C.lines.colour) },
+  uOutline: { value: 0.02 }, uOutlineCol: { value: new THREE.Color(C.model.outlineColour) },
 };
 
 const VS = `
   attribute vec3 aLocal;
+  attribute float aFade;                 // 0 everywhere a part has no such attribute; the terrain's rim sets it toward 1
   varying vec3 vLocal, vN, vV;
+  varying float vFade;
   void main(){
-    vLocal = aLocal;
+    vLocal = aLocal; vFade = 1.0 - aFade;
     vec4 mv = modelViewMatrix * vec4(position, 1.0);
     vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz);
     gl_Position = projectionMatrix * mv;
@@ -141,6 +145,7 @@ const FS = `
   uniform float uPhase, uMorphT, uDensity, uWidth, uWarp, uLineOp, uShade, uRim, uLines, uSeed, uSolid;
   uniform vec3 uLineCol, uFill, uBase, uK, uC;
   varying vec3 vLocal, vN, vV;
+  varying float vFade;
   float hash(vec3 p){ p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
   float noise(vec3 x){
     vec3 i = floor(x), f = fract(x); f = f * f * (3.0 - 2.0 * f);
@@ -166,7 +171,7 @@ const FS = `
     line *= uLines * uLineOp;   /* flat (Nov 2026): the rings no longer fade toward the edges */
     col = mix(col, uLineCol, line);
     col += uLineCol * pow(1.0 - facing, 3.0) * uRim * (1.0 - uSolid);
-    gl_FragColor = vec4(col, 1.0);
+    gl_FragColor = vec4(col, vFade);
     #include <colorspace_fragment>
   }`;
 const HULL_VS = `uniform float uOutline; void main(){ gl_Position = projectionMatrix * modelViewMatrix * vec4(position + normal * uOutline, 1.0); }`;
@@ -344,55 +349,141 @@ const dome = (u, k = 0.025) => u > 1 - k ? Math.sqrt(Math.max(0.0001, 1 - Math.p
    Built lying flat: the handle runs along +x from the head, curving a
    little toward −y as it nears the knob; the blade reaches toward +y, the
    poll toward −y; the blade's faces look along ±z. */
-function buildHatchet() {
-  bag.rotation.x = -Math.PI / 2;                  // lying on the ground, faces up: seen in isometric, the handle runs down to the right, the blade to the left
-  /* the handle: oval, slimmer through the neck under the head, swelling
-     to the grip and a hooked knob at the end */
-  const hx = u => 0.27 + 0.05 * smooth(0.15, 0.55, u) + 0.07 * smooth(0.8, 0.96, u);
-  const handle = sweep([[-0.4, 0, 0], [1.6, -0.02, 0], [3.6, -0.17, 0], [5.4, -0.45, 0], [6.5, -0.78, 0], [7.0, -1.02, 0]],
-    u => (hx(u) + 0.1 * smooth(0.9, 0.99, u)) * dome(u), u => (hx(u) * 0.8) * dome(u), [0, 1, 0], { seg: 140 });
-  add(handle.g, surface({ k: [2.4, 0.62, 2.4], c: [0.55, 0.2, 0.35], seed: 2.4 }), 'handle');
-
-  /* the head, forged in one: the blade reaching toward −y (the side the
-     handle bends to), the eye round the handle's top, the poll toward +y.
-     Each is made pointing +y and turned half round x, so its faces keep
-     their winding. */
-  const flip = g => g.rotateX(Math.PI);
-  const BL = 3.1, BY = 0.62 + BL / 2;              // the blade's length and where its middle sits
-  const flare = (v, x, t) => { v.x = v.x * (1 + 1.25 * Math.pow(t, 1.5)) + 0.45 * Math.pow(t, 1.7); };
-  add(flip(block(1.45, BL, 0.56, 0.06, [28, 34, 6], { deform: (v, x, y, z) => {
-      const t = (y + 1) / 2;                                     // 0 at the eye, 1 at the edge
-      flare(v, x, t);
-      v.z *= Math.max(0.14, 1 - 0.84 * Math.pow(t, 1.1));
-      v.y += 0.3 * (1 - x * x) * Math.pow(Math.max(0, y), 6);     // the edge, convex
-    } }).translate(0.05, BY, 0)),
-    surface({ k: [0.95, 0.85, 0.6], c: [0.55, 0.0, 0.2], seed: 1.7 }), 'blade');
-  /* the bevel: a band along the edge, its lines running with the edge */
-  add(flip(block(1.45, 0.42, 0.12, 0.02, [28, 4, 2], { deform: (v, x, y, z) => {
-      const t = 1 - 0.135 * (1 - y) / 2;
-      flare(v, x, t);
-      v.y += 0.3 * (1 - x * x) * (y > 0 ? 1 : 0.55);
-      v.z *= 1.1 - 0.7 * (y + 1) / 2;
-    } }).translate(0.05, BY + BL / 2 - 0.2, 0)),
-    surface({ k: [0.06, 2.6, 0.06], c: [0, 0.3, 0], seed: 3.3 }), 'bevel');
-  add(block(1.25, 1.25, 0.82, 0.26, [12, 12, 8], { deform: (v, x, y, z) => { v.z *= 1 - 0.16 * (1 - y * y); } }).translate(0.05, 0, 0),
-    surface({ k: [1.3, 1.3, 0.9], c: [0.15, 0.1, 0.35], seed: 5.2 }), 'eye');
-  add(block(1.05, 1.0, 0.86, 0.3, [12, 12, 8], { deform: (v, x, y, z) => { if (y > 0) { v.x *= 1 + 0.07 * y; v.z *= 1 + 0.06 * y; } else { v.x *= 1 + 0.12 * y; v.z *= 1 + 0.1 * y; } } }).translate(0.05, 1.05, 0),
-    surface({ k: [1.2, 1.2, 1.2], c: [0, 0.25, 0.4], seed: 8.1 }), 'poll');
-
-  /* the collar under the head, drawn in orange, and its keeper loop */
-  const ring = [];
-  for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; ring.push([1.08, Math.cos(a) * 0.38, Math.sin(a) * 0.31]); }
-  add(strap(ring, 0.34, 0.06, [1, 0, 0], { closed: true, seg: 72, r: 0.02 }).g, solidDark(), 'collar', true, accentHull());
-  add(strap([[1.08, 0.3, 0.24], [1.12, 0.6, 0.52], [1.12, 0.9, 0.44], [1.1, 0.76, 0.12]], 0.22, 0.05, [1, 0, 0], { seg: 30, r: 0.02 }).g, solidDark(), 'keeper', true, accentHull());
-
-  /* the lanyard: through the knob, a loop lying on the ground beside it */
-  const cord = sweep([[6.85, -0.97, 0.12], [7.15, -1.27, 0.05], [7.05, -1.87, -0.1], [6.25, -2.42, -0.2], [5.05, -2.47, -0.2], [4.5, -2.12, -0.15],
-                      [4.9, -1.85, -0.1], [6.0, -1.79, -0.05], [6.77, -1.52, 0.0], [7.0, -1.22, 0.06]],
-    () => 0.045, () => 0.045, [0, 0, 1], { seg: 140, radial: 10 });
-  add(cord.g, solidDark(), 'lanyard');
+/* scale a part's thickness (z) by a function of y, after it is built: a
+   blade thinning toward its edge. aLocal keeps the untapered position. */
+function taperZ(g, f) {
+  const P = g.attributes.position;
+  for (let i = 0; i < P.count; i++) P.setZ(i, P.getZ(i) * f(P.getY(i)));
+  P.needsUpdate = true; g.computeVertexNormals();
+  return g;
 }
-makeBag('Hatchet', buildHatchet, { dir: [1, 0.95, 1], zoom: 1.05 });
+/* a point on a swept tube's surface: u along it, th round it (0 toward
+   `side`), lifted off the surface by `lift` — the same frame sweep() uses */
+function surfPoint(curve, rx, rz, side, u, th, lift = 0) {
+  const p = curve.getPointAt(u), tg = curve.getTangentAt(u), b0 = new THREE.Vector3(...side).normalize();
+  const n = new THREE.Vector3().crossVectors(b0, tg).normalize(), b = new THREE.Vector3().crossVectors(tg, n).normalize();
+  const ax = rx(u) + lift, az = rz(u) + lift;
+  return p.clone().addScaledVector(b, Math.cos(th) * ax).addScaledVector(n, Math.sin(th) * az);
+}
+/* a drawn line in 3D: a thin white tube along points (the grip panel's edge) */
+const inkMat = () => surface({ lines: 0, solid: 1, base: G.uOutlineCol });
+function inkLine(points, r = 0.016, closed = false) {
+  const c = new THREE.CatmullRomCurve3(points, closed, 'centripetal');
+  const g = new THREE.TubeGeometry(c, Math.max(32, points.length * 4), r, 6, closed);
+  g.deleteAttribute('uv'); g.setAttribute('aLocal', g.attributes.position.clone());
+  return add(g, inkMat(), 'ink', false);
+}
+/* the collar's leather: a light band, red stitching running near both edges */
+const STITCH_FS = `
+  precision highp float;
+  uniform vec3 uBand, uStitch; uniform float uW, uLen;
+  varying vec3 vLocal, vN, vV;
+  void main(){
+    float ax = abs(vLocal.x) / uW;                       // 0 at the band's middle, 1 at its edge
+    float along = vLocal.y;
+    float onRow = 1.0 - smoothstep(0.035, 0.07, abs(ax - 0.72));
+    float dash = step(0.45, fract(along * 9.0));
+    vec3 col = mix(uBand, uStitch, onRow * dash);
+    gl_FragColor = vec4(col, 1.0);
+    #include <colorspace_fragment>
+  }`;
+const stitchMat = (w) => new THREE.ShaderMaterial({ uniforms: { uBand: { value: new THREE.Color('#ECECEF') }, uStitch: accent, uW: { value: w / 2 }, uLen: { value: 1 } }, vertexShader: VS, fragmentShader: STITCH_FS });
+
+function buildHatchet() {
+  bag.rotation.x = -Math.PI / 2;                  // lying on the ground, faces up: seen from a little above isometric, the handle runs down to the right, the blade to the left
+  /* Built to the designer's outline drawing (Nov 2026), its proportions
+     measured off it: the handle 7.2 long from the eye, the blade 3.3 from the
+     eye to the edge, the toe at x −0.95 and the heel at 1.6, the poll ending
+     1.95 beyond the eye. The hatchet lies on the ground: the handle's centre
+     at z 0. The hatchet's rings are spaced about twice as wide as the other
+     tools' (each part's k is lower), so they don't crowd. */
+
+  /* ── the handle: full and oval under the collar, easing a little through
+     the middle, then flaring to the butt, which hooks toward the blade's
+     side and ends in a broad, nearly flat oval face */
+  const hr = u => 0.44 + 0.04 * smooth(0.05, 0.35, u) - 0.05 * smooth(0.35, 0.62, u) + 0.24 * smooth(0.74, 0.97, u);
+  const hRx = u => hr(u) * dome(u, 0.014), hRz = u => hr(u) * 0.84 * dome(u, 0.014);
+  const HP = [[-0.3, 0, 0], [1.6, 0.04, 0], [3.4, 0.0, 0], [5.0, -0.2, 0], [6.15, -0.55, 0], [6.85, -0.98, 0], [7.15, -1.32, 0.02]];
+  const handle = sweep(HP, hRx, hRz, [0, 1, 0], { seg: 200, radial: 40 });
+  add(handle.g, surface({ k: [1.3, 0.16, 1.3], c: [0.95, -0.4, 0.75], seed: 2.4 }), 'handle');
+  /* the grip panel: its edge drawn on the handle's upper, near side, from
+     the middle of the handle to the flare, its ends rounded */
+  {
+    const pts = [], U0 = 0.44, U1 = 0.9, T0 = -0.52 * Math.PI, T1 = -1.08 * Math.PI, sp = [0, 1, 0];
+    const at = (u, th) => surfPoint(handle.curve, hRx, hRz, sp, u, th, 0.006);
+    for (let i = 0; i <= 40; i++) pts.push(at(U0 + (U1 - U0) * i / 40, T0 - 0.04 * Math.sin(i / 40 * Math.PI)));
+    for (let i = 1; i < 10; i++) { const a = i / 10; pts.push(at(U1 + 0.025 * Math.sin(a * Math.PI), T0 + (T1 - T0) * a)); }
+    for (let i = 0; i <= 40; i++) pts.push(at(U1 - (U1 - U0) * i / 40, T1 + 0.03 * Math.sin(i / 40 * Math.PI)));
+    for (let i = 1; i < 10; i++) { const a = i / 10; pts.push(at(U0 - 0.03 * Math.sin(a * Math.PI), T1 + (T0 - T1) * a)); }
+    inkLine(pts, 0.017, true);
+    /* and the butt's face: an oval drawn round the end */
+    const face = []; for (let i = 0; i < 48; i++) face.push(surfPoint(handle.curve, hRx, hRz, sp, 0.982, i / 48 * Math.PI * 2, 0.004));
+    inkLine(face, 0.016, true);
+  }
+  /* the ring at the butt, the cord's toggle, and the flat cord looping out
+     over the ground and back under the handle */
+  const ringAt = surfPoint(handle.curve, hRx, hRz, [0, 1, 0], 0.955, -0.62 * Math.PI, 0.02);
+  const kr = new THREE.TorusGeometry(0.16, 0.04, 8, 32); kr.deleteAttribute('uv'); kr.setAttribute('aLocal', kr.attributes.position.clone());
+  const ring = add(kr, solidDark(), 'butt-ring'); ring.position.copy(ringAt); ring.rotation.set(0.3, 0.9, 0.4);
+  const tog = new THREE.SphereGeometry(0.11, 16, 12); tog.deleteAttribute('uv'); tog.setAttribute('aLocal', tog.attributes.position.clone());
+  add(tog, solidDark(), 'toggle').position.set(7.42, -1.5, 0.05);
+  const cord = strap([[7.2, -1.2, 0.42], [7.45, -1.42, 0.12], [7.42, -1.75, -0.25], [7.0, -2.3, -0.42], [6.2, -2.62, -0.44], [5.15, -2.6, -0.44], [4.7, -2.28, -0.44],
+                      [5.0, -2.0, -0.44], [6.0, -2.02, -0.44], [6.85, -1.85, -0.38], [7.32, -1.6, -0.1], [7.3, -1.32, 0.3]],
+    0.035, 0.15, [0, 0, 1], { seg: 220, r: 0.012 });   // flat: thin up and down, wide across the ground
+  add(cord.g, solidDark(), 'lanyard');
+
+  /* ── the head, built in place: the blade toward −y, the poll toward +y */
+  const TE = 0.78;                                  // the head's thickness at the eye
+  /* the blade: one face from the eye to the bevel — the top line straight
+     from the eye down to the toe, the beard straight down from the cheek to
+     the heel — thinning toward the edge */
+  const bs = new THREE.Shape();
+  bs.moveTo(-0.6, 0.62); bs.lineTo(0.58, 0.62); bs.lineTo(0.58, -0.3);
+  bs.quadraticCurveTo(0.62, -0.75, 0.85, -1.2);       // the cheek swinging off the handle
+  bs.lineTo(1.5, -2.88);                              // the beard, straight to the heel
+  bs.lineTo(-0.88, -2.78);                            // across, where the bevel begins
+  bs.lineTo(-0.6, 0.62);                              // the top line, straight back up to the eye
+  const blade = plate(bs, TE, 0.015, { curve: 20 });
+  taperZ(blade, y => 1 - 0.6 * smooth(0.0, -2.85, y));
+  add(blade, surface({ k: [0.42, 0.42, 0.45], c: [-0.05, -1.9, 0], seed: 1.7 }), 'blade');
+  /* the creases the drawing draws on the face: where the bevel begins, and
+     where the beard's narrow side turns from the face */
+  const bladeTop = y => TE / 2 * (1 - 0.6 * smooth(0.0, -2.85, y)) + 0.02;
+  const crease = (x0, y0, x1, y1, n = 24) => { const p = []; for (let i = 0; i <= n; i++) { const s = i / n, x = x0 + (x1 - x0) * s, y = y0 + (y1 - y0) * s; p.push(new THREE.Vector3(x, y, bladeTop(y))); } return p; };
+  inkLine(crease(-0.86, -2.78, 1.47, -2.88), 0.016);
+  inkLine(crease(0.82, -1.2, 1.45, -2.82), 0.014);
+  /* the bevel: the band along the edge, narrowing to nothing, its lines running with the edge */
+  const ev = new THREE.Shape();
+  ev.moveTo(-0.88, -2.78); ev.lineTo(1.5, -2.88); ev.lineTo(1.66, -3.36);
+  ev.quadraticCurveTo(0.35, -3.42, -0.98, -3.26); ev.lineTo(-0.88, -2.78);
+  const evG = plate(ev, TE * 0.4, 0.003, { curve: 24 });
+  taperZ(evG, y => Math.max(0.03, 1 - smooth(-2.8, -3.4, y)));
+  add(evG, surface({ k: [0.02, 1.15, 0.02], c: [0, -2.8, 0], seed: 3.3 }), 'bevel');
+  /* the eye round the handle's top, swelling a touch over the face */
+  add(block(1.12, 1.05, TE + 0.16, 0.34, [14, 14, 10], { deform: (v, x, y, z) => { if (y < 0) v.z *= 1 - 0.35 * y * y; } }).translate(-0.01, 0.1, 0),
+    surface({ k: [0.6, 0.6, 0.5], c: [-0.05, 0.25, 0.5], seed: 5.2 }), 'eye');
+  /* the neck, waisted between the eye and the poll */
+  add(block(0.82, 0.62, 0.74, 0.26, [10, 6, 8], { deform: (v, x, y, z) => { const w = 1 - 0.16 * (1 - y * y); v.x *= w; v.z *= w; } }).translate(-0.01, 0.9, 0),
+    surface({ k: [0.75, 0.45, 0.75], c: [0.2, 0.9, 0.4], seed: 6.4 }), 'neck');
+  /* the poll: an octagonal hammer, its corners chamfered, its striking face
+     hatched across */
+  const pollG = new THREE.LatheGeometry([new THREE.Vector2(0.0001, 1.18), new THREE.Vector2(0.4, 1.18), new THREE.Vector2(0.56, 1.32),
+    new THREE.Vector2(0.56, 1.8), new THREE.Vector2(0.44, 1.95), new THREE.Vector2(0.0001, 1.95)], 8, Math.PI / 8);
+  pollG.deleteAttribute('uv'); pollG.deleteAttribute('normal');
+  const pollM = mergeVertices(pollG); pollM.setAttribute('aLocal', pollM.attributes.position.clone()); pollM.computeVertexNormals();
+  add(pollM, surface({ k: [0.65, 0.45, 0.65], c: [0, 2.2, 0.1], seed: 8.1 }), 'poll').position.set(-0.01, 0, 0);
+  const faceG = new THREE.CircleGeometry(0.43, 8, Math.PI / 8).rotateX(-Math.PI / 2);
+  faceG.deleteAttribute('uv'); faceG.setAttribute('aLocal', faceG.attributes.position.clone());
+  add(faceG, surface({ k: [2.4, 0, 0], c: [0, 0, 0], seed: 0 }), 'striking-face', false).position.set(-0.01, 1.955, 0);
+
+  /* ── the collar: a light leather band round the handle under the head,
+     stitched near both edges, and its keeper loop toward the poll's side */
+  const cring = [];
+  for (let i = 0; i < 16; i++) { const a = i / 16 * Math.PI * 2; cring.push([1.04, 0.04 + Math.cos(a) * 0.5, Math.sin(a) * 0.44]); }
+  add(strap(cring, 0.4, 0.07, [1, 0, 0], { closed: true, seg: 96, r: 0.025 }).g, stitchMat(0.4), 'collar');
+  add(strap([[1.0, 0.42, 0.32], [1.02, 0.78, 0.52], [1.2, 1.02, 0.36], [1.24, 0.82, 0.06], [1.16, 0.52, 0.0]], 0.22, 0.06, [1, 0, 0], { seg: 40, r: 0.02 }).g, stitchMat(0.22), 'keeper');
+}
+makeBag('Hatchet', buildHatchet, { dir: [1, 1.27, 1], zoom: 1.15 });   /* a little higher than isometric, as the drawing: the blade's face shows fuller */
 
 /* a flat part cut from a shape (holes and all) and given thickness, its
    edges rounded; aLocal is its own position, for the contour field */
@@ -484,7 +575,7 @@ function buildRope() {
   const e = pts[pts.length - 1];
   pts.push([e[0] - 0.35, e[1] - 0.6, 0.15], [e[0] - 0.9, e[1] - 1.5, 0.13], [e[0] - 1.25, e[1] - 2.3, 0.13]);
   const rope = sweep(pts, () => 0.15, () => 0.15, [0, 0, 1], { seg: 1100, radial: 12 });
-  add(rope.g, surface({ k: [0.2, 1.0, 0.2], c: [0, 0, 0], seed: 9.9 }), 'rope');
+  add(rope.g, surface({ k: [0.2, 0.6, 0.2], c: [0, 0, 0], seed: 9.9 }), 'rope');
   /* the binding: two orange wraps round the bundle where its loops gather */
   for (const dy of [-0.22, 0.22]) {
     const ring = [];
@@ -520,6 +611,54 @@ makeBag('MVP kit', () => {
   for (const [cx, cy] of [[2.7, -2.55], [3.95, -3.15], [2.45, -3.85]]) part(() => buildCoin(0, 0), cx, cy, 1, 0);
 }, { dir: [1, 0.95, 1], zoom: 1.0, shift: [0.6, 0, 0.4] });
 
+/* the Tibba mountain on its own ground: the studio's massif from the site's
+   generator (assets/landform.js, the hero's own landform) on the hero's
+   rolling terrain, as a heightfield lying in the kit's ground plane. Its
+   rings are contour lines — the field is the height alone — and the ground
+   fades away at the rim, so it has no edge. */
+const MT = { size: 8.2, world: 150, lift: 1.3, seg: 210 };
+const studio = prepareLandform(clonePeak(SITE_PEAKS[0]));
+function terrainH(lx, ly) {
+  const s = MT.world / MT.size, wx = studio.x + lx * s, wz = studio.z - ly * s;
+  let v = (fbm(wx * .058 + 1.7, wz * .058 + 2.3) - .45) * 6 + coneAt(studio, wx, wz);
+  return Math.max(0, v) / s * MT.lift;
+}
+function buildMountain() {
+  const N = MT.seg, S = MT.size, g = new THREE.PlaneGeometry(S, S, N, N);
+  g.deleteAttribute('uv'); g.deleteAttribute('normal');
+  const P = g.attributes.position, L = new Float32Array(P.count * 3), F = new Float32Array(P.count);
+  for (let i = 0; i < P.count; i++) {
+    const x = P.getX(i), y = P.getY(i), z = terrainH(x, y) + 0.02;
+    P.setZ(i, z); L[i * 3 + 2] = z;
+    const r = Math.hypot(x, y) / (S / 2);
+    F[i] = smooth(0.62, 0.98, r);                 // fades from two thirds of the way out to nothing at the rim
+  }
+  g.setAttribute('aLocal', new THREE.BufferAttribute(L, 3));
+  g.setAttribute('aFade', new THREE.BufferAttribute(F, 1));
+  g.computeVertexNormals();
+  const m = surface({ k: [0, 0, 1.15], c: [0, 0, 0], seed: 4.2 });
+  m.transparent = true; m.side = THREE.DoubleSide; m.depthWrite = true;
+  m.uniforms.uLineCol = { value: new THREE.Color('#8E9099') };   /* no outline round the terrain, so its contours a lighter grey than the tools' */
+  add(g, m, 'terrain', false);
+}
+
+/* the MVP kit again, with the mountain where the hatchet lay (?embed&kit=mvp-mountain) */
+makeBag('MVP kit · mountain', () => {
+  const root = bag;
+  root.rotation.x = -Math.PI / 2;
+  const part = (fn, x, y, s = 1, rz = 0) => {
+    const g = new THREE.Group(); root.add(g); bag = g; fn(); g.rotation.x = 0;
+    g.position.set(x, y, 0); g.scale.setScalar(s); g.rotation.z = rz; bag = root; return g;
+  };
+  part(buildMountain, 1.6, -0.9, 1, 0);
+  part(buildAscender, 2.4, 3.9, 0.66, 0.05);
+  part(buildRope, 7.6, 2.6, 1.15, 0.1);
+  for (const [cx, cy] of [[5.2, -2.4], [6.4, -3.0], [5.0, -3.7]]) {
+    const z = terrainH(cx - 1.6, cy + 0.9);
+    part(() => buildCoin(0, 0), cx, cy, 1, 0).position.z = z;
+  }
+}, { dir: [1, 0.95, 1], zoom: 0.95, shift: [0.6, 0, 0.4] });
+
 /* ── applying the config ─────────────────────────────────────────────────── */
 let cur = Math.min(BAGS.length - 1, Math.max(0, C.view.bag | 0));
 BAGS[cur].pivot.visible = true;
@@ -528,7 +667,7 @@ camera.position.copy(HOME.target).addScaledVector(HOME.dir, 40); camera.zoom = H
 controls.target.copy(HOME.target); controls.update();
 function apply() {
   G.uDensity.value = C.lines.density; G.uWidth.value = C.lines.width; G.uWarp.value = C.lines.warp; G.uLineOp.value = C.lines.opacity;
-  G.uLineCol.value.set(C.lines.colour); G.uOutlineCol.value.set(C.lines.colour);
+  G.uLineCol.value.set(C.lines.colour); G.uOutlineCol.value.set(C.model.outlineColour);
   G.uFill.value.set(C.model.fill); G.uShade.value = C.model.shade; G.uRim.value = C.model.rim;
   accent.value.set(C.model.accent);
   marks.forEach(m => { m.visible = C.model.logo; });
@@ -629,6 +768,7 @@ const SCHEMA = [
   ['model.shade', 'Shading', 0, 1, 0.01],
   ['model.rim', 'Rim light', 0, 1, 0.01],
   ['model.outline', 'Outline', 0, 4, 0.1, 'px'],
+  ['model.outlineColour', 'Outline colour', 'color'],
   ['model.accent', 'Accent (strap, keeper, buckle)', 'color'],
   ['model.logo', 'Tibba mark on the front', 'check'],
   ['model.guides', 'Dimension guides', 'check'],

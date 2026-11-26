@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="assets/page-transition.css?v=1"><script src="assets/page-transition.js?v=1"></script>
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<title>Blog layouts · How we made the Tibba mountain</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/type.css?v=3"><link rel="stylesheet" href="assets/site.css"><link rel="stylesheet" href="assets/ca-nav.css"><link rel="stylesheet" href="assets/site-shell.css?v=8">
+<link rel="stylesheet" href="assets/blog-v.css?v=1">
+<style>
+  .vx { padding: clamp(40px, 6vw, 88px) var(--gut) 96px; max-width: 1440px; margin: 0 auto; }
+  .vx-k { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+  .vx h1 { margin: 14px 0 16px; font-weight: 300; font-size: clamp(38px, 5vw, 72px); line-height: 1.02; letter-spacing: -.02em; color: var(--ink); max-width: 14ch; }
+  .vx-sub { margin: 0 0 48px; max-width: 620px; font-size: 17px; line-height: 1.55; color: var(--ink-mute); }
+  .vx-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+  .vx-card { display: flex; flex-direction: column; gap: 10px; min-height: 230px; padding: 22px 22px 24px; text-decoration: none; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); transition: background-color .25s ease; }
+  .vx-card:hover { background: var(--bg-raise); }
+  .vx-card .n { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); }
+  .vx-card .t { font-size: 26px; font-weight: 350; letter-spacing: -.01em; color: var(--ink); }
+  .vx-card .d { font-size: 14px; line-height: 1.5; color: var(--ink-mute); }
+  .vx-card .go { margin-top: auto; font-size: 13px; color: var(--ink-faint); }
+  .vx-card:hover .go { color: var(--accent); }
+  .vx-orig { display: inline-block; margin-top: 28px; font-size: 14px; color: var(--ink-mute); }
+  @media (max-width: 1100px) { .vx-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .vx-grid { grid-template-columns: 1fr; } .vx-card { min-height: 0; } }
+</style>
+</head>
+<body class="bv" data-v="0">
+<header id="ca-header"></header>
+<main class="bv-main">
+  <nav id="bv-switch"></nav>
+  <section class="vx">
+    <span class="vx-k">Layout explorations · Nov 2026</span>
+    <h1>One post, eight&nbsp;layouts</h1>
+    <p class="vx-sub">“How we made the Tibba mountain”, told eight ways. Each version takes its structure and reading pattern from a reference blog. The palette, Vend Sans, the mark and the voice stay Tibba’s.</p>
+    <div class="vx-grid">
+      <a class="vx-card" href="blog-v1-fold.html"><span class="n">V1</span><span class="t">Fold</span><span class="d">Calm, trust-first product blog: cover, author block, scannable facts, a dated update.</span><span class="go">Open →</span></a>
+      <a class="vx-card" href="blog-v2-paper.html"><span class="n">V2</span><span class="t">Paper</span><span class="d">Minimal editorial announcement: dek, side column, pull quotes, “we’re building” lists, signed off.</span><span class="go">Open →</span></a>
+      <a class="vx-card" href="blog-v3-wojtek.html"><span class="n">V3</span><span class="t">Wojtek</span><span class="d">Personal journal and curated list, with link-preview cards and a newsletter at the end.</span><span class="go">Open →</span></a>
+      <a class="vx-card" href="blog-v4-new-industrials.html"><span class="n">V4</span><span class="t">New Industrials</span><span class="d">Bold long-form manifesto: one-line rhythm, oversized statements, summit case blocks.</span><span class="go">Open →</span></a>
+      <a class="vx-card" href="blog-v5-framer.html"><span class="n">V5</span><span class="t">Framer</span><span class="d">Technical deep dive: outcome first, numbered parts, interactive side-by-side diagrams.</span><span class="go">Open →</span></a>
+      <a class="vx-card" href="blog-v6-modash.html"><span class="n">V6</span><span class="t">Modash</span><span class="d">SEO how-to guide: numbered steps, sticky contents with a CTA card, a checklist.</span><span class="go">Open →</span></a>
+      <a class="vx-card" href="blog-v7-chaingpt.html"><span class="n">V7</span><span class="t">ChainGPT</span><span class="d">Announcement post: problem first, what it ships, why it matters, About us, related posts.</span><span class="go">Open →</span></a>
+      <a class="vx-card" href="blog-v8-stripe-dev.html"><span class="n">V8</span><span class="t">Stripe Dev</span><span class="d">Lab report: slash-labelled sections, numbered tables, methodology, author bios.</span><span class="go">Open →</span></a>
+    </div>
+    <a class="vx-orig" href="blog-how-we-made-the-mountain.html">The current version of the post →</a>
+  </section>
+</main>
+<div id="bv-foot"></div>
+<script type="module" src="assets/blog-v.js?v=1"></script>
+</body>
+</html>

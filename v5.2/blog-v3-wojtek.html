@@ -1,0 +1,276 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="assets/page-transition.css?v=1"><script src="assets/page-transition.js?v=1"></script>
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<title>V3 Wojtek · How we made the Tibba mountain</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/type.css?v=3"><link rel="stylesheet" href="assets/site.css"><link rel="stylesheet" href="assets/ca-nav.css"><link rel="stylesheet" href="assets/site-shell.css?v=8">
+<link rel="stylesheet" href="assets/blog-v.css?v=1">
+<style>
+/* V3 · after a personal journal and curated list: one narrow column, a
+   title and a one-line description, published / updated dates, then headed
+   entries — a link-preview card each, with a line or two of our take. */
+.v3 { max-width: 680px; margin: 0 auto; padding: clamp(48px, 8vw, 104px) 20px 96px; }
+.v3-back { display: inline-flex; gap: 8px; font-size: 14px; color: var(--ink-faint); text-decoration: none; margin-bottom: 40px; }
+.v3-back:hover { color: var(--ink); }
+.v3 h1 { margin: 0 0 10px; font-weight: 500; font-size: clamp(30px, 5vw, 40px); line-height: 1.12; letter-spacing: -.02em; color: var(--ink); text-wrap: balance; }
+.v3-desc { margin: 0 0 22px; font-size: 18px; line-height: 1.5; color: var(--ink-mute); }
+.v3-dates { display: flex; flex-wrap: wrap; gap: 6px 28px; margin: 0; font-size: 14px; color: var(--ink-faint); }
+.v3-dates dt { display: inline; } .v3-dates dd { display: inline; margin: 0 0 0 6px; color: var(--ink-mute); }
+.v3-dates div { display: inline; }
+.v3 hr { border: 0; border-top: 1px solid var(--line); margin: 44px 0; }
+.v3 p { margin: 0 0 1.1em; font-size: 17px; line-height: 1.7; color: var(--ink-warm); }
+.v3 p.v3-mute { color: var(--ink-mute); }
+.v3-standout { font-weight: 600; color: var(--ink) !important; }
+.v3 h2 { margin: 0 0 6px; font-weight: 500; font-size: 24px; letter-spacing: -.01em; color: var(--ink); scroll-margin-top: calc(var(--nav-h) + 56px); }
+.v3-h2-sub { margin: 0 0 26px !important; font-size: 15px !important; color: var(--ink-faint) !important; }
+.v3 h3 { margin: 0 0 12px; font-weight: 500; font-size: 17px; color: var(--ink); }
+.v3 h3 .n { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: 8px; }
+
+/* an entry: the heading, the preview card, our take */
+.v3-entry { margin: 0 0 40px; }
+.v3-card { display: grid; grid-template-columns: minmax(0, 1fr) 168px; text-decoration: none; border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+  background: var(--bg-raise); transition: border-color .2s ease, background-color .2s ease; }
+.v3-card:hover { border-color: rgba(255, 255, 255, .22); background: var(--bg-raise-2); }
+.v3-card-text { display: grid; align-content: start; gap: 6px; padding: 16px 18px; min-width: 0; }
+.v3-card-t { font-size: 15px; font-weight: 500; color: var(--ink); }
+.v3-card-d { font-size: 14px; line-height: 1.45; color: var(--ink-mute); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.v3-card-u { display: inline-flex; align-items: center; gap: 7px; margin-top: 4px; font-size: 13px; color: var(--ink-faint); }
+.v3-card-u img, .v3-card-u i { width: 14px; height: 14px; border-radius: 3px; flex: none; }
+.v3-card-u i { display: inline-grid; place-items: center; background: var(--bg-raise-2); font-style: normal; font-size: 9px; color: var(--ink-mute); }
+.v3-card-img { background: #000; border-left: 1px solid var(--line); min-height: 100%; }
+.v3-card-img img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.v3-take { margin-top: 14px !important; color: var(--ink-mute) !important; font-size: 16px !important; }
+.v3-take strong { color: var(--ink); font-weight: 500; }
+
+.v3-code { margin: 14px 0 0; padding: 16px 18px; overflow-x: auto; background: var(--bg-deep); border: 1px solid var(--line); border-radius: 12px;
+  font: 13px/1.65 var(--mono); color: var(--ink-warm); }
+.v3-code .c { color: var(--ink-faint); } .v3-code .k { color: var(--accent); } .v3-code .num { color: var(--c-shyft); }
+
+.v3-fig { margin: 0 0 40px; }
+.v3-fig img, .v3-fig video { display: block; width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--line); background: #000; }
+.v3-fig figcaption { margin-top: 10px; font-size: 13px; color: var(--ink-faint); }
+
+/* the disclaimer and the newsletter */
+.v3-note { padding: 16px 18px; border: 1px dashed var(--line); border-radius: 12px; font-size: 14px !important; line-height: 1.55 !important; color: var(--ink-mute) !important; }
+.v3-note b { color: var(--ink); font-weight: 500; }
+.v3-sub { padding: 24px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg-raise); }
+.v3-sub h2 { font-size: 20px; }
+.v3-sub p { font-size: 15px !important; color: var(--ink-mute) !important; margin-bottom: 16px !important; }
+.v3-sub form { display: flex; gap: 8px; }
+.v3-sub input { flex: 1; min-width: 0; font: inherit; font-size: 15px; padding: 11px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg-deep); color: var(--ink); }
+.v3-sub input:focus { outline: none; border-color: var(--accent); }
+.v3-sub button { font: inherit; font-size: 15px; font-weight: 500; padding: 11px 18px; border: 0; border-radius: 10px; background: var(--accent); color: #fff; cursor: pointer; }
+.v3-sub button:hover { filter: brightness(1.1); }
+.v3-sub .ok { display: none; margin: 0 !important; color: var(--ink) !important; }
+.v3-sub.done form { display: none; } .v3-sub.done .ok { display: block; }
+.v3-sign { color: var(--ink) !important; }
+
+@media (max-width: 560px) {
+  .v3-card { grid-template-columns: 1fr; }
+  .v3-card-img { border-left: 0; border-top: 1px solid var(--line); order: -1; aspect-ratio: 1200 / 630; }
+  .v3 p { font-size: 16px; }
+  .v3-sub form { flex-direction: column; }
+}
+</style>
+</head><body class="bv" data-v="3">
+<header id="ca-header"></header>
+<main class="bv-main"><nav id="bv-switch"></nav>
+
+<article class="v3">
+  <a class="v3-back" href="blog-versions.html">← Journal</a>
+  <h1>How we made the Tibba mountain</h1>
+  <p class="v3-desc">The ideas, tools and summits behind the moving mountain at the top of tibba.design.</p>
+  <dl class="v3-dates">
+    <div><dt>Published</dt><dd><time datetime="2026-11-26">Nov 26, 2026</time></dd></div>
+    <div><dt>Updated</dt><dd><time datetime="2026-11-26">Nov 26, 2026</time></dd></div>
+    <div><dt>Reading</dt><dd>8 min</dd></div>
+  </dl>
+
+  <hr>
+
+  <p>The first thing anyone sees on tibba.design is a mountain. It counts up from the valley floor, the camera drops into it, and a thin line climbs to the summit. It took us a year of sketches, one stubborn generator and a lot of contour lines.</p>
+  <p>Tibba means a small hill. We’ve always described our work as climbing with a client: base camp, the ascent, the summit, then the next peak. A mountain was the obvious symbol, which is exactly why it was hard. Obvious symbols go generic fast.</p>
+  <p class="v3-standout">We didn’t want a picture of a mountain. We wanted a map of one, that you could walk.</p>
+  <p>So we gave ourselves one rule: no stock peaks, no low-poly triangles, no snowy photograph. Below is everything that got us there, in the order we leaned on it, with a note on why each one earned its place.</p>
+
+  <hr>
+
+  <h2 id="ideas">The ideas we borrowed</h2>
+  <p class="v3-h2-sub">Old cartography and older maths. None of it is ours; all of it is on the page.</p>
+
+  <section class="v3-entry">
+    <h3><span class="n">01</span>Contour lines</h3>
+    <a class="v3-card" href="https://en.wikipedia.org/wiki/Contour_line" target="_blank" rel="noopener">
+      <span class="v3-card-text">
+        <span class="v3-card-t">Contour line</span>
+        <span class="v3-card-d">A line joining points of equal height on a map. The spacing between lines shows how steep the ground is.</span>
+        <span class="v3-card-u"><i>W</i>en.wikipedia.org</span>
+      </span>
+      <span class="v3-card-img"><img src="assets/blog/peak-firstpost.svg" alt="" loading="lazy" width="1200" height="900"></span>
+    </a>
+    <p class="v3-take">Maps gave us the language. <strong>Contours are honest:</strong> each line is a single height, and put enough of them together and a flat screen suddenly has a slope.</p>
+  </section>
+
+  <section class="v3-entry">
+    <h3><span class="n">02</span>Marching squares</h3>
+    <a class="v3-card" href="https://en.wikipedia.org/wiki/Marching_squares" target="_blank" rel="noopener">
+      <span class="v3-card-text">
+        <span class="v3-card-t">Marching squares</span>
+        <span class="v3-card-d">An algorithm that draws contour lines through a grid of sampled values, one cell at a time.</span>
+        <span class="v3-card-u"><i>W</i>en.wikipedia.org</span>
+      </span>
+      <span class="v3-card-img"><img src="assets/blog/terrain-firstpost.svg" alt="" loading="lazy" width="1200" height="900"></span>
+    </a>
+    <p class="v3-take">For every cell we check which corners sit above a height and draw the short segment where the line must cross. Stitch the segments together and you get one contour. Repeat for every height and you get the mountain.</p>
+    <pre class="v3-code"><code><span class="c">// one contour at height h, over a grid of samples</span>
+<span class="k">for</span> (<span class="k">let</span> y = <span class="num">0</span>; y &lt; rows; y++) <span class="k">for</span> (<span class="k">let</span> x = <span class="num">0</span>; x &lt; cols; x++) {
+  <span class="k">const</span> c = (z[y][x] &gt; h) | (z[y][x+<span class="num">1</span>] &gt; h) &lt;&lt; <span class="num">1</span>
+          | (z[y+<span class="num">1</span>][x+<span class="num">1</span>] &gt; h) &lt;&lt; <span class="num">2</span> | (z[y+<span class="num">1</span>][x] &gt; h) &lt;&lt; <span class="num">3</span>;
+  <span class="k">if</span> (c &amp;&amp; c !== <span class="num">15</span>) segments.push(...edge(c, x, y, h));
+}</code></pre>
+  </section>
+
+  <section class="v3-entry">
+    <h3><span class="n">03</span>Switchbacks</h3>
+    <a class="v3-card" href="https://en.wikipedia.org/wiki/Switchback" target="_blank" rel="noopener">
+      <span class="v3-card-text">
+        <span class="v3-card-t">Switchback</span>
+        <span class="v3-card-d">A path that zig-zags up a steep slope: long traverses across the face, a tight turn, and back.</span>
+        <span class="v3-card-u"><i>W</i>en.wikipedia.org</span>
+      </span>
+      <span class="v3-card-img"><img src="assets/blog/hero-mountain.jpg?v=2" alt="" loading="lazy" width="1600" height="1000"></span>
+    </a>
+    <p class="v3-take">Our first trail ran straight up the slope and looked like a crack, not a path. The fix was a triangle wave with rounded corners, plus a little wobble, because <strong>a path that repeats perfectly reads as drawn, not walked.</strong></p>
+  </section>
+
+  <hr>
+
+  <h2 id="built">The pieces we built</h2>
+  <p class="v3-h2-sub">Our own tools. Most of the work was saying no to them.</p>
+
+  <section class="v3-entry">
+    <h3><span class="n">04</span>The landform generator</h3>
+    <a class="v3-card" href="index.html">
+      <span class="v3-card-text">
+        <span class="v3-card-t">Tibba Design Studio</span>
+        <span class="v3-card-d">The home page, where the landform draws the hero’s massif and the four client summits as one range.</span>
+        <span class="v3-card-u"><img src="assets/brand/favicon.svg" alt="">tibba.design</span>
+      </span>
+      <span class="v3-card-img"><img src="assets/og/card-home.png" alt="" loading="lazy" width="1200" height="630"></span>
+    </a>
+    <p class="v3-take">A landform isn’t a model, it’s a recipe: parts summed together, each with a height, a spread and a sharpness. One part is a cone, and nobody believes a cone. <strong>Domain warp</strong> bends the ridgelines, <strong>spurs</strong> run down from the summit like fingers, and <strong>flutes</strong> cut the gullies between them.</p>
+  </section>
+
+  <section class="v3-entry">
+    <h3><span class="n">05</span>The Mountains lab</h3>
+    <p class="v3-take" style="margin-top:0 !important">An internal tool, so no card for this one. It has brushes for adding height, erosion passes, and a button that sends a preset straight into the hero. A ridge that looked dramatic in the lab often looked busy behind a headline, so most presets never left it.</p>
+  </section>
+
+  <section class="v3-entry">
+    <h3><span class="n">06</span>Ribbons, ink and air</h3>
+    <figure class="v3-fig" style="margin-bottom:0">
+      <video data-autoplay src="assets/video/summits.mp4" poster="assets/video/summit-0.jpg" width="696" height="428" muted loop playsinline preload="none" aria-label="The client summits drawn as lit contour ribbons, turning"></video>
+      <figcaption>The lit state: each ribbon catches light from above, like a relief map.</figcaption>
+    </figure>
+    <p class="v3-take">On screen the lines are thin ribbons drawn by a shader, so their width follows the slope and they fade with distance without leaving the GPU. In the loader they’re lit; as you scroll they morph to flat ink, so they can sit behind text. <strong>Aerial fade</strong> pales the far ridges and a few pixels of <strong>pointer parallax</strong> give the ground its depth.</p>
+  </section>
+
+  <section class="v3-entry">
+    <h3><span class="n">07</span>A film for phones</h3>
+    <p class="v3-take" style="margin-top:0 !important">A live WebGL scene is a lot to ask of a phone on a train. On small screens we play a short, pre-rendered film made from the scene itself: it looks identical, loads in a fraction of the time and leaves the battery alone. With reduced motion on, the mountain simply stays still.</p>
+  </section>
+
+  <hr>
+
+  <h2 id="summits">Best summits to visit</h2>
+  <p class="v3-h2-sub">Four client summits in the same heightfield as the hero, each in its client’s colour.</p>
+
+  <section class="v3-entry">
+    <h3><span class="n">08</span>Groww</h3>
+    <a class="v3-card" href="groww-casestudy.html">
+      <span class="v3-card-text">
+        <span class="v3-card-t">Groww · Case study</span>
+        <span class="v3-card-d">Boosting engagement on the app.</span>
+        <span class="v3-card-u"><img src="assets/brand/favicon.svg" alt="">tibba.design</span>
+      </span>
+      <span class="v3-card-img"><img src="assets/og/card-groww.png" alt="" loading="lazy" width="1200" height="630"></span>
+    </a>
+    <p class="v3-take">Drawn in Groww’s teal. When you reach the summit, its own trail climbs from the trailhead to the top.</p>
+  </section>
+
+  <section class="v3-entry">
+    <h3><span class="n">09</span>Firstpost</h3>
+    <a class="v3-card" href="firstpost-casestudy.html">
+      <span class="v3-card-text">
+        <span class="v3-card-t">Firstpost · Case study</span>
+        <span class="v3-card-d">2x traffic through a strategic redesign.</span>
+        <span class="v3-card-u"><img src="assets/brand/favicon.svg" alt="">tibba.design</span>
+      </span>
+      <span class="v3-card-img"><img src="assets/og/card-firstpost.png" alt="" loading="lazy" width="1200" height="630"></span>
+    </a>
+    <p class="v3-take">The peak we used for every diagram in this post. It’s also the cleanest example of spurs and flutes on the site.</p>
+  </section>
+
+  <section class="v3-entry">
+    <h3><span class="n">10</span>Breathe ESG</h3>
+    <a class="v3-card" href="breathe-esg-casestudy.html">
+      <span class="v3-card-text">
+        <span class="v3-card-t">Breathe ESG · Case study</span>
+        <span class="v3-card-d">Faster sales, smoother releases.</span>
+        <span class="v3-card-u"><img src="assets/brand/favicon.svg" alt="">tibba.design</span>
+      </span>
+      <span class="v3-card-img"><img src="assets/og/card-breathe-esg.png" alt="" loading="lazy" width="1200" height="630"></span>
+    </a>
+    <p class="v3-take">Its thumbnail, like the others, is the real mountain projected from the hero’s camera, hidden lines removed and smooth curves fitted through the rest.</p>
+  </section>
+
+  <section class="v3-entry">
+    <h3><span class="n">11</span>Shyft &amp; Mindhouse</h3>
+    <a class="v3-card" href="shyft-and-mindhouse-casestudy.html">
+      <span class="v3-card-text">
+        <span class="v3-card-t">Shyft &amp; Mindhouse · Case study</span>
+        <span class="v3-card-d">The case study, and its summit in the range.</span>
+        <span class="v3-card-u"><img src="assets/brand/favicon.svg" alt="">tibba.design</span>
+      </span>
+      <span class="v3-card-img"><img src="assets/og/card-shyft-mindhouse.png" alt="" loading="lazy" width="1200" height="630"></span>
+    </a>
+    <p class="v3-take">Drawn in periwinkle. Every illustration of it is the real mountain, not a trace of it.</p>
+  </section>
+
+  <hr>
+
+  <h2 id="learned">What we learned</h2>
+  <p>Build the system, not the picture. Because every mountain comes from one generator, a change to the landform shows up everywhere at once: the hero, the summits, the thumbnails and the share card.</p>
+  <p>And restraint is a feature. Most of our best decisions were removals: fewer contours, a single accent colour, one trail instead of five. A mountain only needs one path to the top.</p>
+  <p class="v3-sign">— The Tibba team</p>
+
+  <hr>
+
+  <p class="v3-note"><b>A note on this list.</b> It’s ours and it’s opinionated: it covers what we used for this one illustration, not the best way to draw terrain in general. The links go to pages we found useful; nobody paid to be on it.</p>
+
+  <hr>
+
+  <section class="v3-sub" aria-labelledby="v3-sub-h">
+    <h2 id="v3-sub-h">Get the next one</h2>
+    <p>We write about the work behind the work, a few times a year. No spam, just the next climb.</p>
+    <form novalidate>
+      <label class="sr-only" for="v3-mail" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Email</label>
+      <input id="v3-mail" type="email" placeholder="you@company.com" autocomplete="email">
+      <button type="submit">Subscribe</button>
+    </form>
+    <p class="ok" role="status">Thanks. You’re on the list.</p>
+  </section>
+</article>
+
+</main>
+<aside class="bv-note" aria-label="About this version"><h2>Version 3<b>V3 · Wojtek</b></h2><div>
+  <p><strong>Borrowed:</strong> the personal journal and curated-list shape: a narrow column with a title, a one-line description and Published / Updated dates, a first-person intro with one bold line, then headed, numbered entries, each a link-preview card (title, description, domain) with a line or two of our take. It also has rule dividers, a disclaimer and a subscribe box at the end.</p>
+  <p><strong>Our brand:</strong> it's set in Vend Sans, on the site's charcoal ground with its raised-card greys. The only highlight is our accent #C9124B, on the entry numbers and the Subscribe button. The voice is still "we", calm and plain, and the cards point to our own case studies.</p>
+</div></aside>
+<div id="bv-foot"></div>
+<script type="module" src="assets/blog-v.js?v=1"></script>
+<script>
+  document.querySelector('.v3-sub form').addEventListener('submit', e => { e.preventDefault(); e.target.closest('.v3-sub').classList.add('done'); });
+</script>
+</body></html>

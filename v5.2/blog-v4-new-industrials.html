@@ -1,0 +1,267 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="assets/page-transition.css?v=1"><script src="assets/page-transition.js?v=1"></script>
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<title>V4 New Industrials · How we made the Tibba mountain</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/type.css?v=3"><link rel="stylesheet" href="assets/site.css"><link rel="stylesheet" href="assets/ca-nav.css"><link rel="stylesheet" href="assets/site-shell.css?v=8">
+<link rel="stylesheet" href="assets/blog-v.css?v=1">
+<style>
+/* V4 · after a long-form manifesto: an oversized title, a byline strip
+   (Written by / Published in / Reading time / share), short one-line
+   paragraphs for rhythm, statements that break the page, and case-study
+   blocks with an image, a caption and "View →". */
+.v4 { padding: 0 var(--gut); }
+.v4-head { max-width: 1440px; margin: 0 auto; padding: clamp(56px, 9vw, 140px) 0 0; }
+.v4-kicker { margin: 0 0 28px; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+.v4 h1 { margin: 0; font-weight: 600; font-size: clamp(52px, 10.5vw, 176px); line-height: .9; letter-spacing: -.045em; color: var(--ink); text-wrap: balance; }
+.v4 h1 em { font-style: italic; font-weight: 300; color: var(--ink-mute); }
+.v4-by { margin-top: clamp(40px, 6vw, 80px); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; border-block: 1px solid var(--line); }
+.v4-by > div { padding: 16px 20px 18px 0; display: grid; gap: 6px; }
+.v4-by > div + div { padding-left: 20px; border-left: 1px solid var(--line); }
+.v4-by dt { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); }
+.v4-by dd { margin: 0; font-size: 17px; color: var(--ink); display: flex; align-items: center; gap: 10px; }
+.v4-av { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: #000; border: 1px solid var(--line); }
+.v4-av img { width: 13px; height: 13px; }
+.v4-by > .v4-share { display: flex; align-items: center; gap: 6px; }
+.v4-share a, .v4-share button { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; background: none; color: var(--ink); cursor: pointer; font: inherit; font-size: 11px; }
+.v4-share a:hover, .v4-share button:hover { border-color: var(--accent); color: var(--accent); }
+.v4-share svg { width: 16px; height: 16px; }
+.v4-hero { margin: clamp(32px, 4vw, 56px) auto 0; max-width: 1440px; }
+.v4-hero img { display: block; width: 100%; aspect-ratio: 16 / 8; object-fit: cover; border-radius: 4px; }
+
+/* the essay: a narrow column of short lines */
+.v4-essay { max-width: 680px; margin: 0 auto; padding: clamp(56px, 7vw, 112px) 0 0; }
+.v4-essay p { margin: 0 0 1.25em; font-size: clamp(19px, 1.5vw, 22px); line-height: 1.5; color: var(--ink-warm); }
+.v4-essay p.one { color: var(--ink); font-weight: 500; }
+.v4-essay h2 { margin: 2.2em 0 .8em; font-size: 13px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); scroll-margin-top: calc(var(--nav-h) + 56px); }
+.v4-essay ul { margin: 0 0 1.4em; padding: 0; list-style: none; display: grid; gap: 14px; }
+.v4-essay li { font-size: clamp(18px, 1.4vw, 20px); line-height: 1.45; color: var(--ink-warm); padding-left: 28px; position: relative; }
+.v4-essay li::before { content: '↳'; position: absolute; left: 0; color: var(--accent); }
+.v4-essay li b { color: var(--ink); font-weight: 600; }
+
+/* the statements that break the page */
+.v4-big { max-width: 1440px; margin: clamp(64px, 9vw, 140px) auto; padding: clamp(32px, 4vw, 56px) 0; border-block: 1px solid var(--line); }
+.v4-big p { margin: 0; font-weight: 600; font-size: clamp(38px, 6.6vw, 112px); line-height: .96; letter-spacing: -.04em; color: var(--ink); text-wrap: balance; }
+.v4-big p span { color: var(--accent); }
+.v4-big cite { display: block; margin-top: 24px; font-style: normal; font-size: 14px; color: var(--ink-faint); }
+
+.v4-fig { max-width: 1440px; margin: clamp(48px, 6vw, 88px) auto; }
+.v4-fig img, .v4-fig video { display: block; width: 100%; height: auto; background: #000; border-radius: 4px; }
+.v4-fig-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.v4-fig figcaption { grid-column: 1 / -1; margin-top: 12px; font-size: 14px; color: var(--ink-faint); }
+
+.v4-code { margin: 0 0 1.4em; padding: 18px 20px; overflow-x: auto; background: var(--bg-deep); border: 1px solid var(--line); border-radius: 4px; font: 13px/1.65 var(--mono); color: var(--ink-warm); }
+.v4-code .c { color: var(--ink-faint); } .v4-code .k { color: var(--accent); } .v4-code .num { color: var(--c-shyft); }
+
+/* case studies: the four summits */
+.v4-cases { max-width: 1440px; margin: clamp(56px, 7vw, 104px) auto 0; }
+.v4-cases-h { display: flex; justify-content: space-between; align-items: end; gap: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+.v4-cases-h h2 { margin: 0; font-weight: 600; font-size: clamp(30px, 3.6vw, 56px); letter-spacing: -.03em; line-height: 1; color: var(--ink); }
+.v4-cases-h p { margin: 0; max-width: 360px; font-size: 15px; line-height: 1.5; color: var(--ink-mute); }
+.v4-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(24px, 3vw, 48px) clamp(16px, 2vw, 32px); padding-top: clamp(24px, 3vw, 40px); }
+.v4-case { display: grid; gap: 14px; text-decoration: none; }
+.v4-case-img { position: relative; overflow: hidden; border-radius: 4px; background: #000; }
+.v4-case-img img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; transition: transform .6s cubic-bezier(.2, .8, .2, 1); }
+.v4-case:hover .v4-case-img img { transform: scale(1.03); }
+.v4-case-img span { position: absolute; left: 14px; top: 14px; display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 999px; background: rgba(13, 14, 11, .72); font-size: 12px; color: var(--ink); }
+.v4-case-img span::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--tag); }
+.v4-case-row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+.v4-case-t { font-size: clamp(22px, 2vw, 30px); font-weight: 600; letter-spacing: -.02em; color: var(--ink); }
+.v4-case-go { flex: none; font-size: 15px; color: var(--ink-mute); transition: color .2s ease; }
+.v4-case:hover .v4-case-go { color: var(--accent); }
+.v4-case-c { font-size: 15px; line-height: 1.5; color: var(--ink-mute); margin: -6px 0 0; }
+
+/* the close */
+.v4-end { max-width: 1440px; margin: clamp(80px, 10vw, 160px) auto 0; padding-bottom: clamp(72px, 9vw, 140px); }
+.v4-end p.last { margin: 0 0 clamp(32px, 4vw, 56px); font-weight: 600; font-size: clamp(44px, 8vw, 136px); line-height: .92; letter-spacing: -.045em; color: var(--ink); }
+.v4-end p.last span { color: var(--accent); }
+.v4-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; padding-top: 28px; border-top: 1px solid var(--line); }
+.v4-cta p { margin: 0; font-size: clamp(18px, 1.5vw, 22px); color: var(--ink-warm); }
+.v4-cta a { display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; border-radius: 999px; background: var(--accent); color: #fff; text-decoration: none; font-size: 16px; font-weight: 500; }
+.v4-cta a:hover { filter: brightness(1.1); }
+.v4-sign { margin-top: 20px; font-size: 15px; color: var(--ink-faint); }
+
+@media (max-width: 760px) {
+  .v4-by { grid-template-columns: 1fr 1fr; }
+  .v4-by > div:nth-child(3) { padding-left: 0; border-left: 0; }
+  .v4-by > div:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .v4-by .v4-share { grid-column: 1 / -1; padding: 14px 0; border-top: 1px solid var(--line); border-left: 0; }
+  .v4-hero img { aspect-ratio: 4 / 3; }
+  .v4-grid { grid-template-columns: 1fr; }
+  .v4-cases-h { flex-direction: column; align-items: start; }
+  .v4-fig-2 { grid-template-columns: 1fr; }
+}
+</style>
+</head><body class="bv" data-v="4">
+<header id="ca-header"></header>
+<main class="bv-main"><nav id="bv-switch"></nav>
+
+<article class="v4">
+  <header class="v4-head">
+    <p class="v4-kicker">Behind the work</p>
+    <h1>We drew a mountain. <em>Then we drew it again.</em></h1>
+    <dl class="v4-by">
+      <div><dt>Written by</dt><dd><span class="v4-av"><img src="assets/brand/favicon.svg" alt=""></span>The Tibba team</dd></div>
+      <div><dt>Published in</dt><dd>Behind the work · Nov 2026</dd></div>
+      <div><dt>Reading time</dt><dd>8 minutes</dd></div>
+      <div class="v4-share" aria-label="Share">
+        <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://tibba.design" target="_blank" rel="noopener" aria-label="Share on LinkedIn"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9.75h4V21H3V9.75Zm6.5 0h3.8v1.6h.06c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.77 2.6 4.77 6V21h-4v-5c0-1.2-.02-2.73-1.66-2.73-1.67 0-1.93 1.3-1.93 2.64V21h-4V9.75Z"/></svg></a>
+        <a href="https://x.com/intent/post?url=https://tibba.design" target="_blank" rel="noopener" aria-label="Share on X"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M17.75 3h3.07l-6.7 7.65L22 21h-6.17l-4.83-6.3L5.47 21H2.4l7.17-8.18L2 3h6.33l4.36 5.77L17.75 3Zm-1.08 16.17h1.7L7.4 4.73H5.57l11.1 14.44Z"/></svg></a>
+        <button type="button" data-copy aria-label="Copy link">Link</button>
+      </div>
+    </dl>
+  </header>
+
+  <figure class="v4-hero" style="margin-inline:auto">
+    <img src="assets/blog/hero-mountain.jpg?v=2" width="1600" height="1000" alt="The Tibba mountain drawn in contour lines, with a trail climbing to the summit" fetchpriority="high">
+  </figure>
+
+  <div class="v4-essay">
+    <p class="one">The first thing you see on tibba.design is a mountain.</p>
+    <p>It counts up from the valley floor.</p>
+    <p>The camera drops into it.</p>
+    <p>A thin line climbs to the summit.</p>
+    <p>It took a year of sketches, one stubborn generator and a lot of contour lines. This is how it got there.</p>
+
+    <h2 id="why">Why a mountain</h2>
+    <p>Tibba means a small hill.</p>
+    <p>We’ve always described our work as climbing with a client: base camp, the ascent, the summit, then the next peak.</p>
+    <p>So a mountain was the obvious symbol.</p>
+    <p class="one">Which is exactly why it was hard.</p>
+    <p>Obvious symbols go generic fast. So: no stock peaks. No low-poly triangles. No snowy photograph.</p>
+  </div>
+
+  <blockquote class="v4-big">
+    <p>We didn’t want a picture of a mountain. We wanted a <span>map</span> of one, that you could walk.</p>
+    <cite>— The Tibba team</cite>
+  </blockquote>
+
+  <div class="v4-essay" style="padding-top:0">
+    <p>Maps gave us the language.</p>
+    <p>A contour line is honest: one line, one height. The spacing between lines tells you how steep the ground is.</p>
+    <p>Put enough of them together and a flat screen suddenly has a slope.</p>
+
+    <h2 id="landform">A recipe, not a model</h2>
+    <p>Every mountain on the site comes from one generator. We call it the landform.</p>
+    <p>It’s a handful of parts summed together, each with a height, a spread and a sharpness.</p>
+    <p class="one">One part on its own is a cone. Nobody believes a cone.</p>
+    <p>The character comes from what we cut into it:</p>
+    <ul>
+      <li><b>Domain warp</b> pushes the ground sideways before it’s measured, so ridgelines bend.</li>
+      <li><b>Spurs</b> run down from the summit like the fingers of a hand.</li>
+      <li><b>Flutes</b> are the gullies between them, where rain would run off.</li>
+    </ul>
+  </div>
+
+  <figure class="v4-fig v4-fig-2">
+    <img src="assets/blog/peak-firstpost.svg" width="1200" height="900" alt="A single peak drawn in contour lines" loading="lazy">
+    <img src="assets/blog/terrain-firstpost.svg" width="1200" height="900" alt="The same peak with spurs, flutes and the surrounding terrain" loading="lazy">
+    <figcaption>One part, warped. Then the same peak with spurs, flutes and the valley around it.</figcaption>
+  </figure>
+
+  <div class="v4-essay" style="padding-top:0">
+    <p>We tuned all of it in a small internal tool, the Mountains lab: brushes for height, erosion passes, a button that sends a preset straight into the hero.</p>
+    <p class="one">Most of the work was saying no.</p>
+    <p>A ridge that looked dramatic in the lab often looked busy behind a headline.</p>
+
+    <h2 id="contours">Heights in, lines out</h2>
+    <p>The landform gives a height at any point. We sample it on a grid and run marching squares over it.</p>
+    <p>Each cell: which corners are above the height? Draw the short segment where the line must cross. Stitch. Repeat for every height.</p>
+    <pre class="v4-code"><code><span class="c">// one contour at height h, over a grid of samples</span>
+<span class="k">for</span> (<span class="k">let</span> y = <span class="num">0</span>; y &lt; rows; y++) <span class="k">for</span> (<span class="k">let</span> x = <span class="num">0</span>; x &lt; cols; x++) {
+  <span class="k">const</span> c = (z[y][x] &gt; h) | (z[y][x+<span class="num">1</span>] &gt; h) &lt;&lt; <span class="num">1</span>
+          | (z[y+<span class="num">1</span>][x+<span class="num">1</span>] &gt; h) &lt;&lt; <span class="num">2</span> | (z[y+<span class="num">1</span>][x] &gt; h) &lt;&lt; <span class="num">3</span>;
+  <span class="k">if</span> (c &amp;&amp; c !== <span class="num">15</span>) segments.push(...edge(c, x, y, h));
+}</code></pre>
+    <p>On screen the lines aren’t lines at all. They’re thin ribbons drawn by a shader, wider on the slope, fainter with distance, never leaving the GPU.</p>
+
+    <h2 id="ink">Light, then ink</h2>
+    <p>In the loader the mountain is lit, like a relief map.</p>
+    <p>As you scroll it turns to ink: flat lines on black, quiet enough to sit behind text.</p>
+    <p>Aerial fade pales the far ridges. A few pixels of pointer parallax give the ground depth.</p>
+  </div>
+
+  <figure class="v4-fig">
+    <video data-autoplay src="assets/video/summits.mp4" poster="assets/video/summit-0.jpg" width="696" height="428" muted loop playsinline preload="none" aria-label="The client summits drawn as lit contour ribbons, turning"></video>
+    <figcaption>The lit state: each ribbon catches light from above.</figcaption>
+  </figure>
+
+  <div class="v4-essay" style="padding-top:0">
+    <h2 id="trail">The trail</h2>
+    <p>The orange line was the last piece, and the one we redrew most.</p>
+    <p>Version one ran straight up the slope.</p>
+    <p class="one">It looked like a crack, not a path.</p>
+    <p>Real trails zig-zag: a long traverse, a tight turn, and back. So the route winds round the summit, getting closer as it climbs while the angle swings across the face.</p>
+    <p>A sine wave spends as long turning as walking, and reads as a squiggle. A triangle wave with rounded corners gives straight legs and hairpin turns.</p>
+  </div>
+
+  <blockquote class="v4-big">
+    <p>A path that repeats perfectly reads as <span>drawn</span>, not walked.</p>
+  </blockquote>
+
+  <div class="v4-essay" style="padding-top:0">
+    <p>So we added a little wobble, so no two legs are the same length.</p>
+    <p>The trail draws on as you arrive and finishes on our mark at the summit.</p>
+
+    <h2 id="phones">On a phone, on a train</h2>
+    <p>A live WebGL scene is a lot to ask of a phone on a train.</p>
+    <p>So phones get a short film of the same mountain, recorded from the scene itself. Same look. A fraction of the load. The battery left alone.</p>
+    <p>Asked for reduced motion? The mountain stays still. The contours tell the story anyway.</p>
+  </div>
+
+  <section class="v4-cases" aria-labelledby="v4-cases-h">
+    <div class="v4-cases-h">
+      <h2 id="v4-cases-h">Four more summits</h2>
+      <p>The client summits share the hero’s heightfield, so the home page and Our Work read as one range seen from two places. Each is drawn in its client’s colour.</p>
+    </div>
+    <div class="v4-grid">
+      <a class="v4-case" href="groww-casestudy.html">
+        <span class="v4-case-img" style="--tag:var(--c-groww)"><img src="assets/blog/terrain-groww.svg" width="1200" height="900" alt="Groww summit in contour lines" loading="lazy"><span>Groww</span></span>
+        <span class="v4-case-row"><span class="v4-case-t">Groww</span><span class="v4-case-go">View →</span></span>
+        <p class="v4-case-c">Boosting engagement on the app. Its trail climbs from the trailhead the moment you arrive.</p>
+      </a>
+      <a class="v4-case" href="firstpost-casestudy.html">
+        <span class="v4-case-img" style="--tag:var(--c-firstpost)"><img src="assets/blog/terrain-firstpost.svg" width="1200" height="900" alt="Firstpost summit in contour lines" loading="lazy"><span>Firstpost</span></span>
+        <span class="v4-case-row"><span class="v4-case-t">Firstpost</span><span class="v4-case-go">View →</span></span>
+        <p class="v4-case-c">2x traffic through a strategic redesign. The peak behind every diagram in this post.</p>
+      </a>
+      <a class="v4-case" href="breathe-esg-casestudy.html">
+        <span class="v4-case-img" style="--tag:var(--c-breathe)"><img src="assets/blog/terrain-breathe-esg.svg" width="1200" height="900" alt="Breathe ESG summit in contour lines" loading="lazy"><span>Breathe ESG</span></span>
+        <span class="v4-case-row"><span class="v4-case-t">Breathe ESG</span><span class="v4-case-go">View →</span></span>
+        <p class="v4-case-c">Faster sales, smoother releases. Exported as clean SVG for its thumbnail.</p>
+      </a>
+      <a class="v4-case" href="shyft-and-mindhouse-casestudy.html">
+        <span class="v4-case-img" style="--tag:var(--c-shyft)"><img src="assets/blog/terrain-shyft.svg" width="1200" height="900" alt="Shyft and Mindhouse summit in contour lines" loading="lazy"><span>Shyft &amp; Mindhouse</span></span>
+        <span class="v4-case-row"><span class="v4-case-t">Shyft &amp; Mindhouse</span><span class="v4-case-go">View →</span></span>
+        <p class="v4-case-c">Projected from the hero’s camera, hidden lines removed. The real mountain, not a trace.</p>
+      </a>
+    </div>
+  </section>
+
+  <div class="v4-essay">
+    <h2 id="learned">What we learned</h2>
+    <p class="one">Build the system, not the picture.</p>
+    <p>One generator means one change shows up everywhere: the hero, the summits, the thumbnails, the share card.</p>
+    <p class="one">Restraint is a feature.</p>
+    <p>Fewer contours. One accent colour. One trail instead of five.</p>
+  </div>
+
+  <section class="v4-end">
+    <p class="last">A mountain only needs one path to the <span>top</span>.</p>
+    <div class="v4-cta">
+      <p>Got a climb of your own? We’d like to hear about it.</p>
+      <a href="#contact">Say hello <span aria-hidden="true">→</span></a>
+    </div>
+    <p class="v4-sign">— The Tibba team</p>
+  </section>
+</article>
+
+</main>
+<aside class="bv-note" aria-label="About this version"><h2>Version 4<b>V4 · The New Industrials</b></h2><div>
+  <p><strong>Borrowed:</strong> the manifesto shape: an oversized title over a "Written by / Published in / Reading time" strip with share buttons, then one-line paragraphs for rhythm. Huge statements break the page between sections, the four summits get case-study blocks with an image, a caption and "View →", and it ends on a big closing line and a chatty CTA.</p>
+  <p><strong>Our brand:</strong> everything is set in Vend Sans at different weights, with no display face brought in. It keeps the site's charcoal ground and hairlines, with our accent #C9124B on one word per statement. Each summit is tagged in its own client colour, and the punchier copy is still the post's own lines, cut shorter.</p>
+</div></aside>
+<div id="bv-foot"></div>
+<script type="module" src="assets/blog-v.js?v=1"></script>
+</body></html>

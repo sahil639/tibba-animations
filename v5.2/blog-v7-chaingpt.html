@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="assets/page-transition.css?v=1">
+<script src="assets/page-transition.js?v=1"></script>
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<title>V7 ChainGPT · How we made the Tibba mountain</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/type.css?v=3">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/ca-nav.css">
+<link rel="stylesheet" href="assets/site-shell.css?v=8">
+<link rel="stylesheet" href="assets/blog-v.css?v=1">
+<style>
+/* V7 · announcement / press-release layout */
+.v7 { max-width: 880px; margin: 0 auto; padding: 32px var(--gut) 96px; box-sizing: content-box; }
+.v7-back { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-mute); text-decoration: none; }
+.v7-back:hover { color: var(--ink); }
+.v7-back svg { width: 16px; height: 16px; }
+
+.v7-head { margin-top: 40px; }
+.v7-tagrow { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; font-size: 13px; color: var(--ink-faint); }
+.v7-tag { padding: 5px 11px; border-radius: 999px; background: var(--accent-dim); color: #ff8fb2; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; font-weight: 500; }
+.v7 h1 { margin: 18px 0 0; font-weight: 400; font-size: clamp(36px, 5.4vw, 64px); line-height: 1.04; letter-spacing: -.025em; color: var(--ink); text-wrap: balance; }
+.v7-byrow { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-top: 28px; padding: 16px 0; border-block: 1px solid var(--line); }
+.v7-author { display: inline-flex; align-items: center; gap: 12px; font-size: 14px; color: var(--ink); }
+.v7-author small { display: block; font-size: 12px; color: var(--ink-faint); }
+.v7-av { width: 36px; height: 36px; border-radius: 50%; background: #000; border: 1px solid var(--line); display: grid; place-items: center; }
+.v7-av img { width: 18px; height: 18px; }
+.v7-share { display: flex; gap: 6px; }
+.v7-share a, .v7-share button { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--line); background: none; color: var(--ink-mute); cursor: pointer; font: inherit; font-size: 0; }
+.v7-share a:hover, .v7-share button:hover { color: var(--ink); border-color: var(--ink-faint); }
+.v7-share svg { width: 16px; height: 16px; }
+.v7-share button.copied { font-size: 10px; width: auto; padding: 0 10px; border-radius: 999px; }
+
+.v7-hero { margin: 32px 0 0; border-radius: 14px; overflow: hidden; background: #000; border: 1px solid var(--line); }
+.v7-hero img { display: block; width: 100%; height: auto; }
+
+.v7-body p, .v7-body li { font-size: 17px; line-height: 1.65; color: var(--ink-warm); }
+.v7-body p { margin: 0 0 1.1em; }
+.v7-body strong { color: var(--ink); font-weight: 500; }
+.v7-lede { margin-top: 36px !important; font-size: clamp(19px, 1.6vw, 22px) !important; line-height: 1.5 !important; color: var(--ink) !important; }
+.v7-body h2 { margin: 56px 0 18px; font-weight: 400; font-size: clamp(26px, 2.6vw, 34px); letter-spacing: -.015em; color: var(--ink); display: flex; align-items: baseline; gap: 14px; }
+.v7-body h2 .n { font-size: 13px; color: var(--accent); font-variant-numeric: tabular-nums; letter-spacing: .06em; }
+.v7-body h3 { margin: 28px 0 8px; font-weight: 500; font-size: 18px; color: var(--ink); }
+.v7-body ul { margin: 0 0 1.2em; padding: 0; list-style: none; display: grid; gap: 10px; }
+.v7-body ul li { position: relative; padding-left: 22px; }
+.v7-body ul li::before { content: ''; position: absolute; left: 2px; top: .7em; width: 8px; height: 2px; background: var(--accent); }
+
+.v7-ships { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 8px 0 24px; padding: 0; list-style: none; }
+.v7-ships li { padding: 18px 18px 20px !important; border: 1px solid var(--line); border-radius: 12px; background: var(--bg-raise); font-size: 15px !important; line-height: 1.5 !important; color: var(--ink-mute) !important; }
+.v7-ships li::before { display: none; }
+.v7-ships b { display: block; margin-bottom: 6px; font-size: 16px; font-weight: 500; color: var(--ink); }
+
+.v7-fig { margin: 28px 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); background: #000; }
+.v7-fig video, .v7-fig img { display: block; width: 100%; height: auto; }
+.v7-fig figcaption { padding: 12px 16px; font-size: 13px; color: var(--ink-faint); background: var(--bg-raise); border-top: 1px solid var(--line); }
+.v7-fig-2 { display: grid; grid-template-columns: 1fr 1fr; }
+.v7-fig-2 > div + div { border-left: 1px solid var(--line); }
+.v7-fig-2 figcaption { grid-column: 1 / -1; }
+
+.v7-cta { display: flex; align-items: center; gap: 14px; margin: 40px 0 8px; padding: 22px 24px; border-radius: 14px; border: 1px solid var(--accent); background: linear-gradient(90deg, var(--accent-dim), transparent 70%);
+  font-size: clamp(19px, 2vw, 24px); font-weight: 500; color: var(--ink); text-decoration: none; transition: background-color .2s ease; }
+.v7-cta .arr { color: var(--accent); font-size: 1.2em; transition: transform .25s ease; }
+.v7-cta:hover .arr { transform: translateX(4px); }
+.v7-cta u { text-decoration-color: var(--accent); text-underline-offset: 4px; }
+
+.v7-about { margin-top: 64px; padding: 28px; border-radius: 14px; background: var(--bg-deep); border: 1px solid var(--line); display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 32px; }
+.v7-about h2 { margin: 0 0 12px !important; font-size: 22px !important; }
+.v7-about p { font-size: 15px !important; color: var(--ink-mute) !important; }
+.v7-about h3 { margin: 0 0 12px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); font-weight: 500; }
+.v7-links { list-style: none !important; margin: 0; padding: 0; display: grid !important; gap: 0 !important; }
+.v7-links li { padding: 0 !important; border-top: 1px solid var(--line); }
+.v7-links li:last-child { border-bottom: 1px solid var(--line); }
+.v7-links li::before { display: none; }
+.v7-links a { display: flex; justify-content: space-between; padding: 10px 0; font-size: 15px; text-decoration: none; color: var(--ink-warm); }
+.v7-links a:hover { color: var(--ink); }
+.v7-links a span { color: var(--accent); }
+
+.v7-more { margin-top: 72px; }
+.v7-more-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px; }
+.v7-more-head h2 { margin: 0; font-weight: 400; font-size: 28px; color: var(--ink); letter-spacing: -.015em; }
+.v7-more-head a { font-size: 14px; color: var(--ink-mute); text-decoration: none; }
+.v7-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.v7-card { display: flex; flex-direction: column; gap: 10px; text-decoration: none; padding: 10px 10px 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--bg-raise); transition: border-color .2s ease; }
+.v7-card:hover { border-color: var(--ink-faint); }
+.v7-card img { width: 100%; height: auto; border-radius: 8px; display: block; }
+.v7-card-k { padding: 0 6px; display: flex; gap: 10px; font-size: 12px; color: var(--ink-faint); }
+.v7-card-k b { font-weight: 500; color: var(--accent); text-transform: uppercase; letter-spacing: .06em; }
+.v7-card-t { padding: 0 6px; font-size: 17px; line-height: 1.3; color: var(--ink); }
+
+.v7-social { margin-top: 48px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.v7-social a { display: flex; flex-direction: column; gap: 6px; padding: 18px 20px; text-decoration: none; transition: background-color .2s ease; }
+.v7-social a + a { border-left: 1px solid var(--line); }
+.v7-social a:hover { background: var(--bg-raise); }
+.v7-social b { font-size: 22px; font-weight: 400; color: var(--ink); font-variant-numeric: tabular-nums; }
+.v7-social span { font-size: 13px; color: var(--ink-faint); }
+.v7-social em { font-style: normal; font-size: 13px; color: var(--ink-warm); }
+.v7-social em::after { content: ' ↗'; color: var(--accent); }
+
+@media (max-width: 760px) {
+  .v7 { padding-top: 24px; padding-bottom: 72px; }
+  .v7-head { margin-top: 28px; }
+  .v7-body p, .v7-body li { font-size: 16px; }
+  .v7-ships { grid-template-columns: 1fr; }
+  .v7-about { grid-template-columns: 1fr; padding: 22px; gap: 24px; }
+  .v7-grid { grid-template-columns: 1fr; }
+  .v7-social { grid-template-columns: 1fr 1fr; }
+  .v7-social a + a { border-left: 0; }
+  .v7-social a:nth-child(even) { border-left: 1px solid var(--line); }
+  .v7-social a:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .v7-cta { padding: 18px; }
+}
+</style>
+</head>
+<body class="bv" data-v="7">
+<header id="ca-header"></header>
+
+<main class="bv-main">
+  <nav id="bv-switch"></nav>
+
+  <article class="v7">
+    <a class="v7-back" href="blog-how-we-made-the-mountain.html"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8H3M7 4 3 8l4 4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>Back to blog</a>
+
+    <header class="v7-head">
+      <div class="v7-tagrow">
+        <span class="v7-tag">Announcements</span>
+        <time datetime="2026-11-26">November 26, 2026</time>
+        <span aria-hidden="true">·</span><span>8 min read</span>
+      </div>
+      <h1>Introducing the Tibba mountain: one landform, every summit on our site</h1>
+      <div class="v7-byrow">
+        <span class="v7-author"><span class="v7-av" aria-hidden="true"><img src="assets/brand/favicon.svg" alt="" width="18" height="18"></span><span>Tibba Studio<small>Design &amp; engineering</small></span></span>
+        <div class="v7-share" aria-label="Share">
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://tibba.design/blog-how-we-made-the-mountain" target="_blank" rel="noopener" aria-label="Share on LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9.75h4V21H3V9.75Zm6.5 0h3.8v1.6h.06c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.77 2.6 4.77 6V21h-4v-5c0-1.2-.02-2.73-1.66-2.73-1.67 0-1.93 1.3-1.93 2.64V21h-4V9.75Z"/></svg></a>
+          <a href="https://x.com/intent/post?url=https://tibba.design/blog-how-we-made-the-mountain" target="_blank" rel="noopener" aria-label="Share on X"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.75 3h3.07l-6.7 7.65L22 21h-6.17l-4.83-6.3L5.47 21H2.4l7.17-8.18L2 3h6.33l4.36 5.77L17.75 3Zm-1.08 16.17h1.7L7.4 4.73H5.57l11.1 14.44Z"/></svg></a>
+          <a href="mailto:?subject=How%20we%20made%20the%20Tibba%20mountain" aria-label="Share by email"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" d="M3.5 5.5h17v13h-17zM3.5 6l8.5 7 8.5-7"/></svg></a>
+          <button type="button" class="v7-copy" aria-label="Copy link"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" d="M8.5 8.5V4.5h11v11h-4M4.5 8.5h11v11h-11z"/></svg></button>
+        </div>
+      </div>
+    </header>
+
+    <figure class="v7-hero"><img src="assets/blog/hero-mountain.jpg?v=2" width="1600" height="1000" alt="The Tibba mountain drawn in contour lines, with a trail climbing to the summit" fetchpriority="high"></figure>
+
+    <div class="v7-body">
+      <p class="v7-lede">Obvious symbols go generic fast. A studio called Tibba, which means a small hill, drawing a mountain is about as obvious as it gets. So we didn’t want a picture of a mountain. We wanted a map of one, that you could walk.</p>
+      <p>Today the first thing anyone sees on tibba.design is that map. It counts up from the valley floor, the camera drops into it, and a thin line climbs to the summit. Here is what it is, why we built it, and where to see it.</p>
+
+      <h2><span class="n">01</span>The problem</h2>
+      <p>We have always described our work as climbing with a client: base camp, the ascent, the summit, and then the next peak. The mountain had to carry that, without turning into one more stock illustration.</p>
+      <ul>
+        <li><strong>No stock peaks,</strong> no low-poly triangles, no snowy photograph.</li>
+        <li>It had to be <strong>drawn in the studio’s own language</strong>, like the rest of the site.</li>
+        <li>It had to <strong>move like it was being surveyed</strong> rather than rendered.</li>
+      </ul>
+
+      <h2><span class="n">02</span>What it ships</h2>
+      <ul class="v7-ships">
+        <li><b>One landform generator</b>Every mountain on the site, from the hero’s massif to the four client summits, comes from one recipe of summed parts.</li>
+        <li><b>Contour lines, drawn on the GPU</b>Marching squares turn heights into lines; each line is a thin shader ribbon whose width follows the slope.</li>
+        <li><b>Lit and ink states</b>Lit like a relief map in the loader, then flat ink on black as you scroll, so it sits behind text.</li>
+        <li><b>A trail that walks</b>Switchbacks built from a rounded triangle wave, with a little wobble so no two legs match.</li>
+        <li><b>Four client summits</b>Part of the same heightfield as the hero, each in its client’s colour, each with its own trail.</li>
+        <li><b>A light phone version</b>A pre-rendered film of the same scene on small screens, and a still mountain for reduced motion.</li>
+      </ul>
+
+      <h3>How the ground is shaped</h3>
+      <ul>
+        <li><strong>Domain warp</strong> pushes the ground sideways before it’s measured, so ridgelines bend.</li>
+        <li><strong>Spurs</strong> run down from the summit, like the fingers of a hand.</li>
+        <li><strong>Flutes</strong> are the narrow gullies between them, where rain would run off.</li>
+      </ul>
+      <figure class="v7-fig v7-fig-2">
+        <div><img src="assets/blog/peak-firstpost.svg" width="1200" height="900" alt="A single peak drawn in contour lines" loading="lazy"></div>
+        <div><img src="assets/blog/terrain-firstpost.svg" width="1200" height="900" alt="The same peak with spurs, flutes and the terrain around it" loading="lazy"></div>
+        <figcaption>One warped part, then the same peak with spurs, flutes and the valley around it.</figcaption>
+      </figure>
+      <p>We tuned it in an internal tool, the Mountains lab, with brushes for adding height, erosion passes, and a button that sends a preset straight into the hero. Most of the work was saying no.</p>
+
+      <h2><span class="n">03</span>Why it matters</h2>
+      <ul>
+        <li><strong>One change, everywhere.</strong> A change to the landform shows up at once in the hero, the summits, the thumbnails and the share card.</li>
+        <li><strong>Every illustration is the real mountain.</strong> Thumbnails and print come from projecting the heightfield, removing hidden lines and fitting smooth curves, not from tracing.</li>
+        <li><strong>One range, seen from two places.</strong> The home mountain and the Our Work summits share one heightfield.</li>
+        <li><strong>Restraint as a feature.</strong> Fewer contours, a single accent colour, one trail instead of five.</li>
+      </ul>
+      <figure class="v7-fig">
+        <video src="assets/video/summits.mp4" poster="assets/video/summit-0.jpg" width="696" height="428" muted loop playsinline preload="none" data-autoplay aria-label="The client summits drawn as lit contour ribbons, turning"></video>
+        <figcaption>The lit state: each ribbon catches light from above, like a relief map.</figcaption>
+      </figure>
+
+      <h2><span class="n">04</span>Try it</h2>
+      <ul>
+        <li><strong>On desktop,</strong> open the home page and scroll: the mountain morphs from lit to ink, and the trail draws to the summit. Move your cursor for a little parallax.</li>
+        <li><strong>On a phone,</strong> the same mountain plays as a short film, made from the scene itself.</li>
+        <li><strong>With reduced motion on,</strong> the mountain stays still. The contours tell the story without the camera moving at all.</li>
+      </ul>
+
+      <a class="v7-cta" href="index.html"><span class="arr" aria-hidden="true">→</span><span>See it live at <u>tibba.design</u></span></a>
+
+      <section class="v7-about" aria-labelledby="v7-about-h">
+        <div>
+          <h2 id="v7-about-h">About Tibba</h2>
+          <p>Tibba is a design studio for product teams. We work alongside start-ups and growing companies from base camp to summit: product strategy, MVP design, growth design, design systems and fintech products, for clients including Groww, Firstpost, Breathe ESG, and Shyft &amp; Mindhouse.</p>
+          <p>The mountain is how we draw that climb.</p>
+        </div>
+        <div>
+          <h3>Useful links</h3>
+          <ul class="v7-links">
+            <li><a href="index.html#work">Our work <span>→</span></a></li>
+            <li><a href="services.html">Services <span>→</span></a></li>
+            <li><a href="about.html">About the studio <span>→</span></a></li>
+            <li><a href="groww-casestudy.html">Groww case study <span>→</span></a></li>
+            <li><a href="index.html#footer">Contact <span>→</span></a></li>
+          </ul>
+        </div>
+      </section>
+    </div>
+
+    <section class="v7-more" aria-labelledby="v7-more-h">
+      <div class="v7-more-head"><h2 id="v7-more-h">Read more</h2><a href="index.html#work">All work →</a></div>
+      <div class="v7-grid">
+        <a class="v7-card" href="groww-casestudy.html"><img src="assets/og/card-groww.png" width="1200" height="630" alt="" loading="lazy"><span class="v7-card-k"><b>Case study</b>Groww</span><span class="v7-card-t">Boosting engagement on the app</span></a>
+        <a class="v7-card" href="firstpost-casestudy.html"><img src="assets/og/card-firstpost.png" width="1200" height="630" alt="" loading="lazy"><span class="v7-card-k"><b>Case study</b>Firstpost</span><span class="v7-card-t">2x traffic through a strategic redesign</span></a>
+        <a class="v7-card" href="breathe-esg-casestudy.html"><img src="assets/og/card-breathe-esg.png" width="1200" height="630" alt="" loading="lazy"><span class="v7-card-k"><b>Case study</b>Breathe ESG</span><span class="v7-card-t">Faster sales, smoother releases</span></a>
+      </div>
+
+      <div class="v7-social" aria-label="Find the studio">
+        <a href="https://www.instagram.com/tibba.design/" target="_blank" rel="noopener"><b>1</b><span>mountain range</span><em>Instagram</em></a>
+        <a href="https://www.linkedin.com/company/tibba-design-studio/" target="_blank" rel="noopener"><b>4</b><span>client summits</span><em>LinkedIn</em></a>
+        <a href="https://medium.com/@tibbadesignstudio" target="_blank" rel="noopener"><b>4</b><span>case studies</span><em>Medium</em></a>
+        <a href="mailto:hello@tibba.design"><b>1</b><span>trail to the top</span><em>Email</em></a>
+      </div>
+    </section>
+  </article>
+</main>
+
+<aside class="bv-note" aria-label="About this version">
+  <h2>Version 7<b>V7 · ChainGPT</b></h2>
+  <div>
+    <p><strong>Borrowed:</strong> the press-release skeleton: back link, category tag, date, author and share icons, a problem-first intro, then “What it ships”, “Why it matters” and “Try it” in short bullets, a bold arrow CTA, an “About” boilerplate with useful links, and a “Read more” grid over a social strip.</p>
+    <p><strong>Our brand:</strong> everything is set in Vend Sans on the site’s dark ground, with #C9124B as the one accent (the tag, the numbering, the CTA rule). The voice stays calm and plain, and the social strip counts real things, like summits and case studies, not followers.</p>
+  </div>
+</aside>
+
+<div id="bv-foot"></div>
+<script type="module" src="assets/blog-v.js?v=1"></script>
+<script>
+  document.querySelector('.v7-copy').addEventListener('click', e => {
+    const b = e.currentTarget;
+    navigator.clipboard?.writeText(location.href).then(() => { b.classList.add('copied'); const s = b.innerHTML; b.textContent = 'Copied'; setTimeout(() => { b.classList.remove('copied'); b.innerHTML = s; }, 1400); });
+  });
+</script>
+</body>
+</html>

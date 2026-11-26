@@ -31,7 +31,7 @@
 <link rel="stylesheet" href="assets/site-shell.css?v=8">
 <link rel="stylesheet" href="assets/work.css">
 <link rel="stylesheet" href="assets/case-figma.css?v=19">
-<link rel="stylesheet" href="assets/service-page.css?v=10">
+<link rel="stylesheet" href="assets/service-page.css?v=12">
 <link rel="stylesheet" href="assets/workbench.css">
 <script src="assets/manifest.js"></script>
 <script src="assets/whats-new.js"></script>
@@ -91,19 +91,15 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
       </div>
 
       <div class="cf-head"><div><h2>How we build a design system</h2></div><hr></div>
-      <!-- the steps, one open at a time (assets/service-acc.js): the open step's title, number and line on the left,
-           the rest as a list beneath; its picture on the right (a grey box until the pictures arrive), a line
-           sweeping down it while the steps play on by themselves -->
-      <div class="sv-acc" data-acc>
-        <ol class="sv-acc-list">
-          <li class="on"><h3><button type="button" id="acc-design-systems-01" aria-expanded="true" aria-controls="acc-design-systems-01-b"><span>Audit the interface</span><b>01</b></button></h3><div class="sv-acc-b" id="acc-design-systems-01-b" role="region" aria-labelledby="acc-design-systems-01"><p>Every screen and component in use today, grouped and counted, so the duplicates and the gaps are plain to see.</p></div></li>
-          <li><h3><button type="button" id="acc-design-systems-02" aria-expanded="false" aria-controls="acc-design-systems-02-b"><span>Agree the foundations</span><b>02</b></button></h3><div class="sv-acc-b" id="acc-design-systems-02-b" role="region" aria-labelledby="acc-design-systems-02"><p>Colour, type, spacing, grids and motion as tokens, named so designers and developers mean the same thing.</p></div></li>
-          <li><h3><button type="button" id="acc-design-systems-03" aria-expanded="false" aria-controls="acc-design-systems-03-b"><span>Build the components</span><b>03</b></button></h3><div class="sv-acc-b" id="acc-design-systems-03-b" role="region" aria-labelledby="acc-design-systems-03"><p>The components your product uses, each with its variants and states, replacing the many one-offs.</p></div></li>
-          <li><h3><button type="button" id="acc-design-systems-04" aria-expanded="false" aria-controls="acc-design-systems-04-b"><span>Document it</span><b>04</b></button></h3><div class="sv-acc-b" id="acc-design-systems-04-b" role="region" aria-labelledby="acc-design-systems-04"><p>How and when to use each part, so new designers and developers can work from the system on day one.</p></div></li>
-          <li><h3><button type="button" id="acc-design-systems-05" aria-expanded="false" aria-controls="acc-design-systems-05-b"><span>Ship it in code</span><b>05</b></button></h3><div class="sv-acc-b" id="acc-design-systems-05-b" role="region" aria-labelledby="acc-design-systems-05"><p>Production-ready UI handed to your developers, and support while the system goes into the product.</p></div></li>
-        </ol>
-        <div class="sv-acc-vis" aria-hidden="true"><div class="sv-acc-pic on"></div><div class="sv-acc-pic"></div><div class="sv-acc-pic"></div><div class="sv-acc-pic"></div><div class="sv-acc-pic"></div><span class="sv-acc-scan"></span></div>
-      </div>
+      <!-- the steps, each a row of its own (Nov 2026, after the design): its name, number and line in a card,
+           its picture beside it (a grey panel until the pictures arrive), the two swapping sides row by row -->
+      <ol class="sv-zz">
+        <li class="sv-zz-row"><div class="sv-zz-text"><h3>Audit the interface</h3><b>01</b><p>Every screen and component in use today, grouped and counted, so the duplicates and the gaps are plain to see.</p></div><div class="sv-zz-pic" aria-hidden="true"><span class="sv-zz-ph"></span><span class="sv-zz-scan"></span></div></li>
+        <li class="sv-zz-row flip"><div class="sv-zz-text"><h3>Agree the foundations</h3><b>02</b><p>Colour, type, spacing, grids and motion as tokens, named so designers and developers mean the same thing.</p></div><div class="sv-zz-pic" aria-hidden="true"></div></li>
+        <li class="sv-zz-row"><div class="sv-zz-text"><h3>Build the components</h3><b>03</b><p>The components your product uses, each with its variants and states, replacing the many one-offs.</p></div><div class="sv-zz-pic" aria-hidden="true"></div></li>
+        <li class="sv-zz-row flip"><div class="sv-zz-text"><h3>Document it</h3><b>04</b><p>How and when to use each part, so new designers and developers can work from the system on day one.</p></div><div class="sv-zz-pic" aria-hidden="true"></div></li>
+        <li class="sv-zz-row"><div class="sv-zz-text"><h3>Ship it in code</h3><b>05</b><p>Production-ready UI handed to your developers, and support while the system goes into the product.</p></div><div class="sv-zz-pic" aria-hidden="true"></div></li>
+      </ol>
 
       <div class="cf-head"><div><h2>Fewer parts, faster releases</h2></div><hr></div>
       <div class="cf-text">
@@ -151,7 +147,6 @@ html[data-wb-dock] body { padding-right: 0 !important; }</style>
   mountSiteNav(document.getElementById('ca-header'), { current: 'Services' });
 </script>
 <!-- primary / secondary typography control (assets/type-control.js) -->
-<script src="assets/service-acc.js?v=1" defer></script>
 <script type="module" src="assets/type-control.js"></script>
 </body>
 </html>

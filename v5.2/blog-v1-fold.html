@@ -1,0 +1,204 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="assets/page-transition.css?v=1"><script src="assets/page-transition.js?v=1"></script>
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<title>V1 Fold · How we made the Tibba mountain</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/type.css?v=3"><link rel="stylesheet" href="assets/site.css"><link rel="stylesheet" href="assets/ca-nav.css"><link rel="stylesheet" href="assets/site-shell.css?v=8">
+<link rel="stylesheet" href="assets/blog-v.css?v=1">
+<style>
+/* V1 · Fold: a calm, trust-first product post. One quiet column, a big
+   cover, a plain author block, short sections of facts, a dated update. */
+.v1 { --col: 680px; padding: clamp(28px, 4vw, 56px) var(--gut) clamp(72px, 8vw, 120px); }
+.v1-back { display: block; max-width: var(--col); margin: 0 auto 28px; font-size: 14px; color: var(--ink-faint); text-decoration: none; }
+.v1-back:hover { color: var(--ink); }
+
+.v1-cover { max-width: 1080px; margin: 0 auto; border-radius: 20px; overflow: hidden; background: #000; border: 1px solid var(--line); aspect-ratio: 16 / 9; }
+.v1-cover img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+.v1-head { max-width: var(--col); margin: clamp(36px, 4vw, 56px) auto 0; }
+.v1-date { font-size: 14px; color: var(--ink-faint); }
+.v1-title { margin: 10px 0 28px; font-weight: 400; font-size: clamp(36px, 4.4vw, 56px); line-height: 1.06; letter-spacing: -.025em; color: var(--ink); text-wrap: balance; }
+.v1-author { display: flex; align-items: center; gap: 14px; padding: 18px 0; border-block: 1px solid var(--line); }
+.v1-avatar { flex: none; width: 44px; height: 44px; border-radius: 50%; background: #000; border: 1px solid var(--line); display: grid; place-items: center; }
+.v1-avatar img { width: 22px; height: 22px; }
+.v1-author b { display: block; font-weight: 500; font-size: 16px; color: var(--ink); }
+.v1-author span { font-size: 14px; color: var(--ink-faint); }
+.v1-author .v1-read { margin-left: auto; text-align: right; }
+
+.v1-body { max-width: var(--col); margin: 36px auto 0; }
+.v1-body p, .v1-body li { font-size: 18px; line-height: 1.65; color: var(--ink-mute); }
+.v1-body p { margin: 0 0 1.1em; }
+.v1-body strong { color: var(--ink); font-weight: 500; }
+.v1-intro { font-size: 21px !important; line-height: 1.55 !important; color: var(--ink-warm) !important; }
+.v1-body h2 { margin: 2.4em 0 .6em; font-weight: 450; font-size: clamp(24px, 2.4vw, 30px); line-height: 1.2; letter-spacing: -.015em; color: var(--ink); }
+
+/* the facts: hairline-ruled rows with a small accent tick */
+.v1-facts { list-style: none; margin: 1.2em 0 1.6em; padding: 0; border-top: 1px solid var(--line); }
+.v1-facts li { position: relative; margin: 0; padding: 14px 0 14px 28px; border-bottom: 1px solid var(--line); font-size: 17px; }
+.v1-facts li::before { content: ''; position: absolute; left: 2px; top: 23px; width: 10px; height: 6px; border-left: 1.6px solid var(--accent); border-bottom: 1.6px solid var(--accent); rotate: -45deg; }
+
+.v1-fig { margin: 2em 0; }
+.v1-fig .v1-frame { border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: #000; }
+.v1-fig img, .v1-fig video { display: block; width: 100%; height: auto; }
+.v1-fig figcaption { margin-top: 10px; font-size: 14px; color: var(--ink-faint); }
+.v1-pair { display: grid; grid-template-columns: 1fr 1fr; }
+.v1-pair > img + img { border-left: 1px solid var(--line); }
+.v1-four { display: grid; grid-template-columns: 1fr 1fr; }
+.v1-four > div { position: relative; }
+.v1-four > div:nth-child(even) { border-left: 1px solid var(--line); }
+.v1-four > div:nth-child(n+3) { border-top: 1px solid var(--line); }
+.v1-four span { position: absolute; left: 12px; bottom: 10px; display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--ink-warm); }
+.v1-four span::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--tag); }
+.v1-phone { display: grid; place-items: center; padding: 32px 0; }
+.v1-phone video { width: min(240px, 60%); border-radius: 26px; border: 1px solid rgba(255, 255, 255, .14); }
+
+.v1-code { margin: 1.4em 0 1.8em; padding: 18px 20px; overflow-x: auto; background: var(--bg-raise); border: 1px solid var(--line); border-radius: 12px; font: 13px/1.65 var(--mono); color: var(--ink-warm); }
+.v1-code .c { color: var(--ink-faint); } .v1-code .k { color: var(--accent); }
+
+/* the update: a dated note, kept apart from the post */
+.v1-update { margin-top: 3.2em; padding: 24px 26px; border-radius: 16px; background: var(--bg-raise); border: 1px solid var(--line); }
+.v1-update h2 { margin: 0 0 4px !important; font-size: 22px !important; }
+.v1-update time { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-faint); margin-bottom: 14px; }
+.v1-update time::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.v1-update p:last-child { margin-bottom: 0; }
+.v1-update + .v1-update { margin-top: 14px; }
+
+.v1-sign { color: var(--ink) !important; margin-top: 2em !important; }
+
+@media (max-width: 760px) {
+  .v1-cover { border-radius: 14px; aspect-ratio: 4 / 3; }
+  .v1-body p, .v1-body li { font-size: 16px; }
+  .v1-intro { font-size: 18px !important; }
+  .v1-author .v1-read { display: none; }
+  .v1-update { padding: 20px 18px; }
+}
+</style>
+</head><body class="bv" data-v="1">
+<header id="ca-header"></header>
+<main class="bv-main"><nav id="bv-switch"></nav>
+<article class="v1">
+  <a class="v1-back" href="#">← Blog</a>
+
+  <figure class="v1-cover"><img src="assets/blog/hero-mountain.jpg?v=2" width="1600" height="1000" alt="The Tibba mountain drawn in contour lines, with a trail climbing to the summit" fetchpriority="high"></figure>
+
+  <header class="v1-head">
+    <time class="v1-date" datetime="2026-11-26">November 26, 2026</time>
+    <h1 class="v1-title">How we made the Tibba mountain</h1>
+    <div class="v1-author">
+      <span class="v1-avatar"><img src="assets/brand/favicon.svg" alt="" width="22" height="22"></span>
+      <div><b>Tibba Studio</b><span>Design and engineering team</span></div>
+      <div class="v1-read"><span>8 min read</span></div>
+    </div>
+  </header>
+
+  <div class="v1-body">
+    <p class="v1-intro">The first thing anyone sees on tibba.design is a mountain. We want to be straightforward about what it is, how it works and what it costs your device. Here's how it got there: a year of sketches, one generator, and a lot of contour lines.</p>
+
+    <h2>Why a mountain</h2>
+    <p>Tibba means a small hill. We describe our work as climbing with a client: base camp, the ascent, the summit, and then the next peak. A mountain was the obvious symbol, which is exactly why it was hard.</p>
+    <ul class="v1-facts">
+      <li><strong>No stock peaks.</strong> No low-poly triangles, no snowy photograph.</li>
+      <li><strong>Drawn in our language.</strong> The mountain had to look like the rest of the studio.</li>
+      <li><strong>Surveyed, not rendered.</strong> It had to move like a map being walked.</li>
+      <li><strong>Contours are honest.</strong> Each line is a single height; their spacing tells you how steep the ground is.</li>
+    </ul>
+
+    <h2>Building the landform</h2>
+    <p>Every mountain on the site, from the hero to the four client summits, comes from one generator we call the landform. It isn't a model. It's a recipe: parts summed together, each with a height, a spread and a sharpness. One part on its own is a smooth cone, so the character comes from what we cut into it:</p>
+    <ul class="v1-facts">
+      <li><strong>Domain warp</strong> pushes the ground sideways before it's measured, so ridgelines bend.</li>
+      <li><strong>Spurs</strong> run down from the summit like the fingers of a hand.</li>
+      <li><strong>Flutes</strong> are the narrow gullies between them, where rain would run off.</li>
+      <li><strong>The Mountains lab</strong> is our internal tool for tuning it, with height brushes, erosion passes and a button that sends a preset to the hero.</li>
+    </ul>
+    <figure class="v1-fig">
+      <div class="v1-frame v1-pair">
+        <img src="assets/blog/peak-firstpost.svg" width="1200" height="900" alt="A single peak drawn in contour lines" loading="lazy">
+        <img src="assets/blog/terrain-firstpost.svg" width="1200" height="900" alt="The same peak with spurs, flutes and terrain" loading="lazy">
+      </div>
+      <figcaption>Left: one part, warped. Right: the same peak with spurs, flutes and the valley around it.</figcaption>
+    </figure>
+
+    <h2>From heights to lines</h2>
+    <p>The landform gives a height at any point. To draw it, we sample heights on a grid and run marching squares over it.</p>
+    <ul class="v1-facts">
+      <li><strong>Per cell,</strong> we check which corners sit above a height and draw the short segment where the line must cross.</li>
+      <li><strong>Per height,</strong> the segments are stitched into one contour. Repeat for every height and you have the mountain.</li>
+      <li><strong>On screen,</strong> each line is a thin ribbon of triangles drawn by a shader, so its width and fade change on the GPU.</li>
+    </ul>
+    <pre class="v1-code"><code><span class="c">// one contour at height h, over a grid of samples</span>
+<span class="k">for</span> (<span class="k">let</span> y = 0; y &lt; rows; y++) <span class="k">for</span> (<span class="k">let</span> x = 0; x &lt; cols; x++) {
+  <span class="k">const</span> c = (z[y][x] &gt; h) | (z[y][x+1] &gt; h) &lt;&lt; 1
+          | (z[y+1][x+1] &gt; h) &lt;&lt; 2 | (z[y+1][x] &gt; h) &lt;&lt; 3;
+  <span class="k">if</span> (c &amp;&amp; c !== 15) segments.push(...edge(c, x, y, h));
+}</code></pre>
+
+    <h2>Ink, light and air</h2>
+    <ul class="v1-facts">
+      <li><strong>Two states.</strong> In the loader it's lit like a relief map; as you scroll it morphs to flat ink on black.</li>
+      <li><strong>Aerial fade</strong> dims lines with distance, the way far hills go pale.</li>
+      <li><strong>Pointer parallax</strong> moves the camera a few pixels with your cursor, enough to give the ground depth.</li>
+    </ul>
+    <figure class="v1-fig">
+      <div class="v1-frame"><video data-autoplay src="assets/video/summits.mp4" poster="assets/video/summit-0.jpg" width="696" height="428" muted loop playsinline preload="none" aria-label="The client summits drawn as lit contour ribbons, turning"></video></div>
+      <figcaption>The lit state: each ribbon catches light from above.</figcaption>
+    </figure>
+
+    <h2>Walking the switchbacks</h2>
+    <p>Our first trail ran straight up the slope. It looked like a crack, not a path. Real trails on steep ground zig-zag.</p>
+    <ul class="v1-facts">
+      <li><strong>Written around the summit:</strong> the distance from the top shrinks as you climb while the angle swings across the face.</li>
+      <li><strong>A rounded triangle wave, not a sine:</strong> straight legs and hairpin turns instead of a squiggle.</li>
+      <li><strong>A slow wobble</strong> in distance and angle, so no two legs are the same length.</li>
+      <li><strong>It ends on our mark</strong> at the summit, drawing on as you arrive.</li>
+    </ul>
+
+    <h2>Four more summits</h2>
+    <p>The client summits share the hero's heightfield, so the home page's mountain and Our Work read as one range seen from two places.</p>
+    <figure class="v1-fig">
+      <div class="v1-frame v1-four">
+        <div style="--tag:var(--c-groww)"><img src="assets/blog/terrain-groww.svg" width="1200" height="900" alt="Groww summit" loading="lazy"><span>Groww</span></div>
+        <div style="--tag:var(--c-firstpost)"><img src="assets/blog/terrain-firstpost.svg" width="1200" height="900" alt="Firstpost summit" loading="lazy"><span>Firstpost</span></div>
+        <div style="--tag:var(--c-breathe)"><img src="assets/blog/terrain-breathe-esg.svg" width="1200" height="900" alt="Breathe ESG summit" loading="lazy"><span>Breathe ESG</span></div>
+        <div style="--tag:var(--c-shyft)"><img src="assets/blog/terrain-shyft.svg" width="1200" height="900" alt="Shyft and Mindhouse summit" loading="lazy"><span>Shyft &amp; Mindhouse</span></div>
+      </div>
+      <figcaption>The four client summits, exported as clean SVG for the case-study thumbnails.</figcaption>
+    </figure>
+    <ul class="v1-facts">
+      <li><strong>Each summit</strong> is coloured for its client, with its own trail from trailhead to top.</li>
+      <li><strong>For thumbnails and print,</strong> we project the heightfield from the hero's camera, remove hidden lines and fit smooth curves.</li>
+      <li><strong>Every illustration</strong> is the real mountain, not a trace of it.</li>
+    </ul>
+
+    <h2>What it asks of your phone</h2>
+    <ul class="v1-facts">
+      <li><strong>Small screens get a film,</strong> pre-rendered from the same scene, instead of live WebGL.</li>
+      <li><strong>It looks identical,</strong> loads in a fraction of the time and leaves the battery alone.</li>
+      <li><strong>Reduced motion is respected:</strong> if you've asked for it, the mountain stays still.</li>
+    </ul>
+    <figure class="v1-fig">
+      <div class="v1-frame v1-phone"><video data-autoplay src="assets/video/hero-mountain-30.mp4" poster="assets/video/hero-mountain-30.jpg" width="720" height="1560" muted loop playsinline preload="none" aria-label="The phone version of the hero mountain"></video></div>
+      <figcaption>The phone hero: the same scene, recorded once and played as a film.</figcaption>
+    </figure>
+
+    <h2>What we learned</h2>
+    <ul class="v1-facts">
+      <li><strong>Build the system, not the picture.</strong> One change to the landform shows up in the hero, the summits, the thumbnails and the share card.</li>
+      <li><strong>Restraint is a feature.</strong> Fewer contours, one accent colour, one trail instead of five.</li>
+    </ul>
+    <p>A mountain only needs one path to the top.</p>
+    <p class="v1-sign">— The Tibba team</p>
+
+    <section class="v1-update" aria-labelledby="v1-upd">
+      <h2 id="v1-upd">Update</h2>
+      <time datetime="2026-11-26">November 26, 2026</time>
+      <p>The same summits now sit on each case study's share card, so a link to Groww or Firstpost previews with its own mountain. We'll add a note here whenever the landform changes.</p>
+    </section>
+  </div>
+</article>
+</main>
+<aside class="bv-note" aria-label="About this version"><h2>Version 1<b>V1 · Fold</b></h2><div><p><strong>Borrowed:</strong> Fold's trust-first post shape: a large cover, then title, date and an author block with avatar, name and role; a short, direct intro; plain H2 sections built on scannable lists of concrete facts; and a dated "Update" card at the end so the post reads as maintained.</p><p><strong>Our brand:</strong> Set in Vend Sans on the site's #161617 ground with warm ink, the Tibba mark as the avatar, and the summit crimson (#C9124B) used only for list ticks and the update dot. The copy keeps our plain, first-person-plural voice.</p></div></aside>
+<div id="bv-foot"></div>
+<script type="module" src="assets/blog-v.js?v=1"></script>
+</body></html>

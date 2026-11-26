@@ -1,0 +1,461 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="assets/page-transition.css?v=1"><script src="assets/page-transition.js?v=1"></script>
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<title>V5 Framer · How we made the Tibba mountain</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="assets/type.css?v=3"><link rel="stylesheet" href="assets/site.css"><link rel="stylesheet" href="assets/ca-nav.css"><link rel="stylesheet" href="assets/site-shell.css?v=8">
+<link rel="stylesheet" href="assets/blog-v.css?v=1">
+<!-- V5 · after Framer's "Harness 2" engineering post: a technical deep-dive
+     with numbered parts, bold-label bullets and live side-by-side diagrams.
+     The diagrams are drawn here, in the page: a small heightfield, marching
+     squares, and the switchback trail, the same maths as the site's mountain. -->
+<style>
+.v5 { --col: 720px; --wide: 1040px; padding: 0 var(--gut) 120px; }
+.v5 > * { max-width: var(--col); margin-inline: auto; }
+.v5 > .v5-wide { max-width: var(--wide); }
+
+/* head */
+.v5-crumb { display: flex; gap: 8px; padding-top: clamp(40px, 6vw, 88px); font-size: 14px; color: var(--ink-faint); }
+.v5-crumb a { text-decoration: none; } .v5-crumb a:hover { color: var(--ink); }
+.v5-title { margin: 18px auto 28px; font-weight: 400; font-size: clamp(38px, 5vw, 64px); line-height: 1.04; letter-spacing: -.025em; color: var(--ink); text-wrap: balance; }
+.v5-by { display: flex; align-items: center; gap: 12px; padding-bottom: 32px; border-bottom: 1px solid var(--line); font-size: 14px; color: var(--ink-mute); flex-wrap: wrap; }
+.v5-av { width: 36px; height: 36px; border-radius: 50%; background: #000; border: 1px solid var(--line); display: grid; place-items: center; }
+.v5-av img { width: 17px; height: 17px; }
+.v5-by b { color: var(--ink); font-weight: 500; }
+.v5-by .dot { color: var(--ink-faint); }
+
+/* the outcome first */
+.v5-outcome { margin-top: 40px !important; }
+.v5-outcome p.lead { font-size: clamp(20px, 1.6vw, 23px); line-height: 1.45; color: var(--ink); margin-block: 0 28px; }
+.v5-stats { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--bg-raise); }
+.v5-stat { padding: 22px 22px 20px; }
+.v5-stat + .v5-stat { border-left: 1px solid var(--line); }
+.v5-stat b { display: block; font-size: clamp(40px, 4.4vw, 60px); font-weight: 400; letter-spacing: -.03em; line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; }
+.v5-stat b em { font-style: normal; color: var(--accent); }
+.v5-stat span { display: block; margin-top: 10px; font-size: 14px; line-height: 1.4; color: var(--ink-mute); }
+
+/* prose */
+.v5 p, .v5 li { font-size: 17px; line-height: 1.65; color: var(--ink-warm); }
+.v5 p { margin-block: 0 1.1em; }
+.v5 strong { color: var(--ink); font-weight: 500; }
+.v5-part { margin-top: 88px !important; padding-top: 18px; border-top: 1px solid var(--line); }
+.v5-part small { display: block; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+.v5-part h2 { margin: 0 0 18px; font-size: clamp(28px, 2.6vw, 38px); font-weight: 400; letter-spacing: -.02em; line-height: 1.1; color: var(--ink); }
+.v5 h3 { margin: 40px auto 12px; font-size: 21px; font-weight: 500; letter-spacing: -.01em; color: var(--ink); }
+.v5 h2, .v5 h3 { scroll-margin-top: calc(var(--nav-h) + 24px); }
+.v5-bl { list-style: none; padding: 0; margin: 0 auto 1.4em; display: grid; gap: 10px; }
+.v5-bl li { position: relative; padding-left: 20px; }
+.v5-bl li::before { content: ''; position: absolute; left: 2px; top: .7em; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.v5-bl b { color: var(--ink); font-weight: 500; }
+.v5-quote { margin: 36px auto; padding: 0 0 0 22px; border-left: 2px solid var(--accent); font-size: clamp(22px, 2vw, 27px); line-height: 1.3; color: var(--ink); font-weight: 350; }
+.v5-code { margin: 24px auto 28px; padding: 18px 20px; overflow-x: auto; background: var(--bg-deep); border: 1px solid var(--line); border-radius: 12px; font: 13px/1.65 var(--mono); color: var(--ink-warm); }
+.v5-code .c { color: var(--ink-faint); } .v5-code .k { color: var(--accent); } .v5-code .n { color: var(--c-shyft); }
+
+/* diagrams: two panels side by side, one caption under both */
+.v5-fig { margin: 40px auto 44px !important; }
+.v5-cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.v5-panel { position: relative; background: var(--bg-deep); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.v5-panel header { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--line-soft); font-size: 13px; color: var(--ink-mute); }
+.v5-panel header b { font-weight: 500; color: var(--ink); }
+.v5-tag { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink-faint); white-space: nowrap; }
+.v5-tag.good { color: var(--ink); border-color: var(--accent); background: var(--accent-dim); }
+.v5-panel svg { display: block; width: 100%; height: auto; }
+.v5-fig figcaption { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-top: 12px; font-size: 14px; line-height: 1.5; color: var(--ink-faint); }
+.v5-fig figcaption span b { color: var(--ink-mute); font-weight: 500; }
+.v5-ctl { display: inline-flex; gap: 6px; flex: none; }
+.v5-btn { font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg-raise); color: var(--ink); cursor: pointer; }
+.v5-btn:hover { border-color: var(--ink-faint); }
+.v5-btn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); }
+.v5-readout { position: absolute; left: 14px; bottom: 12px; font: 12px var(--mono); color: var(--ink-faint); }
+
+/* the marching-squares stepper: one wide panel */
+.v5-ms { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
+.v5-ms .side { border-left: 1px solid var(--line-soft); padding: 16px; display: flex; flex-direction: column; gap: 14px; font-size: 14px; color: var(--ink-mute); }
+.v5-ms .side code { font: 12px var(--mono); color: var(--ink); background: var(--bg-raise); padding: 2px 6px; border-radius: 4px; }
+.v5-ms .bits { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.v5-ms .bits span { text-align: center; padding: 8px 0; border-radius: 8px; border: 1px solid var(--line); font: 13px var(--mono); color: var(--ink-faint); }
+.v5-ms .bits span.on { background: var(--accent-dim); border-color: var(--accent); color: var(--ink); }
+.v5-ms .count { margin-top: auto; font: 12px var(--mono); color: var(--ink-faint); }
+
+/* media figures */
+.v5-media { margin: 40px auto !important; }
+.v5-media img, .v5-media video { display: block; width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--line); background: #000; }
+.v5-media figcaption { margin-top: 12px; font-size: 14px; color: var(--ink-faint); }
+.v5-four { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.v5-four div { position: relative; }
+.v5-four img { aspect-ratio: 4 / 3; object-fit: cover; }
+.v5-four span { position: absolute; left: 10px; bottom: 9px; display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--ink); }
+.v5-four span::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--tag); }
+.v5-phone { display: grid; place-items: center; padding: 32px; border-radius: 14px; border: 1px solid var(--line); background: var(--bg-deep); }
+.v5-phone video { width: min(240px, 70%); border-radius: 26px; }
+
+.v5-sign { margin-top: 2em !important; color: var(--ink) !important; }
+
+@media (max-width: 760px) {
+  .v5-stats { grid-template-columns: 1fr; }
+  .v5-stat + .v5-stat { border-left: 0; border-top: 1px solid var(--line); }
+  .v5-stat { display: flex; align-items: baseline; gap: 14px; padding: 16px; }
+  .v5-stat span { margin: 0; }
+  .v5-cmp { grid-template-columns: 1fr; }
+  .v5-ms { grid-template-columns: 1fr; }
+  .v5-ms .side { border-left: 0; border-top: 1px solid var(--line-soft); }
+  .v5-fig figcaption { flex-direction: column; }
+  .v5-four { grid-template-columns: 1fr 1fr; }
+  .v5 p, .v5 li { font-size: 16px; }
+  .v5-part { margin-top: 64px !important; }
+}
+</style>
+</head><body class="bv" data-v="5">
+<header id="ca-header"></header>
+<main class="bv-main"><nav id="bv-switch"></nav>
+<article class="v5">
+
+  <nav class="v5-crumb" aria-label="Breadcrumb"><a href="blog-versions.html">Blog</a><span aria-hidden="true">/</span><a href="#">Engineering</a></nav>
+  <h1 class="v5-title">How we made the Tibba mountain</h1>
+  <div class="v5-by">
+    <span class="v5-av" aria-hidden="true"><img src="assets/brand/favicon.svg" alt=""></span>
+    <b>Tibba Studio</b><span class="dot">·</span>
+    <time datetime="2026-11-26">Nov 26, 2026</time><span class="dot">·</span><span>8 min read</span>
+  </div>
+
+  <section class="v5-outcome">
+    <p class="lead">The first thing anyone sees on tibba.design is a mountain. It counts up from the valley floor, the camera drops into it, and a thin line climbs to the summit. The short version of how it got there: we built a generator, not a picture, and every mountain on the site now comes out of it.</p>
+    <div class="v5-stats" role="list">
+      <div class="v5-stat" role="listitem"><b>1</b><span>generator behind every mountain on the site</span></div>
+      <div class="v5-stat" role="listitem"><b>4</b><span>client summits cut from the hero’s own heightfield</span></div>
+      <div class="v5-stat" role="listitem"><b><em>0</em></b><span>hand-traced illustrations: every one is the real mountain</span></div>
+    </div>
+  </section>
+
+  <!-- Part 1 -->
+  <header class="v5-part"><small>Part 1</small><h2 id="p1">Why a mountain</h2></header>
+  <p>Tibba means a small hill. We have always described our work as climbing with a client: base camp, the ascent, the summit, and then the next peak. A mountain was the obvious symbol, which is exactly why it was hard. Obvious symbols go generic fast.</p>
+  <h3>One rule</h3>
+  <ul class="v5-bl">
+    <li><b>No stock peaks:</b> nothing anyone else could have drawn.</li>
+    <li><b>No low-poly triangles:</b> the shorthand every 3D mountain falls back on.</li>
+    <li><b>No snowy photograph:</b> it had to be drawn in the studio’s own language.</li>
+    <li><b>Surveyed, not rendered:</b> it had to move like it was being measured.</li>
+  </ul>
+  <blockquote class="v5-quote">“We didn’t want a picture of a mountain. We wanted a map of one, that you could walk.”</blockquote>
+  <h3>Maps gave us the language</h3>
+  <p>Topographic contour lines are honest: each one is a single height, and the spacing between them tells you how steep the ground is. Put enough of them together and a flat screen suddenly has a slope.</p>
+
+  <!-- Part 2 -->
+  <header class="v5-part"><small>Part 2</small><h2 id="p2">Building the landform</h2></header>
+  <h3>A recipe, not a model</h3>
+  <p>Every mountain on the site, from the hero’s massif to the four client summits, comes from one generator we call the landform. A landform is a handful of parts summed together, each with a height, a spread and a sharpness.</p>
+  <h3>What we cut into the cone</h3>
+  <p>One part on its own is a smooth cone, and nobody believes a cone. The character comes from what we cut into it:</p>
+  <ul class="v5-bl">
+    <li><b>Domain warp:</b> pushes the ground sideways before it’s measured, so ridgelines bend instead of running straight.</li>
+    <li><b>Spurs:</b> long ridges that run down from the summit, like the fingers of a hand.</li>
+    <li><b>Flutes:</b> the narrow gullies between them, where rain would run off.</li>
+  </ul>
+
+  <figure class="v5-fig v5-wide" data-fig="cone">
+    <div class="v5-cmp">
+      <div class="v5-panel"><header><b>One part</b><span class="v5-tag">smooth cone</span></header><svg viewBox="0 0 400 300" data-field="cone" role="img" aria-label="Contour lines of a smooth cone: evenly spaced circles"></svg></div>
+      <div class="v5-panel"><header><b>One part, cut</b><span class="v5-tag good" data-cut-label>warp + spurs + flutes</span></header><svg viewBox="0 0 400 300" data-field="cut" role="img" aria-label="Contour lines of the same cone with warp, spurs and flutes: bent, fingered lines"></svg></div>
+    </div>
+    <figcaption><span><b>Fig. 1</b> The same part, before and after. Toggle each cut to see what it adds to the contours.</span>
+      <span class="v5-ctl" role="group" aria-label="Cuts"><button class="v5-btn" type="button" data-cut="warp" aria-pressed="true">Warp</button><button class="v5-btn" type="button" data-cut="spurs" aria-pressed="true">Spurs</button><button class="v5-btn" type="button" data-cut="flutes" aria-pressed="true">Flutes</button></span></figcaption>
+  </figure>
+
+  <h3>The Mountains lab</h3>
+  <p>We tuned all of it in a small internal tool, the Mountains lab, with brushes for adding height, erosion passes, and a button that sends a preset straight into the hero. Most of the work was saying no: a ridge that looked dramatic in the lab often looked busy behind a headline.</p>
+
+  <!-- Part 3 -->
+  <header class="v5-part"><small>Part 3</small><h2 id="p3">From heightfield to contour lines</h2></header>
+  <h3>Marching squares</h3>
+  <p>The landform gives us a height at any point. To draw it, we sample those heights on a grid and run marching squares over it: for every cell, we check which corners are above a given height and draw the short segment where the line must cross. Stitch the segments together and you get one contour.</p>
+
+  <figure class="v5-fig v5-wide" data-fig="ms">
+    <div class="v5-panel v5-ms">
+      <svg viewBox="0 0 400 280" data-ms role="img" aria-label="A grid of height samples. Each step checks one cell and draws the segment where the contour crosses it."></svg>
+      <div class="side">
+        <div>Cell <code data-ms-cell>–</code></div>
+        <div>Corners above <code>h</code>, packed into a 4-bit case:</div>
+        <div class="bits" data-ms-bits><span>TL</span><span>TR</span><span>BR</span><span>BL</span></div>
+        <div>Case <code data-ms-case>–</code> <span data-ms-what></span></div>
+        <div class="count" data-ms-count>0 / 0 cells · 0 segments</div>
+      </div>
+    </div>
+    <figcaption><span><b>Fig. 2</b> One contour, one cell at a time. Filled dots are samples above the height; red is the line where it must cross.</span>
+      <span class="v5-ctl"><button class="v5-btn" type="button" data-ms-step>Step</button><button class="v5-btn" type="button" data-ms-play aria-pressed="false">Play</button><button class="v5-btn" type="button" data-ms-reset>Reset</button></span></figcaption>
+  </figure>
+
+  <pre class="v5-code"><code><span class="c">// one contour at height h, over a grid of samples</span>
+<span class="k">for</span> (<span class="k">let</span> y = <span class="n">0</span>; y &lt; rows; y++) <span class="k">for</span> (<span class="k">let</span> x = <span class="n">0</span>; x &lt; cols; x++) {
+  <span class="k">const</span> c = (z[y][x] &gt; h) | (z[y][x+<span class="n">1</span>] &gt; h) &lt;&lt; <span class="n">1</span>
+          | (z[y+<span class="n">1</span>][x+<span class="n">1</span>] &gt; h) &lt;&lt; <span class="n">2</span> | (z[y+<span class="n">1</span>][x] &gt; h) &lt;&lt; <span class="n">3</span>;
+  <span class="k">if</span> (c &amp;&amp; c !== <span class="n">15</span>) segments.push(...edge(c, x, y, h));
+}</code></pre>
+  <h3>Lines that aren’t lines</h3>
+  <ul class="v5-bl">
+    <li><b>Ribbons:</b> on screen each contour is a thin strip of triangles drawn by a shader.</li>
+    <li><b>Width from slope:</b> the ribbon can thicken or thin with the ground under it.</li>
+    <li><b>Fade from distance:</b> all of it without ever leaving the GPU.</li>
+  </ul>
+
+  <!-- Part 4 -->
+  <header class="v5-part"><small>Part 4</small><h2 id="p4">Ink, light and air</h2></header>
+  <p>The mountain lives in two states. In the loader it’s lit: the ribbons catch a soft light from above, the way a relief map does. As you scroll, it morphs to ink, flat lines on black, so it can sit behind text without fighting it.</p>
+  <figure class="v5-fig v5-wide" data-fig="lit">
+    <div class="v5-cmp">
+      <div class="v5-panel"><header><b>Lit</b><span class="v5-tag">the loader</span></header><svg viewBox="0 0 400 300" data-lit="lit" role="img" aria-label="Contours shaded brighter on the slopes facing the light"></svg></div>
+      <div class="v5-panel"><header><b>Ink</b><span class="v5-tag good">behind text</span></header><svg viewBox="0 0 400 300" data-lit="ink" role="img" aria-label="The same contours as flat, even lines"></svg></div>
+    </div>
+    <figcaption><span><b>Fig. 3</b> The same contours in both states. Aerial fade dims the lines further back, the way distant hills go pale.</span>
+      <span class="v5-ctl"><button class="v5-btn" type="button" data-fade aria-pressed="true">Aerial fade</button></span></figcaption>
+  </figure>
+  <ul class="v5-bl">
+    <li><b>Aerial fade:</b> dims the lines as they get further away.</li>
+    <li><b>Pointer parallax:</b> moves the camera a few pixels with your cursor, enough to make the ground feel like it has depth.</li>
+  </ul>
+  <figure class="v5-media">
+    <video src="assets/video/summits.mp4" poster="assets/video/summit-0.jpg" width="696" height="428" muted loop playsinline preload="none" data-autoplay aria-label="The client summits drawn as lit contour ribbons, turning"></video>
+    <figcaption>The lit state on the real summits: each ribbon catches light from above, like a relief map.</figcaption>
+  </figure>
+
+  <!-- Part 5 -->
+  <header class="v5-part"><small>Part 5</small><h2 id="p5">Walking the switchbacks</h2></header>
+  <h3>A crack, not a path</h3>
+  <p>The trail was the last piece, and the one we redrew the most. Our first version ran straight up the slope. It looked like a crack, not a path. Real trails on steep ground zig-zag: long traverses across the face, a tight turn, and back.</p>
+  <figure class="v5-fig v5-wide" data-fig="route">
+    <div class="v5-cmp">
+      <div class="v5-panel"><header><b>Straight up</b><span class="v5-tag">first version</span></header><svg viewBox="0 0 400 300" data-trail="straight" role="img" aria-label="A trail running straight up to the summit"></svg></div>
+      <div class="v5-panel"><header><b>Switchbacks</b><span class="v5-tag good">shipped</span></header><svg viewBox="0 0 400 300" data-trail="switch" role="img" aria-label="A trail zig-zagging across the face to the summit"></svg></div>
+    </div>
+    <figcaption><span><b>Fig. 4</b> Both trails drawn at the same speed. The straight one arrives first and reads as a crack; the switchbacks read as walked.</span>
+      <span class="v5-ctl"><button class="v5-btn" type="button" data-replay>Replay</button></span></figcaption>
+  </figure>
+  <h3>The shape of the swing</h3>
+  <p>The route is written around the summit. The distance from the top shrinks steadily as you climb, while the angle swings back and forth across the face.</p>
+  <ul class="v5-bl">
+    <li><b>Sine:</b> spends as long turning as walking, and reads as a squiggle.</li>
+    <li><b>Rounded triangle:</b> straight legs and hairpin turns, which is what we shipped.</li>
+  </ul>
+  <figure class="v5-fig v5-wide" data-fig="wave">
+    <div class="v5-cmp">
+      <div class="v5-panel"><header><b>Sine swing</b><span class="v5-tag">squiggle</span></header><svg viewBox="0 0 400 300" data-trail="sine" role="img" aria-label="A trail whose swing is a sine wave: rounded, wavy"></svg></div>
+      <div class="v5-panel"><header><b>Rounded triangle</b><span class="v5-tag good">straight legs</span></header><svg viewBox="0 0 400 300" data-trail="tri" role="img" aria-label="A trail whose swing is a rounded triangle wave: straight traverses and tight turns"></svg></div>
+    </div>
+    <figcaption><span><b>Fig. 5</b> Same distance, same number of turns; only the wave changes. Add wobble to break the repeat.</span>
+      <span class="v5-ctl"><button class="v5-btn" type="button" data-wobble aria-pressed="false">Wobble</button><button class="v5-btn" type="button" data-replay>Replay</button></span></figcaption>
+  </figure>
+  <blockquote class="v5-quote">“A path that repeats perfectly reads as drawn, not walked.”</blockquote>
+  <p>That’s why the last trick is a little low-frequency wobble in both distance and angle, so no two legs of the trail are the same length. The trail draws on as you arrive and finishes on the studio’s mark at the summit.</p>
+
+  <!-- Part 6 -->
+  <header class="v5-part"><small>Part 6</small><h2 id="p6">Four more summits</h2></header>
+  <p>The client summits are part of the same heightfield as the hero, which is why the home page’s mountain and the Our Work section look like one range seen from two places. Each summit is coloured for its client, and when you reach it, its own trail climbs from the trailhead to the top.</p>
+  <figure class="v5-media v5-wide">
+    <div class="v5-four">
+      <div style="--tag:var(--c-groww)"><img src="assets/blog/terrain-groww.svg" alt="Groww summit in contour lines" loading="lazy"><span>Groww</span></div>
+      <div style="--tag:var(--c-firstpost)"><img src="assets/blog/terrain-firstpost.svg" alt="Firstpost summit in contour lines" loading="lazy"><span>Firstpost</span></div>
+      <div style="--tag:var(--c-breathe)"><img src="assets/blog/terrain-breathe-esg.svg" alt="Breathe ESG summit in contour lines" loading="lazy"><span>Breathe ESG</span></div>
+      <div style="--tag:var(--c-shyft)"><img src="assets/blog/terrain-shyft.svg" alt="Shyft and Mindhouse summit in contour lines" loading="lazy"><span>Shyft &amp; Mindhouse</span></div>
+    </div>
+    <figcaption>The four client summits, exported as clean SVG for the case-study thumbnails.</figcaption>
+  </figure>
+  <h3>Leaving the browser</h3>
+  <ul class="v5-bl">
+    <li><b>Project:</b> the heightfield is projected from the hero’s camera.</li>
+    <li><b>Hide:</b> lines behind the slopes are removed.</li>
+    <li><b>Smooth:</b> curves are fitted through what’s left. Every illustration is the real mountain, not a trace of it.</li>
+  </ul>
+
+  <!-- Part 7 -->
+  <header class="v5-part"><small>Part 7</small><h2 id="p7">Making it light on phones</h2></header>
+  <p>A live WebGL scene is a lot to ask of a phone on a train.</p>
+  <ul class="v5-bl">
+    <li><b>Desktop:</b> the live scene, contours, light and parallax.</li>
+    <li><b>Phones:</b> a short, pre-rendered film of the same mountain, made from the scene itself. It looks identical, loads in a fraction of the time and leaves the battery alone.</li>
+    <li><b>Reduced motion:</b> the mountain stays still. The contours tell the story without the camera moving at all.</li>
+  </ul>
+  <figure class="v5-media">
+    <div class="v5-phone"><video src="assets/video/hero-mountain-30.mp4" poster="assets/video/hero-mountain-30.jpg" width="720" height="1560" muted loop playsinline preload="none" data-autoplay aria-label="The phone version of the hero mountain"></video></div>
+    <figcaption>The phone hero: the same scene, recorded once and played as a film.</figcaption>
+  </figure>
+
+  <!-- Part 8 -->
+  <header class="v5-part"><small>Part 8</small><h2 id="p8">What we learned</h2></header>
+  <ul class="v5-bl">
+    <li><b>Build the system, not the picture:</b> because every mountain comes from one generator, a change to the landform shows up everywhere at once: the hero, the summits, the thumbnails and the share card.</li>
+    <li><b>Restraint is a feature:</b> most of our best decisions were removals. Fewer contours, a single accent colour, one trail instead of five.</li>
+  </ul>
+  <p>The hours we spent on the generator paid for every illustration we didn’t have to draw. A mountain only needs one path to the top.</p>
+  <p class="v5-sign">— The Tibba team</p>
+</article>
+</main>
+<aside class="bv-note" aria-label="About this version"><h2>Version 5<b>V5 · Framer</b></h2><div>
+  <p><strong>Borrowed:</strong> Framer’s engineering deep-dive: breadcrumb, author and read time, the outcome and a row of headline stats before anything else, numbered “Part” sections with H3s, bold-label bullets, and live diagrams that put two approaches side by side with a caption and controls.</p>
+  <p><strong>Our brand:</strong> the stats are honest counts from the post (one generator, four summits, nothing hand-traced). The diagrams draw with the site’s own maths (a landform, marching squares, the switchback trail) in Tibba ink on near-black, with #C9124B as the one highlight, all set in Vend Sans.</p>
+</div></aside>
+<div id="bv-foot"></div>
+<script type="module" src="assets/blog-v.js?v=1"></script>
+
+<script>
+(() => {
+  const NS = 'http://www.w3.org/2000/svg';
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const el = (tag, at = {}, parent) => { const e = document.createElementNS(NS, tag); for (const k in at) e.setAttribute(k, at[k]); parent && parent.appendChild(e); return e; };
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const ACC = css('--accent') || '#C9124B';
+
+  /* ── a tiny landform: one part, optionally warped, spurred and fluted ── */
+  function hash(x, y) { const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return s - Math.floor(s); }
+  function noise(x, y) { const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+    const a = hash(xi, yi), b = hash(xi + 1, yi), c = hash(xi, yi + 1), d = hash(xi + 1, yi + 1); return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v; }
+  function height(x, y, o) { // x, y in -1..1
+    if (o.warp) { x += (noise(x * 2.2 + 3, y * 2.2) - .5) * .42; y += (noise(x * 2.2, y * 2.2 + 7) - .5) * .42; }
+    const r = Math.hypot(x, y), a = Math.atan2(y, x);
+    let h = Math.max(0, 1 - r / .95);
+    h = Math.pow(h, 1.25);
+    if (o.spurs) h += .1 * Math.pow(Math.max(0, Math.cos(a * 5 + .4)), 3) * Math.min(1, r * 2.2) * (1 - r);
+    if (o.flutes) h -= .06 * Math.pow(Math.max(0, Math.cos(a * 5 + .4 + Math.PI / 5)), 8) * Math.min(1, r * 2.5);
+    return h;
+  }
+  /* marching squares: segments for one height over a sampled grid */
+  function cellSegs(z, x, y, h) {
+    const a = z[y][x], b = z[y][x + 1], c = z[y + 1][x + 1], d = z[y + 1][x];
+    const corners = [[x, y, a], [x + 1, y, b], [x + 1, y + 1, c], [x, y + 1, d]], pts = [];
+    for (let i = 0; i < 4; i++) { const [x0, y0, v0] = corners[i], [x1, y1, v1] = corners[(i + 1) % 4];
+      if ((v0 > h) !== (v1 > h)) { const t = (h - v0) / (v1 - v0); pts.push([x0 + (x1 - x0) * t, y0 + (y1 - y0) * t]); } }
+    const segs = []; for (let i = 0; i + 1 < pts.length; i += 2) segs.push([pts[i], pts[i + 1]]); return segs;
+  }
+  function sample(N, f) { const z = []; for (let j = 0; j <= N; j++) { z.push([]); for (let i = 0; i <= N; i++) z[j].push(f(i / N * 2 - 1, j / N * 2 - 1)); } return z; }
+
+  /* draw a field's contours into an svg as an oblique top-down view */
+  function drawField(svg, o, style = {}) {
+    svg.textContent = '';
+    const N = 72, z = sample(N, (x, y) => height(x, y, o)), L = 14;
+    const X = i => 200 + (i / N * 2 - 1) * 170, Y = (j, h) => 150 + (j / N * 2 - 1) * 118 - h * (style.lift ?? 60);
+    if (style.lit) { // relief shading: each segment as bright as its slope faces a light from the upper left
+      const B = 6, ds = Array(B).fill('');
+      for (let k = 1; k <= L; k++) { const h = k / (L + 1) * 1.02;
+        for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) { const ss = cellSegs(z, i, j, h); if (!ss.length) continue;
+          const gx = z[j][i + 1] - z[j][i], gy = z[j + 1][i] - z[j][i], g = Math.hypot(gx, gy) || 1;
+          const s = Math.max(0, Math.min(.999, .5 + .5 * (-gx * .7 - gy * .7) / g)), b = Math.floor(s * B);
+          for (const [[x0, y0], [x1, y1]] of ss) ds[b] += `M${X(x0).toFixed(1)} ${Y(y0, h).toFixed(1)}L${X(x1).toFixed(1)} ${Y(y1, h).toFixed(1)}`; } }
+      ds.forEach((d, b) => el('path', { d, fill: 'none', 'stroke-linecap': 'round', stroke: b >= B - 2 ? '#fff' : css('--ink-warm'), 'stroke-width': (.6 + b * .45).toFixed(2), opacity: (.12 + b / (B - 1) * .88).toFixed(2) }, svg));
+      return z;
+    }
+    for (let k = 1; k <= L; k++) {
+      const h = k / (L + 1) * 1.02; let d = '';
+      for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) for (const [[x0, y0], [x1, y1]] of cellSegs(z, i, j, h)) d += `M${X(x0).toFixed(1)} ${Y(y0, h).toFixed(1)}L${X(x1).toFixed(1)} ${Y(y1, h).toFixed(1)}`;
+      const p = el('path', { d, fill: 'none', 'stroke-linecap': 'round', stroke: style.stroke || css('--ink-mute'), 'stroke-width': style.w || 1 }, svg);
+      if (style.each) style.each(p, k, L, h);
+    }
+    return z;
+  }
+
+  /* Fig 1 — cone vs cut */
+  const cut = { warp: true, spurs: true, flutes: true };
+  const coneSvg = document.querySelector('[data-field="cone"]'), cutSvg = document.querySelector('[data-field="cut"]');
+  drawField(coneSvg, {});
+  const drawCut = () => { drawField(cutSvg, cut, { stroke: css('--ink') });
+    const on = Object.keys(cut).filter(k => cut[k]); document.querySelector('[data-cut-label]').textContent = on.length ? on.join(' + ') : 'nothing cut'; };
+  drawCut();
+  document.querySelectorAll('[data-cut]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.cut; cut[k] = !cut[k]; b.setAttribute('aria-pressed', cut[k]); drawCut(); }));
+
+  /* Fig 2 — marching squares stepper */
+  (() => {
+    const svg = document.querySelector('[data-ms]'), C = 8, R = 6, S = 40, ox = 40, oy = 20, H = .5;
+    const z = []; for (let j = 0; j <= R; j++) { z.push([]); for (let i = 0; i <= C; i++) { const x = (i / C) * 2 - 1, y = (j / R) * 2 - 1; z[j].push(1 - Math.hypot(x * 1.1 + .1, y * 1.2 - .05) + (noise(i * .9, j * .9) - .5) * .35); } }
+    const gGrid = el('g', {}, svg), gSeg = el('g', {}, svg), gDot = el('g', {}, svg);
+    for (let j = 0; j <= R; j++) el('line', { x1: ox, y1: oy + j * S, x2: ox + C * S, y2: oy + j * S, stroke: css('--line'), 'stroke-width': 1 }, gGrid);
+    for (let i = 0; i <= C; i++) el('line', { x1: ox + i * S, y1: oy, x2: ox + i * S, y2: oy + R * S, stroke: css('--line'), 'stroke-width': 1 }, gGrid);
+    for (let j = 0; j <= R; j++) for (let i = 0; i <= C; i++) { const up = z[j][i] > H;
+      el('circle', { cx: ox + i * S, cy: oy + j * S, r: up ? 4.5 : 3.5, fill: up ? css('--ink') : 'none', stroke: up ? 'none' : css('--ink-faint'), 'stroke-width': 1.2 }, gDot); }
+    const hi = el('rect', { width: S, height: S, fill: 'rgba(201,18,75,.14)', stroke: ACC, 'stroke-width': 1.5, rx: 3, opacity: 0 }, gGrid);
+    const cellEl = document.querySelector('[data-ms-cell]'), caseEl = document.querySelector('[data-ms-case]'), whatEl = document.querySelector('[data-ms-what]'), countEl = document.querySelector('[data-ms-count]'), bits = [...document.querySelectorAll('[data-ms-bits] span')];
+    const playB = document.querySelector('[data-ms-play]'); let n = 0, segs = 0, timer = 0; const total = C * R;
+    function step() {
+      if (n >= total) { stop(); return; }
+      const x = n % C, y = Math.floor(n / C), cs = [z[y][x], z[y][x + 1], z[y + 1][x + 1], z[y + 1][x]].map(v => v > H);
+      const code = cs[0] | cs[1] << 1 | cs[2] << 2 | cs[3] << 3;
+      hi.setAttribute('x', ox + x * S); hi.setAttribute('y', oy + y * S); hi.setAttribute('opacity', 1);
+      bits.forEach((b, i) => b.classList.toggle('on', cs[i]));
+      cellEl.textContent = `(${x}, ${y})`; caseEl.textContent = code;
+      const ss = cellSegs(z, x, y, H);
+      whatEl.textContent = code === 0 ? '— all below, nothing to draw' : code === 15 ? '— all above, nothing to draw' : `— ${ss.length} segment${ss.length > 1 ? 's' : ''}`;
+      for (const [[x0, y0], [x1, y1]] of ss) { segs++; el('line', { x1: ox + x0 * S, y1: oy + y0 * S, x2: ox + x1 * S, y2: oy + y1 * S, stroke: ACC, 'stroke-width': 2.5, 'stroke-linecap': 'round' }, gSeg); }
+      n++; countEl.textContent = `${n} / ${total} cells · ${segs} segments`;
+    }
+    function stop() { clearInterval(timer); timer = 0; playB.setAttribute('aria-pressed', 'false'); playB.textContent = n >= total ? 'Done' : 'Play'; }
+    function reset() { stop(); n = 0; segs = 0; gSeg.textContent = ''; hi.setAttribute('opacity', 0); bits.forEach(b => b.classList.remove('on')); cellEl.textContent = caseEl.textContent = '–'; whatEl.textContent = ''; countEl.textContent = `0 / ${total} cells · 0 segments`; playB.textContent = 'Play'; }
+    document.querySelector('[data-ms-step]').addEventListener('click', () => { stop(); step(); });
+    playB.addEventListener('click', () => { if (timer) return stop(); if (n >= total) reset(); playB.setAttribute('aria-pressed', 'true'); playB.textContent = 'Pause'; timer = setInterval(step, reduce ? 40 : 140); });
+    document.querySelector('[data-ms-reset]').addEventListener('click', reset);
+    reset();
+  })();
+
+  /* Fig 3 — lit vs ink, with aerial fade */
+  const litO = { warp: true, spurs: true, flutes: true };
+  let fade = true;
+  function drawLit() {
+    // lit: brightness from how much each level's slope faces the light (higher, steeper = brighter edge); ink: flat
+    const lit = document.querySelector('[data-lit="lit"]');
+    drawField(lit, litO, { lift: 70, lit: true });
+    lit.style.maskImage = lit.style.webkitMaskImage = fade ? 'linear-gradient(to bottom, rgba(0,0,0,.35), #000 75%)' : 'none';
+    const ink = document.querySelector('[data-lit="ink"]');
+    drawField(ink, litO, { lift: 70, stroke: css('--ink-mute'), w: .9 });
+    ink.style.maskImage = ink.style.webkitMaskImage = lit.style.maskImage;
+  }
+  drawLit();
+  document.querySelector('[data-fade]').addEventListener('click', e => { fade = !fade; e.currentTarget.setAttribute('aria-pressed', fade); drawLit(); });
+
+  /* Fig 4 & 5 — trails over a cone, drawn on at the same speed */
+  let wobble = false;
+  /* the face seen from the side: a peak at (200, 44), its foot along y = 268 */
+  const PEAK = [200, 44], FOOT = 268, HALF = 170;
+  const halfAt = y => (y - PEAK[1]) / (FOOT - PEAK[1]) * HALF;
+  function trailPts(kind) {
+    const pts = [], T = 320;
+    if (kind === 'straight') { for (let i = 0; i <= T; i++) { const t = i / T; pts.push([PEAK[0] + 6 * (1 - t), FOOT - 6 - t * (FOOT - 6 - PEAK[1])]); } return pts; }
+    const turns = 6;
+    for (let i = 0; i <= T; i++) {
+      const t = i / T, ph = (t * turns + .5) * Math.PI;
+      const w = kind === 'sine' ? Math.sin(ph) : Math.asin(.97 * Math.sin(ph)) / Math.asin(.97);
+      let y = FOOT - 6 - t * (FOOT - 6 - PEAK[1]), amp = .62;
+      if (wobble) { y += 5 * Math.sin(t * 13.7 + 1) * (1 - t); amp *= 1 + .22 * Math.sin(t * 7.3 + 2); }
+      pts.push([PEAK[0] + w * amp * halfAt(y), y]);
+    }
+    return pts;
+  }
+  function drawTrail(svg) {
+    svg.textContent = '';
+    const g = el('g', {}, svg);
+    el('path', { d: `M${PEAK[0] - HALF} ${FOOT}L${PEAK[0]} ${PEAK[1]}L${PEAK[0] + HALF} ${FOOT}`, fill: 'none', stroke: css('--ink-faint'), 'stroke-width': 1.2, 'stroke-linejoin': 'round' }, g);
+    for (let y = PEAK[1] + 22; y < FOOT; y += 22) { const hw = halfAt(y); el('line', { x1: PEAK[0] - hw, y1: y, x2: PEAK[0] + hw, y2: y, stroke: css('--line'), 'stroke-width': 1 }, g); }
+    const pts = trailPts(svg.dataset.trail);
+    const p = el('path', { d: 'M' + pts.map(q => q.map(v => v.toFixed(1)).join(' ')).join('L'), fill: 'none', stroke: ACC, 'stroke-width': 2.4, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, svg);
+    el('circle', { cx: PEAK[0], cy: PEAK[1], r: 5, fill: css('--ink') }, svg);
+    const len = p.getTotalLength(); svg._p = p; svg._len = len;
+    const read = el('text', { x: 14, y: 290, fill: css('--ink-faint'), 'font-size': 12, 'font-family': 'ui-monospace, Menlo, monospace' }, svg);
+    read.textContent = `path length ${Math.round(len)} px`;
+    return p;
+  }
+  const SPEED = 0.55; // px per ms: every trail is drawn at the same walking speed
+  function play(svg) {
+    const p = svg._p, len = svg._len; if (!p) return;
+    cancelAnimationFrame(svg._raf);
+    if (reduce) { p.style.strokeDasharray = 'none'; return; }
+    p.style.strokeDasharray = len; p.style.strokeDashoffset = len;
+    const t0 = performance.now();
+    const tick = now => { const d = Math.min(len, (now - t0) * SPEED); p.style.strokeDashoffset = len - d; if (d < len) svg._raf = requestAnimationFrame(tick); };
+    svg._raf = requestAnimationFrame(tick);
+  }
+  const trails = [...document.querySelectorAll('[data-trail]')];
+  trails.forEach(drawTrail);
+  const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { en.target.querySelectorAll('[data-trail]').forEach(play); io.unobserve(en.target); } }), { threshold: .4 });
+  document.querySelectorAll('[data-fig="route"], [data-fig="wave"]').forEach(f => io.observe(f));
+  document.querySelectorAll('[data-replay]').forEach(b => b.addEventListener('click', () => b.closest('figure').querySelectorAll('[data-trail]').forEach(play)));
+  document.querySelector('[data-wobble]').addEventListener('click', e => { wobble = !wobble; e.currentTarget.setAttribute('aria-pressed', wobble);
+    document.querySelectorAll('[data-fig="wave"] [data-trail]').forEach(s => { drawTrail(s); play(s); }); });
+})();
+</script>
+</body></html>
